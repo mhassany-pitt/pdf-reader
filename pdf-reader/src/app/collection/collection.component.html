@@ -1,0 +1,59 @@
+<form #form="ngForm" (ngSubmit)="update()" class="flex flex-col h-full collection">
+    <div class="px-10 py-4 bg-gray-100 shadow-md">
+        <div class="container mx-auto flex items-center gap-1">
+            <h1 routerLink="/collections" class="cursor-pointer text-xl">
+                Collections
+            </h1>
+            <i class="pi pi-chevron-right mx-1"></i>
+
+            <input type="text" name="title" pInputText [(ngModel)]="collection.name" placeholder="Title"
+                class="flex-grow" required style="padding: 0 0.5rem; font-size: 1.5rem; border: none;" />
+
+            <span class="mx-1"></span>
+
+            <div class="flex items-center gap-2">
+                <button pButton type="button" label="Cancel" icon="pi pi-chevron-left"
+                    class="p-button-sm p-button-secondary" (click)="cancel()"></button>
+                <button pButton type="submit" label="Update" icon="pi pi-check" class="p-button-sm"
+                    [disabled]="form.invalid"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex-grow container mx-auto my-10 grid grid-cols-3 gap-4">
+        <div class="flex flex-col items-stretch p-2 border gap-1">
+            <p-chips name="tags" [(ngModel)]="collection.tags" separator="," placeholder="Tags"
+                styleClass="w-full"></p-chips>
+            <span class="text-gray-400 text-xs mb-1">
+                use tags (separated by command) to group collections
+            </span>
+
+            <hr />
+
+
+            <span class="text-gray-400 text-xs mb-1">
+                press
+                <span class="italic underline">enter</span> to add,
+                <span class="italic underline">alt+backspace</span> to remove,
+                <br />
+                <span class="italic underline">alt+left or right</span> to indent,
+                <span class="italic underline">up</span> or
+                <span class="italic underline">down</span> to navigate
+            </span>
+            <div *ngFor="let section of collection.sections; let i = index" class="flex items-center">
+                <span [ngStyle]="{ width: section.level + 'rem' }"></span>
+
+                <input [id]="'outline-title-' + i" type="text" [name]="'outline-' + i" pInputText
+                    [(ngModel)]="section.title" autocomplete="off" class="p-inputtext-sm flex-grow"
+                    (keydown)="manageSections(section, $event, i)" />
+            </div>
+
+        </div>
+
+        <div class="col-span-2 h-full">
+            <ng2-pdfjs-viewer #viewer [viewerId]="'pdf-viewer-coll'" pdfSrc="http://localhost:3000/api/store/demo.pdf"
+                [print]="false" [viewBookmark]="false" class="h-full" (onDocumentLoad)="onDocumentLoad($event)">
+            </ng2-pdfjs-viewer>
+        </div>
+    </div>
+</form>
