@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { PdfJsViewerComponent } from 'ng2-pdfjs-viewer';
 
 @Component({
   selector: 'app-reader',
@@ -9,12 +8,10 @@ import { PdfJsViewerComponent } from 'ng2-pdfjs-viewer';
 })
 export class ReaderComponent implements OnInit {
 
-  viewerId: number = Math.random();
-  @ViewChild('viewer') viewer: PdfJsViewerComponent = null as any;
+  @ViewChild('viewer') viewer: any;
 
-  get document() { return this.viewer.iframe.nativeElement.contentDocument.documentElement; }
-
-  url = 'http://localhost:3000/api/store/demo.pdf';
+  window: any;
+  pdfjs: any;
 
   constructor(private title: Title) {
     this.title.setTitle('PdfReader: demo.pdf');
@@ -23,6 +20,9 @@ export class ReaderComponent implements OnInit {
   async ngOnInit() { }
 
   onDocumentLoad($: any) {
-    console.log(this.document);
+    const iframe = this.viewer.nativeElement;
+    this.window = iframe.contentWindow;
+    this.pdfjs = this.window.PDFViewerApplication;
+    this.pdfjs.open('http://localhost:3000/api/store/demo.pdf');
   }
 }
