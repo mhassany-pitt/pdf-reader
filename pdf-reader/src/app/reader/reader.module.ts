@@ -5,6 +5,7 @@ import { ReaderRouting } from './reader.routing';
 import { ReaderComponent } from './reader.component';
 import { ReaderService } from './reader.service';
 import { DropdownModule } from 'primeng/dropdown';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -12,6 +13,7 @@ import { DropdownModule } from 'primeng/dropdown';
   ],
   imports: [
     CommonModule,
+    FormsModule,
     ReaderRouting,
     DropdownModule,
   ],

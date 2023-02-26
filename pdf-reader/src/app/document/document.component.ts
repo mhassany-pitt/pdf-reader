@@ -53,11 +53,18 @@ export class DocumentComponent implements OnInit {
     this.pdfjs = this.window.PDFViewerApplication;
     this.pdfjs.open(`${environment.apiUrl}/documents/${this.document.id}/file`);
 
-    this.registerEventHandlers();
+    this.onWindowClick();
+
+    setTimeout(() => {
+      this.onFileInputChange();
+    }, 300);
+  }
+
+  private onFileInputChange() {
     this.pdfjs.eventBus.on('fileinputchange', ($event) => {
       const files = $event.source.files;
       this.newfile = files.length ? $event.source.files[0] : null;;
-    })
+    });
   }
 
   add(section: any) {
@@ -98,7 +105,7 @@ export class DocumentComponent implements OnInit {
     }
   }
 
-  registerEventHandlers() {
+  onWindowClick() {
     this.window.onclick = ($event: any) => this.ngZone.run(() => {
       if (!this.record)
         return;

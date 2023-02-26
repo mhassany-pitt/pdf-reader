@@ -1,8 +1,9 @@
 <div class="flex flex-col h-full document-reader">
     <div class="flex items-center">
-        <p-dropdown *ngIf="document" [options]="document.sections" optionLabel="title" placeholder="Document Outline"
-            [filter]="true" filterPlaceholder="Search titles" panelStyleClass="outline-dropdown" appendTo="body"
-            emptyFilterMessage="No sections found" class="w-full p-inputtext-sm" (onChange)="locate($event.value)">
+        <p-dropdown *ngIf="document" [(ngModel)]="section" [options]="document.sections" optionLabel="title"
+            placeholder="Document Outline" [filter]="true" filterPlaceholder="Search titles"
+            panelStyleClass="outline-dropdown" appendTo="body" emptyFilterMessage="No sections found"
+            class="w-full p-inputtext-sm" (onChange)="locate($event.value)">
             <ng-template let-section pTemplate="selectedItem">
                 <div class="flex items-center justify-center">
                     {{ section.title }}
