@@ -2,9 +2,9 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
-  { path: "collections", loadChildren: () => import('./collections/collections.module').then(m => m.CollectionsModule) },
-  { path: "reader", loadChildren: () => import('./reader/reader.module').then(m => m.ReaderModule) },
-  { path: '**', redirectTo: 'collections' }
+  { path: 'documents', loadChildren: () => import('./documents/documents.module').then(m => m.DocumentsModule) },
+  { path: 'reader', loadChildren: () => import('./reader/reader.module').then(m => m.ReaderModule) },
+  { path: '**', redirectTo: 'documents' }
 ];
 
 @NgModule({

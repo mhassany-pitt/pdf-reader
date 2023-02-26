@@ -3890,7 +3890,7 @@ class PDFDocument {
       IsLinearized: !!this.linearization,
       IsAcroFormPresent: this.formInfo.hasAcroForm,
       IsXFAPresent: this.formInfo.hasXfa,
-      IsCollectionPresent: !!this.catalog.collection,
+      IsDocumentPresent: !!this.catalog.Document,
       IsSignaturesPresent: this.formInfo.hasSignatures
     };
     let infoDict;
@@ -20822,7 +20822,7 @@ function isTrueTypeFile(file) {
   const header = file.peekBytes(4);
   return (0, _core_utils.readUint32)(header, 0) === 0x00010000 || (0, _util.bytesToString)(header) === "true";
 }
-function isTrueTypeCollectionFile(file) {
+function isTrueTypeDocumentFile(file) {
   const header = file.peekBytes(4);
   return (0, _util.bytesToString)(header) === "ttcf";
 }
@@ -20853,7 +20853,7 @@ function getFontFileType(file, {
   composite
 }) {
   let fileType, fileSubtype;
-  if (isTrueTypeFile(file) || isTrueTypeCollectionFile(file)) {
+  if (isTrueTypeFile(file) || isTrueTypeDocumentFile(file)) {
     if (composite) {
       fileType = "CIDFontType2";
     } else {
@@ -21515,9 +21515,9 @@ class Font {
         rangeShift: ttf.getUint16()
       };
     }
-    function readTrueTypeCollectionHeader(ttc) {
+    function readTrueTypeDocumentHeader(ttc) {
       const ttcTag = ttc.getString(4);
-      (0, _util.assert)(ttcTag === "ttcf", "Must be a TrueType Collection font.");
+      (0, _util.assert)(ttcTag === "ttcf", "Must be a TrueType Document font.");
       const majorVersion = ttc.getUint16();
       const minorVersion = ttc.getUint16();
       const numFonts = ttc.getInt32() >>> 0;
@@ -21541,13 +21541,13 @@ class Font {
           header.dsigOffset = ttc.getInt32() >>> 0;
           return header;
       }
-      throw new _util.FormatError(`Invalid TrueType Collection majorVersion: ${majorVersion}.`);
+      throw new _util.FormatError(`Invalid TrueType Document majorVersion: ${majorVersion}.`);
     }
-    function readTrueTypeCollectionData(ttc, fontName) {
+    function readTrueTypeDocumentData(ttc, fontName) {
       const {
         numFonts,
         offsetTable
-      } = readTrueTypeCollectionHeader(ttc);
+      } = readTrueTypeDocumentHeader(ttc);
       const fontNameParts = fontName.split("+");
       let fallbackData;
       for (let i = 0; i < numFonts; i++) {
@@ -21555,7 +21555,7 @@ class Font {
         const potentialHeader = readOpenTypeHeader(ttc);
         const potentialTables = readTables(ttc, potentialHeader.numTables);
         if (!potentialTables.name) {
-          throw new _util.FormatError('TrueType Collection font must contain a "name" table.');
+          throw new _util.FormatError('TrueType Document font must contain a "name" table.');
         }
         const [nameTable] = readNameTable(potentialTables.name);
         for (let j = 0, jj = nameTable.length; j < jj; j++) {
@@ -21586,13 +21586,13 @@ class Font {
         }
       }
       if (fallbackData) {
-        (0, _util.warn)(`TrueType Collection does not contain "${fontName}" font, ` + `falling back to "${fallbackData.name}" font instead.`);
+        (0, _util.warn)(`TrueType Document does not contain "${fontName}" font, ` + `falling back to "${fallbackData.name}" font instead.`);
         return {
           header: fallbackData.header,
           tables: fallbackData.tables
         };
       }
-      throw new _util.FormatError(`TrueType Collection does not contain "${fontName}" font.`);
+      throw new _util.FormatError(`TrueType Document does not contain "${fontName}" font.`);
     }
     function readCmapTable(cmap, file, isSymbolicFont, hasEncoding) {
       if (!cmap) {
@@ -22453,8 +22453,8 @@ class Font {
     }
     font = new _stream.Stream(new Uint8Array(font.getBytes()));
     let header, tables;
-    if (isTrueTypeCollectionFile(font)) {
-      const ttcData = readTrueTypeCollectionData(font, this.name);
+    if (isTrueTypeDocumentFile(font)) {
+      const ttcData = readTrueTypeDocumentData(font, this.name);
       header = ttcData.header;
       tables = ttcData.tables;
     } else {
@@ -50002,20 +50002,20 @@ class Catalog {
     const needsRendering = this._catDict.get("NeedsRendering");
     return (0, _util.shadow)(this, "needsRendering", typeof needsRendering === "boolean" ? needsRendering : false);
   }
-  get collection() {
-    let collection = null;
+  get Document() {
+    let Document = null;
     try {
-      const obj = this._catDict.get("Collection");
+      const obj = this._catDict.get("Document");
       if (obj instanceof _primitives.Dict && obj.size > 0) {
-        collection = obj;
+        Document = obj;
       }
     } catch (ex) {
       if (ex instanceof _core_utils.MissingDataException) {
         throw ex;
       }
-      (0, _util.info)("Cannot fetch Collection entry; assuming no collection is present.");
+      (0, _util.info)("Cannot fetch Document entry; assuming no Document is present.");
     }
-    return (0, _util.shadow)(this, "collection", collection);
+    return (0, _util.shadow)(this, "Document", Document);
   }
   get acroForm() {
     let acroForm = null;

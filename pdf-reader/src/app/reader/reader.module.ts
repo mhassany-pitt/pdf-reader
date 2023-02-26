@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 
 import { ReaderRouting } from './reader.routing';
 import { ReaderComponent } from './reader.component';
+import { ReaderService } from './reader.service';
+import { DropdownModule } from 'primeng/dropdown';
 
 @NgModule({
   declarations: [
@@ -11,6 +13,8 @@ import { ReaderComponent } from './reader.component';
   imports: [
     CommonModule,
     ReaderRouting,
-  ]
+    DropdownModule,
+  ],
+  providers: [ReaderService]
 })
 export class ReaderModule { }
