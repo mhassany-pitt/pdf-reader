@@ -1,6 +1,7 @@
 import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
+import { EMPTY, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { DocumentService } from './document.service';
 
@@ -18,6 +19,8 @@ export class DocumentComponent implements OnInit {
   window: any;
   pdfjs: any;
   record = false;
+
+  newfile: any;
 
   get documentId() {
     return (this.route.snapshot.params as any).id;
@@ -51,6 +54,10 @@ export class DocumentComponent implements OnInit {
     this.pdfjs.open(`${environment.apiUrl}/documents/${this.document.id}/file`);
 
     this.registerEventHandlers();
+    this.pdfjs.eventBus.on('fileinputchange', ($event) => {
+      const files = $event.source.files;
+      this.newfile = files.length ? $event.source.files[0] : null;;
+    })
   }
 
   add(section: any) {
@@ -144,8 +151,16 @@ export class DocumentComponent implements OnInit {
   }
 
   update() {
-    this.service.update(this.document).subscribe({
-      next: (resp: any) => this.router.navigate(['/documents']),
+    (this.newfile // upload file
+      ? this.service.upload(this.documentId, this.newfile)
+      : EMPTY
+    ).subscribe({  // update document
+      next: (resp: any) => {
+        this.service.update(this.document).subscribe({
+          next: (resp: any) => this.router.navigate(['/documents']),
+          error: (error: any) => console.log(error)
+        })
+      },
       error: (error: any) => console.log(error)
     })
   }

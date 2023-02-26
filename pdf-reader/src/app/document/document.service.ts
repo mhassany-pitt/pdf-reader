@@ -18,4 +18,11 @@ export class DocumentService {
   update(document: any) {
     return this.http.patch(`${environment.apiUrl}/documents/${document.id}`, document);
   }
+  
+  upload(id: string, file: any) {
+    const form = new FormData();
+    form.append('file', file);
+
+    return this.http.post(`${environment.apiUrl}/documents/${id}/file`, form);
+  }
 }

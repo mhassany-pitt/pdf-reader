@@ -21,11 +21,11 @@ export class DocumentsService {
         return this.config.get('STORAGE') + (path ? '/' + path.join('/') : '');
     }
 
-    upload(file: any) {
+    upload(id: string, file: any) {
         const { originalname, size, buffer } = file;
-        const id = uuid4();
-        writeFileSync(this.root('files', id), buffer);
-        writeJsonSync(this.root('files', id + '-info'), { originalname, size });
+        if (!id) id = uuid4();
+        writeFileSync(this.root('files', id), buffer, { flag: 'w' });
+        writeJsonSync(this.root('files', id + '-info'), { originalname, size }, { flag: 'w' });
         return id;
     }
 
@@ -41,7 +41,7 @@ export class DocumentsService {
     create(file: any) {
         const document = {
             id: uuid4(),
-            file_id: this.upload(file),
+            file_id: this.upload(null, file),
             created_at: new Date().toISOString(),
             modified_at: new Date().toISOString(),
         };
