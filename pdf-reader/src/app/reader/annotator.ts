@@ -1,133 +1,242 @@
+import { v4 as uuid } from 'uuid';
+
 const $: any = {
     iframe: null,
     pdfjs: null,
     window: null,
     document: null,
-    rects: {},
+    annotations: [],
+    selected: null,
     init: (iframe, pdfjs) => {
         $.iframe = iframe;
         $.pdfjs = pdfjs;
         $.window = $.iframe?.contentWindow;
         $.document = $.iframe?.contentDocument.documentElement;
 
-        $._onSelection();
         $._onPageRendered();
+        $._onAnnotationClick();
+        $._onCreateHighlight();
+        $._onRemoveAnnotation();
     },
     _onPageRendered: () => {
         $.pdfjs.eventBus.on('pagerendered', ($event) => {
-            const num = $event.pageNumber;
-            const rects = {};
-            rects[num] = $.rects[num];
-            if (rects[num])
-                $._render(rects);
+            const pageNum = $event.pageNumber;
+            $.annotations.filter(annotation =>
+                annotation.type == 'line-highlight' &&
+                Object.keys(annotation.rects).map(parseInt).indexOf(pageNum) > -1
+            ).forEach(annotation => $._renderHighlights({
+                id: annotation.id,
+                rects: { [pageNum]: annotation.rects[pageNum] }
+            }));
         });
     },
-    _ensure: (pageNum) => {
-        const page = $.document.querySelector(`.pdfViewer .page[data-page-number="${pageNum}"]`);
-        let viewer = page.querySelector('.annotation-viewer');
-        if (viewer)
-            return viewer;
+    _onRemoveAnnotation: () => {
+        $.document.addEventListener('keydown', $event => {
+            if ($.selected && $event.key == 'Delete') {
+                $.annotations.splice($.annotations.indexOf($.selected), 1);
+                $.document.querySelectorAll(`.pdfViewer .page .paws__annotations [paws-annotation-id="${$.selected.id}"]`)
+                    .forEach(el => el.remove());
+                $.selected = null;
+            }
+        });
+    },
+    _layer: (pageNum) => {
+        const pageEl = $.document.querySelector(`.pdfViewer .page[data-page-number="${pageNum}"]`);
+        let viewerEl = pageEl.querySelector('.paws__annotations');
+        if (viewerEl)
+            return viewerEl;
 
-        viewer = document.createElement('div');
-        viewer.classList.add('annotation-viewer');
-        viewer.style.cssText = `
+        viewerEl = document.createElement('div');
+        viewerEl.classList.add('paws__annotations');
+        viewerEl.style.cssText = `
             position: absolute;
             left: 0;
             top: 0;
             right: 0;
             bottom: 0;
-            overflow: hidden;
-            opacity: 1;
             line-height: 1;
-            -webkit-text-size-adjust: none;
-            -moz-text-size-adjust: none;
+            overflow: hidden;
+            pointer-events: none; 
             text-size-adjust: none;
             forced-color-adjust: none;
             transform-origin: 0 0;
-            z-index: 1;
+            z-index: 5;
         `;
-        page.appendChild(viewer);
-
-        return viewer;
+        pageEl.appendChild(viewerEl);
+        return viewerEl;
     },
-    _render: (pages) => Object
-        .keys(pages).forEach(page => {
-            const viewer = $._ensure(page);
+    _onAnnotationClick: () => {
+        $.document.addEventListener('click', $event => {
+            const page = $event.target.closest('.pdfViewer .page');
 
-            pages[page].forEach(rect => {
-                const el = document.createElement('div');
-                el.style.cssText = `
+            if (!$event.target.classList.contains('paws__highlight-bound')) {
+                $.selected = null;
+
+                // remove all boundaries if user clicked on other than a bound
+                page.querySelectorAll(`.paws__annotations .paws__highlight-bound`)
+                    .forEach(boundEl => boundEl.remove());
+            }
+
+            if ($event.target.classList.contains('paws__highlight-rect')) {
+                const id = $event.target.getAttribute('paws-annotation-id');
+                const annotation = $.annotations.filter(a => a.id == id)[0];
+                $.selected = annotation;
+
+                // draw a boundary around the selected annotation' rects
+                const pageNum = parseInt(page.getAttribute('data-page-number'));
+
+                const boundEl = document.createElement('div');
+                page.querySelector('.paws__annotations').appendChild(boundEl);
+                boundEl.setAttribute('paws-annotation-id', annotation.id);
+                boundEl.classList.add('paws__annotation-' + annotation.id);
+                boundEl.classList.add('paws__highlight-bound');
+                const bound = $._bound(annotation.rects[pageNum]);
+                boundEl.style.cssText = `
+                    position: absolute;
+                    top: ${bound.top}%;
+                    bottom: ${bound.bottom}%;
+                    left: ${bound.left}%;
+                    right: ${bound.right}%;
+                    pointer-events: auto; 
+                    border-radius: 5px;
+                    border: 2px dashed blue;
+                    opacity: 0.5;
+                `;
+            }
+        });
+    },
+    _renderHighlights: (annotation) => {
+        Object.keys(annotation.rects).map(parseInt).forEach(pageNum => {
+            const annotationsEl = $._layer(pageNum);
+            const rects = annotation.rects[pageNum];
+            rects.forEach(rect => {
+                const highlightEl = document.createElement('div');
+                annotationsEl.appendChild(highlightEl);
+                highlightEl.setAttribute('paws-annotation-id', annotation.id);
+                highlightEl.classList.add('paws__annotation-' + annotation.id);
+                highlightEl.classList.add('paws__highlight-rect');
+                highlightEl.style.cssText = `
                     position: absolute;
                     top: ${rect.top}%;
+                    bottom: ${rect.bottom}%;
                     left: ${rect.left}%;
-                    width: ${rect.width}%;
-                    height: ${rect.height}%;
-                    background-color: yellow;
-                    border: solid 1px black;
+                    right: ${rect.right}%;
+                    background-color: rgb(255, 212, 0);
+                    pointer-events: auto; 
+                    border-radius: 5px;
+                    opacity: 0.5;
                 `;
-                viewer.appendChild(el);
             })
-        }),
-    _append: (rects) => {
-        Object.keys(rects).forEach(page => {
-            if (!(page in $.rects))
-                $.rects[page] = [];
-
-            rects[page].forEach(rect => $.rects[page].push(rect));
         })
     },
+    _bound: (rects) => ({
+        left: Math.min(...rects.map(rect => rect.left)),
+        right: Math.min(...rects.map(rect => rect.right)),
+        top: Math.min(...rects.map(rect => rect.top)),
+        bottom: Math.min(...rects.map(rect => rect.bottom)),
+    }),
     _selection: () => $.window.getSelection(),
-    _onSelection: () => {
-        $.document.onclick = ($event) => {
-            const selection = $._selection();
-            if (selection.rangeCount < 1)
-                return;
+    _onCreateHighlight: () => $.document.addEventListener('click', $event => {
+        const selection = $._selection();
+        if (selection.rangeCount < 1)
+            return;
 
-            const range = selection.getRangeAt(0);
-            let rects = Array.from(range.getClientRects());
-            selection.removeAllRanges();
+        const range = selection.getRangeAt(0);
+        let rects = Array.from(range.getClientRects());
+        selection.removeAllRanges();
 
-            rects = $._attachPageNum(rects);
-            rects = $._filterRects(rects);
-            if (rects.length < 1)
-                return;
+        rects = $._attachPageNum(rects);
+        rects = $._filterRects(rects);
+        rects = $._mergeRects(rects);
+        if (rects.length < 1)
+            return;
 
-            rects = $._groupByPageNum(rects);
-            $._render(rects);
-            $._append(rects);
-        }
-    },
-    _relative: ({ top, left, width, height, page }) => {
+        rects = $._groupByPageNum(rects);
+        const annotation = { id: uuid(), type: 'line-highlight', rects };
+        $.annotations.push(annotation);
+
+        $._renderHighlights(annotation);
+    }),
+    _relative: ({ top, left, right, bottom, width, height, page }) => {
         const parent = $.document.querySelector(`.pdfViewer .page[data-page-number="${page}"]`);
-        const rect = parent.getBoundingClientRect();
-        top = (top - (rect.top - 9)) / (rect.height + 18) * 100;
-        left = (left - (rect.left - 9)) / (rect.width + 18) * 100;
-        width = (width / (rect.width + 18)) * 100;
-        height = (height / (rect.height + 18)) * 100;
-        return { top, left, width, height, page };
+
+        let pRect = parent.getBoundingClientRect();
+        const b = parseFloat(getComputedStyle(parent).borderWidth);
+        const pTop = pRect.top + b;
+        const pLeft = pRect.left + b;
+        const pBottom = pRect.bottom - b;
+        const pRight = pRect.right - b;
+        const pHeight = pRect.height - b * 2;
+        const pWidth = pRect.width - b * 2;
+
+        top = (top - pTop) / pHeight * 100;
+        left = (left - pLeft) / pWidth * 100;
+        bottom = (pBottom - bottom) / pHeight * 100;
+        right = (pRight - right) / pWidth * 100;
+        width = width / pWidth * 100;
+        height = height / pHeight * 100;
+
+        return { top, left, right, bottom, width, height, page };
     },
     _groupByPageNum: (rects) =>
         $._attachPageNum(rects)
             .map(rect => $._relative(rect))
-            .reduce((res, { left, top, width, height, page }) => {
-                if (!res[page])
-                    res[page] = [];
-                res[page].push({ left, top, width, height });
-                return res;
+            .reduce((groups, { left, top, bottom, right, width, height, page }) => {
+                if (!groups[page])
+                    groups[page] = [];
+                groups[page].push({ left, top, bottom, right, width, height });
+                return groups;
             }, {}),
     _attachPageNum: (rects) =>
-        rects.map(({ left, top, width, height }) => {
-            let el = $.iframe.contentDocument.elementFromPoint(left, top);
+        rects.map(({ left, top, right, bottom, width, height }) => {
+            let pointEl = $.iframe.contentDocument.elementFromPoint(left, top);
             let page: any = null;
             // as PDF.js (3.4.112): everything is markedContent
-            if (el && el.closest('.markedContent')) {
-                el = el.closest('.pdfViewer .page');
-                page = parseInt(el.getAttribute('data-page-number'));
+            if (pointEl && pointEl.closest('.markedContent')) {
+                pointEl = pointEl.closest('.pdfViewer .page');
+                page = parseInt(pointEl.getAttribute('data-page-number'));
             }
-            return { left, top, width, height, page };
+            return { left, top, right, bottom, width, height, page };
         }),
-    _filterRects: (rects) =>
-        rects.filter(rect => rect.page && rect.width > 0 && rect.height > 0),
+    _filterRects: (rects) => rects.filter(rect => rect.page && rect.width > 0 && rect.height > 0),
+    _mergeRects: (rects) => {
+        rects = rects.sort((a, b) => (a.width * a.height) - (b.width * b.height));
+
+        // TODO: using 'ignore' may not be efficient
+
+        // merge horizontal rects
+        for (var i = 1; i < rects.length; i++)
+            for (var j = 0; j < i; j++) {
+                const a = rects[i], b = rects[j];
+                if (!b.ignore && a.top == b.top && a.bottom == b.bottom && b.right >= a.left) {
+                    a.ignore = b.ignore = true;
+                    const left = Math.min(a.left, b.left),
+                        right = Math.max(a.right, b.right);
+                    rects.push({
+                        top: b.top,
+                        bottom: b.bottom,
+                        left,
+                        right,
+                        height: a.bottom - a.top,
+                        width: right - left
+                    });
+                }
+            }
+
+        rects = rects.filter(rect => !rect.ignore);
+        // merge completely-overlapping rects
+        for (let i = 1; i < rects.length; i++)
+            for (let j = 0; j < i; j++) {
+                const a = rects[i], b = rects[j];
+                if (!b.ignore && b.left >= a.left && b.top >= a.top && b.right <= a.right && b.bottom <= a.bottom) {
+                    b.ignore = true;
+                    break;
+                }
+            }
+
+        rects = rects.filter(rect => !rect.ignore);
+        return rects;
+    },
 }
 
 const annotator = $;
