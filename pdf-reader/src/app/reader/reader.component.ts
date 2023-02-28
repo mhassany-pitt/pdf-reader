@@ -3,6 +3,7 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { ReaderService } from './reader.service';
+import annotator from './annotator';
 
 @Component({
   selector: 'app-reader',
@@ -60,6 +61,8 @@ export class ReaderComponent implements OnInit {
       this.syncPageSection();
       this.removeExtraElements();
     }, 300);
+
+    annotator.init(iframe, this.pdfjs);
   }
 
   private syncPageSection() {
@@ -84,9 +87,9 @@ export class ReaderComponent implements OnInit {
     docs.getElementById('secondaryPrint').remove();
     docs.getElementById('documentProperties').remove();
 
-    const childs = docs.getElementById('secondaryToolbarButtonContainer').children;
-    childs[0].remove();
-    childs[childs.length - 1].remove();
+    const children = docs.getElementById('secondaryToolbarButtonContainer').children;
+    children[0].remove();
+    children[children.length - 1].remove();
   }
 
   locate(section: any) {
