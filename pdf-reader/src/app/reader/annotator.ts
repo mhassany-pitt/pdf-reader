@@ -13,6 +13,8 @@ const $: any = {
         $.window = $.iframe?.contentWindow;
         $.document = $.iframe?.contentDocument.documentElement;
 
+        $.annotations = JSON.parse(localStorage.getItem('paws--annotations') || '[]');
+
         $._onPageRendered();
         $._onAnnotationClick();
         $._onCreateHighlight();
@@ -30,10 +32,14 @@ const $: any = {
             }));
         });
     },
+    _removeAnnotation: (annotation) => {
+        $.annotations.splice($.annotations.indexOf(annotation), 1);
+        localStorage.setItem('paws--annotations', JSON.stringify($.annotations));
+    },
     _onRemoveAnnotation: () => {
         $.document.addEventListener('keydown', $event => {
             if ($.selected && $event.key == 'Delete') {
-                $.annotations.splice($.annotations.indexOf($.selected), 1);
+                $._removeAnnotation($.selected)
                 $.document.querySelectorAll(`.pdfViewer .page .paws__annotations [paws-annotation-id="${$.selected.id}"]`)
                     .forEach(el => el.remove());
                 $.selected = null;
@@ -68,6 +74,8 @@ const $: any = {
     _onAnnotationClick: () => {
         $.document.addEventListener('click', $event => {
             const page = $event.target.closest('.pdfViewer .page');
+
+            if (!page) return;
 
             if (!$event.target.classList.contains('paws__highlight-bound')) {
                 $.selected = null;
@@ -153,10 +161,14 @@ const $: any = {
 
         rects = $._groupByPageNum(rects);
         const annotation = { id: uuid(), type: 'line-highlight', rects };
-        $.annotations.push(annotation);
+        $._addAnnotation(annotation);
 
         $._renderHighlights(annotation);
     }),
+    _addAnnotation: (annotation) => {
+        $.annotations.push(annotation);
+        localStorage.setItem('paws--annotations', JSON.stringify($.annotations));
+    },
     _relative: ({ top, left, right, bottom, width, height, page }) => {
         const parent = $.document.querySelector(`.pdfViewer .page[data-page-number="${page}"]`);
 
