@@ -1,7 +1,7 @@
 import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EMPTY, Observable } from 'rxjs';
+import { EMPTY, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { DocumentService } from './document.service';
 
@@ -160,7 +160,7 @@ export class DocumentComponent implements OnInit {
   update() {
     (this.newfile // upload file
       ? this.service.upload(this.documentId, this.newfile)
-      : EMPTY
+      : of({})
     ).subscribe({  // update document
       next: (resp: any) => {
         this.service.update(this.document).subscribe({

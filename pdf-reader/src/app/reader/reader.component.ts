@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { ReaderService } from './reader.service';
 import annotator from './annotator';
+import annotatorPopup from './annotator-popup';
 
 @Component({
   selector: 'app-reader',
@@ -60,9 +61,10 @@ export class ReaderComponent implements OnInit {
     setTimeout(() => {
       this.syncPageSection();
       this.removeExtraElements();
-    }, 300);
 
-    annotator.init(iframe, this.pdfjs);
+      annotator.init(iframe, this.pdfjs);
+      annotatorPopup.init(this.window, annotator);
+    }, 300);
   }
 
   private syncPageSection() {
