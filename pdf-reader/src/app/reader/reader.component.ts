@@ -58,12 +58,13 @@ export class ReaderComponent implements OnInit {
     this.pdfjs = this.window.PDFViewerApplication;
     this.pdfjs.open(`${environment.apiUrl}/documents/${this.document.id}/file`);
 
+
     setTimeout(() => {
       this.syncPageSection();
       this.removeExtraElements();
 
-      annotator.init(iframe, this.pdfjs);
-      annotatorPopup.init(this.window, annotator);
+      const instance = annotator(iframe, this.pdfjs);
+      annotatorPopup(iframe, instance);
     }, 300);
   }
 

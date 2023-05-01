@@ -1,0 +1,32 @@
+.paws__annotations {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  line-height: 1;
+  overflow: hidden;
+  pointer-events: none;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  transform-origin: center center;
+  z-index: 5;
+}
+
+.paws__annotation-rect {
+  position: absolute;
+  pointer-events: auto;
+  border-radius: 5px;
+}
+
+.paws__annotation-bound {
+  position: absolute;
+  pointer-events: auto;
+  border-radius: 5px;
+  border: 1px dashed blue;
+}
+
+.paws__annotation-rect-highlight {
+  background-color: var(--annotation-color);
+  opacity: 0.5;
+}

@@ -1,0 +1,90 @@
+.annotator-popup__anchor {
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  background: white;
+  border-radius: 0.25rem;
+  left: calc(50% - 0.5rem);
+  top: -0.25rem;
+  transform: rotate(45deg);
+  z-index: 0;
+}
+
+.paws__annotation-controls {
+  position: absolute;
+  pointer-events: auto;
+  border-radius: 5px;
+  padding: 0.3rem 0.5rem;
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.25rem;
+}
+
+.annotator-popup__highlight-types {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 0.125rem;
+  z-index: 1;
+}
+
+.annotator-popup__highlight-colors {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  column-gap: 0.125rem;
+  z-index: 1;
+}
+
+.annotator-popup__highlight-color-btn {
+  position: relative;
+  height: 0.75rem;
+  width: 100%;
+  border-width: 1px;
+}
+
+.paws__annotation-rect-underline {
+  border-radius: 0;
+}
+
+[data-rotation-degree="0"] .paws__annotation-rect-underline {
+  border-bottom: 2px solid var(--annotation-color);
+}
+
+[data-rotation-degree="180"] .paws__annotation-rect-underline {
+  border-top: 2px solid var(--annotation-color);
+}
+
+[data-rotation-degree="90"] .paws__annotation-rect-underline {
+  border-left: 2px solid var(--annotation-color);
+}
+
+[data-rotation-degree="270"] .paws__annotation-rect-underline {
+  border-right: 2px solid var(--annotation-color);
+}
+
+.paws__annotation-rect-linethrough::before {
+  content: "";
+  display: block;
+  position: absolute;
+}
+
+[data-rotation-degree="0"] .paws__annotation-rect-linethrough::before,
+[data-rotation-degree="180"] .paws__annotation-rect-linethrough::before {
+  top: 50%;
+  width: 100%;
+  border-top: 2px solid var(--annotation-color);
+}
+
+[data-rotation-degree="90"] .paws__annotation-rect-linethrough::before,
+[data-rotation-degree="270"] .paws__annotation-rect-linethrough::before {
+  left: 50%;
+  height: 100%;
+  border-right: 2px solid var(--annotation-color);
+}
+
+.annotator-popup__highlight-note textarea {
+  width: 100%;
+}
