@@ -4,6 +4,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EMPTY, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { DocumentService } from './document.service';
+import annotatorStore from '../annotator/annotator-store';
+import { annotator } from '../annotator/annotator';
+import { annotatorPopup } from '../annotator/annotator-popup';
+import annotatorFreeform from '../annotator/annotator-freeform';
 
 @Component({
   selector: 'app-document',
@@ -57,6 +61,12 @@ export class DocumentComponent implements OnInit {
 
     setTimeout(() => {
       this.onFileInputChange();
+
+
+      const store = annotatorStore({ groupId: this.documentId });
+      const instance = annotator({ iframe, pdfjs: this.pdfjs, store });
+      annotatorPopup({ iframe, pdfjs: this.pdfjs, annotator: instance, store });
+      annotatorFreeform({ iframe, pdfjs: this.pdfjs, annotator: instance, store });
     }, 300);
   }
 

@@ -1,0 +1,30 @@
+.paws-annotation__freeforms-menu {
+  position: absolute;
+  pointer-events: auto;
+  border-radius: 5px;
+  padding: 0.3rem 0.5rem;
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.paws-annotation-freeform-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: auto;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  transform-origin: center center;
+  z-index: 4;
+}
+
+.paws-annotation__freeform {
+  position: absolute;
+  /* TODO: pointer-events: none; */
+  /* TODO: user-select: none; */
+}

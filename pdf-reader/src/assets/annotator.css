@@ -1,4 +1,4 @@
-.paws__annotations {
+.paws-annotations {
   position: absolute;
   left: 0;
   top: 0;
@@ -13,20 +13,20 @@
   z-index: 5;
 }
 
-.paws__annotation-rect {
+.paws-annotation__rect {
   position: absolute;
   pointer-events: auto;
   border-radius: 5px;
 }
 
-.paws__annotation-bound {
+.paws-annotation__bound {
   position: absolute;
   pointer-events: auto;
   border-radius: 5px;
   border: 1px dashed blue;
 }
 
-.paws__annotation-rect-highlight {
+.paws-annotation__rect-highlight {
   background-color: var(--annotation-color);
   opacity: 0.5;
 }

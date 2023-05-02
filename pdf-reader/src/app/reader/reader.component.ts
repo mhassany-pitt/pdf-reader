@@ -3,8 +3,10 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { ReaderService } from './reader.service';
-import annotator from './annotator';
-import annotatorPopup from './annotator-popup';
+import annotatorStore from '../annotator/annotator-store';
+import { annotator } from '../annotator/annotator';
+import { annotatorPopup } from '../annotator/annotator-popup';
+import annotatorFreeform from '../annotator/annotator-freeform';
 
 @Component({
   selector: 'app-reader',
@@ -58,13 +60,14 @@ export class ReaderComponent implements OnInit {
     this.pdfjs = this.window.PDFViewerApplication;
     this.pdfjs.open(`${environment.apiUrl}/documents/${this.document.id}/file`);
 
-
     setTimeout(() => {
       this.syncPageSection();
       this.removeExtraElements();
 
-      const instance = annotator(iframe, this.pdfjs);
-      annotatorPopup(iframe, instance);
+      const store = annotatorStore({ groupId: this.documentId });
+      const instance = annotator({ iframe, pdfjs: this.pdfjs, store });
+      annotatorPopup({ iframe, pdfjs: this.pdfjs, annotator: instance, store });
+      annotatorFreeform({ iframe, pdfjs: this.pdfjs, annotator: instance, store });
     }, 300);
   }
 
