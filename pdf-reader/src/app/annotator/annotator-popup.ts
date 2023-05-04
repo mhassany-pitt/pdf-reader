@@ -50,6 +50,11 @@ const annotatorPopup = ({ iframe, pdfjs, annotator, store }) => {
     };
   }
 
+  const hide = () => {
+    const popup = document.querySelector('.paws-annotation-popup');
+    popup?.remove();
+  }
+
   const show = (pageEl: HTMLElement, annotation: Annotation) => {
     const pageNum = parseInt(pageEl.getAttribute('data-page-number') || '-1');
     if (pageNum < 0)
@@ -102,10 +107,21 @@ const annotatorPopup = ({ iframe, pdfjs, annotator, store }) => {
     });
   }
 
+  { // delete the selected annotation on delete/backspace
+    documentEl.addEventListener('keydown', ($event: any) => {
+      if ($event.key == 'Delete' || $event.key == 'Backspace'
+        && $event.target.classList.contains('paws-annotation__bound')) {
+        hide();
+      }
+    });
+  }
+
   { // attach popup event handlers
     window.$a2ntpop = window.$a2ntpop || {};
     window.$a2ntpop._setAnnotationAttr = (id: string, attr: string, value: any) => {
       const annotation = store.read(id) || state.pending;
+      if (!annotation.type)
+        annotation.type = 'highlight';
       annotation[attr] = value;
       if (annotation == state.pending) {
         store.create(annotation);

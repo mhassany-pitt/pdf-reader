@@ -24,6 +24,8 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
   const state = {
     enabled: false,
     canvases: {} as { [pageNum: number]: HTMLCanvasElement },
+    canvasLineWidth: 2,
+    canvasStrokeStyle: 'black',
     selected: null as any
   };
 
@@ -49,7 +51,6 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
     canvasEl.height = parseFloat(parentStyle.height.replace('px', ''));
 
     const context = canvasEl.getContext('2d') as CanvasRenderingContext2D;
-    context.lineWidth = 1;
 
     let drawing = false;
     canvasEl.onmouseup = ($event) => drawing = false;
@@ -58,6 +59,8 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
         drawing = true;
         context.beginPath();
         context.moveTo($event.offsetX, $event.offsetY);
+        context.lineWidth = state.canvasLineWidth;
+        context.strokeStyle = state.canvasStrokeStyle;
       }
     };
     canvasEl.onmousemove = ($event) => {
@@ -68,7 +71,11 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
     };
   }
 
-  const hideMenu = (pageEl: HTMLElement) => getOrAttachMenuEl(pageEl).remove();
+  const hideMenu = () => {
+    const menu = document.querySelector('.paws-annotation-freeforms-menu');
+    menu?.remove();
+  }
+
   const showMenu = (pageEl: HTMLElement, $event: any) => {
     const pageNum = parseInt(pageEl.getAttribute('data-page-number') || '-1');
     if (pageNum < 0)
@@ -80,7 +87,21 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
     const contextMenuEl = htmlToElements(
       `<div class="paws-annotation-freeforms-menu__container" 
             style="top: ${mouseXY.top}%; left: ${mouseXY.left}%;"> ${state.enabled
-        ? `<button onclick="window.$a2ntfform.disable(${pageNum})">disable freeform</button>`
+        ? (`<button onclick="window.$a2ntfform.disable(${pageNum})">disable freeform</button>
+            <div>
+              <span style="margin: 0 5px;">Stroke size:</span>
+              <button style="font-weight: 100;" onclick="window.$a2ntfform.setStrokeWidth(1)">thin</button>
+              <button style="font-weight: normal;" onclick="window.$a2ntfform.setStrokeWidth(2)">normal</button>
+              <button style="font-weight: 900;" onclick="window.$a2ntfform.setStrokeWidth(3)">thick</button>
+            </div>
+            <div>
+              <span style="margin: 0 5px;">Stroke color:</span>
+              <button style="color: black;" onclick="window.$a2ntfform.setStrokeColor('black')">■</button>
+              <button style="color: gray;" onclick="window.$a2ntfform.setStrokeColor('gray')">■</button>
+              <button style="color: green;" onclick="window.$a2ntfform.setStrokeColor('green')">■</button>
+              <button style="color: blue;" onclick="window.$a2ntfform.setStrokeColor('blue')">■</button>
+              <button style="color: red;" onclick="window.$a2ntfform.setStrokeColor('red')">■</button>
+            </div>`)
         : `<button onclick="window.$a2ntfform.enable(${pageNum})">enable freeform</button>`}
       </div>`);
 
@@ -247,7 +268,7 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
       // hide context menu if clicked outside it
       if (!classList.contains('paws-annotation-freeforms-menu__container')
         && !$event.target.closest('.paws-annotation-freeforms-menu__container')) {
-        hideMenu(pageEl);
+        hideMenu();
       }
     });
   }
@@ -259,23 +280,31 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
       if (!pageEl)
         return;
 
-      hideMenu(pageEl);
+      hideMenu();
       showMenu(pageEl, $event);
     });
   }
 
   { // attach event handlers
     window.$a2ntfform = window.$a2ntfform || {};
+    window.$a2ntfform.setStrokeWidth = (width: number) => {
+      state.canvasLineWidth = width;
+      hideMenu();
+    }
+    window.$a2ntfform.setStrokeColor = (color: string) => {
+      state.canvasStrokeStyle = color;
+      hideMenu();
+    }
     window.$a2ntfform.enable = (pageNum: number) => {
       state.enabled = true;
       const pageEl = getPageEl(document, pageNum);
-      hideMenu(pageEl);
+      hideMenu();
     };
     window.$a2ntfform.disable = (pageNum: number) => {
       state.enabled = false;
       state.canvases = {};
       const pageEl = getPageEl(document, pageNum);
-      hideMenu(pageEl);
+      hideMenu();
 
       const annot = { id: createUniqueId(), type: 'freeform', freeforms: {} };
       document.querySelectorAll('.paws-annotation-freeform-canvas')
