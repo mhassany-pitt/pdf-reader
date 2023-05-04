@@ -23,48 +23,27 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
 
   const state = {
     enabled: false,
-    canvasOnPages: [] as number[],
+    canvases: {} as { [pageNum: number]: HTMLCanvasElement },
     selected: null as any
   };
 
-  // --- page/annotation-layer helpers
-  const getFreeformCanvasEl = (pageNum: number) => {
+  const getOrAttachMenuEl = (pageEl: HTMLElement): HTMLElement => {
+    if (!pageEl.querySelector('.paws-annotation-freeforms-menu'))
+      pageEl.appendChild(htmlToElements(`<div class="paws-annotation-freeforms-menu"></div>`));
+    return pageEl.querySelector('.paws-annotation-freeforms-menu') as HTMLElement;
+  }
+
+  const getCanvasEl = (pageEl: HTMLElement) =>
+    pageEl.querySelector('.paws-annotation-freeform-canvas');
+
+  const getOrAttachCanvasEl = (pageNum: number): HTMLCanvasElement => {
     const pageEl = getPageEl(document, pageNum);
     if (!pageEl.querySelector('.paws-annotation-freeform-canvas'))
       pageEl.appendChild(htmlToElements(`<canvas class="paws-annotation-freeform-canvas"></canvas>`));
     return pageEl.querySelector('.paws-annotation-freeform-canvas');
   }
 
-  const hideContextmenu = (pageEl: HTMLElement) =>
-    pageEl.querySelectorAll(`.paws-annotation__freeforms-menu`).forEach(el => el.remove());
-
-  const showContextmenu = ($event: any, pageEl: HTMLElement) => {
-    const dataPageNum = pageEl.getAttribute('data-page-number');
-    if (!dataPageNum)
-      return;
-
-    const pageNum = parseInt(dataPageNum);
-    let mouseXY = { top: $event.y, left: $event.x, page: pageNum };
-    mouseXY = relativeToPageEl(mouseXY as any, pageEl);
-
-    const contextMenuEl = htmlToElements(
-      `<div class="paws-annotation__freeforms-menu" style="top: ${mouseXY.top}%; left: ${mouseXY.left}%;"> ${state.enabled
-        ? `<button class="annotator-freeform__disable-btn" onclick="window.$a2ntfform.disable(${pageNum})">disable freeform</button>`
-        : `<button class="annotator-freeform__enable-btn" onclick="window.$a2ntfform.enable(${pageNum})">enable freeform</button>`}
-      </div>`);
-
-    annotator.getAnnotationLayerEl(pageNum).appendChild(contextMenuEl);;
-  }
-
-  const setupFreeformCanvasOnPage = (pageNum: number) => {
-    if (!state.enabled || state.canvasOnPages.indexOf(pageNum) > -1)
-      return;
-
-    state.canvasOnPages.push(pageNum);
-    drawOnMouseMove(pageNum, getFreeformCanvasEl(pageNum));
-  }
-
-  const drawOnMouseMove = (pageNum: number, canvasEl: HTMLCanvasElement) => {
+  const enableFreeform = (canvasEl: HTMLCanvasElement) => {
     const parentStyle = getComputedStyle(canvasEl.parentElement as Element);
     canvasEl.width = parseFloat(parentStyle.width.replace('px', ''));
     canvasEl.height = parseFloat(parentStyle.height.replace('px', ''));
@@ -87,6 +66,25 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
         context.stroke();
       }
     };
+  }
+
+  const hideMenu = (pageEl: HTMLElement) => getOrAttachMenuEl(pageEl).remove();
+  const showMenu = (pageEl: HTMLElement, $event: any) => {
+    const pageNum = parseInt(pageEl.getAttribute('data-page-number') || '-1');
+    if (pageNum < 0)
+      return;
+
+    let mouseXY = { top: $event.y, left: $event.x, page: pageNum };
+    mouseXY = relativeToPageEl(mouseXY as any, pageEl);
+
+    const contextMenuEl = htmlToElements(
+      `<div class="paws-annotation-freeforms-menu__container" 
+            style="top: ${mouseXY.top}%; left: ${mouseXY.left}%;"> ${state.enabled
+        ? `<button onclick="window.$a2ntfform.disable(${pageNum})">disable freeform</button>`
+        : `<button onclick="window.$a2ntfform.enable(${pageNum})">enable freeform</button>`}
+      </div>`);
+
+    getOrAttachMenuEl(pageEl).appendChild(contextMenuEl);;
   }
 
   const getCroppedCanvas = (canvasEl: HTMLCanvasElement) => {
@@ -135,7 +133,7 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
     Object.keys(annot.freeforms)
       .map(pageNum => parseInt(pageNum))
       .forEach(pageNum => {
-        const annotsLayerEl = annotator.getAnnotationLayerEl(pageNum);
+        const annotsLayerEl = annotator.getOrAttachAnnotLayerEl(pageNum);
         annotsLayerEl.querySelectorAll(`[paws-annotation-id="${annot.id}"].paws-annotation__freeform`)
           .forEach((el: any) => el.remove());
 
@@ -176,7 +174,7 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
   { // on pdfjs pagerendered, render annotations
     pdfjs.eventBus.on('pagerendered', ($event: any) => {
       const pageNum = $event.pageNumber;
-      const annotsLayerEl = annotator.getAnnotationLayerEl(pageNum);
+      const annotsLayerEl = annotator.getOrAttachAnnotLayerEl(pageNum);
       annotsLayerEl.querySelectorAll('.paws-annotation__freeform').forEach((el: any) => el.remove());
 
       (store.annotations as FreeformAnnotation[])
@@ -188,35 +186,33 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
     });
   }
 
-  {
+  { // reattach missing canvas
     pdfjs.eventBus.on('pagechanging', ($event: any) => {
-      setupFreeformCanvasOnPage($event.pageNumber);
+      if (state.enabled) {
+        const pageNum = $event.pageNumber;
+        const pageEl = getPageEl(document, pageNum);
+        if (pageNum in state.canvases && !getCanvasEl(pageEl))
+          pageEl.appendChild(state.canvases[pageNum]);
+      }
     });
   }
 
-  const showBoundary = (pageEl: HTMLElement, annot: FreeformAnnotation) => {
-    const dataPageNum = pageEl.getAttribute('data-page-number');
-    if (!dataPageNum)
-      return;
+  { // attach required canvas
+    documentEl.addEventListener('mousedown', ($event: any) => {
+      if (state.enabled && $event.button === 0) {
+        const pageEl = closestPageEl($event.target);
+        if (!pageEl)
+          return;
 
-    const pageNum = parseInt(dataPageNum);
-    const freeform = annot.freeforms[pageNum];
-    const boundRect = rotateRect(rotation(pdfjs), true, freeform.bound);
-
-    const boundEl = htmlToElements(
-      `<div paws-annotation-id="${annot.id}"
-        class="paws-annotation__bound" 
-        tabindex="-1"
-        style="
-          top: ${boundRect.top}%;
-          bottom: ${boundRect.bottom}%;
-          left: ${boundRect.left}%;
-          right: ${boundRect.right}%;
-        ">
-      </div>`);
-
-    annotator.getAnnotationLayerEl(pageNum).appendChild(boundEl);
-    boundEl.focus();
+        const pageNum = getPageNum(pageEl);
+        if (!(pageNum in state.canvases)) {
+          const canvasEl = getOrAttachCanvasEl(pageNum);
+          state.canvases[pageNum] = canvasEl;
+          enableFreeform(canvasEl);
+          canvasEl?.dispatchEvent(new MouseEvent($event.type, $event));
+        }
+      }
+    });
   }
 
   { // attach stylesheet
@@ -234,7 +230,8 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
       const classList = $event.target.classList;
 
       if (!classList.contains('paws-annotation__bound')) {
-        // hideAnnotationBoundaries(pageEl); --> handled by annotator
+        // pageEl.querySelectorAll(`.paws-annotation__bound`)
+        //       .forEach((el: any) => el.remove()); --> handled by annotator
         state.selected = null;
       }
 
@@ -242,13 +239,15 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
       if (classList.contains('paws-annotation__freeform')) {
         const annotId = $event.target.getAttribute('paws-annotation-id');
         state.selected = store.read(annotId);
-        showBoundary(pageEl, state.selected);
+
+        const pageNum = parseInt(pageEl.getAttribute('data-page-number') || '');
+        annotator.showBoundary(pageNum, state.selected, state.selected.freeforms[pageNum].bound);
       }
 
       // hide context menu if clicked outside it
-      if (!classList.contains('paws-annotation__freeforms-menu')
-        && !$event.target.closest('.paws-annotation__freeforms-menu')) {
-        hideContextmenu(pageEl);
+      if (!classList.contains('paws-annotation-freeforms-menu__container')
+        && !$event.target.closest('.paws-annotation-freeforms-menu__container')) {
+        hideMenu(pageEl);
       }
     });
   }
@@ -260,8 +259,8 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
       if (!pageEl)
         return;
 
-      hideContextmenu(pageEl);
-      showContextmenu($event, pageEl);
+      hideMenu(pageEl);
+      showMenu(pageEl, $event);
     });
   }
 
@@ -269,36 +268,29 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
     window.$a2ntfform = window.$a2ntfform || {};
     window.$a2ntfform.enable = (pageNum: number) => {
       state.enabled = true;
-      hideContextmenu(getPageEl(document, pageNum));
-
-      document.querySelectorAll('.pdfViewer .page[data-loaded="true"]')
-        .forEach((pageEl: HTMLElement) => setupFreeformCanvasOnPage(getPageNum(pageEl)));
+      const pageEl = getPageEl(document, pageNum);
+      hideMenu(pageEl);
     };
     window.$a2ntfform.disable = (pageNum: number) => {
       state.enabled = false;
-      state.canvasOnPages = [];
+      state.canvases = {};
       const pageEl = getPageEl(document, pageNum);
-      hideContextmenu(pageEl);
+      hideMenu(pageEl);
 
-      const annot = {
-        id: createUniqueId(),
-        type: 'freeform',
-        freeforms: {}
-      };
-
+      const annot = { id: createUniqueId(), type: 'freeform', freeforms: {} };
       document.querySelectorAll('.paws-annotation-freeform-canvas')
         .forEach((canvasEl: HTMLCanvasElement) => {
           const cropped = getCroppedCanvas(canvasEl);;
-          if (!cropped)
-            return;
+          if (cropped) {
+            const { canvas, ...attrs } = cropped;
+            const pageEl = closestPageEl(canvasEl);
+            const page = getPageNum(pageEl);
 
-          const { canvas, ...attrs } = cropped;
-          const pageEl = closestPageEl(canvasEl);
-          const page = getPageNum(pageEl);
+            const { page: tmp, ...bound } = relativeToPageEl({ ...attrs, page }, pageEl);
+            annot.freeforms[page] = { dataUrl: canvas.toDataURL(), bound };
+          }
+
           canvasEl.remove();
-
-          const { page: tmp, ...bound } = relativeToPageEl({ ...attrs, page }, pageEl);
-          annot.freeforms[page] = { dataUrl: canvas.toDataURL(), bound };
         });
 
       if (Object.keys(annot.freeforms).length) {

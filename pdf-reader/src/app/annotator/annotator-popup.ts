@@ -8,7 +8,13 @@ const annotatorPopup = ({ iframe, pdfjs, annotator, store }) => {
 
   const state = { pending: null as any };
 
-  const popupHtml = (annotation: Annotation) => {
+  const getOrAttachPopupLayerEl = (pageEl: HTMLElement) => {
+    if (!pageEl.querySelector('.paws-annotation-popup'))
+      pageEl.appendChild(htmlToElements(`<div class="paws-annotation-popup"></div>`));
+    return pageEl.querySelector('.paws-annotation-popup') as HTMLElement;
+  }
+
+  const html = (annotation: Annotation) => {
     const types = {
       'highlight': '<span style="background: orange;">highlight</span>',
       'underline': '<span style="text-decoration: underline;">underline</span>',
@@ -18,26 +24,26 @@ const annotatorPopup = ({ iframe, pdfjs, annotator, store }) => {
     return {
       width: '15rem',
       html:
-        `<div class="annotator-popup__anchor"></div>
-        <div class="annotator-popup__highlight-types">
+        `<div class="paws-annotation-popup__anchor"></div>
+        <div class="paws-annotation-popup__highlight-types">
           ${Object.keys(types).map(type => (`
-            <button class="annotator-popup__highlight-type-btn" 
+            <button class="paws-annotation-popup__highlight-type-btn" 
                     onclick="window.$a2ntpop._setAnnotationAttr('${annotation.id}', 'type', '${type}')">
               ${types[type]}
             </button>
           `)).join('')}
         </div>
-        <div class="annotator-popup__highlight-colors">
+        <div class="paws-annotation-popup__highlight-colors">
           ${['#ffd400', '#ff6563', '#5db221',
           '#2ba8e8', '#a28ae9', '#e66df2',
           '#f29823', '#aaaaaa', 'black'].map(color => (`
-            <button class="annotator-popup__highlight-color-btn" 
+            <button class="paws-annotation-popup__highlight-color-btn" 
                     onclick="window.$a2ntpop._setAnnotationAttr('${annotation.id}', 'color', '${color}')"
                     style="background-color: ${color}">
             </button>
           `)).join('')}
         </div>
-        <div class="annotator-popup__highlight-note">
+        <div class="paws-annotation-popup__highlight-note">
           <textarea onchange="window.$a2ntpop._setAnnotationAttr('${annotation.id}', 'note', event.target.value)"
                     rows="5">${annotation.note || ''}</textarea>
         </div>`
@@ -45,18 +51,17 @@ const annotatorPopup = ({ iframe, pdfjs, annotator, store }) => {
   }
 
   const show = (pageEl: HTMLElement, annotation: Annotation) => {
-    const dataPageNum = pageEl.getAttribute('data-page-number');
-    if (!dataPageNum)
+    const pageNum = parseInt(pageEl.getAttribute('data-page-number') || '-1');
+    if (pageNum < 0)
       return;
 
-    const pageNum = parseInt(dataPageNum);
     let boundRect = getBound(annotation.rects[pageNum]);
     boundRect = rotateRect(rotation(pdfjs), true, boundRect);
 
-    const popup = popupHtml(annotation);
+    const popup = html(annotation);
     const popupEl = htmlToElements(
       `<div paws-annotation-id="${annotation.id}"
-        class="paws-annotation__popup"
+        class="paws-annotation-popup__container"
         style="
           top: calc(${Math.abs(100 - boundRect.bottom)}% + 10px);
           left: calc(${boundRect.left + (Math.abs(100 - boundRect.right) - boundRect.left) / 2}% - (${popup.width} / 2));
@@ -65,7 +70,7 @@ const annotatorPopup = ({ iframe, pdfjs, annotator, store }) => {
           ${popup.html}
         </div>`);
 
-    annotator.getAnnotationLayerEl(pageNum).appendChild(popupEl);
+    getOrAttachPopupLayerEl(pageEl).appendChild(popupEl);
   }
 
   { // attach stylesheet
@@ -83,10 +88,10 @@ const annotatorPopup = ({ iframe, pdfjs, annotator, store }) => {
       const classList = $event.target.classList;
 
       // hide popup if clicked outside it
-      if (!classList.contains('paws-annotation__popup')
-        && !$event.target.closest('.paws-annotation__popup')) {
+      if (!classList.contains('paws-annotation-popup__container')
+        && !$event.target.closest('.paws-annotation-popup__container')) {
+        getOrAttachPopupLayerEl(pageEl).remove();
         state.pending = null;
-        pageEl.querySelectorAll(`.paws-annotation__popup`).forEach((el: any) => el.remove())
       }
 
       // show popup for the clicked rect
@@ -115,10 +120,10 @@ const annotatorPopup = ({ iframe, pdfjs, annotator, store }) => {
 
   annotator.onTextSelection = ($event: any) => {
     const rects = annotator.getSelectionRects();
-    if (rects) {
+    const pageEl = closestPageEl($event.target);
+    if (rects && Object.keys(rects).length && pageEl) {
       setTimeout(() => {
         state.pending = { id: createUniqueId(), rects };
-        const pageEl = closestPageEl($event.target);
         show(pageEl, state.pending);
       }, 0);
     }

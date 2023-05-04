@@ -19,7 +19,7 @@ const annotator = ({ iframe, pdfjs, store }) => {
 
   const state = { selected: null as any };
 
-  const getAnnotationLayerEl = (pageNum: number) => {
+  const getOrAttachAnnotLayerEl = (pageNum: number) => {
     const pageEl = getPageEl(document, pageNum);
     if (!pageEl.querySelector('.paws-annotations'))
       pageEl.appendChild(htmlToElements(`<div class="paws-annotations"></div>`));
@@ -30,7 +30,7 @@ const annotator = ({ iframe, pdfjs, store }) => {
     Object.keys(annot.rects)
       .map(pageNum => parseInt(pageNum))
       .forEach(pageNum => {
-        const annotsLayerEl = getAnnotationLayerEl(pageNum);
+        const annotsLayerEl = getOrAttachAnnotLayerEl(pageNum);
 
         annotsLayerEl.querySelectorAll(`[paws-annotation-id="${annot.id}"].paws-annotation__rect`)
           .forEach((el: any) => el.remove());
@@ -42,7 +42,7 @@ const annotator = ({ iframe, pdfjs, store }) => {
 
           annotsLayerEl.appendChild(htmlToElements(
             `<div paws-annotation-id="${annot.id}" 
-              class="paws-annotation__rect ${annot.type ? 'paws-annotation__rect-' + annot.type : ''}" 
+              class="paws-annotation__rect ${annot.type ? 'paws-annotation__' + annot.type : ''}" 
               style="
                 top: calc(${rect.top}% + 1px);
                 bottom: calc(${rect.bottom}% + 1px);
@@ -56,13 +56,7 @@ const annotator = ({ iframe, pdfjs, store }) => {
       });
   }
 
-  const showBoundary = (pageEl: HTMLElement, annot: Annotation) => {
-    const dataPageNum = pageEl.getAttribute('data-page-number');
-    if (!dataPageNum)
-      return;
-
-    const pageNum = parseInt(dataPageNum);
-    let boundRect = getBound(annot.rects[pageNum]);
+  const showBoundary = (pageNum: number, annot: Annotation, boundRect: Rect) => {
     boundRect = rotateRect(rotation(pdfjs), true, boundRect);
 
     const boundEl = htmlToElements(
@@ -78,7 +72,7 @@ const annotator = ({ iframe, pdfjs, store }) => {
       </div>`
     );
 
-    getAnnotationLayerEl(pageNum).appendChild(boundEl);
+    getOrAttachAnnotLayerEl(pageNum).appendChild(boundEl);
     boundEl.focus();
   }
 
@@ -117,7 +111,7 @@ const annotator = ({ iframe, pdfjs, store }) => {
   { // on pdfjs pagerendered, render annotations
     pdfjs.eventBus.on('pagerendered', ($event: any) => {
       const pageNum = $event.pageNumber;
-      const annotsLayerEl = getAnnotationLayerEl(pageNum);
+      const annotsLayerEl = getOrAttachAnnotLayerEl(pageNum);
       annotsLayerEl.querySelectorAll('.paws-annotation__rect').forEach((el: any) => el.remove());
       annotsLayerEl.querySelectorAll('.paws-annotation__bound').forEach((el: any) => el.remove());
       annotsLayerEl.setAttribute('data-rotation-degree', rotation(pdfjs));
@@ -150,7 +144,9 @@ const annotator = ({ iframe, pdfjs, store }) => {
       if (classList.contains('paws-annotation__rect')) {
         const annotId = $event.target.getAttribute('paws-annotation-id');
         state.selected = store.read(annotId);
-        showBoundary(pageEl, state.selected);
+
+        const pageNum = parseInt(pageEl.getAttribute('data-page-number') || '');
+        showBoundary(pageNum, state.selected, getBound(state.selected.rects[pageNum]));
       }
     });
   }
@@ -196,10 +192,13 @@ const annotator = ({ iframe, pdfjs, store }) => {
   }
 
   const $ = {
-    getSelectionRects, getAnnotationLayerEl, render,
+    getSelectionRects,
+    getOrAttachAnnotLayerEl,
+    showBoundary,
+    render,
     onTextSelection: ($event: any) => {
       const rects = getSelectionRects();
-      if (rects) {
+      if (rects && Object.keys(rects).length) {
         const annot = { id: createUniqueId(), type: 'highlight', rects };
         store.create(annot);
         render(annot);
@@ -212,6 +211,3 @@ const annotator = ({ iframe, pdfjs, store }) => {
 };
 
 export { Annotation, annotator };
-
-// TODO: separate annotator-rect from freeform rect?!
-// TODO: review to stabilize 

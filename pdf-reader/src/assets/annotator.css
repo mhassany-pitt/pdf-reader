@@ -17,6 +17,7 @@
   position: absolute;
   pointer-events: auto;
   border-radius: 5px;
+  z-index: 5;
 }
 
 .paws-annotation__bound {
@@ -26,7 +27,7 @@
   border: 1px dashed blue;
 }
 
-.paws-annotation__rect-highlight {
+.paws-annotation__highlight {
   background-color: var(--annotation-color);
   opacity: 0.5;
 }

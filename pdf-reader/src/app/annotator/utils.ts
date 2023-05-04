@@ -106,15 +106,18 @@ const mergeRects = (rects: Rect[]): Rect[] => {
 }
 
 const groupByPageNum = (documentEl: any, rects: PageRect[]) => {
-  return rects.map(rect => relativeToPageEl(rect, getPageEl(documentEl, rect.page)))
+  const grouped: { [pageNum: number]: Rect[] } = {};
+
+  rects.map(rect => relativeToPageEl(rect, getPageEl(documentEl, rect.page)))
     .filter(rect => (rect.left + rect.right) < 99.99 && (rect.top + rect.bottom) < 99.99)
-    .reduce((groups, rect) => {
-      if (!groups[rect.page])
-        groups[rect.page] = [];
+    .forEach((rect) => {
+      if (!grouped[rect.page])
+        grouped[rect.page] = [];
       const { page, ...attrs } = rect;
-      groups[rect.page].push(attrs);
-      return groups;
-    }, {} as { [pageNum: number]: Rect[] });
+      grouped[rect.page].push(attrs);
+    });
+
+  return grouped;
 }
 
 const rotateRect = (degree: 0 | 90 | 180 | 270, clockwise: boolean, rect: Rect) => {
