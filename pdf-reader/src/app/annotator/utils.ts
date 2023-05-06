@@ -19,8 +19,8 @@ const htmlToElements = (html: string) => {
 
 const closestPageEl = (el: Element) => el.closest(`.pdfViewer .page`) as HTMLElement;
 const getPageNum = (pageEl: HTMLElement) => parseInt(pageEl.getAttribute('data-page-number') || '');
-const getRectPageNum = (documentEl: Document, rect: Rect): number => {
-  const pointEl = documentEl.elementFromPoint(rect.left, rect.top);
+const getRectPageNum = (document: Document, rect: Rect): number => {
+  const pointEl = document.elementFromPoint(rect.left, rect.top);
   return pointEl ? getPageNum(closestPageEl(pointEl)) : (null as any);
 }
 const getPageEl = (documentEl: any, pageNum: number) =>

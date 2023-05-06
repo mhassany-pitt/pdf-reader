@@ -3,10 +3,10 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { ReaderService } from './reader.service';
-import { annotatorStore } from '../annotator/annotator-store';
-import { annotator } from '../annotator/annotator';
-import { annotatorPopup } from '../annotator/annotator-popup';
-import annotatorFreeform from '../annotator/annotator-freeform';
+import { Annotator } from '../annotator/annotator';
+import { AnnotationStore } from '../annotator/annotator-store';
+import { AnnotatorPopup } from '../annotator/annotator-popup';
+import { FreeformAnnotator } from '../annotator/annotator-freeform';
 
 @Component({
   selector: 'app-reader',
@@ -58,17 +58,18 @@ export class ReaderComponent implements OnInit {
     const iframe = this.viewer.nativeElement;
     this.window = iframe.contentWindow;
     this.pdfjs = this.window.PDFViewerApplication;
-    this.pdfjs.open(`${environment.apiUrl}/documents/${this.document.id}/file`);
 
     setTimeout(() => {
       this.syncPageSection();
       this.removeExtraElements();
-
-      const store = annotatorStore({ groupId: this.documentId });
-      const instance = annotator({ iframe, pdfjs: this.pdfjs, store });
-      annotatorPopup({ iframe, pdfjs: this.pdfjs, annotator: instance, store });
-      annotatorFreeform({ iframe, pdfjs: this.pdfjs, annotator: instance, store });
     }, 300);
+
+    const store = new AnnotationStore({ groupId: this.documentId });
+    const annotator = new Annotator({ iframe, pdfjs: this.pdfjs, store });
+    const popup = new AnnotatorPopup({ iframe, pdfjs: this.pdfjs, annotator, store });
+    const freefrom = new FreeformAnnotator({ iframe, pdfjs: this.pdfjs, annotator, store, popup });
+
+    this.pdfjs.open(`${environment.apiUrl}/documents/${this.document.id}/file`);
   }
 
   private syncPageSection() {

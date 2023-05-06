@@ -1,6 +1,7 @@
 /* -- annotation popup styles -- */
 
 .paws-annotation-popup {
+  pointer-events: none;
   position: absolute;
   top: 0;
   left: 0;
@@ -20,18 +21,6 @@
   flex-direction: column;
   row-gap: 0.25rem;
   z-index: 7;
-}
-
-.paws-annotation-popup__anchor {
-  position: absolute;
-  width: 1rem;
-  height: 1rem;
-  background: white;
-  border-radius: 0.25rem;
-  left: calc(50% - 0.5rem);
-  top: -0.25rem;
-  transform: rotate(45deg);
-  z-index: 0;
 }
 
 .paws-annotation-popup__highlight-types {

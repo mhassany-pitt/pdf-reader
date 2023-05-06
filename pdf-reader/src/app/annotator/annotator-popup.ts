@@ -1,151 +1,222 @@
-import { Annotation } from "./annotator";
-import { closestPageEl, createUniqueId, getBound, htmlToElements, rotateRect, rotation } from "./utils";
+import { Annotator } from "./annotator";
+import { AnnotationStore } from "./annotator-store";
+import {
+  closestPageEl, createUniqueId,
+  getBound, getPageNum, htmlToElements
+} from "./utils";
 
-const annotatorPopup = ({ iframe, pdfjs, annotator, store }) => {
-  const window = iframe?.contentWindow;
-  const document = iframe?.contentDocument;
-  const documentEl = document.documentElement;
+export class AnnotatorPopup {
+  private window;
+  private document;
+  private documentEl;
 
-  const state = { pending: null as any };
+  private pdfjs;
+  private annotator: Annotator;
+  private store: AnnotationStore;
 
-  const getOrAttachPopupLayerEl = (pageEl: HTMLElement) => {
+  private pending;
+  location: { top: any, left: any } = null as any;
+
+  private itemUIs: (($event: any) => HTMLElement)[] = [];
+
+  constructor({ iframe, pdfjs, annotator, store }) {
+    this.window = iframe?.contentWindow;
+    this.document = iframe?.contentDocument;
+    this.documentEl = this.document.documentElement;
+
+    this.pdfjs = pdfjs;
+    this.annotator = annotator;
+    this.store = store;
+
+    this._attachStylesheet();
+    this._setupOnTextSelection();
+    this._setupOnClick();
+    this._setupOnContextMenu();
+    this._hideOnDelete();
+    this._registerPendingAnnotItemUI(); // <-- should be called first
+    this._registerAnnotTypeItemUI();
+    this._registerAnnotColorItemUI();
+    this._registerAnnotNoteItemUI();
+  }
+
+  private _attachStylesheet() {
+    this.documentEl.querySelector('head').appendChild(htmlToElements(
+      `<link rel="stylesheet" type="text/css" href="/assets/annotator-popup.css" />`
+    ));
+  }
+
+  private _getOrAttachPopupLayerEl(pageEl: HTMLElement) {
     if (!pageEl.querySelector('.paws-annotation-popup'))
       pageEl.appendChild(htmlToElements(`<div class="paws-annotation-popup"></div>`));
     return pageEl.querySelector('.paws-annotation-popup') as HTMLElement;
   }
 
-  const html = (annotation: Annotation) => {
-    const types = {
-      'highlight': '<span style="background: orange;">highlight</span>',
-      'underline': '<span style="text-decoration: underline;">underline</span>',
-      'linethrough': '<span style="text-decoration: line-through;">line-through</span>',
-    };
-
-    return {
-      width: '15rem',
-      html:
-        `<div class="paws-annotation-popup__anchor"></div>
-        <div class="paws-annotation-popup__highlight-types">
-          ${Object.keys(types).map(type => (`
-            <button class="paws-annotation-popup__highlight-type-btn" 
-                    onclick="window.$a2ntpop._setAnnotationAttr('${annotation.id}', 'type', '${type}')">
-              ${types[type]}
-            </button>
-          `)).join('')}
-        </div>
-        <div class="paws-annotation-popup__highlight-colors">
-          ${['#ffd400', '#ff6563', '#5db221',
-          '#2ba8e8', '#a28ae9', '#e66df2',
-          '#f29823', '#aaaaaa', 'black'].map(color => (`
-            <button class="paws-annotation-popup__highlight-color-btn" 
-                    onclick="window.$a2ntpop._setAnnotationAttr('${annotation.id}', 'color', '${color}')"
-                    style="background-color: ${color}">
-            </button>
-          `)).join('')}
-        </div>
-        <div class="paws-annotation-popup__highlight-note">
-          <textarea onchange="window.$a2ntpop._setAnnotationAttr('${annotation.id}', 'note', event.target.value)"
-                    rows="5">${annotation.note || ''}</textarea>
-        </div>`
-    };
-  }
-
-  const hide = () => {
-    const popup = document.querySelector('.paws-annotation-popup');
-    popup?.remove();
-  }
-
-  const show = (pageEl: HTMLElement, annotation: Annotation) => {
-    const pageNum = parseInt(pageEl.getAttribute('data-page-number') || '-1');
-    if (pageNum < 0)
-      return;
-
-    let boundRect = getBound(annotation.rects[pageNum]);
-    boundRect = rotateRect(rotation(pdfjs), true, boundRect);
-
-    const popup = html(annotation);
-    const popupEl = htmlToElements(
-      `<div paws-annotation-id="${annotation.id}"
-        class="paws-annotation-popup__container"
-        style="
-          top: calc(${Math.abs(100 - boundRect.bottom)}% + 10px);
-          left: calc(${boundRect.left + (Math.abs(100 - boundRect.right) - boundRect.left) / 2}% - (${popup.width} / 2));
-          width: ${popup.width};
-        ">
-          ${popup.html}
-        </div>`);
-
-    getOrAttachPopupLayerEl(pageEl).appendChild(popupEl);
-  }
-
-  { // attach stylesheet
-    documentEl.querySelector('head').appendChild(htmlToElements(
-      `<link rel="stylesheet" type="text/css" href="/assets/annotator-popup.css" />`
-    ));
-  }
-
-  { // show annotation popup on click
-    documentEl.addEventListener('click', ($event: any) => {
-      const pageEl = closestPageEl($event.target);
-      if (!pageEl)
-        return;
-
-      const classList = $event.target.classList;
-
-      // hide popup if clicked outside it
-      if (!classList.contains('paws-annotation-popup__container')
-        && !$event.target.closest('.paws-annotation-popup__container')) {
-        getOrAttachPopupLayerEl(pageEl).remove();
-        state.pending = null;
-      }
-
-      // show popup for the clicked rect
-      if (classList.contains('paws-annotation__rect')) {
-        const annotId = $event.target.getAttribute('paws-annotation-id');
-        show(pageEl, store.read(annotId));
-      }
-    });
-  }
-
-  { // delete the selected annotation on delete/backspace
-    documentEl.addEventListener('keydown', ($event: any) => {
+  private _hideOnDelete() {
+    this.document.addEventListener('keydown', ($event: any) => {
       if ($event.key == 'Delete' || $event.key == 'Backspace'
         && $event.target.classList.contains('paws-annotation__bound')) {
-        hide();
+        this.hide();
       }
     });
   }
 
-  { // attach popup event handlers
-    window.$a2ntpop = window.$a2ntpop || {};
-    window.$a2ntpop._setAnnotationAttr = (id: string, attr: string, value: any) => {
-      const annotation = store.read(id) || state.pending;
-      if (!annotation.type)
-        annotation.type = 'highlight';
-      annotation[attr] = value;
-      if (annotation == state.pending) {
-        store.create(annotation);
-        state.pending = null;
-      } else {
-        store.update(annotation);
+  private _setupOnTextSelection() {
+    this.annotator.onTextSelection = ($event: any) => this._prepareItemUIs($event);
+  }
+
+  private _setupOnClick() {
+    this.document.addEventListener('click', ($event: any) => {
+      const itemUIs = this._prepareItemUIs($event);
+      if ((!itemUIs || itemUIs.length < 1) // hide popup if clicked outside it
+        && !$event.target.classList.contains('paws-annotation-popup__container')
+        && !$event.target.closest('.paws-annotation-popup__container')) {
+        this.hide();
       }
-      annotator.render(annotation);
-      window.getSelection().removeAllRanges();
-    };
+    });
   }
 
-  annotator.onTextSelection = ($event: any) => {
-    const rects = annotator.getSelectionRects();
+  private _setupOnContextMenu() {
+    this.document.addEventListener('contextmenu',
+      ($event: any) => this._prepareItemUIs($event));
+  }
+
+  private _prepareItemUIs($event: any) {
     const pageEl = closestPageEl($event.target);
-    if (rects && Object.keys(rects).length && pageEl) {
-      setTimeout(() => {
-        state.pending = { id: createUniqueId(), rects };
-        show(pageEl, state.pending);
-      }, 0);
-    }
+    if (!pageEl)
+      return null;
+
+    this.pending = null;
+    this.location = null as any;
+
+    const itemUIs = this.itemUIs
+      .map(itemUI => itemUI($event))
+      .filter(itemEl => itemEl);
+
+    if (itemUIs.length)
+      this.show(pageEl, itemUIs, $event);
+
+    return itemUIs;
   }
 
-  return { show };
-};
+  private _registerPendingAnnotItemUI() {
+    this.registerItemUI(($event: any) => {
+      const rects = this.annotator.getSelectionRects();
+      if ($event.button === 0 && rects && Object.keys(rects).length) {
+        const pageEl = closestPageEl($event.target);
+        const bound = getBound(rects[getPageNum(pageEl)]);
+        this.location = { top: `calc(100% - ${bound.bottom}%)`, left: `${bound.left}%` };
+        this.pending = { id: createUniqueId(), rects };
+      }
+      return null as any;
+    });
+  }
 
-export { annotatorPopup };
+  private _setAnnotationAttr = (annotation: any, attr: string, value: any) => {
+    if (!annotation.type)
+      annotation.type = 'highlight';
+    annotation[attr] = value;
+    if (annotation == this.pending) {
+      this.store.create(annotation);
+      this.pending = null;
+      this.location = null as any;
+    } else {
+      this.store.update(annotation);
+    }
+    this.annotator.render(annotation);
+    this.window.getSelection().removeAllRanges();
+  };
+
+  private _registerAnnotNoteItemUI() {
+    this.registerItemUI(($event: any) => {
+      const classList = $event.target.classList;
+      if ($event.button !== 0 || !(this.pending || classList.contains('paws-annotation__rect')))
+        return null as any;
+
+      const annot = this.pending || this.store.read($event.target.getAttribute('paws-annotation-id'));
+      const noteEl = htmlToElements(`<textarea rows="5">${annot.note || ''}</textarea>`);
+      noteEl.onchange = ($ev: any) => this._setAnnotationAttr(annot.id, 'note', $ev.target.value);
+
+      const containerEl = htmlToElements(`<div class="paws-annotation-popup__highlight-note"></div>`);
+      containerEl.appendChild(noteEl);
+
+      return containerEl;
+    });
+  }
+
+  private _registerAnnotColorItemUI() {
+    this.registerItemUI(($event: any) => {
+      const classList = $event.target.classList;
+      if ($event.button !== 0 || !(this.pending || classList.contains('paws-annotation__rect')))
+        return null as any;
+
+      const annot = this.pending || this.store.read($event.target.getAttribute('paws-annotation-id'));
+      const colorsEl = htmlToElements(`<div class="paws-annotation-popup__highlight-colors"></div>`);
+      ['#ffd400', '#ff6563', '#5db221', '#2ba8e8', '#a28ae9', '#e66df2', '#f29823', '#aaaaaa', 'black'].forEach(color => {
+        const colorEl = htmlToElements(`<button class="paws-annotation-popup__highlight-color-btn"></button>`);
+        colorEl.style.backgroundColor = color;
+        colorEl.onclick = ($ev) => this._setAnnotationAttr(annot, 'color', color);
+        colorsEl.appendChild(colorEl);
+      });
+
+      return colorsEl;
+    });
+  }
+
+  private _registerAnnotTypeItemUI() {
+    this.registerItemUI(($event: any) => {
+      const classList = $event.target.classList;
+      if ($event.button !== 0 || !(this.pending || classList.contains('paws-annotation__rect')))
+        return null as any;
+
+      const annot = this.pending || this.store.read($event.target.getAttribute('paws-annotation-id'));
+      const typeBtnHtmls = {
+        'highlight': '<span style="background: orange;">highlight</span>',
+        'underline': '<span style="text-decoration: underline;">underline</span>',
+        'linethrough': '<span style="text-decoration: line-through;">line-through</span>',
+      };
+
+      const typesEl = htmlToElements(`<div class="paws-annotation-popup__highlight-types"></div>`);
+      Object.keys(typeBtnHtmls).forEach(type => {
+        const buttonEl = htmlToElements(`<button class="paws-annotation-popup__highlight-type-btn">${typeBtnHtmls[type]}</button>`);
+        buttonEl.onclick = ($ev) => this._setAnnotationAttr(annot, 'type', type);
+        typesEl.appendChild(buttonEl);
+      });
+
+      return typesEl;
+    });
+  }
+
+  hide() {
+    const popupEl = this.documentEl.querySelector('.paws-annotation-popup');
+    popupEl?.remove();
+  }
+
+  show(pageEl: HTMLElement, itemUIs: HTMLElement[], $event: any) {
+    const location = this.location;
+    const styles = getComputedStyle($event.target);
+    const top = location ? location.top : `calc(${styles.top} + ${styles.height})`;
+    const left = location ? location.left : `${styles.left}`;
+
+    const popupEl = htmlToElements(
+      `<div class="paws-annotation-popup__container" style="
+          top: ${top};
+          left: ${left};
+          width: 15rem;
+        ">
+      </div>`);
+
+    this.hide();
+    this._getOrAttachPopupLayerEl(pageEl).appendChild(popupEl);
+    itemUIs.forEach(itemUI => popupEl.appendChild(itemUI));
+  }
+
+  registerItemUI(item: ($event: any) => HTMLElement) {
+    this.itemUIs.push(item);
+  }
+
+  unregisterItemUI(item: ($event: any) => HTMLElement) {
+    const index = this.itemUIs.indexOf(item);
+    if (index > -1)
+      this.itemUIs.splice(index, 1);
+  }
+}
