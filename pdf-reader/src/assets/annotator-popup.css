@@ -1,6 +1,5 @@
-/* -- annotation popup styles -- */
-
-.paws-annotation-popup {
+.pdfjs-annotation-popup {
+  pointer-events: none;
   position: absolute;
   top: 0;
   left: 0;
@@ -9,7 +8,7 @@
   z-index: 7;
 }
 
-.paws-annotation-popup__container {
+.pdfjs-annotation-popup__container {
   position: absolute;
   pointer-events: auto;
   border-radius: 5px;
@@ -22,19 +21,7 @@
   z-index: 7;
 }
 
-.paws-annotation-popup__anchor {
-  position: absolute;
-  width: 1rem;
-  height: 1rem;
-  background: white;
-  border-radius: 0.25rem;
-  left: calc(50% - 0.5rem);
-  top: -0.25rem;
-  transform: rotate(45deg);
-  z-index: 0;
-}
-
-.paws-annotation-popup__highlight-types {
+.pdfjs-annotation-popup__highlight-types {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -42,7 +29,7 @@
   z-index: 1;
 }
 
-.paws-annotation-popup__highlight-colors {
+.pdfjs-annotation-popup__highlight-colors {
   display: flex;
   align-items: center;
   justify-content: space-evenly;
@@ -50,54 +37,54 @@
   z-index: 1;
 }
 
-.paws-annotation-popup__highlight-color-btn {
+.pdfjs-annotation-popup__highlight-color-btn {
   position: relative;
   height: 0.75rem;
   width: 100%;
   border-width: 1px;
 }
 
-.paws-annotation-popup__highlight-note textarea {
+.pdfjs-annotation-popup__highlight-note textarea {
   width: 100%;
 }
 
 /* -- annotation type styles -- */
 
-.paws-annotation__underline {
+.pdfjs-annotation__underline {
   border-radius: 0;
 }
 
-[data-rotation-degree="0"] .paws-annotation__underline {
+[data-rotation-degree="0"] .pdfjs-annotation__underline {
   border-bottom: 2px solid var(--annotation-color);
 }
 
-[data-rotation-degree="180"] .paws-annotation__underline {
+[data-rotation-degree="180"] .pdfjs-annotation__underline {
   border-top: 2px solid var(--annotation-color);
 }
 
-[data-rotation-degree="90"] .paws-annotation__underline {
+[data-rotation-degree="90"] .pdfjs-annotation__underline {
   border-left: 2px solid var(--annotation-color);
 }
 
-[data-rotation-degree="270"] .paws-annotation__underline {
+[data-rotation-degree="270"] .pdfjs-annotation__underline {
   border-right: 2px solid var(--annotation-color);
 }
 
-.paws-annotation__linethrough::before {
+.pdfjs-annotation__linethrough::before {
   content: "";
   display: block;
   position: absolute;
 }
 
-[data-rotation-degree="0"] .paws-annotation__linethrough::before,
-[data-rotation-degree="180"] .paws-annotation__linethrough::before {
+[data-rotation-degree="0"] .pdfjs-annotation__linethrough::before,
+[data-rotation-degree="180"] .pdfjs-annotation__linethrough::before {
   top: 50%;
   width: 100%;
   border-top: 2px solid var(--annotation-color);
 }
 
-[data-rotation-degree="90"] .paws-annotation__linethrough::before,
-[data-rotation-degree="270"] .paws-annotation__linethrough::before {
+[data-rotation-degree="90"] .pdfjs-annotation__linethrough::before,
+[data-rotation-degree="270"] .pdfjs-annotation__linethrough::before {
   left: 50%;
   height: 100%;
   border-right: 2px solid var(--annotation-color);
