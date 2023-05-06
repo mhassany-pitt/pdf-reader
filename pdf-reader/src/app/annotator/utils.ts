@@ -149,6 +149,7 @@ const getBound = (rects: Rect[]): Rect => {
   };
 }
 
+const scale = (pdfjs: any) => pdfjs.pdfViewer.currentScale;
 const rotation = (pdfjs: any) => pdfjs.pdfViewer.pagesRotation;
 
 export {
@@ -164,5 +165,6 @@ export {
   groupByPageNum,
   rotateRect,
   getBound,
+  scale,
   rotation,
 };

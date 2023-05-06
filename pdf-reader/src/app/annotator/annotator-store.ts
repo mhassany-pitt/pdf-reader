@@ -1,5 +1,5 @@
-const annotatorStore = (args: { groupId, skipLoading?}) => {
-  const { groupId, skipLoading } = args;
+const annotatorStore = ({ groupId, skipLoading = false }) => {
+  // const { groupId, skipLoading } = args;
   const storageKey = `${groupId}__pdf-reader-annotations`;
   const persist = () => localStorage.setItem(storageKey, JSON.stringify($.annotations));
 
@@ -35,4 +35,4 @@ const annotatorStore = (args: { groupId, skipLoading?}) => {
   return $;
 };
 
-export default annotatorStore;
+export { annotatorStore };

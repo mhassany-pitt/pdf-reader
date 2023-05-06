@@ -1,6 +1,6 @@
 import {
   Rect, closestPageEl, createUniqueId, getPageEl, getPageNum,
-  htmlToElements, relativeToPageEl, rotateRect, rotation
+  htmlToElements, relativeToPageEl, rotateRect, rotation, scale
 } from './utils';
 
 type Freeform = {
@@ -45,12 +45,59 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
     return pageEl.querySelector('.paws-annotation-freeform-canvas');
   }
 
-  const enableFreeform = (canvasEl: HTMLCanvasElement) => {
-    const parentStyle = getComputedStyle(canvasEl.parentElement as Element);
-    canvasEl.width = parseFloat(parentStyle.width.replace('px', ''));
-    canvasEl.height = parseFloat(parentStyle.height.replace('px', ''));
+  const rotateCanvas = (canvasEl: HTMLCanvasElement, rotationAngle: number) => {
+    if (rotationAngle == 0)
+      return;
+
+    let $canvasEl = document.createElement('canvas');
+    const flipSides = rotationAngle % 180 !== 0;
+    $canvasEl.width = flipSides ? canvasEl.height : canvasEl.width;
+    $canvasEl.height = flipSides ? canvasEl.width : canvasEl.height;
+
+    const $context = $canvasEl.getContext('2d') as CanvasRenderingContext2D;
+    if (rotationAngle == 90) $context.translate($canvasEl.width, 0);
+    if (rotationAngle == 180)
+      $context.translate($canvasEl.width, $canvasEl.height);
+    if (rotationAngle == 270) $context.translate(0, $canvasEl.height);
+    $context.rotate((rotationAngle * Math.PI) / 180);
+    $context.drawImage(canvasEl, 0, 0);
 
     const context = canvasEl.getContext('2d') as CanvasRenderingContext2D;
+    context.clearRect(0, 0, canvasEl.width, canvasEl.height);
+    canvasEl.width = $canvasEl.width;
+    canvasEl.height = $canvasEl.height;
+    context.drawImage($canvasEl, 0, 0);
+  }
+  const angleDiff = (angle1: number, angle2: number) => {
+    const angles = [0, 90, 180, 270];
+    return angles[(angles.indexOf(angle2) - angles.indexOf(angle1) + angles.length) % angles.length];
+  }
+  const rotateCanvasLayerEl = (canvasEl: HTMLCanvasElement, angle?: number) => {
+    const newAngle = angle === undefined ? rotation(pdfjs) : angle;
+    const prevAngle = parseFloat(canvasEl.getAttribute('data-rotation') || '0');
+    rotateCanvas(canvasEl, angleDiff(prevAngle, newAngle));
+    canvasEl.setAttribute('data-rotation', `${newAngle}`);
+  }
+
+  const enableFreeform = (canvasEl: HTMLCanvasElement) => {
+    const context = canvasEl.getContext('2d') as CanvasRenderingContext2D;
+
+    // scale width/height
+    const scaleFactor = 1 / scale(pdfjs);
+    const pageElStyle = getComputedStyle(canvasEl.parentElement as HTMLElement);
+    const width = scaleFactor * parseFloat(pageElStyle.width.replace('px', ''));
+    const height = scaleFactor * parseFloat(pageElStyle.height.replace('px', ''));
+
+    // flip width/height
+    const rotationAngle = rotation(pdfjs);
+    const flipSides = rotationAngle % 180 !== 0;
+    canvasEl.width = flipSides ? height : width;
+    canvasEl.height = flipSides ? width : height;
+
+    context.lineJoin = 'round';
+    context.lineCap = 'round';
+
+    rotateCanvasLayerEl(canvasEl);
 
     let drawing = false;
     canvasEl.onmouseup = ($event) => drawing = false;
@@ -58,14 +105,16 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
       if ($event.button === 0) {
         drawing = true;
         context.beginPath();
-        context.moveTo($event.offsetX, $event.offsetY);
+        const scaleFactor = 1 / scale(pdfjs);
+        context.moveTo(scaleFactor * $event.offsetX, scaleFactor * $event.offsetY);
         context.lineWidth = state.canvasLineWidth;
         context.strokeStyle = state.canvasStrokeStyle;
       }
     };
     canvasEl.onmousemove = ($event) => {
       if (drawing && $event.button === 0) {
-        context.lineTo($event.offsetX, $event.offsetY);
+        const scaleFactor = 1 / scale(pdfjs);
+        context.lineTo(scaleFactor * $event.offsetX, scaleFactor * $event.offsetY);
         context.stroke();
       }
     };
@@ -88,19 +137,17 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
       `<div class="paws-annotation-freeforms-menu__container" 
             style="top: ${mouseXY.top}%; left: ${mouseXY.left}%;"> ${state.enabled
         ? (`<button onclick="window.$a2ntfform.disable(${pageNum})">disable freeform</button>
-            <div>
-              <span style="margin: 0 5px;">Stroke size:</span>
-              <button style="font-weight: 100;" onclick="window.$a2ntfform.setStrokeWidth(1)">thin</button>
-              <button style="font-weight: normal;" onclick="window.$a2ntfform.setStrokeWidth(2)">normal</button>
-              <button style="font-weight: 900;" onclick="window.$a2ntfform.setStrokeWidth(3)">thick</button>
+            <div style="display: flex">
+              <button style="flex-grow: 1; font-weight: 100;" onclick="window.$a2ntfform.setStrokeWidth(1)">thin</button>
+              <button style="flex-grow: 1; font-weight: normal;" onclick="window.$a2ntfform.setStrokeWidth(2)">normal</button>
+              <button style="flex-grow: 1; font-weight: 900;" onclick="window.$a2ntfform.setStrokeWidth(3)">thick</button>
             </div>
-            <div>
-              <span style="margin: 0 5px;">Stroke color:</span>
-              <button style="color: black;" onclick="window.$a2ntfform.setStrokeColor('black')">■</button>
-              <button style="color: gray;" onclick="window.$a2ntfform.setStrokeColor('gray')">■</button>
-              <button style="color: green;" onclick="window.$a2ntfform.setStrokeColor('green')">■</button>
-              <button style="color: blue;" onclick="window.$a2ntfform.setStrokeColor('blue')">■</button>
-              <button style="color: red;" onclick="window.$a2ntfform.setStrokeColor('red')">■</button>
+            <div style="display: flex">
+              <button style="flex-grow: 1; background-color: black;" onclick="window.$a2ntfform.setStrokeColor('black')">&nbsp;</button>
+              <button style="flex-grow: 1; background-color: gray;" onclick="window.$a2ntfform.setStrokeColor('gray')">&nbsp;</button>
+              <button style="flex-grow: 1; background-color: green;" onclick="window.$a2ntfform.setStrokeColor('green')">&nbsp;</button>
+              <button style="flex-grow: 1; background-color: blue;" onclick="window.$a2ntfform.setStrokeColor('blue')">&nbsp;</button>
+              <button style="flex-grow: 1; background-color: red;" onclick="window.$a2ntfform.setStrokeColor('red')">&nbsp;</button>
             </div>`)
         : `<button onclick="window.$a2ntfform.enable(${pageNum})">enable freeform</button>`}
       </div>`);
@@ -109,18 +156,19 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
   }
 
   const getCroppedCanvas = (canvasEl: HTMLCanvasElement) => {
-    const orgContext = canvasEl.getContext('2d') as CanvasRenderingContext2D;
-    const orgContent = orgContext.getImageData(0, 0, canvasEl.width, canvasEl.height).data;
-    const bound = canvasEl.getBoundingClientRect();
+    const canvasWidth = canvasEl.width;
+    const canvasHeight = canvasEl.height;
+    const context = canvasEl.getContext('2d') as CanvasRenderingContext2D;
+    const content = context.getImageData(0, 0, canvasWidth, canvasHeight).data;
 
     let left = canvasEl.width;
     let top = canvasEl.height;
     let right = 0;
     let bottom = 0;
-    for (let i = 0; i < orgContent.length; i += 4) {
+    for (let i = 0; i < content.length; i += 4) {
       const x = (i / 4) % canvasEl.width;
       const y = Math.floor((i / 4) / canvasEl.width);
-      if (orgContent[i + 3] > 0) {
+      if (content[i + 3] > 0) {
         left = Math.min(x, left);
         right = Math.max(x, right);
         top = Math.min(y, top);
@@ -130,24 +178,19 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
     const width = right - left + 1;
     const height = bottom - top + 1;
 
-    const croppedEl = document.createElement('canvas');
-    croppedEl.width = width;
-    croppedEl.height = height;
-    const croppedContext = croppedEl.getContext('2d');
-    const croppedContent = orgContext.getImageData(left, top, width, height);
-    croppedContext.putImageData(croppedContent, 0, 0);
+    const $canvasEl = document.createElement('canvas');
+    $canvasEl.width = width;
+    $canvasEl.height = height;
+    const $context = $canvasEl.getContext('2d');
+    $context.putImageData(context.getImageData(left, top, width, height), 0, 0);
 
-    const cropped = {
-      left: bound.left + left,
-      top: bound.top + top,
-      right: bound.left + right,
-      bottom: bound.top + bottom,
-      width,
-      height,
-      canvas: croppedEl
+    return {
+      left: parseFloat((left / canvasWidth * 100).toFixed(3)),
+      top: parseFloat((top / canvasHeight * 100).toFixed(3)),
+      right: parseFloat(((canvasWidth - right - 1) / canvasWidth * 100).toFixed(3)),
+      bottom: parseFloat(((canvasHeight - bottom - 1) / canvasHeight * 100).toFixed(3)),
+      canvas: $canvasEl
     };
-
-    return cropped.width < 1 || cropped.height < 1 ? null : cropped;
   }
 
   const render = (annot: FreeformAnnotation) => {
@@ -192,6 +235,17 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
       });
   }
 
+  const reattachCanvasEl = (pageNum: number) => {
+    if (state.enabled) {
+      const pageEl = getPageEl(document, pageNum);
+      if (pageNum in state.canvases && !getCanvasEl(pageEl)) {
+        const canvasEl = state.canvases[pageNum];
+        rotateCanvasLayerEl(canvasEl);
+        pageEl.appendChild(canvasEl);
+      }
+    }
+  }
+
   { // on pdfjs pagerendered, render annotations
     pdfjs.eventBus.on('pagerendered', ($event: any) => {
       const pageNum = $event.pageNumber;
@@ -204,18 +258,14 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
           .map(pageNum => parseInt(pageNum))
           .indexOf(pageNum) > -1)
         .forEach(ant => render(ant));
+
+      reattachCanvasEl(pageNum);
     });
   }
 
   { // reattach missing canvas
-    pdfjs.eventBus.on('pagechanging', ($event: any) => {
-      if (state.enabled) {
-        const pageNum = $event.pageNumber;
-        const pageEl = getPageEl(document, pageNum);
-        if (pageNum in state.canvases && !getCanvasEl(pageEl))
-          pageEl.appendChild(state.canvases[pageNum]);
-      }
-    });
+    pdfjs.eventBus.on('pagechanging',
+      ($event: any) => reattachCanvasEl($event.pageNumber));
   }
 
   { // attach required canvas
@@ -297,30 +347,27 @@ const annotatorFreeform = ({ iframe, pdfjs, annotator, store }) => {
     }
     window.$a2ntfform.enable = (pageNum: number) => {
       state.enabled = true;
-      const pageEl = getPageEl(document, pageNum);
       hideMenu();
     };
     window.$a2ntfform.disable = (pageNum: number) => {
       state.enabled = false;
+      const canvases = state.canvases;
       state.canvases = {};
-      const pageEl = getPageEl(document, pageNum);
       hideMenu();
 
       const annot = { id: createUniqueId(), type: 'freeform', freeforms: {} };
-      document.querySelectorAll('.paws-annotation-freeform-canvas')
-        .forEach((canvasEl: HTMLCanvasElement) => {
-          const cropped = getCroppedCanvas(canvasEl);;
-          if (cropped) {
-            const { canvas, ...attrs } = cropped;
-            const pageEl = closestPageEl(canvasEl);
-            const page = getPageNum(pageEl);
 
-            const { page: tmp, ...bound } = relativeToPageEl({ ...attrs, page }, pageEl);
-            annot.freeforms[page] = { dataUrl: canvas.toDataURL(), bound };
-          }
-
-          canvasEl.remove();
-        });
+      for (const key of Object.keys(canvases)) {
+        const pageNum = parseInt(key);
+        const canvasEl = canvases[pageNum];
+        rotateCanvasLayerEl(canvasEl, 0);
+        const cropped = getCroppedCanvas(canvasEl);
+        if (cropped) {
+          const { canvas, ...bound } = cropped;
+          annot.freeforms[pageNum] = { dataUrl: canvas.toDataURL(), bound };
+        }
+        canvasEl.remove();
+      }
 
       if (Object.keys(annot.freeforms).length) {
         store.create(annot);

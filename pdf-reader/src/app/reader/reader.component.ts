@@ -3,7 +3,7 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { ReaderService } from './reader.service';
-import annotatorStore from '../annotator/annotator-store';
+import { annotatorStore } from '../annotator/annotator-store';
 import { annotator } from '../annotator/annotator';
 import { annotatorPopup } from '../annotator/annotator-popup';
 import annotatorFreeform from '../annotator/annotator-freeform';
