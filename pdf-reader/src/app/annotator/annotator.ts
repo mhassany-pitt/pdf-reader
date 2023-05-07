@@ -1,5 +1,5 @@
 import {
-  Rect, closestPageEl, createUniqueId, getBound, getPageEl, getRectPageNum,
+  WHRect, closestPageEl, createUniqueId, getBound, getPageEl, getRectPageNum,
   groupByPageNum, htmlToElements, isLeftClick, mergeRects, rotateRect, rotation
 } from './utils';
 
@@ -7,7 +7,7 @@ export type Annotation = {
   id: string,
   type: string,
   color?: string,
-  rects: { [pageNum: number]: Rect[] },
+  rects: { [pageNum: number]: WHRect[] },
   note?: string
 }
 
@@ -22,7 +22,7 @@ export class Annotator {
   private selected;
 
   private boundGetters: {
-    [className: string]: (pageNum: number, annot: any) => Rect
+    [className: string]: (pageNum: number, annot: any) => WHRect
   } = {};
 
   onTextSelection = ($event: any) => {
@@ -44,7 +44,8 @@ export class Annotator {
     this.pdfjs = pdfjs;
     this.store = store;
 
-    this.registerBoundGetter('pdfjs-annotation__rect', (pageNum, annot) => getBound(annot.rects[pageNum]));
+    this.registerBoundGetter('pdfjs-annotation__rect',
+      (pageNum, annot) => getBound(annot.rects[pageNum]));
 
     this._attachStylesheet();
     this._renderOnPagerendered();
@@ -109,9 +110,12 @@ export class Annotator {
 
       // show the boundary for the clicked rect
       for (const className of Object.keys(this.boundGetters)) {
-        if (classList.contains(className)) {
-          const annotId = $event.target.getAttribute('data-annotation-id');
-          this.selected = this.store.read(annotId);
+        const targetEl = classList.contains(className)
+          ? $event.target
+          : $event.target.closest(`.${className}`);
+
+        if (targetEl) {
+          this.selected = this.store.read(targetEl.getAttribute('data-annotation-id'));
           const pageNum = parseInt(pageEl.getAttribute('data-page-number') || '');
           const annotBound = this.boundGetters[className](pageNum, this.selected);
           this.showBoundary(pageNum, this.selected, annotBound);
@@ -150,7 +154,7 @@ export class Annotator {
       return null;
 
     const range = selection.getRangeAt(0);
-    const rects: Rect[] = Array.from(range.getClientRects());
+    const rects: WHRect[] = Array.from(range.getClientRects());
 
     const merged = mergeRects(rects)
       .map(rect => ({ ...rect, page: getRectPageNum(this.document, rect) }))
@@ -161,7 +165,7 @@ export class Annotator {
 
     const grouped = groupByPageNum(this.documentEl, merged);
     for (const pageNum of Object.keys(grouped)) {
-      grouped[pageNum] = grouped[pageNum].map((rect: Rect) => {
+      grouped[pageNum] = grouped[pageNum].map((rect: WHRect) => {
         // in case page rotation != 0, rotate it back to 0
         return rotateRect(rotation(this.pdfjs), false, rect);
       });
@@ -177,7 +181,7 @@ export class Annotator {
     return pageEl.querySelector('.pdfjs-annotations');
   }
 
-  showBoundary(pageNum: number, annot: Annotation, boundRect: Rect) {
+  showBoundary(pageNum: number, annot: Annotation, boundRect: WHRect) {
     boundRect = rotateRect(rotation(this.pdfjs), true, boundRect);
 
     const boundEl = htmlToElements(
@@ -185,10 +189,10 @@ export class Annotator {
       class="pdfjs-annotation__bound" 
       tabindex="-1"
       style="
-        top: ${boundRect.top}%;
-        bottom: ${boundRect.bottom}%;
-        left: ${boundRect.left}%;
-        right: ${boundRect.right}%;
+        top: calc(${boundRect.top}% - 1px);
+        bottom: calc(${boundRect.bottom}% - 1px);
+        left: calc(${boundRect.left}% - 1px);
+        right: calc(${boundRect.right}% - 1px);
       ">
     </div>`
     );
@@ -207,27 +211,28 @@ export class Annotator {
           .forEach((el: any) => el.remove());
 
         const degree = rotation(this.pdfjs);
-        const rects: Rect[] = annot.rects[pageNum];
+        const rects: WHRect[] = annot.rects[pageNum];
         rects.forEach(rect => {
           rect = rotateRect(degree, true, rect);
-
-          annotsLayerEl.appendChild(htmlToElements(
+          const rectEl = htmlToElements(
             `<div data-annotation-id="${annot.id}" 
-            class="pdfjs-annotation__rect ${annot.type ? 'pdfjs-annotation__' + annot.type : ''}" 
-            style="
-              top: calc(${rect.top}% + 1px);
-              bottom: calc(${rect.bottom}% + 1px);
-              left: ${rect.left}%;
-              right: ${rect.right}%;
-              --annotation-color: ${annot.color || 'rgb(255, 212, 0)'};
-            ">
-          </div>`
-          ));
+              class="pdfjs-annotation__rect ${annot.type ? 'pdfjs-annotation__' + annot.type : ''}" 
+              style="
+                top: calc(${rect.top}% + 1px);
+                bottom: calc(${rect.bottom}% + 1px);
+                left: ${rect.left}%;
+                right: ${rect.right}%;
+                --annotation-color: ${annot.color || 'rgb(255, 212, 0)'};
+              ">
+            </div>`
+          );
+
+          annotsLayerEl.appendChild(rectEl);
         })
       });
   }
 
-  registerBoundGetter(className: string, getter: (pageNum: number, annot: any) => Rect) {
+  registerBoundGetter(className: string, getter: (pageNum: number, annot: any) => WHRect) {
     this.boundGetters[className] = getter;
   }
 

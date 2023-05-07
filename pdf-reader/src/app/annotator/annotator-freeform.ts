@@ -2,12 +2,12 @@ import { Annotator } from './annotator';
 import { AnnotatorPopup } from './annotator-popup';
 import { AnnotationStore } from './annotator-store';
 import {
-  Rect, closestPageEl, createUniqueId, getPageEl, getPageNum,
+  WHRect, closestPageEl, createUniqueId, getPageEl, getPageNum,
   htmlToElements, isLeftClick, isRightClick, rotateRect, rotation, scale
 } from './utils';
 
 export type Freeform = {
-  bound: Rect,
+  bound: WHRect,
   dataUrl: string,
 };
 
@@ -83,18 +83,10 @@ export class FreeformAnnotator {
 
   private _registerToggleItemUI() {
     this.popup.registerItemUI(($event: any) => {
-      // const classList = $event.target.classList;
-      if (!isRightClick($event)) // || !classList.contains('pdfjs-annotation__freeform')
+      if (!isRightClick($event))
         return null as any;
 
       $event.preventDefault();
-      const pageEl = closestPageEl($event.target);
-      const pageBound = pageEl.getBoundingClientRect();
-      this.popup.location = {
-        top: `${$event.y - pageBound.y}px`,
-        left: `${$event.x - pageBound.x}px`,
-      };
-
       const containerEl = htmlToElements(`<div style="display: flex; gap: 5px;"></div>`);
       const buttonEl = htmlToElements(`<button style="flex-grow: 1;">${this.enabled ? 'end freeform' : 'start freeform'}</button>`);
       containerEl.appendChild(buttonEl);
@@ -113,8 +105,7 @@ export class FreeformAnnotator {
 
   private _registerStrokeSizeItemUI() {
     this.popup.registerItemUI(($event: any) => {
-      // const classList = $event.target.classList;
-      if (!this.enabled || !isRightClick($event)) // || !classList.contains('pdfjs-annotation__freeform')
+      if (!this.enabled || !isRightClick($event))
         return null as any;
 
       const containerEl = htmlToElements(`<div style="display: flex; gap: 5px;"></div>`);
@@ -134,8 +125,7 @@ export class FreeformAnnotator {
 
   private _registerStrokeColorItemUI() {
     this.popup.registerItemUI(($event: any) => {
-      // const classList = $event.target.classList;
-      if (!this.enabled || !isRightClick($event)) // || !classList.contains('pdfjs-annotation__freeform')
+      if (!this.enabled || !isRightClick($event))
         return null as any;
 
       const containerEl = htmlToElements(`<div style="display: flex; gap: 5px;"></div>`);
@@ -187,11 +177,11 @@ export class FreeformAnnotator {
       annotsLayerEl.querySelectorAll('.pdfjs-annotation__freeform').forEach((el: any) => el.remove());
 
       (this.store.list() as FreeformAnnotation[])
-        .filter(ant => ant.type == 'freeform')
+        .filter(annot => annot.type == 'freeform')
         .filter(annot => Object.keys(annot.freeforms)
           .map(pageNum => parseInt(pageNum))
           .indexOf(pageNum) > -1)
-        .forEach(ant => this.render(ant));
+        .forEach(annot => this.render(annot));
 
       this._reattachCanvasEl(pageNum);
     });
@@ -346,20 +336,20 @@ export class FreeformAnnotator {
         const freeform = annot.freeforms[pageNum];
         const bound = rotateRect(degree, true, freeform.bound);
 
-        const boundEl = htmlToElements(
+        const freeformEl = htmlToElements(
           `<div data-annotation-id="${annot.id}" 
-          class="pdfjs-annotation__freeform"
-          tabindex="-1" 
-          style="
-            top: ${bound.top}%;
-            bottom: ${bound.bottom}%;
-            left: ${bound.left}%;
-            right: ${bound.right}%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          ">
-        </div>`);
+            class="pdfjs-annotation__freeform"
+            tabindex="-1" 
+            style="
+              top: ${bound.top}%;
+              bottom: ${bound.bottom}%;
+              left: ${bound.left}%;
+              right: ${bound.right}%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            ">
+          </div>`);
 
         const image = new Image();
         image.src = freeform.dataUrl;
@@ -367,10 +357,10 @@ export class FreeformAnnotator {
         image.style.transform = `rotate(${degree}deg)`;
         image.style.pointerEvents = 'none';
 
-        boundEl.appendChild(image);
-        annotsLayerEl.appendChild(boundEl);
+        freeformEl.appendChild(image);
+        annotsLayerEl.appendChild(freeformEl);
 
-        const computedStyle = getComputedStyle(boundEl);
+        const computedStyle = getComputedStyle(freeformEl);
         image.style.width = degree == 90 || degree == 270 ? computedStyle.height : computedStyle.width;
         image.style.height = degree == 90 || degree == 270 ? computedStyle.width : computedStyle.height;
       });

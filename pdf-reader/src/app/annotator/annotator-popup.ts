@@ -74,7 +74,16 @@ export class AnnotatorPopup {
   }
 
   private _setupOnContextMenu() {
-    this.document.addEventListener('contextmenu', ($event: any) => this._prepareItemUIs($event));
+    this.document.addEventListener('contextmenu', ($event: any) => {
+      const pageEl = closestPageEl($event.target);
+      const pageBound = pageEl.getBoundingClientRect();
+      this.location = {
+        top: `${$event.y - pageBound.y}px`,
+        left: `${$event.x - pageBound.x}px`,
+      };
+
+      this._prepareItemUIs($event);
+    });
   }
 
   private _prepareItemUIs($event: any) {

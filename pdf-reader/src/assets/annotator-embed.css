@@ -1,0 +1,12 @@
+ .pdfjs-annotation__embed {
+   position: absolute;
+   background-color: darkgreen;
+   pointer-events: auto;
+   user-select: none;
+   cursor: grab;
+   z-index: 5;
+ }
+
+ .pdfjs-annotation__embed:active {
+   cursor: grabbing;
+ }

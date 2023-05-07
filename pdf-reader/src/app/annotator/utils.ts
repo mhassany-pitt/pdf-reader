@@ -1,13 +1,8 @@
 import { v4 as uuid } from 'uuid';
 
-type Rect = {
-  top: number, left: number,
-  right: number, bottom: number,
-  width: number, height: number,
-}
-type PageRect = Rect & {
-  page: number
-};
+type Rect = { top: number, left: number, right: number, bottom: number }
+type WHRect = Rect & { width: number, height: number }
+type PageRect = WHRect & { page: number };
 
 const createUniqueId = () => uuid();
 
@@ -19,7 +14,7 @@ const htmlToElements = (html: string) => {
 
 const closestPageEl = (el: Element) => el.closest(`.pdfViewer .page`) as HTMLElement;
 const getPageNum = (pageEl: HTMLElement) => parseInt(pageEl.getAttribute('data-page-number') || '');
-const getRectPageNum = (document: Document, rect: Rect): number => {
+const getRectPageNum = (document: Document, rect: WHRect): number => {
   const pointEl = document.elementFromPoint(rect.left, rect.top);
   return pointEl ? getPageNum(closestPageEl(pointEl)) : (null as any);
 }
@@ -48,8 +43,8 @@ const relativeToPageEl = (rect: PageRect, pageEl: any): PageRect => {
   return { top, left, right, bottom, width, height, page };
 }
 
-const mergeRects = (rects: Rect[]): Rect[] => {
-  type IgnorableRect = Rect & { ignore?: boolean };
+const mergeRects = (rects: WHRect[]): WHRect[] => {
+  type IgnorableRect = WHRect & { ignore?: boolean };
   let $rects = rects.map(({ top, right, bottom, left, width, height }) =>
     ({ top, right, bottom, left, width, height })) as IgnorableRect[];
   $rects = $rects.sort((a, b) => (a.width * a.height) - (b.width * b.height));
@@ -106,7 +101,7 @@ const mergeRects = (rects: Rect[]): Rect[] => {
 }
 
 const groupByPageNum = (documentEl: any, rects: PageRect[]) => {
-  const grouped: { [pageNum: number]: Rect[] } = {};
+  const grouped: { [pageNum: number]: WHRect[] } = {};
 
   rects.map(rect => relativeToPageEl(rect, getPageEl(documentEl, rect.page)))
     .filter(rect => (rect.left + rect.right) < 99.99 && (rect.top + rect.bottom) < 99.99)
@@ -120,7 +115,7 @@ const groupByPageNum = (documentEl: any, rects: PageRect[]) => {
   return grouped;
 }
 
-const rotateRect = (degree: 0 | 90 | 180 | 270, clockwise: boolean, rect: Rect) => {
+const rotateRect = (degree: 0 | 90 | 180 | 270, clockwise: boolean, rect: WHRect) => {
   let values = [rect.top, rect.left, rect.bottom, rect.right];
   const steps = (degree % 360) / 90;
 
@@ -138,7 +133,7 @@ const rotateRect = (degree: 0 | 90 | 180 | 270, clockwise: boolean, rect: Rect) 
   }
 }
 
-const getBound = (rects: Rect[]): Rect => {
+const getBound = (rects: WHRect[]): WHRect => {
   return {
     left: Math.min(...rects.map(rect => rect.left)),
     right: Math.min(...rects.map(rect => rect.right)),
@@ -156,7 +151,7 @@ const isLeftClick = ($event: any) => $event.button === 0;
 const isRightClick = ($event: any) => $event.button === 2;
 
 export {
-  Rect,
+  Rect, WHRect,
   createUniqueId,
   htmlToElements,
   getPageNum,
