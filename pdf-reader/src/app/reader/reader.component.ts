@@ -8,6 +8,7 @@ import { AnnotationStore } from '../annotator/annotator-store';
 import { AnnotatorPopup } from '../annotator/annotator-popup';
 import { FreeformAnnotator } from '../annotator/annotator-freeform';
 import { EmbedAnnotator } from '../annotator/annotator-embed';
+import { EmbedAnnotationViewer } from '../annotator/embed-annotation-viewer';
 
 @Component({
   selector: 'app-reader',
@@ -69,7 +70,8 @@ export class ReaderComponent implements OnInit {
     const annotator = new Annotator({ iframe, pdfjs: this.pdfjs, store });
     const popup = new AnnotatorPopup({ iframe, pdfjs: this.pdfjs, annotator, store });
     const freefrom = new FreeformAnnotator({ iframe, pdfjs: this.pdfjs, annotator, store, popup });
-    const embed = new EmbedAnnotator({ iframe, pdfjs: this.pdfjs, annotator, store, popup });
+    // const embed = new EmbedAnnotator({ iframe, pdfjs: this.pdfjs, annotator, store, popup });
+    const embed = new EmbedAnnotationViewer({ iframe, pdfjs: this.pdfjs, annotator, store, popup });
 
     this.pdfjs.open({ url: `${environment.apiUrl}/documents/${this.document.id}/file` });
   }

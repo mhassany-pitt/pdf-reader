@@ -15,7 +15,7 @@ export class AnnotatorPopup {
   private store: AnnotationStore;
 
   private pending;
-  location: { top: any, left: any } = null as any;
+  location: { top: any, left: any, width?: any, height?: any } = null as any;
 
   private itemUIs: (($event: any) => HTMLElement)[] = [];
 
@@ -198,12 +198,15 @@ export class AnnotatorPopup {
     const styles = getComputedStyle($event.target);
     const top = location ? location.top : `calc(${styles.top} + ${styles.height})`;
     const left = location ? location.left : `${styles.left}`;
+    const width = (location || {}).width || '15rem';
+    const height = (location || {}).height || 'auto';
 
     const popupEl = htmlToElements(
       `<div class="pdfjs-annotation-popup__container" style="
           top: ${top};
           left: ${left};
-          width: 15rem;
+          width: ${width};
+          height: ${height};
         ">
       </div>`);
 

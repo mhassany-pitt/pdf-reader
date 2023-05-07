@@ -77,7 +77,7 @@ export class EmbedAnnotator {
           bound: { top, left, right, bottom },
           page: pageNum,
           link: '',
-          target: 'popup',
+          target: 'popup-iframe',
         };
         this.store.create(annot);
         this.render(annot);
@@ -96,9 +96,9 @@ export class EmbedAnnotator {
       if (embedEl) {
         const annot = this.store.read(embedEl.getAttribute('data-annotation-id'));
         const embedElStyle = getComputedStyle(embedEl);
-        const scaleFactor = 24 * scale(this.pdfjs);
+        const scaledHeight = 24 * scale(this.pdfjs);
         this.popup.location = {
-          top: `calc(${embedElStyle.top} + ${scaleFactor + 2}px)`,
+          top: `calc(${embedElStyle.top} + ${scaledHeight + 2}px)`,
           left: `${embedElStyle.left}`,
         };
 
@@ -122,11 +122,11 @@ export class EmbedAnnotator {
         const random = Math.random();
         const popupOptionEl = htmlToElements(
           `<div>
-            <input type="radio" name="popup" id="popup-${random}" ${annot.target == 'popup' ? 'checked' : ''}/>
+            <input type="radio" name="popup" id="popup-${random}" ${annot.target == 'popup-iframe' ? 'checked' : ''}/>
             <label for="popup-${random}">Open in popup</label>
           </div>`);
         containerEl.appendChild(popupOptionEl);
-        onRadioClick(popupOptionEl, 'popup');
+        onRadioClick(popupOptionEl, 'popup-iframe');
 
         const pageOptionEl = htmlToElements(
           `<div>
@@ -198,7 +198,6 @@ export class EmbedAnnotator {
   }
 
   render(annot: EmbedAnnotation) {
-    const pageEl = getPageEl(this.documentEl, annot.page);
     const annotsLayerEl = this.annotator.getOrAttachAnnotLayerEl(annot.page);
     annotsLayerEl.querySelectorAll(`[data-annotation-id="${annot.id}"].pdfjs-annotation__embed`)
       .forEach((el: any) => el.remove());
