@@ -1,7 +1,7 @@
 import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EMPTY, Observable, of } from 'rxjs';
+import { of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { DocumentService } from './document.service';
 
