@@ -11,7 +11,7 @@ angular app to load and view the pdf documents.
 - in annotator-embed, add target=inline-iframe support, so the the content can be embeded inline into pdf
 - then obviously the inline-iframe should be resizable and repositionable
 - create an option so the author can add selected text as the section into the outline
-- create an interaction logger to log author interaction with the document
+- create an interaction logger to log reader interaction with the document
 - add auth so the author login and define documents 
   - everyone view their own documents (no community sharing at this time)
 - author can create (multiple) shareable link from the document 
