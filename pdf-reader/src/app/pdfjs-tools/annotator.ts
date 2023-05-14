@@ -534,7 +534,6 @@ export class Annotator {
       popupContainerEl = !$event.target.classList.contains('pdfjs-annotation-popup__container')
         ? $event.target.closest('.pdfjs-annotation-popup__container')
         : $event.target;
-      console.log(popupContainerEl);
       if (isLeftClick($event) && popupContainerEl) {
         isdragging = true;
         offset.left = $event.clientX - popupContainerEl.offsetLeft;
@@ -543,7 +542,6 @@ export class Annotator {
     });
 
     this.document.addEventListener('mousemove', function ($event) {
-      console.log(isLeftClick($event) && isdragging);
       if (isLeftClick($event) && isdragging) {
         popupContainerEl.style.left = `${$event.clientX - offset.left}px`;
         popupContainerEl.style.top = `${$event.clientY - offset.top}px`;

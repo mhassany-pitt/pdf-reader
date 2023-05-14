@@ -1,6 +1,6 @@
 .pdfjs-annotation__embed {
   position: absolute;
-  background-color: gray;
+  background-color: lightgray;
   pointer-events: auto;
   user-select: none;
   cursor: pointer;

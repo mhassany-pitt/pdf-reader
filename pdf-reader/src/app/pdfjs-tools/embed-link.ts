@@ -149,6 +149,7 @@ export class EmbedLink {
     });
 
     let lastBound: WHRect;
+    let fitIframeToParent;
     this.documentEl.addEventListener("mousemove", ($event: any) => {
       if (!isLeftClick($event) || !embedEl)
         return;
@@ -177,6 +178,11 @@ export class EmbedLink {
         embedEl.style.left = `${lastBound.left}%`;
         embedEl.style.right = `${lastBound.right}%`;
         embedEl.style.bottom = `${lastBound.bottom}%`;
+      }
+
+      if ($event.target.classList.contains('pdfjs-annotation__embed')) {
+        if (fitIframeToParent) clearTimeout(fitIframeToParent);
+        fitIframeToParent = setTimeout(() => this.embedLinkViewer.fitIframeToParent($event.target), 10);
       }
     });
 

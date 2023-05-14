@@ -34,7 +34,7 @@ export class FreeformViewer {
 
   private _attachStylesheet() {
     this.documentEl.querySelector('head').appendChild(htmlToElements(
-      `<link rel="stylesheet" type="text/css" href="/assets/freeform-annotation-viewer.css" />`
+      `<link rel="stylesheet" type="text/css" href="/assets/freeform-viewer.css" />`
     ));
   }
 
@@ -69,9 +69,7 @@ export class FreeformViewer {
           .forEach((el: any) => el.remove());
 
         const degree = rotation(this.pdfjs);
-        const freeform = annot.freeforms[pageNum];
-        const bound = rotateRect(degree, true, freeform);
-
+        const bound = rotateRect(degree, true, annot.freeforms[pageNum]);
         const freeformEl = htmlToElements(
           `<div data-annotation-id="${annot.id}" 
             class="pdfjs-annotation__freeform"
@@ -87,14 +85,14 @@ export class FreeformViewer {
             ">
           </div>`);
 
+        annotsLayerEl.appendChild(freeformEl);
         const image = new Image();
-        image.src = freeform.dataUrl;
-        image.style.position = 'relative';
+        freeformEl.appendChild(image);
+
+        image.src = annot.freeforms[pageNum].dataUrl;
+        image.style.position = 'absolute';
         image.style.transform = `rotate(${degree}deg)`;
         image.style.pointerEvents = 'none';
-
-        freeformEl.appendChild(image);
-        annotsLayerEl.appendChild(freeformEl);
 
         const computedStyle = getComputedStyle(freeformEl);
         image.style.width = degree == 90 || degree == 270 ? computedStyle.height : computedStyle.width;

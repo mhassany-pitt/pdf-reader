@@ -117,22 +117,40 @@ export class EmbeddedLinkViewer {
           left: ${bound.left}%;
           right: ${bound.right}%;
           ${this.configs?.resize ? 'resize: both;' : ''}
-          overflow: hidden;
           min-width: 16px;
           min-height: 16px;
           border-radius: 5px;
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         ">
-        ${annot.target == 'inline-iframe'
-        ? `<iframe src="${annot.link}" style="
-              width: calc(100% - 4px); 
-              height: calc(100% - ${this.configs?.resize ? 16 : 4}px); 
-              border: solid 2px lightgray; 
-              background-color: white;
-            ">
-          </iframe>`
-        : ''}
       </div>`);
 
     annotsLayerEl.appendChild(embedEl);
+    if (annot.target == 'inline-iframe') {
+      const iframe = htmlToElements(
+        `<iframe src="${annot.link}" style="border: none; background-color: white;"></iframe>`);
+      embedEl.appendChild(iframe);
+
+      this.fitIframeToParent(embedEl);
+    }
+  }
+
+  fitIframeToParent(annotEl: HTMLElement) {
+    const iframe = annotEl.querySelector('iframe') as HTMLIFrameElement;
+    const degree = rotation(this.pdfjs);
+    const scaleFactor = scale(this.pdfjs);
+    iframe.style.position = 'absolute';
+    iframe.style.transform = `scale(${scaleFactor}) rotate(${degree}deg)`;
+
+    const computedStyle = getComputedStyle(annotEl);
+    let width: any = parseFloat(computedStyle.width.replace('px', '')) / scaleFactor;
+    let height: any = parseFloat(computedStyle.height.replace('px', '')) / scaleFactor;
+    width = degree == 90 || degree == 270 ? height : width;
+    height = degree == 90 || degree == 270 ? width : height;
+    iframe.style.width = `${width - 4}px`;
+    iframe.style.height = `${height - (this.configs?.resize ? 24 : 4)}px`;
+    iframe.style.marginTop = `-${this.configs?.resize ? 12 : 0}px`;
   }
 }
