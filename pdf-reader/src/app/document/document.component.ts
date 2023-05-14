@@ -10,6 +10,7 @@ import { FreeformAnnotator } from '../pdfjs-tools/freeform-annotator';
 import { EmbedLink } from '../pdfjs-tools/embed-link';
 import { FreeformViewer } from '../pdfjs-tools/freeform-viewer';
 import { AddTextSelectionToOutline, Section } from './add-textselection-to-outline';
+import { EmbeddedLinkViewer } from '../pdfjs-tools/embedded-link-viewer';
 
 @Component({
   selector: 'app-document',
@@ -79,9 +80,10 @@ export class DocumentComponent implements OnInit {
     const storage = new AnnotationStorage({ groupId: this.documentId });
     const annotator = new Annotator({ iframe, pdfjs, storage });
     this.annotator = annotator;
-    const freeformViewer = new FreeformViewer({ iframe, pdfjs, annotator, storage });
-    const freefromAnnotator = new FreeformAnnotator({ iframe, pdfjs, annotator, freeformViewer, storage });
-    const linkAnnotator = new EmbedLink({ iframe, pdfjs, annotator, storage });
+    const freeformViewer = new FreeformViewer({ iframe, pdfjs, storage, annotator });
+    new FreeformAnnotator({ iframe, pdfjs, storage, annotator, freeformViewer });
+    const embedLinkViewer = new EmbeddedLinkViewer({ iframe, pdfjs, storage, annotator, configs: { resize: true } });
+    new EmbedLink({ iframe, pdfjs, storage, annotator, embedLinkViewer });
 
     this.setupAddTextSelectionToOutline();
   }

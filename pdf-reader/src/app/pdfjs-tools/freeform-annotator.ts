@@ -120,7 +120,8 @@ export class FreeformAnnotator {
 
       const containerEl = htmlToElements(`<div style="display: flex; gap: 5px;"></div>`);
       ['black', 'gray', 'green', 'blue', 'red'].forEach(color => {
-        const buttonEl = htmlToElements(`<button style="background-color: ${color};">&nbsp;</button>`);
+        const buttonEl = htmlToElements(
+          `<button style="flex-grow: 1; background-color: ${color};">&nbsp;</button>`);
         containerEl.appendChild(buttonEl);
         buttonEl.onclick = ($ev) => {
           this.canvasStrokeStyle = color;

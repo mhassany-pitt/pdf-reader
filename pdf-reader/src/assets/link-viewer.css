@@ -1,8 +1,0 @@
- .pdfjs-annotation__embed {
-   position: absolute;
-   background-color: darkgreen;
-   pointer-events: auto;
-   user-select: none;
-   cursor: pointer;
-   z-index: 5;
- }

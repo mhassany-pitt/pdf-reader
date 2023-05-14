@@ -13,7 +13,7 @@ export type EmbeddedLink = {
   target: string,
 }
 
-export class EmbedLinkViewer {
+export class EmbeddedLinkViewer {
   private document: any;
   private documentEl: any;
 
@@ -21,13 +21,19 @@ export class EmbedLinkViewer {
   private annotator: Annotator;
   private storage: AnnotationStorage<EmbeddedLink>;
 
-  constructor({ iframe, pdfjs, annotator, storage }) {
+  private configs: {
+    resize: boolean,
+  };
+
+  constructor({ iframe, pdfjs, annotator, storage, configs }) {
     this.document = iframe?.contentDocument;
     this.documentEl = this.document.documentElement;
 
     this.pdfjs = pdfjs;
     this.storage = storage;
     this.annotator = annotator;
+
+    this.configs = configs;
 
     this._attachStylesheet();
     this._renderOnPagerendered();
@@ -37,7 +43,7 @@ export class EmbedLinkViewer {
 
   private _attachStylesheet() {
     this.documentEl.querySelector('head').appendChild(htmlToElements(
-      `<link rel="stylesheet" type="text/css" href="/assets/embed-annotation-viewer.css" />`
+      `<link rel="stylesheet" type="text/css" href="/assets/embedded-link-viewer.css" />`
     ));
   }
 
@@ -55,7 +61,6 @@ export class EmbedLinkViewer {
 
       if (embedEl) {
         const annot = this.storage.read(embedEl.getAttribute('data-annotation-id'));
-
         if (annot.target == 'popup-iframe') {
           const embedElStyle = getComputedStyle(embedEl);
           const scaledHeight = 24 * scale(this.pdfjs);
@@ -68,7 +73,7 @@ export class EmbedLinkViewer {
 
           return htmlToElements(
             `<div style="display: flex; flex-flow: column; height: 100%;">
-              <div style="text-align: right;">
+              <div style="text-align: right; margin-bottom: 5px;">
                 <a href="${annot.link}" target="_blank">open in new tab</a>
               </div>
               <iframe src="${annot.link}" style="width: 100%; flex-grow: 1;"></iframe>
@@ -103,7 +108,7 @@ export class EmbedLinkViewer {
     const degree = rotation(this.pdfjs);
     const bound = rotateRect(degree, true, annot.bound as any);
     const embedEl = htmlToElements(
-      `<button data-annotation-id="${annot.id}" 
+      `<div data-annotation-id="${annot.id}" 
         class="pdfjs-annotation__embed"
         tabindex="-1" 
         style="
@@ -111,9 +116,22 @@ export class EmbedLinkViewer {
           bottom: ${bound.bottom}%;
           left: ${bound.left}%;
           right: ${bound.right}%;
-          border-radius: 100%;
+          ${this.configs?.resize ? 'resize: both;' : ''}
+          overflow: hidden;
+          min-width: 16px;
+          min-height: 16px;
+          border-radius: 5px;
         ">
-      </button>`);
+        ${annot.target == 'inline-iframe'
+        ? `<iframe src="${annot.link}" style="
+              width: calc(100% - 4px); 
+              height: calc(100% - ${this.configs?.resize ? 16 : 4}px); 
+              border: solid 2px lightgray; 
+              background-color: white;
+            ">
+          </iframe>`
+        : ''}
+      </div>`);
 
     annotsLayerEl.appendChild(embedEl);
   }

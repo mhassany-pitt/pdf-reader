@@ -6,8 +6,8 @@ import { ReaderService } from './reader.service';
 import { Annotator } from '../pdfjs-tools/annotator';
 import { AnnotationStorage } from '../pdfjs-tools/annotator-storage';
 import { FreeformAnnotator } from '../pdfjs-tools/freeform-annotator';
-import { EmbedLink } from '../pdfjs-tools/embed-link';
-import { EmbedLinkViewer } from '../pdfjs-tools/embed-link-viewer';
+import { EmbeddedLinkViewer } from '../pdfjs-tools/embedded-link-viewer';
+import { FreeformViewer } from '../pdfjs-tools/freeform-viewer';
 
 @Component({
   selector: 'app-reader',
@@ -65,12 +65,13 @@ export class ReaderComponent implements OnInit {
       this.removeExtraElements();
     }, 300);
 
-    // const store = new AnnotationStore({ groupId: this.documentId });
-    // const annotator = new Annotator({ iframe, pdfjs: this.pdfjs, store });
-    // const popup = new AnnotatorPopupLayer({ iframe, annotator, store });
-    // const freefrom = new FreeformAnnotator({ iframe, pdfjs: this.pdfjs, annotator, store, popup });
-    // // const embed = new EmbedAnnotator({ iframe, pdfjs: this.pdfjs, annotator, store, popup });
-    // const embed = new EmbedAnnotationViewer({ iframe, pdfjs: this.pdfjs, annotator, store, popup });
+    const pdfjs = this.pdfjs;
+
+    const storage = new AnnotationStorage({ groupId: this.documentId });
+    const annotator = new Annotator({ iframe, pdfjs, storage });
+    const freeformViewer = new FreeformViewer({ iframe, pdfjs, annotator, storage });
+    const freefromAnnotator = new FreeformAnnotator({ iframe, pdfjs, annotator, freeformViewer, storage });
+    const embedLinkViewer = new EmbeddedLinkViewer({ iframe, pdfjs, annotator, storage, configs: { resize: false } });
 
     this.pdfjs.open({ url: `${environment.apiUrl}/documents/${this.document.id}/file` });
   }

@@ -229,6 +229,7 @@ export class Annotator {
     this._removeOnKeyBkSpaceOrDelete();
     this._registerGetAnnotRectBound();
     // -- popup
+    this._setupPopupOnMouseMove();
     this._setupPopupOnTextSelection();
     this._setupPopupOnClick();
     this._setupPopupOnContextMenu();
@@ -505,8 +506,8 @@ export class Annotator {
     const styles = getComputedStyle($event.target);
     const top = location ? location.top : `calc(${styles.top} + ${styles.height})`;
     const left = location ? location.left : `${styles.left}`;
-    const width = (location || {}).width || '15rem';
-    const height = (location || {}).height || 'auto';
+    const width = (location || {}).width || 'fit-content';
+    const height = (location || {}).height || 'fit-content';
 
     const popupEl = htmlToElements(
       `<div class="pdfjs-annotation-popup__container" style="
@@ -524,8 +525,35 @@ export class Annotator {
     this.callbacks['show']?.forEach(callback => callback());
   }
 
-  // -- popup row items
+  // move popup on mouse move
+  private _setupPopupOnMouseMove() {
+    var isdragging = false;
+    var offset = { left: 0, top: 0 };
+    var popupContainerEl: HTMLElement;
+    this.document.addEventListener('mousedown', function ($event) {
+      popupContainerEl = !$event.target.classList.contains('pdfjs-annotation-popup__container')
+        ? $event.target.closest('.pdfjs-annotation-popup__container')
+        : $event.target;
+      console.log(popupContainerEl);
+      if (isLeftClick($event) && popupContainerEl) {
+        isdragging = true;
+        offset.left = $event.clientX - popupContainerEl.offsetLeft;
+        offset.top = $event.clientY - popupContainerEl.offsetTop;
+      }
+    });
 
+    this.document.addEventListener('mousemove', function ($event) {
+      console.log(isLeftClick($event) && isdragging);
+      if (isLeftClick($event) && isdragging) {
+        popupContainerEl.style.left = `${$event.clientX - offset.left}px`;
+        popupContainerEl.style.top = `${$event.clientY - offset.top}px`;
+      }
+    });
+
+    this.document.addEventListener('mouseup', () => isdragging = false);
+  }
+
+  // -- popup row items
 
   private _registerPopupToBeAnnotItemUI() {
     this.register(POPUP_ROW_ITEM_UI, ($event: any) => {
