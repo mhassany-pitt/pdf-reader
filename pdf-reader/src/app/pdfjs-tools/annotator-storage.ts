@@ -1,7 +1,12 @@
-export class AnnotationStore {
+export type Annotation = {
+  id: string,
+  type: string,
+}
+
+export class AnnotationStorage<T extends Annotation> {
   private STORAGE_KEY: string;
 
-  private annotations = [] as any[];
+  private annotations: T[] = [];
 
   constructor({ groupId, skipLoading = false }) {
     this.STORAGE_KEY = `${groupId}__pdfjs-reader-annotations`;
@@ -20,7 +25,7 @@ export class AnnotationStore {
     return this.annotations;
   }
 
-  create(annotation: any) {
+  create(annotation: T) {
     this.annotations.push(annotation);
     this.persist();
   }
@@ -29,7 +34,7 @@ export class AnnotationStore {
     return this.annotations.filter(a => a.id == id)[0];
   }
 
-  update(annotation: any) {
+  update(annotation: T) {
     const prev = this.read(annotation.id);
     const index = prev ? this.annotations.indexOf(prev) : -1;
     if (index < 0)
@@ -38,7 +43,7 @@ export class AnnotationStore {
     this.persist();
   }
 
-  delete(annotation: any) {
+  delete(annotation: T) {
     this.annotations.splice(this.annotations.indexOf(annotation), 1);
     this.persist();
   }

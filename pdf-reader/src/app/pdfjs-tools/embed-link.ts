@@ -1,13 +1,11 @@
-import { Annotator } from './annotator';
-import { AnnotatorPopup } from './annotator-popup';
-import { AnnotationStore } from './annotator-store';
+import { AnnotationStorage } from './annotator-storage';
 import {
-  Rect,
-  closestPageEl, createUniqueId, getPageEl, getPageNum,
-  htmlToElements, isRightClick, relativeToPageEl, rotateRect, rotation, scale
-} from './utils';
+  Rect, closestPageEl, uuid, getPageNum,
+  htmlToElements, isRightClick, relativeToPageEl,
+  rotateRect, rotation, scale, Annotator, POPUP_ROW_ITEM_UI
+} from './annotator';
 
-export type EmbedAnnotation = {
+export type Link = {
   id: string,
   type: string,
   page: number,
@@ -16,28 +14,21 @@ export type EmbedAnnotation = {
   target: string,
 }
 
-export class EmbedAnnotator {
-  private window;
-  private document;
-  private documentEl;
+export class EmbedLink {
+  private document: any;
+  private documentEl: any;
 
-  private pdfjs;
+  private pdfjs: any;
+  private storage: AnnotationStorage<Link>;
   private annotator: Annotator;
-  private store: AnnotationStore;
-  private popup: AnnotatorPopup;
 
-  constructor({ iframe, pdfjs, annotator, store, popup }) {
-    this.window = iframe?.contentWindow;
+  constructor({ iframe, pdfjs, annotator, storage }) {
     this.document = iframe?.contentDocument;
     this.documentEl = this.document.documentElement;
 
     this.pdfjs = pdfjs;
+    this.storage = storage;
     this.annotator = annotator;
-    this.store = store;
-    this.popup = popup;
-
-    this.annotator.registerBoundGetter('pdfjs-annotation__embed',
-      (pageNum: number, annot: any) => annot.bound);
 
     this._attachStylesheet();
     this._enableMoveOnDrag();
@@ -48,18 +39,18 @@ export class EmbedAnnotator {
 
   private _attachStylesheet() {
     this.documentEl.querySelector('head').appendChild(htmlToElements(
-      `<link rel="stylesheet" type="text/css" href="/assets/annotator-embed.css" />`
+      `<link rel="stylesheet" type="text/css" href="/assets/link-annotator.css" />`
     ));
   }
 
   private _registerToggleItemUI() {
-    this.popup.registerItemUI(($event: any) => {
+    this.annotator.register(POPUP_ROW_ITEM_UI, ($event: any) => {
       if (!isRightClick($event))
         return null as any;
 
       $event.preventDefault();
       const containerEl = htmlToElements(`<div style="display: flex; gap: 5px;"></div>`);
-      const buttonEl = htmlToElements(`<button style="flex-grow: 1;">embed link</button>`);
+      const buttonEl = htmlToElements(`<button>embed link</button>`);
       containerEl.appendChild(buttonEl);
       buttonEl.onclick = ($ev) => {
         const pageEl = closestPageEl($event.target);;
@@ -72,16 +63,16 @@ export class EmbedAnnotator {
           width: 24, height: 24
         } as any, pageEl);
         const annot = {
-          id: createUniqueId(),
+          id: uuid(),
           type: 'embed',
           bound: { top, left, right, bottom },
           page: pageNum,
           link: '',
           target: 'popup-iframe',
         };
-        this.store.create(annot);
+        this.storage.create(annot);
         this.render(annot);
-        this.popup.hide();
+        this.annotator.hidePopup();
       }
 
       return containerEl;
@@ -89,15 +80,15 @@ export class EmbedAnnotator {
   }
 
   private _registerEditorItemUI() {
-    this.popup.registerItemUI(($event: any) => {
+    this.annotator.register(POPUP_ROW_ITEM_UI, ($event: any) => {
       const embedEl = $event.target.classList.contains('pdfjs-annotation__embed')
         ? $event.target : $event.target.closest('.pdfjs-annotation__embed');
 
       if (embedEl) {
-        const annot = this.store.read(embedEl.getAttribute('data-annotation-id'));
+        const annot = this.storage.read(embedEl.getAttribute('data-annotation-id'));
         const embedElStyle = getComputedStyle(embedEl);
         const scaledHeight = 24 * scale(this.pdfjs);
-        this.popup.location = {
+        this.annotator.location = {
           top: `calc(${embedElStyle.top} + ${scaledHeight + 2}px)`,
           left: `${embedElStyle.left}`,
         };
@@ -109,13 +100,13 @@ export class EmbedAnnotator {
         containerEl.appendChild(linkInputEl);
         linkInputEl.onchange = ($ev: any) => {
           annot.link = (linkInputEl as any).value;
-          this.store.update(annot);
+          this.storage.update(annot);
         };
 
         const onRadioClick = (el: any, target: string) => {
           el.querySelector('input').onclick = ($ev) => {
             annot.target = target;
-            this.store.update(annot);
+            this.storage.update(annot);
           }
         }
 
@@ -176,9 +167,9 @@ export class EmbedAnnotator {
     this.documentEl.addEventListener("mouseup", ($event: any) => {
       if (embedEl && lastBound) {
         const annotId = embedEl.getAttribute('data-annotation-id') as string;
-        const annot = this.store.read(annotId);
+        const annot = this.storage.read(annotId);
         annot.bound = lastBound;
-        this.store.update(annot);
+        this.storage.update(annot);
       }
       embedEl = null as any;
     });
@@ -187,18 +178,18 @@ export class EmbedAnnotator {
   private _renderOnPagerendered() {
     this.pdfjs.eventBus.on('pagerendered', ($event: any) => {
       const pageNum = $event.pageNumber;
-      const annotsLayerEl = this.annotator.getOrAttachAnnotLayerEl(pageNum);
+      const annotsLayerEl = this.annotator.getOrAttachLayerEl(pageNum);
       annotsLayerEl.querySelectorAll('.pdfjs-annotation__embed').forEach((el: any) => el.remove());
 
-      (this.store.list() as EmbedAnnotation[])
+      (this.storage.list() as Link[])
         .filter(annot => annot.type == 'embed')
         .filter(annot => annot.page == pageNum)
         .forEach(annot => this.render(annot));
     });
   }
 
-  render(annot: EmbedAnnotation) {
-    const annotsLayerEl = this.annotator.getOrAttachAnnotLayerEl(annot.page);
+  render(annot: Link) {
+    const annotsLayerEl = this.annotator.getOrAttachLayerEl(annot.page);
     annotsLayerEl.querySelectorAll(`[data-annotation-id="${annot.id}"].pdfjs-annotation__embed`)
       .forEach((el: any) => el.remove());
 

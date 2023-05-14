@@ -11,10 +11,3 @@
   transform-origin: center center;
   z-index: 6;
 }
-
-.pdfjs-annotation__freeform {
-  position: absolute;
-  pointer-events: stroke;
-  user-select: none;
-  z-index: 4;
-}

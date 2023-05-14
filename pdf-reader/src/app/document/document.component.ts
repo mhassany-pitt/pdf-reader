@@ -4,11 +4,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { DocumentService } from './document.service';
-import { AnnotationStore } from '../annotator/annotator-store';
-import { Annotator } from '../annotator/annotator';
-import { AnnotatorPopup } from '../annotator/annotator-popup';
-import { FreeformAnnotator } from '../annotator/annotator-freeform';
-import { EmbedAnnotator } from '../annotator/annotator-embed';
+import { AnnotationStorage } from '../pdfjs-tools/annotator-storage';
+import { Annotator } from '../pdfjs-tools/annotator';
+import { FreeformAnnotator } from '../pdfjs-tools/freeform-annotator';
+import { EmbedLink } from '../pdfjs-tools/embed-link';
+import { FreeformViewer } from '../pdfjs-tools/freeform-viewer';
+import { AddTextSelectionToOutline, Section } from './add-textselection-to-outline';
 
 @Component({
   selector: 'app-document',
@@ -23,9 +24,10 @@ export class DocumentComponent implements OnInit {
 
   window: any;
   pdfjs: any;
-  record = false;
 
   newfile: any;
+
+  annotator: Annotator = null as any;
 
   get documentId() {
     return (this.route.snapshot.params as any).id;
@@ -47,9 +49,21 @@ export class DocumentComponent implements OnInit {
 
         this.document = document;
         this.title.setTitle(`Document: ${this.document.name || 'unnamed'}`);
+
+        this.setupAddTextSelectionToOutline();
       },
       error: (error: any) => console.log(error)
     });
+  }
+
+  private setupAddTextSelectionToOutline() {
+    if (this.document && this.annotator)
+      new AddTextSelectionToOutline({
+        iframe: this.viewer.nativeElement,
+        annotator: this.annotator,
+        addToOutline: (selection: any, $event: any) =>
+          this.ngZone.run(() => this.addToOutline(selection, $event))
+      });
   }
 
   onDocumentLoad($event) {
@@ -58,15 +72,18 @@ export class DocumentComponent implements OnInit {
     this.pdfjs = this.window.PDFViewerApplication;
     this.pdfjs.open({ url: `${environment.apiUrl}/documents/${this.document.id}/file` });
 
-    this.onWindowClick();
-
     setTimeout(() => this.onFileInputChange(), 300);
 
-    const store = new AnnotationStore({ groupId: this.documentId });
-    const annotator = new Annotator({ iframe, pdfjs: this.pdfjs, store });
-    const popup = new AnnotatorPopup({ iframe, pdfjs: this.pdfjs, annotator, store });
-    const freefrom = new FreeformAnnotator({ iframe, pdfjs: this.pdfjs, annotator, store, popup });
-    const embed = new EmbedAnnotator({ iframe, pdfjs: this.pdfjs, annotator, store, popup });
+    const pdfjs = this.pdfjs;
+
+    const storage = new AnnotationStorage({ groupId: this.documentId });
+    const annotator = new Annotator({ iframe, pdfjs, storage });
+    this.annotator = annotator;
+    const freeformViewer = new FreeformViewer({ iframe, pdfjs, annotator, storage });
+    const freefromAnnotator = new FreeformAnnotator({ iframe, pdfjs, annotator, freeformViewer, storage });
+    const linkAnnotator = new EmbedLink({ iframe, pdfjs, annotator, storage });
+
+    this.setupAddTextSelectionToOutline();
   }
 
   private onFileInputChange() {
@@ -76,16 +93,16 @@ export class DocumentComponent implements OnInit {
     });
   }
 
-  add(section: any) {
+  add(section: Section) {
     this.document.sections.push(section);
   }
 
-  remove(section: any) {
+  remove(section: Section) {
     const sections = this.document.sections;
     sections.splice(sections.indexOf(section), 1);
   }
 
-  level(section: any, change: number) {
+  level(section: Section, change: number) {
     section.level = Math.min(Math.max(0, (section.level || 0) + change), 5);
   }
 
@@ -114,36 +131,29 @@ export class DocumentComponent implements OnInit {
     }
   }
 
-  onWindowClick() {
-    this.window.onclick = ($event: any) => this.ngZone.run(() => {
-      if (!this.record)
-        return;
+  addToOutline(selection: any, $event: any) {
+    console.log(selection);
+    let { top, left, width, height } = selection.getRangeAt(0).getBoundingClientRect();
+    const textLayer = selection.anchorNode.parentElement.closest(`.pdfViewer .textLayer`);
+    const page = parseInt(textLayer.parentElement.getAttribute('data-page-number'));
+    const bound = textLayer.getBoundingClientRect();
 
-      const selection = this.window.getSelection();
-      let { top, left, width, height } = selection.getRangeAt(0).getBoundingClientRect();
+    // relative % to parent
+    top = (top - bound.top) / bound.height;
+    left = (left - bound.left) / bound.width;
+    width /= bound.width;
+    height /= bound.height;
 
-      const textLayer = selection.anchorNode.parentElement.closest(`.pdfViewer .textLayer`);
-      const page = parseInt(textLayer.parentElement.getAttribute('data-page-number'));
+    const title = selection.toString().trim();
+    const level = 0;
 
-      const { top: $top, left: $left, width: $width, height: $height } = textLayer.getBoundingClientRect();
+    if (!title)
+      return;
 
-      // relative % to parent
-      top = (top - $top) / $height;
-      left = (left - $left) / $width;
-      width /= $width;
-      height /= $height;
+    this.add({ level, title, page, top, left, width, height });
 
-      const title = selection.toString().trim();
-      const level = 0;
-
-      if (!title)
-        return;
-
-      this.add({ level, title, page, top, left, width, height });
-
-      selection.removeAllRanges();
-      this.focus(this.document.sections.length - 1);
-    });
+    selection.removeAllRanges();
+    this.focus(this.document.sections.length - 1);
   }
 
   locate(section: any) {

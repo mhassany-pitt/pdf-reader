@@ -1,49 +1,33 @@
-import { Annotator } from './annotator';
-import { AnnotatorPopup } from './annotator-popup';
-import { AnnotationStore } from './annotator-store';
+import { AnnotationStorage } from './annotator-storage';
 import {
-  WHRect, closestPageEl, createUniqueId, getPageEl, getPageNum,
-  htmlToElements, isLeftClick, isRightClick, rotateRect, rotation, scale
-} from './utils';
-
-export type Freeform = {
-  bound: WHRect,
-  dataUrl: string,
-};
-
-export type FreeformAnnotation = {
-  id: string,
-  type: string,
-  freeforms: { [pageNum: number]: Freeform }
-};
+  closestPageEl, uuid, getPageEl, getPageNum, htmlToElements,
+  isLeftClick, isRightClick, rotation, scale, Annotator, GetAnnotationBound, GET_ANNOTATION_BOUND, POPUP_ROW_ITEM_UI
+} from './annotator';
+import { Freeform, FreeformViewer } from './freeform-viewer';
 
 export class FreeformAnnotator {
-  private window;
-  private document;
-  private documentEl;
+  private document: any;
+  private documentEl: any;
 
-  private pdfjs;
+  private pdfjs: any;
   private annotator: Annotator;
-  private store: AnnotationStore;
-  private popup: AnnotatorPopup;
+  private freeformViewer: FreeformViewer;
+  private storage: AnnotationStorage<Freeform>;
 
   private enabled = false;
   private canvases: { [pageNum: number]: HTMLCanvasElement } = {};
   private canvasLineWidth = 3;
   private canvasStrokeStyle = 'black';
 
-  constructor({ iframe, pdfjs, annotator, store, popup }) {
-    this.window = iframe?.contentWindow;
+  constructor({ iframe, pdfjs, annotator, freeformViewer, storage }) {
     this.document = iframe?.contentDocument;
     this.documentEl = this.document.documentElement;
 
     this.pdfjs = pdfjs;
+    this.storage = storage;
     this.annotator = annotator;
-    this.store = store;
-    this.popup = popup;
+    this.freeformViewer = freeformViewer;
 
-    this.annotator.registerBoundGetter('pdfjs-annotation__freeform',
-      (pageNum: number, annot: any) => annot.freeforms[pageNum].bound);
 
     this._attachStylesheet();
     this._renderOnPagerendered();
@@ -54,14 +38,20 @@ export class FreeformAnnotator {
     this._registerStrokeColorItemUI();
   }
 
+  private _attachStylesheet() {
+    this.documentEl.querySelector('head').appendChild(htmlToElements(
+      `<link rel="stylesheet" type="text/css" href="/assets/freeform-annotator.css" />`
+    ));
+  }
+
   private _endFreeform() {
     this.enabled = false;
-    this.popup.hide();
+    this.annotator.hidePopup();
 
     const canvases = this.canvases;
     this.canvases = {};
 
-    const annot = { id: createUniqueId(), type: 'freeform', freeforms: {} };
+    const annot: Freeform = { id: uuid(), type: 'freeform', freeforms: {} };
 
     for (const key of Object.keys(canvases)) {
       const pageNum = parseInt(key);
@@ -70,32 +60,32 @@ export class FreeformAnnotator {
       const cropped = this._getCroppedCanvas(canvasEl);
       if (cropped) {
         const { canvas, ...bound } = cropped;
-        annot.freeforms[pageNum] = { dataUrl: canvas.toDataURL(), bound };
+        annot.freeforms[pageNum] = { ...bound, dataUrl: canvas.toDataURL() };
       }
       canvasEl.remove();
     }
 
     if (Object.keys(annot.freeforms).length) {
-      this.store.create(annot);
-      this.render(annot);
+      this.storage.create(annot);
+      this.freeformViewer.render(annot);
     }
   }
 
   private _registerToggleItemUI() {
-    this.popup.registerItemUI(($event: any) => {
+    this.annotator.register(POPUP_ROW_ITEM_UI, ($event: any) => {
       if (!isRightClick($event))
         return null as any;
 
       $event.preventDefault();
       const containerEl = htmlToElements(`<div style="display: flex; gap: 5px;"></div>`);
-      const buttonEl = htmlToElements(`<button style="flex-grow: 1;">${this.enabled ? 'end freeform' : 'start freeform'}</button>`);
+      const buttonEl = htmlToElements(`<button>${this.enabled ? 'end freeform' : 'start freeform'}</button>`);
       containerEl.appendChild(buttonEl);
       buttonEl.onclick = ($ev) => {
         if (this.enabled)
           this._endFreeform();
         else {
           this.enabled = true;
-          this.popup.hide();
+          this.annotator.hidePopup();
         }
       }
 
@@ -104,18 +94,18 @@ export class FreeformAnnotator {
   }
 
   private _registerStrokeSizeItemUI() {
-    this.popup.registerItemUI(($event: any) => {
+    this.annotator.register(POPUP_ROW_ITEM_UI, ($event: any) => {
       if (!this.enabled || !isRightClick($event))
         return null as any;
 
       const containerEl = htmlToElements(`<div style="display: flex; gap: 5px;"></div>`);
       ["thin,100,1", "normal,normal,3", "thick,900,5"].forEach(strokeSize => {
         const parts = strokeSize.split(',');
-        const buttonEl = htmlToElements(`<button style="flex-grow: 1; font-weight: ${parts[1]};">${parts[0]}</button>`);
+        const buttonEl = htmlToElements(`<button style="font-weight: ${parts[1]};">${parts[0]}</button>`);
         containerEl.appendChild(buttonEl);
         buttonEl.onclick = ($ev) => {
           this.canvasLineWidth = parseInt(parts[2]);
-          this.popup.hide();
+          this.annotator.hidePopup();
         }
       });
 
@@ -124,27 +114,21 @@ export class FreeformAnnotator {
   }
 
   private _registerStrokeColorItemUI() {
-    this.popup.registerItemUI(($event: any) => {
+    this.annotator.register(POPUP_ROW_ITEM_UI, ($event: any) => {
       if (!this.enabled || !isRightClick($event))
         return null as any;
 
       const containerEl = htmlToElements(`<div style="display: flex; gap: 5px;"></div>`);
       ['black', 'gray', 'green', 'blue', 'red'].forEach(color => {
-        const buttonEl = htmlToElements(`<button style="flex-grow: 1; background-color: ${color};">&nbsp;</button>`);
+        const buttonEl = htmlToElements(`<button style="background-color: ${color};">&nbsp;</button>`);
         containerEl.appendChild(buttonEl);
         buttonEl.onclick = ($ev) => {
           this.canvasStrokeStyle = color;
-          this.popup.hide();
+          this.annotator.hidePopup();
         }
       });
       return containerEl;
     });
-  }
-
-  private _attachStylesheet() {
-    this.documentEl.querySelector('head').appendChild(htmlToElements(
-      `<link rel="stylesheet" type="text/css" href="/assets/annotator-freeform.css" />`
-    ));
   }
 
   private _attachCanvasOnMousedown() {
@@ -173,16 +157,6 @@ export class FreeformAnnotator {
   private _renderOnPagerendered() {
     this.pdfjs.eventBus.on('pagerendered', ($event: any) => {
       const pageNum = $event.pageNumber;
-      const annotsLayerEl = this.annotator.getOrAttachAnnotLayerEl(pageNum);
-      annotsLayerEl.querySelectorAll('.pdfjs-annotation__freeform').forEach((el: any) => el.remove());
-
-      (this.store.list() as FreeformAnnotation[])
-        .filter(annot => annot.type == 'freeform')
-        .filter(annot => Object.keys(annot.freeforms)
-          .map(pageNum => parseInt(pageNum))
-          .indexOf(pageNum) > -1)
-        .forEach(annot => this.render(annot));
-
       this._reattachCanvasEl(pageNum);
     });
   }
@@ -233,7 +207,7 @@ export class FreeformAnnotator {
     context.drawImage($canvasEl, 0, 0);
   }
 
-  private ـangleDiff(angle1: number, angle2: number) {
+  private _angleDiff(angle1: number, angle2: number) {
     const angles = [0, 90, 180, 270];
     return angles[(angles.indexOf(angle2) - angles.indexOf(angle1) + angles.length) % angles.length];
   }
@@ -241,7 +215,7 @@ export class FreeformAnnotator {
   private _rotateCanvasLayerEl(canvasEl: HTMLCanvasElement, angle?: number) {
     const newAngle = angle === undefined ? rotation(this.pdfjs) : angle;
     const prevAngle = parseFloat(canvasEl.getAttribute('data-rotation') || '0');
-    this._rotateCanvas(canvasEl, this.ـangleDiff(prevAngle, newAngle));
+    this._rotateCanvas(canvasEl, this._angleDiff(prevAngle, newAngle));
     canvasEl.setAttribute('data-rotation', `${newAngle}`);
   }
 
@@ -320,49 +294,9 @@ export class FreeformAnnotator {
       top: parseFloat((top / canvasHeight * 100).toFixed(3)),
       right: parseFloat(((canvasWidth - right - 1) / canvasWidth * 100).toFixed(3)),
       bottom: parseFloat(((canvasHeight - bottom - 1) / canvasHeight * 100).toFixed(3)),
+      width: parseFloat((width / canvasWidth * 100).toFixed(3)),
+      height: parseFloat((height / canvasHeight * 100).toFixed(3)),
       canvas: $canvasEl
     };
-  }
-
-  render(annot: FreeformAnnotation) {
-    Object.keys(annot.freeforms)
-      .map(pageNum => parseInt(pageNum))
-      .forEach(pageNum => {
-        const annotsLayerEl = this.annotator.getOrAttachAnnotLayerEl(pageNum);
-        annotsLayerEl.querySelectorAll(`[data-annotation-id="${annot.id}"].pdfjs-annotation__freeform`)
-          .forEach((el: any) => el.remove());
-
-        const degree = rotation(this.pdfjs);
-        const freeform = annot.freeforms[pageNum];
-        const bound = rotateRect(degree, true, freeform.bound);
-
-        const freeformEl = htmlToElements(
-          `<div data-annotation-id="${annot.id}" 
-            class="pdfjs-annotation__freeform"
-            tabindex="-1" 
-            style="
-              top: ${bound.top}%;
-              bottom: ${bound.bottom}%;
-              left: ${bound.left}%;
-              right: ${bound.right}%;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-            ">
-          </div>`);
-
-        const image = new Image();
-        image.src = freeform.dataUrl;
-        image.style.position = 'relative';
-        image.style.transform = `rotate(${degree}deg)`;
-        image.style.pointerEvents = 'none';
-
-        freeformEl.appendChild(image);
-        annotsLayerEl.appendChild(freeformEl);
-
-        const computedStyle = getComputedStyle(freeformEl);
-        image.style.width = degree == 90 || degree == 270 ? computedStyle.height : computedStyle.width;
-        image.style.height = degree == 90 || degree == 270 ? computedStyle.width : computedStyle.height;
-      });
   }
 }
