@@ -11,3 +11,18 @@
   transform-origin: center center;
   z-index: 6;
 }
+
+.pdfjs-annotation-freeform__color-btns {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  column-gap: 0.125rem;
+  z-index: 1;
+}
+
+.pdfjs-annotation-freeform__color-btn {
+  flex-grow: 1;
+  position: relative;
+  border-width: 1px;
+  height: 0.75rem;
+}

@@ -1,155 +1,10 @@
-import { v4 } from 'uuid';
 import { AnnotationStorage } from './annotator-storage';
-
-// -- utils functions
-
-export const uuid = v4;
-export type Rect = { top: number, left: number, right: number, bottom: number }
-export type WHRect = Rect & { width: number, height: number }
-export type PageRect = WHRect & { page: number };
-
-export const htmlToElements = (html: string) => {
-  const temp = document.createElement('div');
-  temp.innerHTML = html;
-  return temp.firstChild as HTMLElement;
-}
-
-export const closestPageEl = (el: Element) => el.closest(`.pdfViewer .page`) as HTMLElement;
-export const getPageNum = (pageEl: HTMLElement) => parseInt(pageEl.getAttribute('data-page-number') || '');
-export const findPageNumAt = (document: Document, rect: WHRect): number => {
-  const pointEl = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
-  return pointEl ? getPageNum(closestPageEl(pointEl)) : (null as any);
-}
-export const getPageEl = (documentEl: any, pageNum: number) =>
-  documentEl.querySelector(`.pdfViewer .page[data-page-number="${pageNum}"]`);
-
-export const relativeToPageEl = (rect: PageRect, pageEl: any): PageRect => {
-  let { top, left, right, bottom, width, height, page } = rect;
-
-  let prect = pageEl.getBoundingClientRect();
-  const b = parseFloat(getComputedStyle(pageEl).borderWidth);
-  const pTop = prect.top + b;
-  const pLeft = prect.left + b;
-  const pBottom = prect.bottom - b;
-  const pRight = prect.right - b;
-  const pHeight = prect.height - b * 2;
-  const pWidth = prect.width - b * 2;
-
-  top = parseFloat(((top - pTop) / pHeight * 100).toFixed(3));
-  left = parseFloat(((left - pLeft) / pWidth * 100).toFixed(3));
-  bottom = parseFloat(((pBottom - bottom) / pHeight * 100).toFixed(3));
-  right = parseFloat(((pRight - right) / pWidth * 100).toFixed(3));
-  width = parseFloat((width / pWidth * 100).toFixed(3));
-  height = parseFloat((height / pHeight * 100).toFixed(3));
-
-  return { top, left, right, bottom, width, height, page };
-}
-
-export const mergeRects = (rects: WHRect[]): WHRect[] => {
-  type IgnorableRect = WHRect & { ignore?: boolean };
-  let $rects = rects.map(({ top, right, bottom, left, width, height }) =>
-    ({ top, right, bottom, left, width, height })) as IgnorableRect[];
-  $rects = $rects.sort((a, b) => (a.width * a.height) - (b.width * b.height));
-  // TODO: using 'ignore' may not be efficient
-
-  // merge horizontal rects
-  for (var i = 1; i < $rects.length; i++)
-    for (var j = 0; j < i; j++) {
-      const a = $rects[i];
-      const b = $rects[j];
-
-      if (!b.ignore
-        && a.top == b.top
-        && a.bottom == b.bottom
-        && b.right >= a.left
-      ) {
-        a.ignore = b.ignore = true;
-        const left = Math.min(a.left, b.left);
-        const right = Math.max(a.right, b.right);
-
-        $rects.push({
-          top: b.top,
-          bottom: b.bottom,
-          left,
-          right,
-          height: a.bottom - a.top,
-          width: right - left,
-        });
-      }
-    }
-
-  $rects = $rects.filter(rect => !rect.ignore);
-  // merge completely-overlapping rects
-  for (let i = 1; i < $rects.length; i++)
-    for (let j = 0; j < i; j++) {
-      const a = $rects[i];
-      const b = $rects[j];
-
-      if (!b.ignore
-        && b.left >= a.left
-        && b.top >= a.top
-        && b.right <= a.right
-        && b.bottom <= a.bottom
-      ) {
-        b.ignore = true;
-        break;
-      }
-    }
-
-  return $rects.filter(rect => !rect.ignore).map(rect => {
-    const { ignore, ...attrs } = rect;
-    return attrs;
-  });
-}
-
-export const groupByPageNum = (rects: PageRect[]) => {
-  const grouped: { [pageNum: number]: WHRect[] } = {};
-
-  rects.filter(rect => (rect.left + rect.right) < 99.99 && (rect.top + rect.bottom) < 99.99)
-    .forEach((rect) => {
-      if (!grouped[rect.page])
-        grouped[rect.page] = [];
-      const { page, ...attrs } = rect;
-      grouped[rect.page].push(attrs);
-    });
-
-  return grouped;
-}
-
-export const rotateRect = (degree: 0 | 90 | 180 | 270, clockwise: boolean, rect: WHRect) => {
-  let values = [rect.top, rect.left, rect.bottom, rect.right];
-  const steps = (degree % 360) / 90;
-
-  values = clockwise
-    ? values.slice(steps).concat(values.slice(0, steps))
-    : values.slice(4 - steps).concat(values.slice(0, 4 - steps));
-
-  return {
-    top: values[0],
-    left: values[1],
-    bottom: values[2],
-    right: values[3],
-    width: degree == 90 || degree == 180 ? rect.height : rect.width,
-    height: degree == 90 || degree == 180 ? rect.width : rect.height,
-  }
-}
-
-export const getBound = (rects: WHRect[]): WHRect => {
-  return {
-    left: Math.min(...rects.map(rect => rect.left)),
-    right: Math.min(...rects.map(rect => rect.right)),
-    top: Math.min(...rects.map(rect => rect.top)),
-    bottom: Math.min(...rects.map(rect => rect.bottom)),
-    width: 0,
-    height: 0,
-  };
-}
-
-export const scale = (pdfjs: any) => pdfjs.pdfViewer.currentScale;
-export const rotation = (pdfjs: any) => pdfjs.pdfViewer.pagesRotation;
-
-export const isLeftClick = ($event: any) => $event.button === 0;
-export const isRightClick = ($event: any) => $event.button === 2;
+import {
+  WHRect, closestPageEl, getBound,
+  getPageEl, getPageNum, getSelectionRects, htmlToElements,
+  isLeftClick, rotateRect,
+  rotation, uuid
+} from './annotator-utils';
 
 // -- annotator
 
@@ -205,7 +60,7 @@ export class Annotator {
   // } = {};
 
   onTextSelection = ($event: any) => {
-    const rects = this.getSelectionRects();
+    const rects = getSelectionRects(this.document, this.pdfjs);
     if (rects && Object.keys(rects).length) {
       const annot = { id: uuid(), type: 'highlight', rects };
       this.storage.create(annot);
@@ -351,35 +206,6 @@ export class Annotator {
     this.window.getSelection().removeAllRanges();
   }
 
-  getSelectionRects() {
-    const selection = this.window.getSelection();
-    if (!selection || selection.rangeCount < 1)
-      return null;
-
-    const range = selection.getRangeAt(0);
-    const rects: WHRect[] = Array.from(range.getClientRects());
-
-    const merged = mergeRects(rects)
-      .map(rect => ({ ...rect, page: findPageNumAt(this.document, rect) }))
-      .filter(rect => rect.page && rect.width > 0 && rect.height > 0);
-
-    if (merged.length < 1)
-      return null;
-
-    const relative = merged.map(rect =>
-      relativeToPageEl(rect, getPageEl(this.documentEl, rect.page)));
-
-    const grouped = groupByPageNum(relative);
-    for (const pageNum of Object.keys(grouped)) {
-      grouped[pageNum] = grouped[pageNum].map((rect: WHRect) => {
-        // in case page rotation != 0, rotate it back to 0
-        return rotateRect(rotation(this.pdfjs), false, rect);
-      });
-    }
-
-    return grouped;
-  }
-
   getOrAttachLayerEl(pageNum: number) {
     const pageEl = getPageEl(this.documentEl, pageNum);
     if (!pageEl.querySelector('.pdfjs-annotations'))
@@ -392,15 +218,15 @@ export class Annotator {
 
     const boundEl = htmlToElements(
       `<div data-annotation-id="${annot.id}"
-      class="pdfjs-annotation__bound" 
-      tabindex="-1"
-      style="
-        top: calc(${boundRect.top}% - 1px);
-        bottom: calc(${boundRect.bottom}% - 1px);
-        left: calc(${boundRect.left}% - 1px);
-        right: calc(${boundRect.right}% - 1px);
-      ">
-    </div>`
+        class="pdfjs-annotation__bound" 
+        tabindex="-1"
+        style="
+          top: calc(${boundRect.top}% - 1px);
+          bottom: calc(${boundRect.bottom}% - 1px);
+          left: calc(${boundRect.left}% - 1px);
+          right: calc(${boundRect.right}% - 1px);
+        ">
+      </div>`
     );
 
     this.getOrAttachLayerEl(pageNum).appendChild(boundEl);
@@ -422,6 +248,7 @@ export class Annotator {
           rect = rotateRect(degree, true, rect);
           const rectEl = htmlToElements(
             `<div data-annotation-id="${annot.id}" 
+              data-analytic-id="annot${annot.type ? '-' + annot.type : ''}-${annot.id}"
               class="pdfjs-annotation__rect ${annot.type ? 'pdfjs-annotation__' + annot.type : ''}" 
               style="
                 top: calc(${rect.top}% + 1px);
@@ -471,12 +298,14 @@ export class Annotator {
   private _setupPopupOnContextMenu() {
     this.document.addEventListener('contextmenu', ($event: any) => {
       const pageEl = closestPageEl($event.target);
-      const pageBound = pageEl.getBoundingClientRect();
-      this.location = {
-        top: `${$event.y - pageBound.y}px`,
-        left: `${$event.x - pageBound.x}px`,
-      };
-      this._preparePopupRowItemUIs($event);
+      if (pageEl) {
+        const pageBound = pageEl.getBoundingClientRect();
+        this.location = {
+          top: `${$event.y - pageBound.y}px`,
+          left: `${$event.x - pageBound.x}px`,
+        };
+        this._preparePopupRowItemUIs($event);
+      }
     });
   }
 
@@ -555,7 +384,7 @@ export class Annotator {
 
   private _registerPopupToBeAnnotItemUI() {
     this.register(POPUP_ROW_ITEM_UI, ($event: any) => {
-      const rects = this.getSelectionRects();
+      const rects = getSelectionRects(this.document, this.pdfjs);
       if (isLeftClick($event) && rects && Object.keys(rects).length) {
         const pageEl = closestPageEl($event.target);
         const bound = getBound(rects[getPageNum(pageEl)]);
@@ -583,7 +412,7 @@ export class Annotator {
   }
 
   private _isPendingAnnotOrRect($event: any) {
-    const selectionRects = this.getSelectionRects();
+    const selectionRects = getSelectionRects(this.document, this.pdfjs);
     const isPendingAnnot = this.pending && selectionRects && Object.keys(selectionRects).length;
     const isAnnotRect = $event.target.classList.contains('pdfjs-annotation__rect');
     return isLeftClick($event) && (isPendingAnnot || isAnnotRect);
@@ -593,12 +422,9 @@ export class Annotator {
     this.register(POPUP_ROW_ITEM_UI, ($event: any) => {
       if (this._isPendingAnnotOrRect($event)) {
         const annot = this.pending || this.storage.read($event.target.getAttribute('data-annotation-id'));
-        const noteEl = htmlToElements(`<textarea rows="5">${annot.note || ''}</textarea>`);
+        const noteEl = htmlToElements(`<textarea class="pdfjs-annotation-popup__annot-note" rows="5">${annot.note || ''}</textarea>`);
         noteEl.onchange = ($ev: any) => this._setAnnotationAttr(annot, 'note', $ev.target.value);
-
-        const containerEl = htmlToElements(`<div class="pdfjs-annotation-popup__highlight-note"></div>`);
-        containerEl.appendChild(noteEl);
-        return containerEl;
+        return noteEl;
       }
       return null as any;
     });
@@ -608,9 +434,9 @@ export class Annotator {
     this.register(POPUP_ROW_ITEM_UI, ($event: any) => {
       if (this._isPendingAnnotOrRect($event)) {
         const annot = this.pending || this.storage.read($event.target.getAttribute('data-annotation-id'));
-        const colorsEl = htmlToElements(`<div class="pdfjs-annotation-popup__highlight-colors"></div>`);
+        const colorsEl = htmlToElements(`<div class="pdfjs-annotation-popup__annot-color-btns"></div>`);
         ['#ffd400', '#ff6563', '#5db221', '#2ba8e8', '#a28ae9', '#e66df2', '#f29823', '#aaaaaa', 'black'].forEach(color => {
-          const colorEl = htmlToElements(`<button class="pdfjs-annotation-popup__highlight-color-btn"></button>`);
+          const colorEl = htmlToElements(`<button class="pdfjs-annotation-popup__annot-color-btn pdfjs-annotation-popup__annot-color-btn--${color.replace('#', '')}"></button>`);
           colorEl.style.backgroundColor = color;
           colorEl.onclick = ($ev) => this._setAnnotationAttr(annot, 'color', color);
           colorsEl.appendChild(colorEl);
@@ -638,9 +464,9 @@ export class Annotator {
           'underline': '<span style="text-decoration: underline;">underline</span>',
           'linethrough': '<span style="text-decoration: line-through;">line-through</span>',
         };
-        const typesEl = htmlToElements(`<div class="pdfjs-annotation-popup__highlight-types"></div>`);
+        const typesEl = htmlToElements(`<div class="pdfjs-annotation-popup__annot-type-btns"></div>`);
         Object.keys(typeBtnHtmls).forEach(type => {
-          const buttonEl = htmlToElements(`<button class="pdfjs-annotation-popup__highlight-type-btn">${typeBtnHtmls[type]}</button>`);
+          const buttonEl = htmlToElements(`<button class="pdfjs-annotation-popup__annot-type-btn--${type}">${typeBtnHtmls[type]}</button>`);
           buttonEl.onclick = ($ev) => this._setAnnotationAttr(annot, 'type', type);
           typesEl.appendChild(buttonEl);
         });

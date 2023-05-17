@@ -1,5 +1,5 @@
-import { isLeftClick } from '../pdfjs-tools/annotator';
-import { htmlToElements, POPUP_ROW_ITEM_UI } from '../pdfjs-tools/annotator';
+import { isLeftClick, htmlToElements, } from '../pdfjs-tools/annotator-utils';
+import { POPUP_ROW_ITEM_UI } from '../pdfjs-tools/annotator';
 
 export type Section = {
   level: number,

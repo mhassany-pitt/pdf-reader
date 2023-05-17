@@ -1,6 +1,10 @@
 import {
   Rect, htmlToElements, rotateRect,
-  rotation, scale, Annotator, GET_ANNOTATION_BOUND, GetAnnotationBound, POPUP_ROW_ITEM_UI
+  rotation,
+  scale,
+} from './annotator-utils';
+import {
+  Annotator, GET_ANNOTATION_BOUND, GetAnnotationBound, POPUP_ROW_ITEM_UI
 } from './annotator';
 import { AnnotationStorage } from './annotator-storage';
 
@@ -72,13 +76,13 @@ export class EmbeddedLinkViewer {
           };
 
           return htmlToElements(
-            `<div style="display: flex; flex-flow: column; height: 100%;">
+            `<div class="pdfjs-embed-link__popup" style="display: flex; flex-flow: column; height: 100%;">
               <div style="text-align: right; margin-bottom: 5px;">
                 <a href="${annot.link}" target="_blank">open in new tab</a>
               </div>
               <iframe src="${annot.link}" style="width: 100%; flex-grow: 1;"></iframe>
             </div>`);
-        } else if (annot.target == 'page') {
+        } else if (annot.target == 'new-page') {
           window.open(annot.link, '_blank');
         }
       }
@@ -109,6 +113,7 @@ export class EmbeddedLinkViewer {
     const bound = rotateRect(degree, true, annot.bound as any);
     const embedEl = htmlToElements(
       `<div data-annotation-id="${annot.id}" 
+        data-analytic-id="embedded-link-${annot.id}"
         class="pdfjs-annotation__embed"
         tabindex="-1" 
         style="

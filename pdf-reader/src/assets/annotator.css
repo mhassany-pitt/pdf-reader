@@ -60,7 +60,7 @@
 
 /* -- annotator popup row items styles */
 
-.pdfjs-annotation-popup__highlight-types {
+.pdfjs-annotation-popup__annot-type-btns {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -68,7 +68,7 @@
   z-index: 1;
 }
 
-.pdfjs-annotation-popup__highlight-colors {
+.pdfjs-annotation-popup__annot-color-btns {
   display: flex;
   align-items: center;
   justify-content: space-evenly;
@@ -76,14 +76,14 @@
   z-index: 1;
 }
 
-.pdfjs-annotation-popup__highlight-color-btn {
+.pdfjs-annotation-popup__annot-color-btn {
   position: relative;
   height: 0.75rem;
-  width: 100%;
+  flex-grow: 1;
   border-width: 1px;
 }
 
-.pdfjs-annotation-popup__highlight-note textarea {
+.pdfjs-annotation-popup__annot-note {
   width: 100%;
 }
 

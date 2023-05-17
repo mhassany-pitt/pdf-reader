@@ -1,5 +1,6 @@
 import { AnnotationStorage } from './annotator-storage';
-import { WHRect, htmlToElements, rotateRect, rotation, Annotator, GET_ANNOTATION_BOUND, GetAnnotationBound } from './annotator';
+import { WHRect, htmlToElements, rotateRect, rotation } from './annotator-utils';
+import { Annotator, GET_ANNOTATION_BOUND, GetAnnotationBound } from './annotator';
 
 export type FreeformRect = WHRect & {
   dataUrl: string,
@@ -72,6 +73,7 @@ export class FreeformViewer {
         const bound = rotateRect(degree, true, annot.freeforms[pageNum]);
         const freeformEl = htmlToElements(
           `<div data-annotation-id="${annot.id}" 
+            data-analytic-id="annot-freeform-${annot.id}"
             class="pdfjs-annotation__freeform"
             tabindex="-1" 
             style="

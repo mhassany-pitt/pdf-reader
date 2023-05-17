@@ -1,8 +1,9 @@
 import { AnnotationStorage } from './annotator-storage';
 import {
   closestPageEl, uuid, getPageEl, getPageNum, htmlToElements,
-  isLeftClick, isRightClick, rotation, scale, Annotator, GetAnnotationBound, GET_ANNOTATION_BOUND, POPUP_ROW_ITEM_UI
-} from './annotator';
+  isLeftClick, isRightClick, rotation, scale,
+} from './annotator-utils';
+import { Annotator, POPUP_ROW_ITEM_UI } from './annotator';
 import { Freeform, FreeformViewer } from './freeform-viewer';
 
 export class FreeformAnnotator {
@@ -78,7 +79,10 @@ export class FreeformAnnotator {
 
       $event.preventDefault();
       const containerEl = htmlToElements(`<div style="display: flex; gap: 5px;"></div>`);
-      const buttonEl = htmlToElements(`<button>${this.enabled ? 'end freeform' : 'start freeform'}</button>`);
+      const buttonEl = htmlToElements(
+        `<button class="pdfjs-annotation-freeform__${this.enabled ? 'end-btn' : 'start-btn'}">
+          ${this.enabled ? 'end freeform' : 'start freeform'}
+        </button>`);
       containerEl.appendChild(buttonEl);
       buttonEl.onclick = ($ev) => {
         if (this.enabled)
@@ -101,7 +105,10 @@ export class FreeformAnnotator {
       const containerEl = htmlToElements(`<div style="display: flex; gap: 5px;"></div>`);
       ["thin,100,1", "normal,normal,3", "thick,900,5"].forEach(strokeSize => {
         const parts = strokeSize.split(',');
-        const buttonEl = htmlToElements(`<button style="font-weight: ${parts[1]};">${parts[0]}</button>`);
+        const buttonEl = htmlToElements(
+          `<button class="pdfjs-annotation-freeform__stroke-btn--${parts[0]}" style="font-weight: ${parts[1]};">
+            ${parts[0]}
+          </button>`);
         containerEl.appendChild(buttonEl);
         buttonEl.onclick = ($ev) => {
           this.canvasLineWidth = parseInt(parts[2]);
@@ -118,10 +125,11 @@ export class FreeformAnnotator {
       if (!this.enabled || !isRightClick($event))
         return null as any;
 
-      const containerEl = htmlToElements(`<div style="display: flex; gap: 5px;"></div>`);
+      const containerEl = htmlToElements(`<div class="pdfjs-annotation-freeform__color-btns" style="display: flex; gap: 5px;"></div>`);
       ['black', 'gray', 'green', 'blue', 'red'].forEach(color => {
         const buttonEl = htmlToElements(
-          `<button style="flex-grow: 1; background-color: ${color};">&nbsp;</button>`);
+          `<button class="pdfjs-annotation-freeform__color-btn pdfjs-annotation-freeform__color-btn--${color}" 
+            style="flex-grow: 1; background-color: ${color};">&nbsp;</button>`);
         containerEl.appendChild(buttonEl);
         buttonEl.onclick = ($ev) => {
           this.canvasStrokeStyle = color;

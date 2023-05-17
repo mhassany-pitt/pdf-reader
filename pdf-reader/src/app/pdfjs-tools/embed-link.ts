@@ -2,7 +2,10 @@ import { AnnotationStorage } from './annotator-storage';
 import {
   Rect, closestPageEl, uuid, getPageNum,
   htmlToElements, isRightClick, relativeToPageEl,
-  rotateRect, rotation, scale, Annotator, POPUP_ROW_ITEM_UI, WHRect, isLeftClick
+  rotateRect, rotation, scale, WHRect, isLeftClick
+} from './annotator-utils';
+import {
+  Annotator, POPUP_ROW_ITEM_UI,
 } from './annotator';
 import { EmbeddedLinkViewer, EmbeddedLink } from './embedded-link-viewer';
 
@@ -43,7 +46,7 @@ export class EmbedLink {
 
       $event.preventDefault();
       const containerEl = htmlToElements(`<div style="display: flex; gap: 5px;"></div>`);
-      const buttonEl = htmlToElements(`<button>embed link</button>`);
+      const buttonEl = htmlToElements(`<button class="pdfjs-embed-link__embed-btn">embed link</button>`);
       containerEl.appendChild(buttonEl);
       buttonEl.onclick = ($ev) => {
         const pageEl = closestPageEl($event.target);;
@@ -88,7 +91,9 @@ export class EmbedLink {
         const containerEl = htmlToElements(`<div style="display: flex; flex-flow: column;"></div>`);
 
         const linkInputEl = htmlToElements(
-          `<input type="url" placeholder="put resource url" style="margin-bottom: 5px;" value="${annot.link}"/>`);
+          `<input type="url" placeholder="put resource url" 
+            class="pdfjs-embed-link__link-input"
+            style="margin-bottom: 5px;" value="${annot.link}"/>`);
         containerEl.appendChild(linkInputEl);
         linkInputEl.onchange = ($ev: any) => {
           annot.link = (linkInputEl as any).value;
@@ -105,22 +110,34 @@ export class EmbedLink {
         }
 
         const inlineIframeEl = htmlToElements(
-          `<div><input type="radio" name="popup" id="inline-iframe-${random}" ${annot.target == 'inline-iframe' ? 'checked' : ''}/>
-                <label for="inline-iframe-${random}">embed inline</label></div>`);
+          `<div>
+            <input type="radio" name="popup" 
+              id="inline-iframe-${random}" ${annot.target == 'inline-iframe' ? 'checked' : ''}
+              class="pdfjs-embed-link__embed-as-inline-iframe"/>
+            <label for="inline-iframe-${random}">embed inline</label>
+          </div>`);
         containerEl.appendChild(inlineIframeEl);
         onclick(inlineIframeEl, 'inline-iframe');
 
         const popupOptionEl = htmlToElements(
-          `<div><input type="radio" name="popup" id="popup-iframe-${random}" ${annot.target == 'popup-iframe' ? 'checked' : ''}/>
-                <label for="popup-iframe-${random}">open in popup</label></div>`);
+          `<div>
+            <input type="radio" name="popup" 
+              id="popup-iframe-${random}" ${annot.target == 'popup-iframe' ? 'checked' : ''}
+              class="pdfjs-embed-link__embed-as-popup-iframe"/>
+            <label for="popup-iframe-${random}">open in popup</label>
+          </div>`);
         containerEl.appendChild(popupOptionEl);
         onclick(popupOptionEl, 'popup-iframe');
 
-        const pageOptionEl = htmlToElements(
-          `<div><input type="radio" name="popup" id="page-${random}" ${annot.target == 'page' ? 'checked' : ''}/>
-                <label for="page-${random}">open in new page</label></div>`);
-        containerEl.appendChild(pageOptionEl);
-        onclick(pageOptionEl, 'page');
+        const newPageOptionEl = htmlToElements(
+          `<div>
+            <input type="radio" name="popup" 
+              id="new-page-${random}" ${annot.target == 'new-page' ? 'checked' : ''}
+              class="pdfjs-embed-link__embed-as-new-page"/>
+            <label for="new-page-${random}">open in new page</label>
+          </div>`);
+        containerEl.appendChild(newPageOptionEl);
+        onclick(newPageOptionEl, 'new-page');
 
         return containerEl;
       }

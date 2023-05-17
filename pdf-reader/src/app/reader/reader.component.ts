@@ -8,6 +8,7 @@ import { AnnotationStorage } from '../pdfjs-tools/annotator-storage';
 import { FreeformAnnotator } from '../pdfjs-tools/freeform-annotator';
 import { EmbeddedLinkViewer } from '../pdfjs-tools/embedded-link-viewer';
 import { FreeformViewer } from '../pdfjs-tools/freeform-viewer';
+import { InteractionLogger } from '../pdfjs-tools/interaction-logger';
 
 @Component({
   selector: 'app-reader',
@@ -66,6 +67,7 @@ export class ReaderComponent implements OnInit {
     }, 300);
 
     const pdfjs = this.pdfjs;
+    const interactionLogger = new InteractionLogger({ iframe, pdfjs });
 
     const storage = new AnnotationStorage({ groupId: this.documentId });
     const annotator = new Annotator({ iframe, pdfjs, storage });
