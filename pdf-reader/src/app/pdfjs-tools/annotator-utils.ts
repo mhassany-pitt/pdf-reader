@@ -17,7 +17,11 @@ export const closestPageEl = (el: Element) => el.closest(`.pdfViewer .page`) as 
 export const getPageNum = (pageEl: HTMLElement) => parseInt(pageEl.getAttribute('data-page-number') || '');
 export const findPageNumAt = (document: Document, rect: WHRect): number => {
   const pointEl = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
-  return pointEl ? getPageNum(closestPageEl(pointEl)) : (null as any);
+  if (pointEl) {
+    const pageEl = closestPageEl(pointEl);
+    if (pageEl) return getPageNum(pageEl);
+  }
+  return null as any;
 }
 export const getPageEl = (documentEl: any, pageNum: number) =>
   documentEl.querySelector(`.pdfViewer .page[data-page-number="${pageNum}"]`);

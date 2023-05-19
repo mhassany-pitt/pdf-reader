@@ -154,7 +154,7 @@ export class EmbeddedResourceViewer {
       embedEl.appendChild(iframeEl);
       this.fitIframeToParent(embedEl);
       embedEl.style.backgroundColor = 'lightgray';
-    } else {
+    } else if (annot.thumbnail) {
       const thumbEl = htmlToElements(
         `<img src="${annot.thumbnail}" draggable="false" style="width: 80%; height: 80%; object-fit: contain;" />`);
       embedEl.appendChild(thumbEl);

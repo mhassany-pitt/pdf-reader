@@ -24,7 +24,11 @@ export class EmbedResource {
     this.storage = storage;
     this.annotator = annotator;
     this.embedLinkViewer = embedLinkViewer;
-    this.embedLinkViewer._clickguard = ($event: any) => $event.detail === 2;
+    this.embedLinkViewer._clickguard = ($event: any) => {
+      if ($event.ctrlKey)
+        $event.preventDefault();
+      return $event.ctrlKey;
+    }
 
     this._attachStylesheet();
     this._enableMoveOnDrag();
@@ -48,7 +52,7 @@ export class EmbedResource {
       const buttonEl = htmlToElements(`<button class="pdfjs-embed-resource__embed-btn">embed resource</button>`);
       containerEl.appendChild(buttonEl);
       buttonEl.onclick = ($ev) => {
-        const pageEl = closestPageEl($event.target);;
+        const pageEl = closestPageEl($event.target);
         const pageNum = getPageNum(pageEl);
         const { top, left, right, bottom } = relativeToPageEl({
           top: $event.y,
@@ -62,7 +66,8 @@ export class EmbedResource {
           type: 'embed',
           bound: { top, left, right, bottom },
           page: pageNum,
-          resource: '',
+          resource: '/default-resource',
+          thumbnail: '/assets/info.png',
           target: 'popup-iframe',
         };
         this.storage.create(annot);
@@ -173,7 +178,8 @@ export class EmbedResource {
             `<div>
               <div style="display: flex; align-items: center;">
                 <span style="width: 5rem;">${label}</span>
-                <input type="url" placeholder="${placeholder}" value="${value || ''}" 
+                <input type="text" placeholder="${placeholder}" 
+                  value="${value || ''}" autocomplete="off"
                   class="pdfjs-embed-resource__${type}-url-input"
                   style="flex-grow: 1"/>
               </div>
@@ -206,7 +212,7 @@ export class EmbedResource {
     let offsetBound: { left: number, top: number };
 
     this.documentEl.addEventListener("mousedown", ($event: any) => {
-      if (!isLeftClick($event))
+      if (!isLeftClick($event) || $event.ctrlKey)
         return;
       else if ($event.target.classList.contains('pdfjs-annotation__embed'))
         embedEl = $event.target;

@@ -91,7 +91,7 @@ export class DocumentComponent implements OnInit {
   private onFileInputChange() {
     this.pdfjs.eventBus.on('fileinputchange', ($event) => {
       const files = $event.source.files;
-      this.newfile = files.length ? $event.source.files[0] : null;;
+      this.newfile = files.length ? $event.source.files[0] : null;
     });
   }
 

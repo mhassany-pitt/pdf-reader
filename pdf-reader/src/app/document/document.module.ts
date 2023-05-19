@@ -11,7 +11,7 @@ import { DocumentService } from './document.service';
 
 @NgModule({
   declarations: [
-    DocumentComponent
+    DocumentComponent,
   ],
   imports: [
     CommonModule,
