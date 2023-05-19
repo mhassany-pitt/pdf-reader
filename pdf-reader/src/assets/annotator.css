@@ -54,6 +54,7 @@
   background: white;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
   row-gap: 0.25rem;
   z-index: 7;
 }

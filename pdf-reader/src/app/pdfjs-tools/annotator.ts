@@ -166,7 +166,7 @@ export class Annotator {
 
       // show the boundary for the clicked rect
       const annotationBounds: GetAnnotationBound[] = (
-        this.callbacks[GET_ANNOTATION_BOUND] || []).map(callback => callback());
+        this.callbacks[GET_ANNOTATION_BOUND] || []).map(callback => callback($event));
 
       for (const annotationBound of annotationBounds) {
         const className = annotationBound.className;
@@ -335,8 +335,8 @@ export class Annotator {
     const styles = getComputedStyle($event.target);
     const top = location ? location.top : `calc(${styles.top} + ${styles.height})`;
     const left = location ? location.left : `${styles.left}`;
-    const width = (location || {}).width || 'fit-content';
-    const height = (location || {}).height || 'fit-content';
+    const width = (location ? location.width : null) || 'fit-content';
+    const height = (location ? location.height : null) || 'fit-content';
 
     const popupEl = htmlToElements(
       `<div class="pdfjs-annotation-popup__container" style="

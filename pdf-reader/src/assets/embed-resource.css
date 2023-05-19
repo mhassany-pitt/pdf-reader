@@ -3,6 +3,14 @@
   background-color: lightgray;
   pointer-events: auto;
   user-select: none;
-  cursor: pointer;
+  cursor: grab;
   z-index: 5;
+}
+
+.pdfjs-annotation__embed:active {
+  cursor: grabbing;
+}
+
+.pdfjs-embed-resource__popup {
+  row-gap: 2px;
 }

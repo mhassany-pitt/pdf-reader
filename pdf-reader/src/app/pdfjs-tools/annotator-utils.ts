@@ -176,5 +176,7 @@ export const getBound = (rects: WHRect[]): WHRect => {
 export const scale = (pdfjs: any) => pdfjs.pdfViewer.currentScale;
 export const rotation = (pdfjs: any) => pdfjs.pdfViewer.pagesRotation;
 
-export const isLeftClick = ($event: any) => $event.button === 0;
-export const isRightClick = ($event: any) => $event.button === 2;
+export const isLeftClick = ($event: any, strict = false) =>
+  (!strict || typeof $event.pointerType !== 'undefined') && $event.button === 0;
+export const isRightClick = ($event: any, strict = false) =>
+  (!strict || typeof $event.pointerType !== 'undefined') && $event.button === 2;

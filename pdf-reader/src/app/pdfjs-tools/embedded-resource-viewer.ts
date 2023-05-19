@@ -1,33 +1,31 @@
-import {
-  Rect, htmlToElements, rotateRect,
-  rotation,
-  scale,
-} from './annotator-utils';
-import {
-  Annotator, GET_ANNOTATION_BOUND, GetAnnotationBound, POPUP_ROW_ITEM_UI
-} from './annotator';
+import { Rect, htmlToElements, isLeftClick, rotateRect, rotation, scale } from './annotator-utils';
+import { Annotator, GET_ANNOTATION_BOUND, GetAnnotationBound, POPUP_ROW_ITEM_UI } from './annotator';
 import { AnnotationStorage } from './annotator-storage';
 
-export type EmbeddedLink = {
+export type EmbeddedResource = {
   id: string,
   type: string,
   page: number,
   bound: Rect,
-  link: string,
   target: string,
+  targetSize?: string,
+  resource: string,
+  thumbnail?: string,
 }
 
-export class EmbeddedLinkViewer {
+export class EmbeddedResourceViewer {
   private document: any;
   private documentEl: any;
 
   private pdfjs: any;
   private annotator: Annotator;
-  private storage: AnnotationStorage<EmbeddedLink>;
+  private storage: AnnotationStorage<EmbeddedResource>;
 
   private configs: {
     resize: boolean,
   };
+
+  _clickguard: ($event: any) => boolean = ($ev) => true;
 
   constructor({ iframe, pdfjs, annotator, storage, configs }) {
     this.document = iframe?.contentDocument;
@@ -47,7 +45,7 @@ export class EmbeddedLinkViewer {
 
   private _attachStylesheet() {
     this.documentEl.querySelector('head').appendChild(htmlToElements(
-      `<link rel="stylesheet" type="text/css" href="/assets/embedded-link-viewer.css" />`
+      `<link rel="stylesheet" type="text/css" href="/assets/embedded-resource-viewer.css" />`
     ));
   }
 
@@ -63,27 +61,44 @@ export class EmbeddedLinkViewer {
       const embedEl = $event.target.classList.contains('pdfjs-annotation__embed')
         ? $event.target : $event.target.closest('.pdfjs-annotation__embed');
 
-      if (embedEl) {
+      if (embedEl && isLeftClick($event, true) && this._clickguard($event)) {
         const annot = this.storage.read(embedEl.getAttribute('data-annotation-id'));
         if (annot.target == 'popup-iframe') {
-          const embedElStyle = getComputedStyle(embedEl);
-          const scaledHeight = 24 * scale(this.pdfjs);
-          this.annotator.location = {
-            top: `calc(${embedElStyle.top} + ${scaledHeight + 5}px)`,
-            left: `calc(${embedElStyle.left} - 320px)`,
-            width: '640px',
-            height: '480px'
-          };
-
-          return htmlToElements(
-            `<div class="pdfjs-embed-link__popup" style="display: flex; flex-flow: column; height: 100%;">
-              <div style="text-align: right; margin-bottom: 5px;">
-                <a href="${annot.link}" target="_blank">open in new tab</a>
+          const popupEl = htmlToElements(
+            `<div class="pdfjs-embed-resource__popup">
+              <div class="pdfjs-embed-resource__popup-header">
+                <a href="${annot.resource}" target="_blank">open in new tab</a>
+                <span style="flex-grow: 1;"></span>
+                <button>close</button>
               </div>
-              <iframe src="${annot.link}" style="width: 100%; flex-grow: 1;"></iframe>
+              <iframe src="${annot.resource}" style="flex-grow: 1; height: 0%;"></iframe>
             </div>`);
+
+          const closeBtnEl = popupEl.querySelector('button') as any;
+          closeBtnEl.addEventListener('click', () => this.annotator.hidePopup());
+
+          if (annot.targetSize == 'fullscreen') {
+            popupEl.style.position = 'fixed';
+            popupEl.style.inset = '32px 0 0 0';
+          } else if (annot.targetSize == 'fullpage') {
+            this.annotator.location = {
+              top: '0', left: '0',
+              width: '100%', height: '100%'
+            };
+          } else {
+            const embedElStyle = getComputedStyle(embedEl);
+            const targetSize = annot.targetSize ? annot.targetSize.split(',') : ['640px', '480px'];
+            this.annotator.location = {
+              top: `calc(100% - ${embedElStyle.bottom})`,
+              left: `calc(${embedElStyle.left} + (${embedElStyle.width} / 2) - (${targetSize[0]} / 2))`,
+              width: `${targetSize[0]}`,
+              height: `${targetSize[1]}`
+            };
+          }
+
+          return popupEl;
         } else if (annot.target == 'new-page') {
-          window.open(annot.link, '_blank');
+          window.open(annot.resource, '_blank');
         }
       }
 
@@ -97,14 +112,14 @@ export class EmbeddedLinkViewer {
       const annotsLayerEl = this.annotator.getOrAttachLayerEl(pageNum);
       annotsLayerEl.querySelectorAll('.pdfjs-annotation__embed').forEach((el: any) => el.remove());
 
-      (this.storage.list() as EmbeddedLink[])
+      (this.storage.list() as EmbeddedResource[])
         .filter(annot => annot.type == 'embed')
         .filter(annot => annot.page == pageNum)
         .forEach(annot => this.render(annot));
     });
   }
 
-  render(annot: EmbeddedLink) {
+  render(annot: EmbeddedResource) {
     const annotsLayerEl = this.annotator.getOrAttachLayerEl(annot.page);
     annotsLayerEl.querySelectorAll(`[data-annotation-id="${annot.id}"].pdfjs-annotation__embed`)
       .forEach((el: any) => el.remove());
@@ -113,7 +128,7 @@ export class EmbeddedLinkViewer {
     const bound = rotateRect(degree, true, annot.bound as any);
     const embedEl = htmlToElements(
       `<div data-annotation-id="${annot.id}" 
-        data-analytic-id="embedded-link-${annot.id}"
+        data-analytic-id="embedded-resource-${annot.id}"
         class="pdfjs-annotation__embed"
         tabindex="-1" 
         style="
@@ -134,16 +149,23 @@ export class EmbeddedLinkViewer {
 
     annotsLayerEl.appendChild(embedEl);
     if (annot.target == 'inline-iframe') {
-      const iframe = htmlToElements(
-        `<iframe src="${annot.link}" style="border: none; background-color: white;"></iframe>`);
-      embedEl.appendChild(iframe);
-
+      const iframeEl = htmlToElements(
+        `<iframe src="${annot.resource}" style="border: none; background-color: white;"></iframe>`);
+      embedEl.appendChild(iframeEl);
       this.fitIframeToParent(embedEl);
+      embedEl.style.backgroundColor = 'lightgray';
+    } else {
+      const thumbEl = htmlToElements(
+        `<img src="${annot.thumbnail}" draggable="false" style="width: 80%; height: 80%; object-fit: contain;" />`);
+      embedEl.appendChild(thumbEl);
     }
   }
 
   fitIframeToParent(annotEl: HTMLElement) {
     const iframe = annotEl.querySelector('iframe') as HTMLIFrameElement;
+    if (iframe == null)
+      return;
+
     const degree = rotation(this.pdfjs);
     const scaleFactor = scale(this.pdfjs);
     iframe.style.position = 'absolute';

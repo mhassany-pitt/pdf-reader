@@ -6,7 +6,7 @@ import { ReaderService } from './reader.service';
 import { Annotator } from '../pdfjs-tools/annotator';
 import { AnnotationStorage } from '../pdfjs-tools/annotator-storage';
 import { FreeformAnnotator } from '../pdfjs-tools/freeform-annotator';
-import { EmbeddedLinkViewer } from '../pdfjs-tools/embedded-link-viewer';
+import { EmbeddedResourceViewer } from '../pdfjs-tools/embedded-resource-viewer';
 import { FreeformViewer } from '../pdfjs-tools/freeform-viewer';
 import { InteractionLogger } from '../pdfjs-tools/interaction-logger';
 
@@ -56,15 +56,14 @@ export class ReaderComponent implements OnInit {
     });
   }
 
-  onDocumentLoad($event) {
+  async onDocumentLoad($event) {
     const iframe = this.viewer.nativeElement;
     this.window = iframe.contentWindow;
     this.pdfjs = this.window.PDFViewerApplication;
 
-    setTimeout(() => {
-      this.syncPageSection();
-      this.removeExtraElements();
-    }, 300);
+    this.removeExtraElements();
+    await this.pdfjs.open({ url: `${environment.apiUrl}/documents/${this.document.id}/file` });
+    this.syncPageSection();
 
     const pdfjs = this.pdfjs;
     const interactionLogger = new InteractionLogger({ iframe, pdfjs });
@@ -73,9 +72,7 @@ export class ReaderComponent implements OnInit {
     const annotator = new Annotator({ iframe, pdfjs, storage });
     const freeformViewer = new FreeformViewer({ iframe, pdfjs, annotator, storage });
     const freefromAnnotator = new FreeformAnnotator({ iframe, pdfjs, annotator, freeformViewer, storage });
-    const embedLinkViewer = new EmbeddedLinkViewer({ iframe, pdfjs, annotator, storage, configs: { resize: false } });
-
-    this.pdfjs.open({ url: `${environment.apiUrl}/documents/${this.document.id}/file` });
+    const embedLinkViewer = new EmbeddedResourceViewer({ iframe, pdfjs, annotator, storage, configs: { resize: false } });
   }
 
   private syncPageSection() {
