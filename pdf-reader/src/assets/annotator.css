@@ -33,6 +33,11 @@
   opacity: 0.5;
 }
 
+.pdfjs-annotation__redact {
+  background-color: var(--annotation-color);
+  opacity: 1;
+}
+
 /* -- annotator popup styles */
 
 .pdfjs-annotation-popup {

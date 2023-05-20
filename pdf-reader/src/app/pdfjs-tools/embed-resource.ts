@@ -187,6 +187,10 @@ export class EmbedResource {
 
     return htmlToElements
       (`<div class="pdfjs-embed-resource__popup">
+          <div class="pdfjs-embed-resource__resource-url">
+            <span>Resource:</span>
+            <input type="text" placeholder="url" value="${annot.resource || ''}" autocomplete="off"/>
+          </div>
           <div class="pdfjs-embed-resource__inline-iframe-option">
             <input id="${id}-inline-iframe" type="radio" name="pdfjs-embed-resource-target" ${checked(annot.target == 'inline-iframe')}/>
             <label for="${id}-inline-iframe">Embed Inline</label>
@@ -218,10 +222,6 @@ export class EmbedResource {
           <div class="pdfjs-embed-resource__new-page-option">
             <input id="${id}-new-page" type="radio" name="pdfjs-embed-resource-target" ${checked(annot.target == 'new-page')}/>
             <label for="${id}-new-page">Open in New Page</label>
-          </div>
-          <div class="pdfjs-embed-resource__resource-url">
-            <span>Resource:</span>
-            <input type="text" placeholder="url" value="${annot.resource || ''}" autocomplete="off"/>
           </div>
           <div class="pdfjs-embed-resource__thumbnail-url">
             <span>Thumbnail:</span>

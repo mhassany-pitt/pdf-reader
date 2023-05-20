@@ -25,6 +25,8 @@
 
 .pdfjs-embed-resource__popup {
   row-gap: 2px;
+  padding-left: 10px;
+  box-sizing: border-box;
 }
 
 .pdfjs-embed-resource__target-size-options {
@@ -33,6 +35,10 @@
 
 .pdfjs-embed-resource__custom-size-option input[type="text"] {
   width: 40px;
+}
+
+.pdfjs-embed-resource__resource-url {
+  margin-left: -10px;
 }
 
 .pdfjs-embed-resource__resource-url,

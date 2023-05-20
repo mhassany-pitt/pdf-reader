@@ -463,6 +463,7 @@ export class Annotator {
           'highlight': '<span style="background: orange;">highlight</span>',
           'underline': '<span style="text-decoration: underline;">underline</span>',
           'linethrough': '<span style="text-decoration: line-through;">line-through</span>',
+          'redact': '<span style="background: darkgray;">redact</span>',
         };
         const typesEl = htmlToElements(`<div class="pdfjs-annotation-popup__annot-type-btns"></div>`);
         Object.keys(typeBtnHtmls).forEach(type => {
