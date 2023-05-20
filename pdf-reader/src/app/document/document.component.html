@@ -60,9 +60,14 @@
       </span>
     </div>
 
-    <div class="col-span-2 h-full">
-      <iframe #viewer src="/assets/pdf.js/web/viewer.html" class="w-full h-full" (load)="onDocumentLoad($event)">
+    <div class="col-span-2 h-full relative">
+      <iframe #iframe1 src="/assets/pdf.js/web/viewer.html" class="w-full h-full"
+        (load)="onDocumentLoad(iframe1, $event)">
       </iframe>
+      <div *ngIf="textExtractionProgress !== undefined"
+        class="absolute inset-0 bg-gray-100 flex flex-col items-center justify-center">
+        <div>{{ textExtractionProgress | percent: '1.0-0' }}</div>
+      </div>
     </div>
   </div>
 </form>

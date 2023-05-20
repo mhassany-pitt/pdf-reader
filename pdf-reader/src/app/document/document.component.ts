@@ -12,6 +12,7 @@ import { FreeformViewer } from '../pdfjs-tools/freeform-viewer';
 import { AddTextSelectionToOutline, Section } from './add-textselection-to-outline';
 import { EmbeddedResourceViewer } from '../pdfjs-tools/embedded-resource-viewer';
 import { EnableElemMovement } from '../pdfjs-tools/enable-elem-movement';
+import { TextLocator } from '../pdfjs-tools/text-locator';
 
 @Component({
   selector: 'app-document',
@@ -20,16 +21,14 @@ import { EnableElemMovement } from '../pdfjs-tools/enable-elem-movement';
 })
 export class DocumentComponent implements OnInit {
 
-  document: any;
-
-  @ViewChild('viewer') viewer: any;
-
+  iframe: any;
   window: any;
   pdfjs: any;
 
   newfile: any;
+  document: any;
 
-  annotator: Annotator = null as any;
+  textExtractionProgress: any = undefined;
 
   get documentId() {
     return (this.route.snapshot.params as any).id;
@@ -52,48 +51,51 @@ export class DocumentComponent implements OnInit {
         this.document = document;
         this.title.setTitle(`Document: ${this.document.name || 'unnamed'}`);
 
-        this.setupAddTextSelectionToOutline();
+        this.prepare();
       },
       error: (error: any) => console.log(error)
     });
   }
 
-  private setupAddTextSelectionToOutline() {
-    if (this.document && this.annotator)
-      new AddTextSelectionToOutline({
-        iframe: this.viewer.nativeElement,
-        annotator: this.annotator,
-        addToOutline: (selection: any, $event: any) =>
-          this.ngZone.run(() => this.addToOutline(selection, $event))
-      });
+  onDocumentLoad(iframe, $event) {
+    this.iframe = iframe;
+    this.prepare();
   }
 
-  onDocumentLoad($event) {
-    const iframe = this.viewer.nativeElement;
-    this.window = iframe.contentWindow;
+  prepare() {
+    if (!this.document || !this.iframe)
+      return;
+
+    this.window = this.iframe.contentWindow;
     this.pdfjs = this.window.PDFViewerApplication;
     this.pdfjs.open({ url: `${environment.apiUrl}/documents/${this.document.id}/file` });
+    this.pdfjs.eventBus.on('fileinputchange', ($event) => {
+      const files = $event.source.files;
+      this.newfile = files.length ? $event.source.files[0] : null;
+    });
 
-    setTimeout(() => this.onFileInputChange(), 300);
-
+    const iframe = this.iframe;
     const pdfjs = this.pdfjs;
-
     const storage = new AnnotationStorage({ groupId: this.documentId });
     const annotator = new Annotator({ iframe, pdfjs, storage });
-    this.annotator = annotator;
     const freeformViewer = new FreeformViewer({ iframe, pdfjs, storage, annotator, configs: { resize: true } });
     new FreeformAnnotator({ iframe, pdfjs, storage, annotator, freeformViewer });
     const embedLinkViewer = new EmbeddedResourceViewer({ iframe, pdfjs, storage, annotator, configs: { resize: true } });
     new EmbedResource({ iframe, pdfjs, storage, annotator, embedLinkViewer });
     new EnableElemMovement({ iframe, embedLinkViewer, freeformViewer, storage });
 
-    this.setupAddTextSelectionToOutline();
-  }
+    new TextLocator({ iframe, pdfjs }).extractTextBounds({
+      progress: (percentage: number) =>
+        this.ngZone.run(() => this.textExtractionProgress = percentage),
+      then: (pageTexts: any) => {
+        this.ngZone.run(() => this.textExtractionProgress = undefined);
+        console.log('text bounds:', pageTexts);
+      }
+    });
 
-  private onFileInputChange() {
-    this.pdfjs.eventBus.on('fileinputchange', ($event) => {
-      const files = $event.source.files;
-      this.newfile = files.length ? $event.source.files[0] : null;
+    new AddTextSelectionToOutline({
+      iframe, annotator, addToOutline: (selection, $event) =>
+        this.ngZone.run(() => this.addToOutline(selection, $event))
     });
   }
 
