@@ -184,3 +184,8 @@ export const isLeftClick = ($event: any, strict = false) =>
   (!strict || typeof $event.pointerType !== 'undefined') && $event.button === 0;
 export const isRightClick = ($event: any, strict = false) =>
   (!strict || typeof $event.pointerType !== 'undefined') && $event.button === 2;
+
+export const getOrParentIfHas = ($event: any, className: string) => {
+  return $event.target.classList.contains(className)
+    ? $event.target : $event.target.closest(`.${className}`);
+}

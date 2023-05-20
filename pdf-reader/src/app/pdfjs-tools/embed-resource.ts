@@ -2,7 +2,7 @@ import { AnnotationStorage } from './annotator-storage';
 import {
   closestPageEl, uuid, getPageNum,
   htmlToElements, isRightClick, relativeToPageEl,
-  WHRect, isLeftClick
+  WHRect, isLeftClick, getOrParentIfHas
 } from './annotator-utils';
 import { Annotator, POPUP_ROW_ITEM_UI } from './annotator';
 import { EmbeddedResourceViewer, EmbeddedResource } from './embedded-resource-viewer';
@@ -79,129 +79,146 @@ export class EmbedResource {
     });
   }
 
+  private readonly defCustomTargetSize = '640px,480px';
+  private isCustomTargetSize(targetSize: string) {
+    return new RegExp('\\d+(px|%),\\d+(px|%)', 'g').test(targetSize);
+  }
+  private getTargetSize(targetSize?: string, def = this.defCustomTargetSize) {
+    return targetSize && (
+      ['fullscreen', 'fullpage'].indexOf(targetSize) >= 0 || this.isCustomTargetSize(targetSize)
+    ) ? targetSize
+      : def;
+  }
+
   private _registerEditorItemUI() {
     this.annotator.register(POPUP_ROW_ITEM_UI, ($event: any) => {
-      const embedEl = $event.target.classList.contains('pdfjs-annotation__embed')
-        ? $event.target : $event.target.closest('.pdfjs-annotation__embed');
+      if (!isRightClick($event))
+        return null as any;
 
-      if (embedEl && isRightClick($event, true)) {
-        const annot = this.storage.read(embedEl.getAttribute('data-annotation-id'));
-        const style = getComputedStyle(embedEl);
-        this.annotator.location = { top: `calc(100% - ${style.bottom})`, left: `${style.left}` };
+      const embedEl = getOrParentIfHas($event, 'pdfjs-annotation__embed');
+      const rectEl = getOrParentIfHas($event, 'pdfjs-annotation__rect');
+      const freeformEl = getOrParentIfHas($event, 'pdfjs-annotation__freeform');
+      const el = embedEl || rectEl || freeformEl;
+      if (!el) return null as any;
 
-        const containerEl = htmlToElements(`<div class="pdfjs-embed-resource__popup"></div>`);
+      const annot = this.storage.read(el.getAttribute('data-annotation-id'));
+      const style = getComputedStyle(el);
+      this.annotator.location = { top: `calc(100% - ${style.bottom})`, left: `${style.left}` };
 
-        const createOptionRowEl = (target: string, label: string) => {
-          const inputEl = htmlToElements(
-            `<div>
-              <input type="radio" name="pdfjs-embed-resource-target" 
-                id="pdfjs-embed-resource-${target}" ${annot.target == target ? 'checked' : ''}
-                class="pdfjs-embed-resource__embed-resource-as-${target}"/>
-              <label for="pdfjs-embed-resource-${target}">${label}</label>
-            </div>`);
-          containerEl.appendChild(inputEl);
-          const input: any = inputEl.querySelector('input');
-          input.onclick = ($ev: any) => {
-            annot.target = target;
-            if (target == 'popup-iframe')
-              annot.targetSize = annot.targetSize || 'fullpage';
-            this.storage.update(annot);
-            targetOptionsEl.style.display = annot.target == 'popup-iframe' ? 'block' : 'none';
-            thumbnailEl.style.display = annot.target == 'inline-iframe' ? 'none' : 'block';
-            this.embedLinkViewer.render(annot);
-          }
-          return inputEl;
-        };
-        const isCustomTargetSize = () => annot.targetSize && ['fullpage', 'fullscreen'].indexOf(annot.targetSize) < 0;
-        const updateTargetSize = (radioInputEl: any, targetSize: string) => {
-          annot.targetSize = radioInputEl.checked ? targetSize : annot.target;
-          customTargetSizeEl.querySelectorAll('input[type="text"]')
-            .forEach((el: any) => el.disabled = !isCustomTargetSize());
+      const containerEl = htmlToElements(`<div class="pdfjs-embed-resource__popup"></div>`);
+
+      const createOptionRowEl = (target: string, label: string) => {
+        const inputEl = htmlToElements(
+          `<div>
+            <input type="radio" name="pdfjs-embed-resource-target" 
+              id="pdfjs-embed-resource-${target}" ${annot.target == target ? 'checked' : ''}
+              class="pdfjs-embed-resource__embed-resource-as-${target}"/>
+            <label for="pdfjs-embed-resource-${target}">${label}</label>
+          </div>`);
+        const input: any = inputEl.querySelector('input');
+        input.onclick = ($ev: any) => {
+          annot.target = target;
+          if (target == 'popup-iframe')
+            annot.targetSize = this.getTargetSize(annot.targetSize, 'fullpage');
           this.storage.update(annot);
-          this.embedLinkViewer.render(annot);
-        }
-
-        // create inline-iframe, popup-iframe options
-        createOptionRowEl('inline-iframe', 'Embed Inline');
-        createOptionRowEl('popup-iframe', 'Open in Popup');
-
-        // create target-size options
-        const targetOptionsEl = htmlToElements(
-          `<div style="${annot.target != 'popup-iframe' ? 'display: none;' : ''} margin-left: 10px;"></div>`);
-        containerEl.appendChild(targetOptionsEl);
-        const createTargetOptionEl = (label: string, type: string, checked: any, value: () => any) => {
-          const targetOptionEl = htmlToElements(
-            `<div >
-              <input type="radio" name="target-size" 
-                id="pdfjs-embed-resource-${type}" ${checked ? 'checked' : ''}
-                class="pdfjs-embed-resource__embed-as-${type}-iframe"/>
-              <label for="pdfjs-embed-resource-${type}">
-                ${label}
-              </label>
-            </div>`);
-          targetOptionsEl.appendChild(targetOptionEl);
-          const radioInputEl: any = targetOptionEl.querySelector('input[type="radio"]');
-          radioInputEl.onclick = ($ev: any) => updateTargetSize(radioInputEl, value());
-          return targetOptionEl;
-        }
-
-        // create fullpage/screen options
-        [{ type: 'fullscreen', label: 'Fullscreen' },
-        { type: 'fullpage', label: 'Fullpage' }].forEach(option =>
-          createTargetOptionEl(option.label, option.type,
-            annot.targetSize == option.type, () => option.type));
-
-        // create custom target size option
-        const defCustomTargetSize = ['640px', '480px'];
-        const curTargetSize = annot.targetSize ? annot.targetSize.split(',') : defCustomTargetSize;
-        const customTargetSizeEl = createTargetOptionEl('Custom', 'custom', isCustomTargetSize(), () => getCustomTargetSize());
-        (customTargetSizeEl.querySelector('label') as any).replaceChildren(htmlToElements(
-          `<span>
-            <span>Custom width:</span>
-            <input type="text" placeholder="640px" value="${curTargetSize[0]}" style="width: 50px;" />
-            <span> height:</span>
-            <input type="text" placeholder="480px" value="${curTargetSize[1]}" style="width: 50px;" />
-          </span>`));
-        // update target size on width/height change
-        const customTargetSizeInputEls: any[] = Array.from(customTargetSizeEl.querySelectorAll('input[type="text"]'));
-        const getCustomTargetSize = () => customTargetSizeInputEls.map((el: any, i) => el.value || defCustomTargetSize[i]).join(',');
-        customTargetSizeInputEls.forEach((el: any) => el.onchange = ($ev: any) => annot.targetSize = getCustomTargetSize());
-
-        // create target=new-page option
-        createOptionRowEl('new-page', 'Open in New Page');
-
-        const createInputRowEl = (
-          type: string, label: string,
-          placeholder: string, value?: string
-        ) => {
-          const resourceEl = htmlToElements(
-            `<div>
-              <div style="display: flex; align-items: center;">
-                <span style="width: 5rem;">${label}</span>
-                <input type="text" placeholder="${placeholder}" 
-                  value="${value || ''}" autocomplete="off"
-                  class="pdfjs-embed-resource__${type}-url-input"
-                  style="flex-grow: 1"/>
-              </div>
-            </div>`);
-          containerEl.appendChild(resourceEl);
-          const inputEl: any = resourceEl.querySelector('input');
-          inputEl.onchange = ($ev: any) => {
-            annot[type] = $ev.target.value;
-            this.storage.update(annot);
+          targetOptionsEl.style.display = annot.target == 'popup-iframe' ? 'block' : 'none';
+          if (thumbnailEl)
+            thumbnailEl.style.display = annot.target == 'inline-iframe' ? 'none' : 'block';
+          if (embedEl)
             this.embedLinkViewer.render(annot);
-          };
-          return resourceEl;
+        }
+        return inputEl;
+      };
+
+      // create inline-iframe, popup-iframe options
+      if (embedEl)
+        containerEl.appendChild(createOptionRowEl('inline-iframe', 'Embed Inline'));
+      containerEl.appendChild(createOptionRowEl('popup-iframe', 'Open in Popup'));
+
+      // create target-size options
+      const targetOptionsEl = htmlToElements(
+        `<div style="${annot.target != 'popup-iframe' ? 'display: none;' : ''} margin-left: 10px;"></div>`);
+      containerEl.appendChild(targetOptionsEl);
+      const createTargetOptionEl = (label: string, type: string, checked: any, value: () => any) => {
+        const targetOptionEl = htmlToElements(
+          `<div>
+            <input type="radio" name="target-size" 
+              id="pdfjs-embed-resource-${type}" ${checked ? 'checked' : ''}
+              class="pdfjs-embed-resource__embed-as-${type}-iframe"/>
+            <label for="pdfjs-embed-resource-${type}">
+              ${label}
+            </label>
+          </div>`);
+        const radioInputEl: any = targetOptionEl.querySelector('input[type="radio"]');
+        radioInputEl.onclick = ($ev: any) => {
+          annot.targetSize = radioInputEl.checked ? value() : annot.target;
+          customTargetSizeEl.querySelectorAll('input[type="text"]')
+            .forEach((el: any) => el.disabled = !this.isCustomTargetSize(annot.targetSize || ''));
+          this.storage.update(annot);
+          if (embedEl)
+            this.embedLinkViewer.render(annot);
         };
-
-        // create resource-url, thumbnail-url input
-        createInputRowEl('resource', 'Resource: ', 'resource url', annot.resource);
-        const thumbnailEl = createInputRowEl('thumbnail', 'Thumbnail: ', 'thumbnail url', annot.thumbnail);
-
-        return containerEl;
+        return targetOptionEl;
       }
 
-      return null as any;
+      // create fullpage/screen options
+      [{ type: 'fullscreen', label: 'Fullscreen' }, { type: 'fullpage', label: 'Fullpage' }]
+        .forEach(option => targetOptionsEl.appendChild(createTargetOptionEl(
+          option.label, option.type, annot.targetSize == option.type, () => option.type)));
+
+      // create custom target size option
+      const customTargetSizeEl = createTargetOptionEl('Custom', 'custom',
+        this.isCustomTargetSize(annot.targetSize || ''), () => getCustomTargetSize());
+      targetOptionsEl.appendChild(customTargetSizeEl);
+      const curTargetSize = this.isCustomTargetSize(annot.targetSize || '')
+        ? (annot.targetSize as any).split(',')
+        : this.defCustomTargetSize.split(',');
+      (customTargetSizeEl.querySelector('label') as any).replaceChildren(htmlToElements(
+        `<span>
+          <span>Custom width:</span>
+          <input type="text" placeholder="640px" value="${curTargetSize[0]}" style="width: 50px;" />
+          <span> height:</span>
+          <input type="text" placeholder="480px" value="${curTargetSize[1]}" style="width: 50px;" />
+        </span>`));
+      // update target size on width/height change
+      const customTargetSizeInputEls: any[] = Array.from(customTargetSizeEl.querySelectorAll('input[type="text"]'));
+      const getCustomTargetSize = () => customTargetSizeInputEls.map((el: any, i) => el.value || this.getTargetSize(undefined).split(',')[i]).join(',');
+      customTargetSizeInputEls.forEach((el: any) => el.onchange = ($ev: any) => annot.targetSize = getCustomTargetSize());
+
+      // create target=new-page option
+      containerEl.appendChild(createOptionRowEl('new-page', 'Open in New Page'));
+
+      const createInputRowEl = (
+        type: string, label: string,
+        placeholder: string, value?: string
+      ) => {
+        const resourceEl = htmlToElements(
+          `<div>
+            <div style="display: flex; align-items: center;">
+              <span style="width: 5rem;">${label}</span>
+              <input type="text" placeholder="${placeholder}" 
+                value="${value || ''}" autocomplete="off"
+                class="pdfjs-embed-resource__${type}-url-input"
+                style="flex-grow: 1"/>
+            </div>
+          </div>`);
+        const inputEl: any = resourceEl.querySelector('input');
+        inputEl.onchange = ($ev: any) => {
+          annot[type] = $ev.target.value;
+          this.storage.update(annot);
+          if (embedEl)
+            this.embedLinkViewer.render(annot);
+        };
+        return resourceEl;
+      };
+
+      // create resource-url, thumbnail-url input
+      containerEl.appendChild(createInputRowEl('resource', 'Resource: ', 'resource url', annot.resource))
+      const thumbnailEl = embedEl ? createInputRowEl('thumbnail', 'Thumbnail: ', 'thumbnail url', annot.thumbnail) : null;
+      if (thumbnailEl)
+        containerEl.appendChild(thumbnailEl);
+
+      return containerEl;
     });
   }
 

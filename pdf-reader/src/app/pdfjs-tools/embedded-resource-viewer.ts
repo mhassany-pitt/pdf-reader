@@ -1,4 +1,4 @@
-import { Rect, htmlToElements, isLeftClick, rotateRect, rotation, scale } from './annotator-utils';
+import { Rect, getOrParentIfHas, htmlToElements, isLeftClick, rotateRect, rotation, scale } from './annotator-utils';
 import { Annotator, GET_ANNOTATION_BOUND, GetAnnotationBound, POPUP_ROW_ITEM_UI } from './annotator';
 import { AnnotationStorage } from './annotator-storage';
 
@@ -58,11 +58,12 @@ export class EmbeddedResourceViewer {
 
   private _registerViewItemUI() {
     this.annotator.register(POPUP_ROW_ITEM_UI, ($event: any) => {
-      const embedEl = $event.target.classList.contains('pdfjs-annotation__embed')
-        ? $event.target : $event.target.closest('.pdfjs-annotation__embed');
-
-      if (embedEl && isLeftClick($event, true) && this._clickguard($event)) {
-        const annot = this.storage.read(embedEl.getAttribute('data-annotation-id'));
+      const embedEl = getOrParentIfHas($event, 'pdfjs-annotation__embed');
+      const rectEl = getOrParentIfHas($event, 'pdfjs-annotation__rect');
+      const freeformEl = getOrParentIfHas($event, 'pdfjs-annotation__freeform');
+      const el = embedEl || rectEl || freeformEl;
+      if (el && isLeftClick($event, true) && this._clickguard($event)) {
+        const annot = this.storage.read(el.getAttribute('data-annotation-id'));
         if (annot.target == 'popup-iframe') {
           const popupEl = htmlToElements(
             `<div class="pdfjs-embed-resource__popup">
@@ -86,11 +87,11 @@ export class EmbeddedResourceViewer {
               width: '100%', height: '100%'
             };
           } else {
-            const embedElStyle = getComputedStyle(embedEl);
+            const style = getComputedStyle(el);
             const targetSize = annot.targetSize ? annot.targetSize.split(',') : ['640px', '480px'];
             this.annotator.location = {
-              top: `calc(100% - ${embedElStyle.bottom})`,
-              left: `calc(${embedElStyle.left} + (${embedElStyle.width} / 2) - (${targetSize[0]} / 2))`,
+              top: `calc(100% - ${style.bottom})`,
+              left: `calc(${style.left} + (${style.width} / 2) - (${targetSize[0]} / 2))`,
               width: `${targetSize[0]}`,
               height: `${targetSize[1]}`
             };

@@ -2,7 +2,7 @@ import { AnnotationStorage } from './annotator-storage';
 import {
   WHRect, closestPageEl, getBound,
   getPageEl, getPageNum, getSelectionRects, htmlToElements,
-  isLeftClick, rotateRect,
+  isLeftClick, isRightClick, rotateRect,
   rotation, uuid
 } from './annotator-utils';
 
@@ -415,7 +415,7 @@ export class Annotator {
     const selectionRects = getSelectionRects(this.document, this.pdfjs);
     const isPendingAnnot = this.pending && selectionRects && Object.keys(selectionRects).length;
     const isAnnotRect = $event.target.classList.contains('pdfjs-annotation__rect');
-    return isLeftClick($event) && (isPendingAnnot || isAnnotRect);
+    return isPendingAnnot || (isAnnotRect && isRightClick($event));
   }
 
   private _registerPopupAnnotNoteItemUI() {
