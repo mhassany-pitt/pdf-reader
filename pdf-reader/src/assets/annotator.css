@@ -57,6 +57,7 @@
   box-sizing: border-box;
   row-gap: 0.25rem;
   z-index: 7;
+  min-width: 225px;
 }
 
 /* -- annotator popup row items styles */
@@ -69,6 +70,10 @@
   z-index: 1;
 }
 
+.pdfjs-annotation-popup__annot-type-btns button {
+  flex-grow: 1;
+}
+
 .pdfjs-annotation-popup__annot-color-btns {
   display: flex;
   align-items: center;
@@ -77,11 +82,10 @@
   z-index: 1;
 }
 
-.pdfjs-annotation-popup__annot-color-btn {
-  position: relative;
+.pdfjs-annotation-popup__annot-color-btns button {
   height: 0.75rem;
-  flex-grow: 1;
   border-width: 1px;
+  flex-grow: 1;
 }
 
 .pdfjs-annotation-popup__annot-note {

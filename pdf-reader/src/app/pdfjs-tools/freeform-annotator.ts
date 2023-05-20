@@ -78,7 +78,9 @@ export class FreeformAnnotator {
         return null as any;
 
       $event.preventDefault();
-      const containerEl = htmlToElements(`<div style="display: flex; gap: 5px;"></div>`);
+      const containerEl = htmlToElements(
+        `<div class="pdfjs-annotation-freeform__toggle-btns"></div>`);
+
       const buttonEl = htmlToElements(
         `<button class="pdfjs-annotation-freeform__${this.enabled ? 'end-btn' : 'start-btn'}">
           ${this.enabled ? 'end freeform' : 'start freeform'}
@@ -102,7 +104,8 @@ export class FreeformAnnotator {
       if (!this.enabled || !isRightClick($event))
         return null as any;
 
-      const containerEl = htmlToElements(`<div style="display: flex; gap: 5px;"></div>`);
+      const containerEl = htmlToElements(
+        `<div class="pdfjs-annotation-freeform__stroke-btns"></div>`);
       ["thin,100,1", "normal,normal,3", "thick,900,5"].forEach(strokeSize => {
         const parts = strokeSize.split(',');
         const buttonEl = htmlToElements(
@@ -125,10 +128,12 @@ export class FreeformAnnotator {
       if (!this.enabled || !isRightClick($event))
         return null as any;
 
-      const containerEl = htmlToElements(`<div class="pdfjs-annotation-freeform__color-btns" style="display: flex; gap: 5px;"></div>`);
+      const containerEl = htmlToElements(
+        `<div class="pdfjs-annotation-freeform__color-btns"></div>`);
+
       ['black', 'gray', 'green', 'blue', 'red'].forEach(color => {
         const buttonEl = htmlToElements(
-          `<button class="pdfjs-annotation-freeform__color-btn pdfjs-annotation-freeform__color-btn--${color}" 
+          `<button class="pdfjs-annotation-freeform__color-btn--${color}" 
             style="flex-grow: 1; background-color: ${color};">&nbsp;</button>`);
         containerEl.appendChild(buttonEl);
         buttonEl.onclick = ($ev) => {
@@ -136,6 +141,7 @@ export class FreeformAnnotator {
           this.annotator.hidePopup();
         }
       });
+
       return containerEl;
     });
   }

@@ -7,6 +7,18 @@
   z-index: 5;
 }
 
+.pdfjs-embed-resource__embed-btns {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  column-gap: 0.125rem;
+  z-index: 1;
+}
+
+.pdfjs-embed-resource__embed-btns button {
+  flex-grow: 1;
+}
+
 .pdfjs-annotation__embed:active {
   cursor: grabbing;
 }

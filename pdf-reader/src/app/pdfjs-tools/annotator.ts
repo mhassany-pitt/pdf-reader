@@ -436,7 +436,7 @@ export class Annotator {
         const annot = this.pending || this.storage.read($event.target.getAttribute('data-annotation-id'));
         const colorsEl = htmlToElements(`<div class="pdfjs-annotation-popup__annot-color-btns"></div>`);
         ['#ffd400', '#ff6563', '#5db221', '#2ba8e8', '#a28ae9', '#e66df2', '#f29823', '#aaaaaa', 'black'].forEach(color => {
-          const colorEl = htmlToElements(`<button class="pdfjs-annotation-popup__annot-color-btn pdfjs-annotation-popup__annot-color-btn--${color.replace('#', '')}"></button>`);
+          const colorEl = htmlToElements(`<button class="pdfjs-annotation-popup__annot-color-btn--${color.replace('#', '')}"></button>`);
           colorEl.style.backgroundColor = color;
           colorEl.onclick = ($ev) => this._setAnnotationAttr(annot, 'color', color);
           colorsEl.appendChild(colorEl);

@@ -47,9 +47,11 @@ export class EmbedResource {
         return null as any;
 
       $event.preventDefault();
-      const containerEl = htmlToElements(`<div style="display: flex; gap: 5px;"></div>`);
-      const buttonEl = htmlToElements(`<button class="pdfjs-embed-resource__embed-btn">embed resource</button>`);
-      containerEl.appendChild(buttonEl);
+      const containerEl = htmlToElements(
+        `<div class="pdfjs-embed-resource__embed-btns">
+          <button class="pdfjs-embed-resource__embed-btn">embed resource</button>
+        </div>`);
+      const buttonEl = containerEl.querySelector('button') as any;
       buttonEl.onclick = ($ev) => {
         const pageEl = closestPageEl($event.target);
         const pageNum = getPageNum(pageEl);

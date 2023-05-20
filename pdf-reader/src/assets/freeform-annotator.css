@@ -12,6 +12,8 @@
   z-index: 6;
 }
 
+.pdfjs-annotation-freeform__toggle-btns,
+.pdfjs-annotation-freeform__stroke-btns,
 .pdfjs-annotation-freeform__color-btns {
   display: flex;
   align-items: center;
@@ -20,9 +22,13 @@
   z-index: 1;
 }
 
-.pdfjs-annotation-freeform__color-btn {
+.pdfjs-annotation-freeform__toggle-btns button,
+.pdfjs-annotation-freeform__stroke-btns button {
   flex-grow: 1;
-  position: relative;
-  border-width: 1px;
+}
+
+.pdfjs-annotation-freeform__color-btns button {
   height: 0.75rem;
+  border-width: 1px;
+  flex-grow: 1;
 }
