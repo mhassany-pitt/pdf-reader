@@ -14,3 +14,26 @@
 .pdfjs-embed-resource__popup {
   row-gap: 2px;
 }
+
+.pdfjs-embed-resource__target-size-options {
+  margin-left: 10px;
+}
+
+.pdfjs-embed-resource__custom-size-option input[type="text"] {
+  width: 40px;
+}
+
+.pdfjs-embed-resource__resource-url,
+.pdfjs-embed-resource__thumbnail-url {
+  display: flex;
+}
+
+.pdfjs-embed-resource__resource-url span,
+.pdfjs-embed-resource__thumbnail-url span {
+  width: 5rem;
+}
+
+.pdfjs-embed-resource__resource-url input,
+.pdfjs-embed-resource__thumbnail-url input {
+  flex-grow: 1;
+}

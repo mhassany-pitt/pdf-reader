@@ -11,6 +11,7 @@ import { EmbedResource } from '../pdfjs-tools/embed-resource';
 import { FreeformViewer } from '../pdfjs-tools/freeform-viewer';
 import { AddTextSelectionToOutline, Section } from './add-textselection-to-outline';
 import { EmbeddedResourceViewer } from '../pdfjs-tools/embedded-resource-viewer';
+import { EnableElemMovement } from '../pdfjs-tools/enable-elem-movement';
 
 @Component({
   selector: 'app-document',
@@ -80,10 +81,11 @@ export class DocumentComponent implements OnInit {
     const storage = new AnnotationStorage({ groupId: this.documentId });
     const annotator = new Annotator({ iframe, pdfjs, storage });
     this.annotator = annotator;
-    const freeformViewer = new FreeformViewer({ iframe, pdfjs, storage, annotator });
+    const freeformViewer = new FreeformViewer({ iframe, pdfjs, storage, annotator, configs: { resize: true } });
     new FreeformAnnotator({ iframe, pdfjs, storage, annotator, freeformViewer });
     const embedLinkViewer = new EmbeddedResourceViewer({ iframe, pdfjs, storage, annotator, configs: { resize: true } });
     new EmbedResource({ iframe, pdfjs, storage, annotator, embedLinkViewer });
+    new EnableElemMovement({ iframe, embedLinkViewer, freeformViewer, storage });
 
     this.setupAddTextSelectionToOutline();
   }

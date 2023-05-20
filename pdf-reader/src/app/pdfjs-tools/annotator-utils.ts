@@ -27,7 +27,7 @@ export const getPageEl = (documentEl: any, pageNum: number) =>
   documentEl.querySelector(`.pdfViewer .page[data-page-number="${pageNum}"]`);
 
 export const relativeToPageEl = (rect: PageRect, pageEl: any): PageRect => {
-  let { top, left, right, bottom, width, height, page } = rect;
+  let { top, left, right, bottom, width, height, ...attrs } = rect;
 
   let prect = pageEl.getBoundingClientRect();
   const b = parseFloat(getComputedStyle(pageEl).borderWidth);
@@ -45,7 +45,7 @@ export const relativeToPageEl = (rect: PageRect, pageEl: any): PageRect => {
   width = parseFloat((width / pWidth * 100).toFixed(3));
   height = parseFloat((height / pHeight * 100).toFixed(3));
 
-  return { top, left, right, bottom, width, height, page };
+  return { top, left, right, bottom, width, height, ...attrs };
 }
 
 export const getSelectionRects = (document: Document, pdfjs: any) => {
@@ -185,7 +185,7 @@ export const isLeftClick = ($event: any, strict = false) =>
 export const isRightClick = ($event: any, strict = false) =>
   (!strict || typeof $event.pointerType !== 'undefined') && $event.button === 2;
 
-export const getOrParentIfHas = ($event: any, className: string) => {
+export const getOrParent = ($event: any, className: string) => {
   return $event.target.classList.contains(className)
     ? $event.target : $event.target.closest(`.${className}`);
 }

@@ -20,13 +20,19 @@ export class FreeformViewer {
   private annotator: Annotator;
   private storage: AnnotationStorage<Freeform>;
 
-  constructor({ iframe, pdfjs, annotator, storage }) {
+  private configs: {
+    resize: boolean,
+  };
+
+  constructor({ iframe, pdfjs, annotator, storage, configs }) {
     this.document = iframe?.contentDocument;
     this.documentEl = this.document.documentElement;
 
     this.pdfjs = pdfjs;
     this.storage = storage;
     this.annotator = annotator;
+
+    this.configs = configs;
 
     this._attachStylesheet();
     this._renderOnPagerendered();
@@ -81,6 +87,8 @@ export class FreeformViewer {
               bottom: ${bound.bottom}%;
               left: ${bound.left}%;
               right: ${bound.right}%;
+              ${this.configs?.resize ? 'resize: both;' : ''}
+              overflow: hidden;
               display: flex;
               align-items: center;
               justify-content: center;
@@ -96,9 +104,18 @@ export class FreeformViewer {
         image.style.transform = `rotate(${degree}deg)`;
         image.style.pointerEvents = 'none';
 
-        const computedStyle = getComputedStyle(freeformEl);
-        image.style.width = degree == 90 || degree == 270 ? computedStyle.height : computedStyle.width;
-        image.style.height = degree == 90 || degree == 270 ? computedStyle.width : computedStyle.height;
+        this.fitImageToParent(freeformEl);
       });
+  }
+
+  fitImageToParent(annotEl: any) {
+    const image = annotEl.querySelector('img');
+    if (!image)
+      return;
+
+    const degree = rotation(this.pdfjs);
+    const style = getComputedStyle(annotEl);
+    image.style.width = degree == 90 || degree == 270 ? style.height : style.width;
+    image.style.height = degree == 90 || degree == 270 ? style.width : style.height;
   }
 }

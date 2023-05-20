@@ -2,7 +2,7 @@
   <div class="px-10 py-4 bg-gray-100 shadow-md">
     <div class="container mx-auto flex items-center gap-2 h-7">
       <h1 routerLink="/documents" class="cursor-pointer text-xl">
-        Documents
+        PDF Documents
       </h1>
       <i class="pi pi-chevron-right"></i>
 
@@ -20,9 +20,7 @@
   <div class="flex-grow container mx-auto py-10 grid grid-cols-3 gap-4">
     <div class="flex flex-col items-stretch p-2 border gap-1 select-none">
       <p-chips name="tags" [(ngModel)]="document.tags" separator="," placeholder="Tags" styleClass="w-full"></p-chips>
-      <span class="text-gray-400 text-xs">
-        separated by comma
-      </span>
+      <span class="text-gray-400 text-xs">separate by comma</span>
 
       <span class="my-1"></span>
 

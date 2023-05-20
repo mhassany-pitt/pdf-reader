@@ -70,7 +70,7 @@ export class ReaderComponent implements OnInit {
 
     const storage = new AnnotationStorage({ groupId: this.documentId });
     const annotator = new Annotator({ iframe, pdfjs, storage });
-    const freeformViewer = new FreeformViewer({ iframe, pdfjs, annotator, storage });
+    const freeformViewer = new FreeformViewer({ iframe, pdfjs, annotator, storage, configs: { resize: false } });
     const freefromAnnotator = new FreeformAnnotator({ iframe, pdfjs, annotator, freeformViewer, storage });
     const embedLinkViewer = new EmbeddedResourceViewer({ iframe, pdfjs, annotator, storage, configs: { resize: false } });
   }

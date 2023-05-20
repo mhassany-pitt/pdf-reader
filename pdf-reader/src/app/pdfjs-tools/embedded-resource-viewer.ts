@@ -1,5 +1,11 @@
-import { Rect, getOrParentIfHas, htmlToElements, isLeftClick, rotateRect, rotation, scale } from './annotator-utils';
-import { Annotator, GET_ANNOTATION_BOUND, GetAnnotationBound, POPUP_ROW_ITEM_UI } from './annotator';
+import {
+  Rect, getOrParent, htmlToElements, isLeftClick,
+  rotateRect, rotation, scale
+} from './annotator-utils';
+import {
+  Annotator, GET_ANNOTATION_BOUND,
+  GetAnnotationBound, POPUP_ROW_ITEM_UI
+} from './annotator';
 import { AnnotationStorage } from './annotator-storage';
 
 export type EmbeddedResource = {
@@ -58,9 +64,9 @@ export class EmbeddedResourceViewer {
 
   private _registerViewItemUI() {
     this.annotator.register(POPUP_ROW_ITEM_UI, ($event: any) => {
-      const embedEl = getOrParentIfHas($event, 'pdfjs-annotation__embed');
-      const rectEl = getOrParentIfHas($event, 'pdfjs-annotation__rect');
-      const freeformEl = getOrParentIfHas($event, 'pdfjs-annotation__freeform');
+      const embedEl = getOrParent($event, 'pdfjs-annotation__embed');
+      const rectEl = getOrParent($event, 'pdfjs-annotation__rect');
+      const freeformEl = getOrParent($event, 'pdfjs-annotation__freeform');
       const el = embedEl || rectEl || freeformEl;
       if (el && isLeftClick($event, true) && this._clickguard($event)) {
         const annot = this.storage.read(el.getAttribute('data-annotation-id'));
