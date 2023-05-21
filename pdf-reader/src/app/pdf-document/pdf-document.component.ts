@@ -112,31 +112,6 @@ export class PDFDocumentComponent implements OnInit {
     section.level = Math.min(Math.max(0, (section.level || 0) + change), 5);
   }
 
-  focus(i: any) {
-    setTimeout(() => document.getElementById('outline-title-' + i)?.focus(), 0);
-  }
-
-  manageSections(section: any, $event: any, i: number) {
-    const sections = this.pdfDocument.sections;
-    if ($event.altKey && $event.code == 'Backspace') {
-      $event.preventDefault();
-      this.remove(sections[i]);
-
-      if (i > 0) this.focus(i - 1);
-      else if (sections.length > 0) this.focus(0);
-    } else if ($event.altKey && $event.code == 'ArrowRight') {
-      $event.preventDefault();
-      this.level(section, +1);
-    } else if ($event.altKey && $event.code == 'ArrowLeft') {
-      $event.preventDefault();
-      this.level(section, -1);
-    } else if ($event.code == 'ArrowUp' && i > 0) {
-      this.focus(i - 1);
-    } else if ($event.code == 'ArrowDown' && i < sections.length - 1) {
-      this.focus(i + 1);
-    }
-  }
-
   addToOutline(selection: any, $event: any) {
     console.log(selection);
     let { top, left, width, height } = selection.getRangeAt(0).getBoundingClientRect();
@@ -159,7 +134,7 @@ export class PDFDocumentComponent implements OnInit {
     this.add({ level, title, page, top, left, width, height });
 
     selection.removeAllRanges();
-    this.focus(this.pdfDocument.sections.length - 1);
+    setTimeout(() => document.getElementById(`outline-title-${this.pdfDocument.sections.length - 1}`)?.focus(), 0);
   }
 
   locate(section: any) {

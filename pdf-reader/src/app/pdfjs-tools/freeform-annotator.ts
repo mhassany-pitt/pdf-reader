@@ -83,7 +83,7 @@ export class FreeformAnnotator {
 
       const buttonEl = htmlToElements(
         `<button class="pdfjs-annotation-freeform__${this.enabled ? 'end-btn' : 'start-btn'}">
-          ${this.enabled ? 'end freeform' : 'start freeform'}
+          ${this.enabled ? 'end free hand' : 'start free hand'}
         </button>`);
       containerEl.appendChild(buttonEl);
       buttonEl.onclick = ($ev) => {

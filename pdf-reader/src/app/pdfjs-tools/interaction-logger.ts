@@ -200,5 +200,4 @@ export class InteractionLogger {
   }
 }
 
-// TODO: add analytic meta to annotations, so that they can be logged in the interaction logger
-// TODO: postpone logs and send them in batches
+// TODO: postpone logs and send them in batches to server

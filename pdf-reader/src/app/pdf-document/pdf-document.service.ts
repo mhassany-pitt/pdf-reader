@@ -12,17 +12,17 @@ export class PDFDocumentService {
   ) { }
 
   get(id: string) {
-    return this.http.get(`${environment.apiUrl}/pdf-documents/${id}`);
+    return this.http.get(`${environment.apiUrl}/pdf-documents/${id}`, { withCredentials: true });
   }
 
   update(pdfDocument: any) {
-    return this.http.patch(`${environment.apiUrl}/pdf-documents/${pdfDocument.id}`, pdfDocument);
+    return this.http.patch(`${environment.apiUrl}/pdf-documents/${pdfDocument.id}`, pdfDocument, { withCredentials: true });
   }
 
   upload(id: string, file: any) {
     const form = new FormData();
     form.append('file', file);
 
-    return this.http.post(`${environment.apiUrl}/pdf-documents/${id}/file`, form);
+    return this.http.post(`${environment.apiUrl}/pdf-documents/${id}/file`, form, { withCredentials: true });
   }
 }

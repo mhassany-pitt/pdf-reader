@@ -1,0 +1,11 @@
+<form #form="ngForm" (ngSubmit)="login()" class="h-full flex justify-center items-center">
+  <div class="flex flex-col w-72 gap-4 -mt-32">
+    <img src="/assets/logo.png" class="w-24 mx-auto" />
+    <h3 class="text-2xl text-center">PDF Documents</h3>
+
+    <input name="email" type="text" pInputText [(ngModel)]="credentials.email" required />
+    <input name="password" type="password" pInputText type="password" [(ngModel)]="credentials.password" required />
+
+    <button type="button" pButton label="Login" [disabled]="!form.valid" (click)="login()"></button>
+  </div>
+</form>

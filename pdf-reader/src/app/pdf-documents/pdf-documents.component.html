@@ -2,12 +2,6 @@
   <div class="px-10 py-4 bg-gray-100 shadow-md">
     <div class="container mx-auto flex items-center gap-2 h-7">
       <h1 class="text-xl">PDF Documents</h1>
-
-      <span class="flex-grow"></span>
-
-      <input #file type="file" class="w-0 h-0" accept="application/pdf" (change)="create($event)" />
-      <button pButton type="button" label="New Document" icon="pi pi-plus" class="p-button-sm" (click)="file.click()">
-      </button>
     </div>
   </div>
 
@@ -20,6 +14,13 @@
           </span>
 
           <span class="flex-grow"></span>
+
+          <input #file type="file" class="w-0 h-0" accept="application/pdf" (change)="create($event)" />
+          <button pButton type="button" label="New Document" icon="pi pi-plus" class="p-button-sm"
+            (click)="file.click()">
+          </button>
+
+          <span class="mx-1"></span>
 
           <span class="p-input-icon-right">
             <input pInputText type="text" (input)="filter(table, $event)" placeholder="Search" class="p-inputtext-sm" />

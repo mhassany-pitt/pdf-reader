@@ -48,3 +48,5 @@ export class AnnotationStorage<T extends Annotation> {
     this.persist();
   }
 }
+
+// TODO: persist and load from server
