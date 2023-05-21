@@ -5,13 +5,13 @@ import { environment } from 'src/environments/environment';
 @Injectable({
   providedIn: 'root'
 })
-export class ReaderService {
+export class PDFReaderService {
 
   constructor(
     private http: HttpClient
   ) { }
 
   get(id: string) {
-    return this.http.get(`${environment.apiUrl}/documents/${id}`);
+    return this.http.get(`${environment.apiUrl}/pdf-documents/${id}`);
   }
 }

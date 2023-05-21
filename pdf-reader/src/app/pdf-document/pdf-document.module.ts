@@ -1,17 +1,17 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { DocumentRoutingModule } from './document.routing.module';
-import { DocumentComponent } from './document.component';
+import { DocumentRoutingModule } from './pdf-document.routing.module';
+import { PDFDocumentComponent } from './pdf-document.component';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { ChipsModule } from 'primeng/chips';
-import { DocumentService } from './document.service';
+import { PDFDocumentService } from './pdf-document.service';
 
 @NgModule({
   declarations: [
-    DocumentComponent,
+    PDFDocumentComponent,
   ],
   imports: [
     CommonModule,
@@ -21,6 +21,6 @@ import { DocumentService } from './document.service';
     ButtonModule,
     ChipsModule,
   ],
-  providers: [DocumentService]
+  providers: [PDFDocumentService]
 })
-export class DocumentModule { }
+export class PDFDocumentModule { }

@@ -3,7 +3,7 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { DocumentService } from './document.service';
+import { PDFDocumentService } from './pdf-document.service';
 import { AnnotationStorage } from '../pdfjs-tools/annotator-storage';
 import { Annotator } from '../pdfjs-tools/annotator';
 import { FreeformAnnotator } from '../pdfjs-tools/freeform-annotator';
@@ -15,22 +15,22 @@ import { EnableElemMovement } from '../pdfjs-tools/enable-elem-movement';
 import { TextLocator } from '../pdfjs-tools/text-locator';
 
 @Component({
-  selector: 'app-document',
-  templateUrl: './document.component.html',
-  styleUrls: ['./document.component.less']
+  selector: 'app-pdf-document',
+  templateUrl: './pdf-document.component.html',
+  styleUrls: ['./pdf-document.component.less']
 })
-export class DocumentComponent implements OnInit {
+export class PDFDocumentComponent implements OnInit {
 
   iframe: any;
   window: any;
   pdfjs: any;
 
   newfile: any;
-  document: any;
+  pdfDocument: any;
 
   textExtractionProgress: any = undefined;
 
-  get documentId() {
+  get pdfDocumentId() {
     return (this.route.snapshot.params as any).id;
   }
 
@@ -38,18 +38,18 @@ export class DocumentComponent implements OnInit {
     private router: Router,
     private ngZone: NgZone,
     private route: ActivatedRoute,
-    private service: DocumentService,
+    private service: PDFDocumentService,
     private title: Title,
   ) { }
 
   ngOnInit(): void {
-    this.service.get(this.documentId).subscribe({
-      next: (document: any) => {
-        if (!document.tags) document.tags = [];
-        if (!document.sections) document.sections = [];
+    this.service.get(this.pdfDocumentId).subscribe({
+      next: (pdfDocument: any) => {
+        if (!pdfDocument.tags) pdfDocument.tags = [];
+        if (!pdfDocument.sections) pdfDocument.sections = [];
 
-        this.document = document;
-        this.title.setTitle(`Document: ${this.document.name || 'unnamed'}`);
+        this.pdfDocument = pdfDocument;
+        this.title.setTitle(`Document: ${this.pdfDocument.name || 'unnamed'}`);
 
         this.prepare();
       },
@@ -62,13 +62,13 @@ export class DocumentComponent implements OnInit {
     this.prepare();
   }
 
-  prepare() {
-    if (!this.document || !this.iframe)
+  async prepare() {
+    if (!this.pdfDocument || !this.iframe)
       return;
 
     this.window = this.iframe.contentWindow;
     this.pdfjs = this.window.PDFViewerApplication;
-    this.pdfjs.open({ url: `${environment.apiUrl}/documents/${this.document.id}/file` });
+    await this.pdfjs.open({ url: `${environment.apiUrl}/pdf-documents/${this.pdfDocument.id}/file` });
     this.pdfjs.eventBus.on('fileinputchange', ($event) => {
       const files = $event.source.files;
       this.newfile = files.length ? $event.source.files[0] : null;
@@ -76,7 +76,7 @@ export class DocumentComponent implements OnInit {
 
     const iframe = this.iframe;
     const pdfjs = this.pdfjs;
-    const storage = new AnnotationStorage({ groupId: this.documentId });
+    const storage = new AnnotationStorage({ groupId: this.pdfDocumentId });
     const annotator = new Annotator({ iframe, pdfjs, storage });
     const freeformViewer = new FreeformViewer({ iframe, pdfjs, storage, annotator, configs: { resize: true } });
     new FreeformAnnotator({ iframe, pdfjs, storage, annotator, freeformViewer });
@@ -100,11 +100,11 @@ export class DocumentComponent implements OnInit {
   }
 
   add(section: Section) {
-    this.document.sections.push(section);
+    this.pdfDocument.sections.push(section);
   }
 
   remove(section: Section) {
-    const sections = this.document.sections;
+    const sections = this.pdfDocument.sections;
     sections.splice(sections.indexOf(section), 1);
   }
 
@@ -117,7 +117,7 @@ export class DocumentComponent implements OnInit {
   }
 
   manageSections(section: any, $event: any, i: number) {
-    const sections = this.document.sections;
+    const sections = this.pdfDocument.sections;
     if ($event.altKey && $event.code == 'Backspace') {
       $event.preventDefault();
       this.remove(sections[i]);
@@ -159,7 +159,7 @@ export class DocumentComponent implements OnInit {
     this.add({ level, title, page, top, left, width, height });
 
     selection.removeAllRanges();
-    this.focus(this.document.sections.length - 1);
+    this.focus(this.pdfDocument.sections.length - 1);
   }
 
   locate(section: any) {
@@ -184,12 +184,12 @@ export class DocumentComponent implements OnInit {
 
   update() {
     (this.newfile // upload file
-      ? this.service.upload(this.documentId, this.newfile)
+      ? this.service.upload(this.pdfDocumentId, this.newfile)
       : of({})
     ).subscribe({  // update document
       next: (resp: any) => {
-        this.service.update(this.document).subscribe({
-          next: (resp: any) => this.router.navigate(['/documents']),
+        this.service.update(this.pdfDocument).subscribe({
+          next: (resp: any) => this.router.navigate(['/pdf-documents']),
           error: (error: any) => console.log(error)
         })
       },

@@ -1,12 +1,12 @@
-<form *ngIf="document" #form="ngForm" (ngSubmit)="update()" class="flex flex-col h-full document">
+<form *ngIf="pdfDocument" #form="ngForm" (ngSubmit)="update()" class="flex flex-col h-full pdf-document">
   <div class="px-10 py-4 bg-gray-100 shadow-md">
     <div class="container mx-auto flex items-center gap-2 h-7">
-      <h1 routerLink="/documents" class="cursor-pointer text-xl">
+      <h1 routerLink="/pdf-documents" class="cursor-pointer text-xl">
         PDF Documents
       </h1>
       <i class="pi pi-chevron-right"></i>
 
-      <input type="text" name="title" pInputText [(ngModel)]="document.name" placeholder="Title" required
+      <input type="text" name="title" pInputText [(ngModel)]="pdfDocument.name" placeholder="Title" required
         class="flex-grow p-inputtext-lg" style="padding: 0.375rem 0.5rem;" />
 
       <button pButton type="button" label="Cancel" icon="pi pi-chevron-left"
@@ -19,7 +19,8 @@
 
   <div class="flex-grow container mx-auto py-10 grid grid-cols-3 gap-4">
     <div class="flex flex-col items-stretch p-2 border gap-1 select-none">
-      <p-chips name="tags" [(ngModel)]="document.tags" separator="," placeholder="Tags" styleClass="w-full"></p-chips>
+      <p-chips name="tags" [(ngModel)]="pdfDocument.tags" separator="," placeholder="Tags"
+        styleClass="w-full"></p-chips>
       <span class="text-gray-400 text-xs">separate by comma</span>
 
       <span class="my-1"></span>
@@ -31,7 +32,7 @@
       <hr class="my-1" />
 
       <div class="flex-grow flex flex-col gap-1">
-        <div *ngFor="let section of document.sections; let i = index" class="flex items-center">
+        <div *ngFor="let section of pdfDocument.sections; let i = index" class="flex items-center">
           <span [ngStyle]="{ width: section.level + 'rem' }"></span>
 
           <input [id]="'outline-title-' + i" type="text" [name]="'outline-' + i" pInputText [(ngModel)]="section.title"

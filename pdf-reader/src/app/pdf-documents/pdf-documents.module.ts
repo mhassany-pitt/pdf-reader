@@ -1,18 +1,18 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { DocumentsRoutingModule } from './documents.routing.module';
-import { DocumentsComponent } from './documents.component';
+import { DocumentsRoutingModule } from './pdf-documents.routing.module';
+import { PDFDocumentsComponent } from './pdf-documents.component';
 import { TagModule } from 'primeng/tag';
 import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { DocumentsService } from './documents.service';
+import { PDFDocumentsService } from './pdf-documents.service';
 import { RouterModule } from '@angular/router';
 
 @NgModule({
   declarations: [
-    DocumentsComponent
+    PDFDocumentsComponent
   ],
   imports: [
     CommonModule,
@@ -21,6 +21,6 @@ import { RouterModule } from '@angular/router';
     TableModule, InputTextModule,
     ButtonModule, TagModule,
   ],
-  providers: [DocumentsService]
+  providers: [PDFDocumentsService]
 })
-export class DocumentsModule { }
+export class PDFDocumentsModule { }

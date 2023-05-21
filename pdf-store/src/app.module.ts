@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
-import { DocumentsModule } from './documents/documents.module';
+import { PDFDocumentsModule } from './pdf-documents/pdf-documents.module';
 
 @Module({
   imports: [
-    DocumentsModule,
+    PDFDocumentsModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.development.env',

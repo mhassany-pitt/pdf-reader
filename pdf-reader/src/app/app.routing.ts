@@ -3,9 +3,9 @@ import { RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   { path: 'default-resource', loadComponent: () => import('./default-resource/default-resource.component').then(m => m.DefaultResourceComponent) },
-  { path: 'documents', loadChildren: () => import('./documents/documents.module').then(m => m.DocumentsModule) },
-  { path: 'reader', loadChildren: () => import('./reader/reader.module').then(m => m.ReaderModule) },
-  { path: '**', redirectTo: 'documents' }
+  { path: 'pdf-documents', loadChildren: () => import('./pdf-documents/pdf-documents.module').then(m => m.PDFDocumentsModule) },
+  { path: 'pdf-reader', loadChildren: () => import('./pdf-reader/pdf-reader.module').then(m => m.PDFReaderModule) },
+  { path: '**', redirectTo: 'pdf-documents' }
 ];
 
 @NgModule({

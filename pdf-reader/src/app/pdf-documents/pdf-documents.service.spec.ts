@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { ReaderService } from './reader.service';
+import { PDFDocumentsService } from './pdf-documents.service';
 
-describe('ReaderService', () => {
-  let service: ReaderService;
+describe('PDFDocumentsService', () => {
+  let service: PDFDocumentsService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(ReaderService);
+    service = TestBed.inject(PDFDocumentsService);
   });
 
   it('should be created', () => {

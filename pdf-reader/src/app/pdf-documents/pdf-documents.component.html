@@ -1,0 +1,68 @@
+<div class="flex flex-col">
+  <div class="px-10 py-4 bg-gray-100 shadow-md">
+    <div class="container mx-auto flex items-center gap-2 h-7">
+      <h1 class="text-xl">PDF Documents</h1>
+
+      <span class="flex-grow"></span>
+
+      <input #file type="file" class="w-0 h-0" accept="application/pdf" (change)="create($event)" />
+      <button pButton type="button" label="New Document" icon="pi pi-plus" class="p-button-sm" (click)="file.click()">
+      </button>
+    </div>
+  </div>
+
+  <div class="container mx-auto my-10 border shadow-md">
+    <p-table #table [value]="pdfDocuments" styleClass="p-datatable-striped">
+      <ng-template pTemplate="caption">
+        <div class="table-header flex items-center">
+          <span class="text-2xl">
+            Documents
+          </span>
+
+          <span class="flex-grow"></span>
+
+          <span class="p-input-icon-right">
+            <input pInputText type="text" (input)="filter(table, $event)" placeholder="Search" class="p-inputtext-sm" />
+            <i class="pi pi-search"></i>
+          </span>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="name" class="text-center">
+            <span>Name</span>
+            <p-sortIcon field="name"></p-sortIcon>
+          </th>
+          <th pSortableColumn="modified_at" class="text-center w-64">
+            <span>Modified at</span>
+            <p-sortIcon field="modified_at"></p-sortIcon>
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-pdfDocument>
+        <tr>
+          <td>
+            <div class="flex items-center">
+              <a [routerLink]="['/pdf-documents', pdfDocument.id]" class="font-bold">
+                {{pdfDocument.name}}
+              </a>
+
+              <span [routerLink]="['/pdf-reader', pdfDocument.id]" class="text-gray-500 ml-2 cursor-pointer">
+                <i class="pi pi-window-maximize" style="font-size: 0.75rem;"></i>
+              </span>
+
+              <span class="flex-grow"></span>
+
+              <div>
+                <span *ngFor="let tag of pdfDocument.tags" class="bg-gray-100 rounded-md mr-1 px-1">
+                  {{ tag }}
+                </span>
+              </div>
+            </div>
+          </td>
+          <td class="w-64">{{pdfDocument.modified_at | date:'medium' }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

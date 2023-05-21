@@ -1,20 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { DocumentsService } from './documents.service';
+import { PDFDocumentsService } from './pdf-documents.service';
 
 @Component({
-  selector: 'app-documents',
-  templateUrl: './documents.component.html',
-  styleUrls: ['./documents.component.less']
+  selector: 'app-pdf-documents',
+  templateUrl: './pdf-documents.component.html',
+  styleUrls: ['./pdf-documents.component.less']
 })
-export class DocumentsComponent implements OnInit {
+export class PDFDocumentsComponent implements OnInit {
 
-  documents = [
+  pdfDocuments = [
     { id: '123', name: 'Chapter 1 - ...', modified_at: new Date() }
   ]
 
   constructor(
-    private service: DocumentsService,
+    private service: PDFDocumentsService,
     private router: Router,
   ) { }
 
@@ -24,7 +24,7 @@ export class DocumentsComponent implements OnInit {
 
   ngOnInit(): void {
     this.service.list().subscribe({
-      next: (documents: any) => this.documents = documents,
+      next: (pdfDocuments: any) => this.pdfDocuments = pdfDocuments,
       error: (error: any) => console.log(error)
     });
   }
@@ -37,7 +37,7 @@ export class DocumentsComponent implements OnInit {
 
     this.service.create(files[0]).subscribe({
       next: (resp: any) => {
-        this.router.navigate(['/documents', resp.id])
+        this.router.navigate(['/pdf-documents', resp.id])
       },
       error: (error: any) => { console.log(error) },
     })

@@ -5,20 +5,20 @@ import { environment } from 'src/environments/environment';
 @Injectable({
   providedIn: 'root'
 })
-export class DocumentsService {
+export class PDFDocumentsService {
 
   constructor(
     private http: HttpClient,
   ) { }
 
   list() {
-    return this.http.get(`${environment.apiUrl}/documents`);
+    return this.http.get(`${environment.apiUrl}/pdf-documents`);
   }
 
   create(file: any) {
     const form = new FormData();
     form.append('file', file);
 
-    return this.http.post(`${environment.apiUrl}/documents`, form);
+    return this.http.post(`${environment.apiUrl}/pdf-documents`, form);
   }
 }

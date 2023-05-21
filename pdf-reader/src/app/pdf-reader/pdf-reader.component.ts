@@ -2,7 +2,7 @@ import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
-import { ReaderService } from './reader.service';
+import { PDFReaderService } from './pdf-reader.service';
 import { Annotator } from '../pdfjs-tools/annotator';
 import { AnnotationStorage } from '../pdfjs-tools/annotator-storage';
 import { FreeformAnnotator } from '../pdfjs-tools/freeform-annotator';
@@ -11,28 +11,29 @@ import { FreeformViewer } from '../pdfjs-tools/freeform-viewer';
 import { InteractionLogger } from '../pdfjs-tools/interaction-logger';
 
 @Component({
-  selector: 'app-reader',
-  templateUrl: './reader.component.html',
-  styleUrls: ['./reader.component.less']
+  selector: 'app-pdf-reader',
+  templateUrl: './pdf-reader.component.html',
+  styleUrls: ['./pdf-reader.component.less']
 })
-export class ReaderComponent implements OnInit {
+export class PDFReaderComponent implements OnInit {
 
   @ViewChild('viewer') viewer: any;
 
-  document: any;
+  iframe: any;
   window: any;
   pdfjs: any;
 
   section: any;
+  pdfDocument: any;
 
-  get documentId() {
+  get pdfDocumentId() {
     return (this.route.snapshot.params as any).id;
   }
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private service: ReaderService,
+    private service: PDFReaderService,
     private title: Title,
     private ngZone: NgZone,
   ) { }
@@ -42,33 +43,41 @@ export class ReaderComponent implements OnInit {
   }
 
   private reload() {
-    this.service.get(this.documentId).subscribe({
-      next: (document: any) => {
-        if (!document.tags)
-          document.tags = [];
-        if (!document.sections)
-          document.sections = [];
+    this.service.get(this.pdfDocumentId).subscribe({
+      next: (pdfDocument: any) => {
+        if (!pdfDocument.tags)
+          pdfDocument.tags = [];
+        if (!pdfDocument.sections)
+          pdfDocument.sections = [];
 
-        this.document = document;
-        this.title.setTitle(`Reader: ${this.document.name || 'unnamed'}`);
+        this.pdfDocument = pdfDocument;
+        this.title.setTitle(`Reader: ${this.pdfDocument.name || 'unnamed'}`);
+
+        this.prepare();
       },
       error: (error: any) => console.log(error)
     });
   }
 
-  async onDocumentLoad($event) {
-    const iframe = this.viewer.nativeElement;
-    this.window = iframe.contentWindow;
-    this.pdfjs = this.window.PDFViewerApplication;
+  onDocumentLoad(iframe, $event) {
+    this.iframe = iframe;
+    this.prepare();
+  }
 
+  async prepare() {
+    if (!this.pdfDocument || !this.iframe)
+      return;
+
+    this.window = this.iframe.contentWindow;
+    this.pdfjs = this.window.PDFViewerApplication;
     this.removeExtraElements();
-    await this.pdfjs.open({ url: `${environment.apiUrl}/documents/${this.document.id}/file` });
+    await this.pdfjs.open({ url: `${environment.apiUrl}/pdf-documents/${this.pdfDocument.id}/file` });
     this.syncPageSection();
 
+    const iframe = this.iframe;
     const pdfjs = this.pdfjs;
     const interactionLogger = new InteractionLogger({ iframe, pdfjs });
-
-    const storage = new AnnotationStorage({ groupId: this.documentId });
+    const storage = new AnnotationStorage({ groupId: this.pdfDocumentId });
     const annotator = new Annotator({ iframe, pdfjs, storage });
     const freeformViewer = new FreeformViewer({ iframe, pdfjs, annotator, storage, configs: { resize: false } });
     const freefromAnnotator = new FreeformAnnotator({ iframe, pdfjs, annotator, freeformViewer, storage });
@@ -77,7 +86,7 @@ export class ReaderComponent implements OnInit {
 
   private syncPageSection() {
     this.pdfjs.eventBus.on('pagechanging', ($event) => {
-      for (const section of this.document.sections.sort((a, b) => b.page - a.page)) {
+      for (const section of this.pdfDocument.sections.sort((a, b) => b.page - a.page)) {
         if (section.page <= $event.pageNumber) {
           this.ngZone.run(() => this.section = section);
           break;
