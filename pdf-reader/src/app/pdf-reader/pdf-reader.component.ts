@@ -71,7 +71,9 @@ export class PDFReaderComponent implements OnInit {
     this.window = this.iframe.contentWindow;
     this.pdfjs = this.window.PDFViewerApplication;
     this.removeExtraElements();
-    await this.pdfjs.open({ url: `${environment.apiUrl}/pdf-documents/${this.pdfDocument.id}/file` });
+    await this.pdfjs.open({
+      url: `${environment.apiUrl}/pdf-documents/${this.pdfDocument.id}/file`
+    });
     this.syncPageSection();
 
     const iframe = this.iframe;

@@ -68,7 +68,10 @@ export class PDFDocumentComponent implements OnInit {
 
     this.window = this.iframe.contentWindow;
     this.pdfjs = this.window.PDFViewerApplication;
-    await this.pdfjs.open({ url: `${environment.apiUrl}/pdf-documents/${this.pdfDocument.id}/file` });
+    await this.pdfjs.open({
+      url: `${environment.apiUrl}/pdf-documents/${this.pdfDocument.id}/file`,
+      withCredentials: true,
+    });
     this.pdfjs.eventBus.on('fileinputchange', ($event) => {
       const files = $event.source.files;
       this.newfile = files.length ? $event.source.files[0] : null;

@@ -64,8 +64,7 @@ export class PDFDocumentsController {
   }
 
   @Get(':id/file')
-  // TODO: this api should be protected 
-  // @UseGuards(AuthenticatedGuard)
+  @UseGuards(AuthenticatedGuard)
   download(@Param('id') id: string): StreamableFile {
     if (!this.service.exists(id))
       throw new NotFoundException();
