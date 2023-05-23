@@ -18,43 +18,44 @@ export class PDFDocumentsService {
     ensureDirSync(storageRoot(this.config, 'pdf-files'));
   }
 
-  async upload(fileId: string, file: any) {
-    const { originalname, size, buffer } = file;
-    if (fileId) {
-      await this.pdfFiles.updateOne({ _id: fileId }, { $set: { originalname, size } });
-    } else {
-      fileId = (await this.pdfFiles.create({ originalname, size }))._id.toString();
-    }
-    writeFileSync(storageRoot(this.config, 'pdf-files', fileId), buffer, { flag: 'w' });
-    return fileId;
-  }
-
-  download(id: any, pathOnly?: boolean) {
-    const path = storageRoot(this.config, 'pdf-files', id);
-    return pathOnly ? path : readFileSync(path);
-  }
-
-  async list() {
-    const list = await this.pdfDocs.find();
+  async list({ user }) {
+    const list = await this.pdfDocs.find({ owner_id: user.id });
     return list.map(toObject);
   }
 
-  async create(file: any) {
+  async create({ user, file }) {
     return toObject(await this.pdfDocs.create({
-      file_id: await this.upload(null, file),
+      owner_id: user.id,
+      file_id: await this.upload({ user, file, fileId: null }),
       created_at: new Date().toISOString(),
       modified_at: new Date().toISOString(),
     }));
   }
 
-  async update(id: string, document: any) {
-    await this.pdfDocs.updateOne({ _id: id }, {
-      $set: { modified_at: new Date().toISOString(), ...document }
-    });
-    return this.read(id);
+  async read({ user, id }) {
+    return toObject(await this.pdfDocs.findOne({ owner_id: user.id, _id: id }));
   }
 
-  async read(id: string) {
-    return toObject(await this.pdfDocs.findOne({ _id: id }));
+  async update({ user, id, document }) {
+    await this.pdfDocs.updateOne({ owner_id: user.id, _id: id }, {
+      $set: { modified_at: new Date().toISOString(), ...document }
+    });
+    return this.read({ user, id });
+  }
+
+  async upload({ user, fileId, file }) {
+    const { originalname, size, buffer } = file;
+    if (fileId) {
+      await this.pdfFiles.updateOne({ owner_id: user.id, _id: fileId }, { $set: { originalname, size } });
+    } else {
+      fileId = (await this.pdfFiles.create({ owner_id: user.id, originalname, size }))._id.toString();
+    }
+    writeFileSync(storageRoot(this.config, 'pdf-files', fileId), buffer, { flag: 'w' });
+    return fileId;
+  }
+
+  download({ id, pathOnly }) {
+    const path = storageRoot(this.config, 'pdf-files', id);
+    return pathOnly ? path : readFileSync(path);
   }
 }

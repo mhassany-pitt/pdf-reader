@@ -9,6 +9,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { PDFDocumentLinksModule } from './pdf-document-links/pdf-document-links.module';
+import { PDFReaderModule } from './pdf-reader/pdf-reader.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { PDFDocumentLinksModule } from './pdf-document-links/pdf-document-links.
     UsersModule,
     PDFDocumentsModule,
     PDFDocumentLinksModule,
+    PDFReaderModule,
   ],
   controllers: [AppController],
   providers: [AppService],

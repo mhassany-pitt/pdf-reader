@@ -76,12 +76,6 @@
   </div>
 </form>
 
-<p-dialog header="Share Links" [(visible)]="share" [modal]="true" [style]="{ width: '75vw' }">
+<p-dialog header="Share Links" [(visible)]="share" [modal]="true" [style]="{ width: '75vw', 'max-width': '800px' }">
   <app-pdf-document-links *ngIf="share" [pdfDocumentId]="pdfDocument.id"></app-pdf-document-links>
 </p-dialog>
-
-<!-- TODO: create sharable link -->
-<!-- specify the features for the the link -->
-<!-- link should be password protected? or  -->
-<!-- when reader logs in, it will have a long-age cookie that specifies his/her identity -->
-<!-- access a link user should be checked to see if he/she can open the link -->
