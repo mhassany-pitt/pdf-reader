@@ -51,7 +51,7 @@ export class PDFReaderComponent implements OnInit {
           pdfDocument.sections = [];
 
         this.pdfDocument = pdfDocument;
-        this.title.setTitle(`Reader: ${this.pdfDocument.name || 'unnamed'}`);
+        this.title.setTitle(`Reader: ${this.pdfDocument.title || 'unnamed'}`);
 
         this.prepare();
       },
@@ -72,7 +72,7 @@ export class PDFReaderComponent implements OnInit {
     this.pdfjs = this.window.PDFViewerApplication;
     this.removeExtraElements();
     await this.pdfjs.open({
-      url: `${environment.apiUrl}/pdf-documents/${this.pdfDocument.id}/file`,
+      url: `${environment.apiUrl}/pdf-reader/${this.pdfDocument.id}/file`,
       withCredentials: true
     });
     this.syncPageSection();

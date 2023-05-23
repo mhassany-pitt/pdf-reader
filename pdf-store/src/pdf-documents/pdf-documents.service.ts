@@ -36,9 +36,9 @@ export class PDFDocumentsService {
     return toObject(await this.pdfDocs.findOne({ owner_id: user.id, _id: id }));
   }
 
-  async update({ user, id, document }) {
+  async update({ user, id, pdfDoc }) {
     await this.pdfDocs.updateOne({ owner_id: user.id, _id: id }, {
-      $set: { modified_at: new Date().toISOString(), ...document }
+      $set: { modified_at: new Date().toISOString(), ...pdfDoc }
     });
     return this.read({ user, id });
   }
@@ -54,8 +54,7 @@ export class PDFDocumentsService {
     return fileId;
   }
 
-  download({ id, pathOnly }) {
-    const path = storageRoot(this.config, 'pdf-files', id);
-    return pathOnly ? path : readFileSync(path);
+  getFilePath({ id }) {
+    return storageRoot(this.config, 'pdf-files', id);
   }
 }

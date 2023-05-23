@@ -60,7 +60,11 @@ export class PDFDocumentComponent implements OnInit {
   }
 
   updateTitle() {
-    this.title.setTitle(`Document: ${this.pdfDocument.name || 'unnamed'}`);
+    this.title.setTitle(`Document: ${this.pdfDocument.title || 'unnamed'}`);
+  }
+
+  getShareDialogTitle(title) {
+    return `Share "${title || 'PDF Document'}"`;
   }
 
   onDocumentLoad(iframe, $event) {

@@ -12,6 +12,6 @@ export class PDFReaderService {
   ) { }
 
   get(id: string) {
-    return this.http.get(`${environment.apiUrl}/pdf-documents/${id}`, { withCredentials: true });
+    return this.http.get(`${environment.apiUrl}/pdf-reader/${id}`, { withCredentials: true });
   }
 }

@@ -1,6 +1,6 @@
 import {
-  Body, Controller, Get, Param,
-  Patch, Post, Query, UseGuards
+  Body, Controller, Get, NotFoundException, Param,
+  Patch, Post, Query, Req, UseGuards
 } from '@nestjs/common';
 import { PDFDocumentLinksService } from './pdf-document-links.service';
 import { AuthenticatedGuard } from 'src/auth/authenticated.guard';
@@ -13,34 +13,36 @@ export class PDFDocumentLinksController {
     private service: PDFDocumentLinksService,
   ) { }
 
+  private async _getOrFail({ user, id }) {
+    const pdfLink = await this.service.read({ user, id });
+    if (pdfLink)
+      return useId(pdfLink);
+    throw new NotFoundException();
+  }
+
   @Get()
   @UseGuards(AuthenticatedGuard)
-  async index(@Query('pdfDocId') pdfDocId: string) {
-    const list = await this.service.list(pdfDocId);
+  async index(@Req() req: any, @Query('pdfDocId') pdfDocId: string) {
+    const list = await this.service.list({ user: req.user, pdfDocId });
     return list.map(useId);
   }
 
   @Post()
   @UseGuards(AuthenticatedGuard)
-  async create(@Query('pdfDocId') pdfDocId: string, @Body() body: any) {
-    return useId(await this.service.create(pdfDocId, body));
+  async create(@Req() req: any, @Query('pdfDocId') pdfDocId: string, @Body() pdfLink: any) {
+    return useId(await this.service.create({ user: req.user, pdfDocId, pdfLink }));
   }
 
   @Get(':id')
   @UseGuards(AuthenticatedGuard)
-  async get(@Param('id') id: string) {
-    return useId(await this.service.read(id));
+  async get(@Req() req: any, @Param('id') id: string) {
+    return this._getOrFail({ user: req.user, id });
   }
 
   @Patch(':id')
   @UseGuards(AuthenticatedGuard)
-  async update(@Param('id') id: string, @Body() body: any) {
-    return useId(await this.service.update(id, body));
-  }
-
-  @Patch(':id/publish')
-  @UseGuards(AuthenticatedGuard)
-  publish(@Param('id') id: string, @Body() body: any) {
-    this.service.publish(id, body.published);
+  async update(@Req() req: any, @Param('id') id: string, @Body() pdfLink: any) {
+    await this._getOrFail({ user: req.user, id });
+    return useId(await this.service.update({ user: req.user, id, pdfLink }));
   }
 }

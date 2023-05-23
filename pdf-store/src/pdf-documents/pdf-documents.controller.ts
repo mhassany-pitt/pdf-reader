@@ -1,5 +1,5 @@
 import {
-  Body, Controller, Get, Param,
+  Body, Controller, Get, NotFoundException, Param,
   Patch, Post, Req, StreamableFile, UploadedFile,
   UseGuards, UseInterceptors
 } from '@nestjs/common';
@@ -16,6 +16,13 @@ export class PDFDocumentsController {
   constructor(
     private service: PDFDocumentsService,
   ) { }
+
+  private async _getOrFail({ user, id }) {
+    const pdfDoc = await this.service.read({ user, id });
+    if (pdfDoc)
+      return useId(pdfDoc);
+    throw new NotFoundException();
+  }
 
   @Get()
   @UseGuards(AuthenticatedGuard)
@@ -34,30 +41,29 @@ export class PDFDocumentsController {
   @Get(':id')
   @UseGuards(AuthenticatedGuard)
   async get(@Req() req: any, @Param('id') id: string) {
-    return useId(await this.service.read({ user: req.user, id }));
+    return await this._getOrFail({ user: req.user, id });
   }
 
   @Patch(':id')
   @UseGuards(AuthenticatedGuard)
   async update(@Req() req: any, @Param('id') id: string, @Body() body: any) {
-    return useId(await this.service.update({ user: req.user, id, document: body }));
+    await this._getOrFail({ user: req.user, id });
+    return useId(await this.service.update({ user: req.user, id, pdfDoc: body }));
   }
 
   @Post(':id/file')
   @UseGuards(AuthenticatedGuard)
   @UseInterceptors(FileInterceptor('file'))
   async upload(@Req() req: any, @Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
-    const document = await this.service.read({ user: req.user, id });
-    this.service.upload({ user: req.user, fileId: document.file_id, file });
+    const pdfDoc = await this._getOrFail({ user: req.user, id });
+    this.service.upload({ user: req.user, fileId: pdfDoc.file_id, file });
     return {};
   }
 
   @Get(':id/file')
   @UseGuards(AuthenticatedGuard)
   async download(@Req() req: any, @Param('id') id: string): Promise<StreamableFile> {
-    const document = await this.service.read({ user: req.user, id });
-    return new StreamableFile(createReadStream(
-      this.service.download({ id: document.file_id, pathOnly: true })
-    ));
+    const pdfDoc = await this._getOrFail({ user: req.user, id });
+    return new StreamableFile(createReadStream(this.service.getFilePath({ id: pdfDoc.file_id })));
   }
 }

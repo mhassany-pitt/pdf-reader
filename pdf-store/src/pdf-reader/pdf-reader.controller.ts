@@ -1,28 +1,50 @@
-import { Controller, Get, Param, StreamableFile, UseGuards } from '@nestjs/common';
-import { PDFReaderService } from './pdf-reader.service';
+import { Controller, Get, NotFoundException, Param, Req, StreamableFile, UseGuards } from '@nestjs/common';
 import { AuthenticatedGuard } from 'src/auth/authenticated.guard';
-import { useId } from 'src/utils';
 import { createReadStream } from 'fs-extra';
+import { PDFDocumentsService } from 'src/pdf-documents/pdf-documents.service';
+import { PDFDocumentLinksService } from 'src/pdf-document-links/pdf-document-links.service';
+import { useId } from 'src/utils';
 
 @Controller('pdf-reader')
 export class PDFReaderController {
 
   constructor(
-    private service: PDFReaderService,
+    private pdfDocsService: PDFDocumentsService,
+    private pdfLinksService: PDFDocumentLinksService,
   ) { }
+
+  private async _getOrFail({ user, id }) {
+    let pdfDoc = await this.pdfDocsService.read({ user: user, id });
+    if (pdfDoc)
+      return useId(pdfDoc);
+
+    const pdfLink = await this.pdfLinksService.read({ user: user, id });
+    if (pdfLink && pdfLink.published) {
+      pdfDoc = await this.pdfDocsService.read({
+        user: { id: pdfLink.owner_id }, // TODO: use owner_id from pdfLink
+        id: pdfLink.pdf_doc_id,
+      });
+      pdfDoc.id = id;
+      pdfDoc.configs = useId(pdfLink);
+      return useId(pdfDoc);
+    }
+
+    throw new NotFoundException();
+  }
 
   @Get(':id')
   @UseGuards(AuthenticatedGuard)
-  async get(@Param('id') id: string) {
-    return useId(await this.service.read(id));
+  async get(@Req() req: any, @Param('id') id: string) {
+    const pdfDoc = await this._getOrFail({ user: req.user, id });
+    delete pdfDoc.file_id;
+    delete pdfDoc.owner_id;
+    return pdfDoc;
   }
 
   @Get(':id/file')
   @UseGuards(AuthenticatedGuard)
-  async download(@Param('id') id: string): Promise<StreamableFile> {
-    const document = await this.service.read(id);
-    return new StreamableFile(createReadStream(
-      this.service.download(document.file_id, true)
-    ));
+  async download(@Req() req: any, @Param('id') id: string): Promise<StreamableFile> {
+    const pdfDoc = await this._getOrFail({ user: req.user, id });
+    return new StreamableFile(createReadStream(this.pdfDocsService.getFilePath({ id: pdfDoc.file_id })));
   }
 }

@@ -1,19 +1,15 @@
 import { Module } from '@nestjs/common';
 import { PDFReaderController } from './pdf-reader.controller';
-import { PDFReaderService } from './pdf-reader.service';
 import { ConfigService } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
-import { PDFDocumentSchema } from 'src/pdf-documents/pdf-document.schema';
-import { PDFFileSchema } from 'src/pdf-documents/pdf-file.schema';
+import { PDFDocumentsModule } from 'src/pdf-documents/pdf-documents.module';
+import { PDFDocumentLinksModule } from 'src/pdf-document-links/pdf-document-links.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: 'pdf-documents', schema: PDFDocumentSchema },
-      { name: 'pdf-files', schema: PDFFileSchema }
-    ])
+    PDFDocumentsModule,
+    PDFDocumentLinksModule,
   ],
   controllers: [PDFReaderController],
-  providers: [ConfigService, PDFReaderService]
+  providers: [ConfigService]
 })
 export class PDFReaderModule { }

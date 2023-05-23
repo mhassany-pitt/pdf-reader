@@ -58,7 +58,7 @@
           <td>
             <div class="flex items-center">
               <a [routerLink]="['/pdf-documents', pdfDocument.id]" class="font-bold">
-                {{ pdfDocument.name || 'unnamed' }}
+                {{ pdfDocument.title || 'unnamed' }}
               </a>
 
               <span [routerLink]="['/pdf-reader', pdfDocument.id]" class="text-gray-500 ml-2 cursor-pointer">

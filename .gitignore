@@ -105,6 +105,5 @@ dist
 
 .DS_Store
 
-.development.env
-
 pdf-store/storage/
+pdf-store/.env.development

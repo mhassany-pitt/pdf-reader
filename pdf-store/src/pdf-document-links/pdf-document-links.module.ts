@@ -6,8 +6,13 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { PDFDocumentLinkSchema } from './pdf-document-link.schema';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: 'pdf-document-links', schema: PDFDocumentLinkSchema }])],
+  imports: [
+    MongooseModule.forFeature([
+      { name: 'pdf-document-links', schema: PDFDocumentLinkSchema }
+    ])
+  ],
   controllers: [PDFDocumentLinksController],
-  providers: [ConfigService, PDFDocumentLinksService]
+  providers: [ConfigService, PDFDocumentLinksService],
+  exports: [PDFDocumentLinksService]
 })
 export class PDFDocumentLinksModule { }
