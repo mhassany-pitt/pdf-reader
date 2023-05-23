@@ -21,11 +21,11 @@ import { ColorPickerModule } from 'primeng/colorpicker';
     MultiSelectModule, InputNumberModule,
     ColorPickerModule,
   ],
-  selector: 'app-pdf-document-shares',
-  templateUrl: './pdf-document-shares.component.html',
-  styleUrls: ['./pdf-document-shares.component.less']
+  selector: 'app-pdf-document-links',
+  templateUrl: './pdf-document-links.component.html',
+  styleUrls: ['./pdf-document-links.component.less']
 })
-export class PDFDocumentSharesComponent implements OnInit {
+export class PDFDocumentLinksComponent implements OnInit {
   @Input() pdfDocumentId: any;
 
   tmpColor1 = 'blue';
@@ -55,7 +55,7 @@ export class PDFDocumentSharesComponent implements OnInit {
 
   load() {
     this.http.get(
-      `${environment.apiUrl}/pdf-document-shares?pdfDocId=${this.pdfDocumentId}`,
+      `${environment.apiUrl}/pdf-document-links?pdfDocId=${this.pdfDocumentId}`,
       { withCredentials: true }
     ).subscribe({
       next: (data: any) => this.sharableLinks = data,
@@ -80,7 +80,7 @@ export class PDFDocumentSharesComponent implements OnInit {
 
   create() {
     this.http.post<SharableLink>(
-      `${environment.apiUrl}/pdf-document-shares?pdfDocId=${this.pdfDocumentId}`,
+      `${environment.apiUrl}/pdf-document-links?pdfDocId=${this.pdfDocumentId}`,
       {
         id: `${Math.random().toString(36).substring(2)}`,
         title: '',
@@ -109,7 +109,7 @@ export class PDFDocumentSharesComponent implements OnInit {
     this.tt[link.id] = false;
     const index = this.sharableLinks.indexOf(link);
     this.http.patch<SharableLink>(
-      `${environment.apiUrl}/pdf-document-shares/${link.id}`,
+      `${environment.apiUrl}/pdf-document-links/${link.id}`,
       link,
       { withCredentials: true }
     ).subscribe({

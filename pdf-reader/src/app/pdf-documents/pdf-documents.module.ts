@@ -9,6 +9,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { PDFDocumentsService } from './pdf-documents.service';
 import { RouterModule } from '@angular/router';
+import { UserAuthCtrlComponent } from '../user-auth-ctrl/user-auth-ctrl.component';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { RouterModule } from '@angular/router';
     DocumentsRoutingModule,
     TableModule, InputTextModule,
     ButtonModule, TagModule,
+    UserAuthCtrlComponent,
   ],
   providers: [PDFDocumentsService]
 })

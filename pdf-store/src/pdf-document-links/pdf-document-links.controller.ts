@@ -2,15 +2,15 @@ import {
   Body, Controller, Get, Param,
   Patch, Post, Query, UseGuards
 } from '@nestjs/common';
-import { PDFDocumentSharesService } from './pdf-document-shares.service';
+import { PDFDocumentLinksService } from './pdf-document-links.service';
 import { AuthenticatedGuard } from 'src/auth/authenticated.guard';
 import { useId } from 'src/utils';
 
-@Controller('pdf-document-shares')
-export class PDFDocumentSharesController {
+@Controller('pdf-document-links')
+export class PDFDocumentLinksController {
 
   constructor(
-    private service: PDFDocumentSharesService,
+    private service: PDFDocumentLinksService,
   ) { }
 
   @Get()

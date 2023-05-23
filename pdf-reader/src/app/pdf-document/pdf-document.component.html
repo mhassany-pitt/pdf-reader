@@ -4,6 +4,10 @@
       <h1 routerLink="/pdf-documents" class="cursor-pointer text-xl">
         PDF Documents
       </h1>
+
+      <span class="flex-grow"></span>
+
+      <app-user-auth-ctrl></app-user-auth-ctrl>
     </div>
   </div>
 
@@ -73,7 +77,7 @@
 </form>
 
 <p-dialog header="Share Links" [(visible)]="share" [modal]="true" [style]="{ width: '75vw' }">
-  <app-pdf-document-shares *ngIf="share" [pdfDocumentId]="pdfDocument.id"></app-pdf-document-shares>
+  <app-pdf-document-links *ngIf="share" [pdfDocumentId]="pdfDocument.id"></app-pdf-document-links>
 </p-dialog>
 
 <!-- TODO: create sharable link -->

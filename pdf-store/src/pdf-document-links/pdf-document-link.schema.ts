@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-export type PDFDocumentShareDocument = HydratedDocument<PDFDocumentShare>;
+export type PDFDocumentLinkDocument = HydratedDocument<PDFDocumentLink>;
 
 @Schema()
-export class PDFDocumentShare {
+export class PDFDocumentLink {
   @Prop() pdf_doc_id: string;
 
   @Prop() title: string;
@@ -35,4 +35,4 @@ export class PDFDocumentShare {
   @Prop() interaction_logger_api: string;
 }
 
-export const PDFDocumentShareSchema = SchemaFactory.createForClass(PDFDocumentShare);
+export const PDFDocumentLinkSchema = SchemaFactory.createForClass(PDFDocumentLink);

@@ -1,4 +1,4 @@
-<div class="pdf-document-share">
+<div class="pdf-document-link">
   <div class="flex items-center gap-2 mb-4">
     <input type="text" pInputText [(ngModel)]="filter" placeholder="Filter ..." class="p-inputtext-sm flex-grow">
 
@@ -16,7 +16,7 @@
       <span class="text-sm text-gray-400">empty list</span>
     </div>
     <form *ngFor="let sharableLink of filteredSharableLinks; let i = index" #form="ngForm"
-      (ngSubmit)="update(form, sharableLink)" class="flex flex-col relative p-2 pdf-document-share__link"
+      (ngSubmit)="update(form, sharableLink)" class="flex flex-col relative p-2 pdf-document-link__link"
       [ngClass]="{ 'bg-gray-100': i % 2 == 0 }">
       <input *ngIf="tt[sharableLink.id]" type="text" pInputText name="title" [(ngModel)]="sharableLink.title"
         placeholder="Title" class="p-inputtext-sm title-input"

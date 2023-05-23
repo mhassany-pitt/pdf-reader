@@ -123,7 +123,6 @@ export class PDFDocumentComponent implements OnInit {
   }
 
   addToOutline(selection: any, $event: any) {
-    console.log(selection);
     let { top, left, width, height } = selection.getRangeAt(0).getBoundingClientRect();
     const textLayer = selection.anchorNode.parentElement.closest(`.pdfViewer .textLayer`);
     const page = parseInt(textLayer.parentElement.getAttribute('data-page-number'));

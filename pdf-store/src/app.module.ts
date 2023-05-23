@@ -8,7 +8,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { PDFDocumentSharesModule } from './pdf-document-shares/pdf-document-shares.module';
+import { PDFDocumentLinksModule } from './pdf-document-links/pdf-document-links.module';
 
 @Module({
   imports: [
@@ -26,7 +26,7 @@ import { PDFDocumentSharesModule } from './pdf-document-shares/pdf-document-shar
     AuthModule,
     UsersModule,
     PDFDocumentsModule,
-    PDFDocumentSharesModule,
+    PDFDocumentLinksModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -3,17 +3,17 @@ import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { ensureDirSync } from 'fs-extra';
 import { storageRoot, toObject } from 'src/utils';
-import { PDFDocumentShare } from './pdf-document-share.schema';
+import { PDFDocumentLink } from './pdf-document-link.schema';
 import { Model } from 'mongoose';
 
 @Injectable()
-export class PDFDocumentSharesService {
+export class PDFDocumentLinksService {
 
   constructor(
     private config: ConfigService,
-    @InjectModel('pdf-document-shares') private pdfDocShares: Model<PDFDocumentShare>
+    @InjectModel('pdf-document-links') private pdfDocShares: Model<PDFDocumentLink>
   ) {
-    ensureDirSync(storageRoot(this.config, 'pdf-document-shares'));
+    ensureDirSync(storageRoot(this.config, 'pdf-document-links'));
   }
 
   async list(pdfDocId: string) {
