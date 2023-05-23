@@ -30,6 +30,8 @@ export class PDFDocumentComponent implements OnInit {
 
   textExtractionProgress: any = undefined;
 
+  share = false;
+
   get pdfDocumentId() {
     return (this.route.snapshot.params as any).id;
   }
@@ -87,14 +89,15 @@ export class PDFDocumentComponent implements OnInit {
     new EmbedResource({ iframe, pdfjs, storage, annotator, embedLinkViewer });
     new EnableElemMovement({ iframe, embedLinkViewer, freeformViewer, storage });
 
-    new TextLocator({ iframe, pdfjs }).extractTextBounds({
-      progress: (percentage: number) =>
-        this.ngZone.run(() => this.textExtractionProgress = percentage),
-      then: (pageTexts: any) => {
-        this.ngZone.run(() => this.textExtractionProgress = undefined);
-        console.log('text bounds:', pageTexts);
-      }
-    });
+    // TODO: use to extract text bounds
+    // new TextLocator({ iframe, pdfjs }).extractTextBounds({
+    //   progress: (percentage: number) =>
+    //     this.ngZone.run(() => this.textExtractionProgress = percentage),
+    //   then: (pageTexts: any) => {
+    //     this.ngZone.run(() => this.textExtractionProgress = undefined);
+    //     console.log('text bounds:', pageTexts);
+    //   }
+    // });
 
     new AddTextSelectionToOutline({
       iframe, annotator, addToOutline: (selection, $event) =>

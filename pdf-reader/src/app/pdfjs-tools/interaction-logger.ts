@@ -80,8 +80,7 @@ export class InteractionLogger {
 
   private _setupOnMouseMove() {
     this.document.addEventListener('mousemove',
-      ($event: any) => this._later('mousemove',
-        () => this._handleMouseEvents($event), 300), true);
+      ($event: any) => this._later('mousemove', () => this._handleMouseEvents($event), 100), true);
   }
 
   private _setupOnMouseUp() {
@@ -103,7 +102,7 @@ export class InteractionLogger {
             visiblePageRects[pageNum] = overlap;
         });
         this._log({ type: 'scroll', visiblePageRects });
-      }));
+      }, 100));
   }
 
   private _handlePDFJSEvents(type: string, $event: any) {

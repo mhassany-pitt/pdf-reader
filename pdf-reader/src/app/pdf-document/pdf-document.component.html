@@ -45,7 +45,13 @@
 
       <hr class="my-1" />
 
-      <div class="flex justify-end">
+      <div class="flex items-center">
+        <button pButton type="button" label="Share" icon="pi pi-share-alt"
+          class="p-button-sm p-button-text p-button-help" (click)="share = true">
+        </button>
+
+        <span class="flex-grow"></span>
+
         <button pButton type="button" label="Cancel" icon="pi pi-chevron-left"
           class="p-button-sm p-button-text p-button-secondary" (click)="cancel()">
         </button>
@@ -65,6 +71,10 @@
     </div>
   </div>
 </form>
+
+<p-dialog header="Share Links" [(visible)]="share" [modal]="true" [style]="{ width: '75vw' }">
+  <app-pdf-document-share *ngIf="share"></app-pdf-document-share>
+</p-dialog>
 
 <!-- TODO: create sharable link -->
 <!-- specify the features for the the link -->

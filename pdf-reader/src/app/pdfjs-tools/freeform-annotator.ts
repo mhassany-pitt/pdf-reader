@@ -106,15 +106,15 @@ export class FreeformAnnotator {
 
       const containerEl = htmlToElements(
         `<div class="pdfjs-annotation-freeform__stroke-btns"></div>`);
-      ["thin,100,1", "normal,normal,3", "thick,900,5"].forEach(strokeSize => {
-        const parts = strokeSize.split(',');
+      ["thin|1", "normal|3", "thick|5"].forEach(strokeSize => {
+        const parts = strokeSize.split('|');
         const buttonEl = htmlToElements(
-          `<button class="pdfjs-annotation-freeform__stroke-btn--${parts[0]}" style="font-weight: ${parts[1]};">
+          `<button class="pdfjs-annotation-freeform__stroke-btn--${parts[0]}">
             ${parts[0]}
           </button>`);
         containerEl.appendChild(buttonEl);
         buttonEl.onclick = ($ev) => {
-          this.canvasLineWidth = parseInt(parts[2]);
+          this.canvasLineWidth = parseInt(parts[1]);
           this.annotator.hidePopup();
         }
       });
