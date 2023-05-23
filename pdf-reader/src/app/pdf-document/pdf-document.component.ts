@@ -51,12 +51,16 @@ export class PDFDocumentComponent implements OnInit {
         if (!pdfDocument.sections) pdfDocument.sections = [];
 
         this.pdfDocument = pdfDocument;
-        this.title.setTitle(`Document: ${this.pdfDocument.name || 'unnamed'}`);
 
+        this.updateTitle();
         this.prepare();
       },
       error: (error: any) => console.log(error)
     });
+  }
+
+  updateTitle() {
+    this.title.setTitle(`Document: ${this.pdfDocument.name || 'unnamed'}`);
   }
 
   onDocumentLoad(iframe, $event) {

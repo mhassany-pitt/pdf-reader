@@ -9,8 +9,8 @@
 
   <div class="flex-grow container mx-auto py-10 grid grid-cols-3 gap-4">
     <div class="flex flex-col items-stretch p-2 border gap-1 select-none">
-      <input type="text" name="title" pInputText [(ngModel)]="pdfDocument.name" placeholder="Title" required
-        class="p-inputtext-lg" style="padding: 0.375rem 0.5rem;" />
+      <input type="text" name="title" pInputText [(ngModel)]="pdfDocument.name" (ngModelChange)="updateTitle()"
+        placeholder="Title" required class="p-inputtext-lg" style="padding: 0.375rem 0.5rem;" />
 
       <p-chips name="tags" [(ngModel)]="pdfDocument.tags" separator="," placeholder="Tags"></p-chips>
       <span class="text-gray-400 text-xs">separate by comma</span>
@@ -73,7 +73,7 @@
 </form>
 
 <p-dialog header="Share Links" [(visible)]="share" [modal]="true" [style]="{ width: '75vw' }">
-  <app-pdf-document-share *ngIf="share"></app-pdf-document-share>
+  <app-pdf-document-shares *ngIf="share" [pdfDocumentId]="pdfDocument.id"></app-pdf-document-shares>
 </p-dialog>
 
 <!-- TODO: create sharable link -->

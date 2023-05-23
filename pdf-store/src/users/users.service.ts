@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { readJSONSync } from 'fs-extra';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 export type User = {
   id: number;
@@ -13,15 +13,10 @@ export type User = {
 export class UsersService {
 
   constructor(
-    private config: ConfigService,
+    @InjectModel('users') private users: Model<User>
   ) { }
 
-  root(...path: string[]) {
-    return this.config.get('STORAGE') + (path ? '/' + path.join('/') : '');
-  }
-
   async findOne(email: string): Promise<User | undefined> {
-    const users = readJSONSync(this.root('users/credentials.json'));
-    return users.find(user => user.email === email);
+    return (await this.users.findOne({ email })).toObject();
   }
 }

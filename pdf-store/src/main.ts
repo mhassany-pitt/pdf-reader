@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import * as session from 'express-session';
 import * as FileStore from 'session-file-store';
 import * as passport from 'passport';
-
+ 
 declare const module: any;
 
 async function bootstrap() {

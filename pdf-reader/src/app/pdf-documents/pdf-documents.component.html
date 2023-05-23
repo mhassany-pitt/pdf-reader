@@ -40,12 +40,21 @@
           </th>
         </tr>
       </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="2">
+            <div class="flex items-center justify-center">
+              <span class="text-gray-500">empty list</span>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
       <ng-template pTemplate="body" let-pdfDocument>
         <tr>
           <td>
             <div class="flex items-center">
               <a [routerLink]="['/pdf-documents', pdfDocument.id]" class="font-bold">
-                {{pdfDocument.name}}
+                {{ pdfDocument.name || 'unnamed' }}
               </a>
 
               <span [routerLink]="['/pdf-reader', pdfDocument.id]" class="text-gray-500 ml-2 cursor-pointer">

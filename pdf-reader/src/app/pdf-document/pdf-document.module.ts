@@ -14,12 +14,11 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DialogModule } from 'primeng/dialog';
 import { PDFDocumentService } from './pdf-document.service';
-import { PdfDocumentShareComponent } from './pdf-document-share/pdf-document-share.component';
+import { PDFDocumentSharesComponent } from '../pdf-document-shares/pdf-document-shares.component';
 
 @NgModule({
   declarations: [
     PDFDocumentComponent,
-    PdfDocumentShareComponent,
   ],
   imports: [
     CommonModule,
@@ -28,7 +27,8 @@ import { PdfDocumentShareComponent } from './pdf-document-share/pdf-document-sha
     InputTextModule, InputNumberModule,
     ButtonModule, ChipsModule, DialogModule,
     InputSwitchModule, CheckboxModule,
-    ColorPickerModule, MultiSelectModule
+    ColorPickerModule, MultiSelectModule,
+    PDFDocumentSharesComponent,
   ],
   providers: [PDFDocumentService]
 })

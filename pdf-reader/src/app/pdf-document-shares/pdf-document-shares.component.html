@@ -15,10 +15,12 @@
     <div *ngIf="sharableLinks.length < 1" class="w-full text-center my-2">
       <span class="text-sm text-gray-400">empty list</span>
     </div>
-    <div *ngFor="let sharableLink of filteredSharableLinks; let i = index"
-      class="flex flex-col relative p-2 pdf-document-share__link" [ngClass]="{ 'bg-gray-100': i % 2 == 0 }">
-      <input *ngIf="tt[sharableLink.id]" type="text" pInputText [(ngModel)]="sharableLink.title" placeholder="Title"
-        class="p-inputtext-sm title-input" style="font-weight: bold; margin-right: 6rem;">
+    <form *ngFor="let sharableLink of filteredSharableLinks; let i = index" #form="ngForm"
+      (ngSubmit)="update(form, sharableLink)" class="flex flex-col relative p-2 pdf-document-share__link"
+      [ngClass]="{ 'bg-gray-100': i % 2 == 0 }">
+      <input *ngIf="tt[sharableLink.id]" type="text" pInputText name="title" [(ngModel)]="sharableLink.title"
+        placeholder="Title" class="p-inputtext-sm title-input"
+        style="font-weight: bold; margin-right: 6rem; margin-bottom: 0.5rem;">
       <span *ngIf="!tt[sharableLink.id]" class="font-bold">{{ sharableLink.title || 'Empty Title' }}</span>
 
       <div class="text-xs font-bold flex items-center" [ngClass]="{ 
@@ -26,15 +28,19 @@
           'text-blue-700': sharableLink.published
         } ">
         <span class="mr-2 underline text-sm">{{ getURL(sharableLink.id) }}</span>
-        <span class="pi pi-copy"></span>
+        <span class="pi pi-copy" (click)="copyURL(sharableLink.id)"></span>
+        <span *ngIf="copyToast?.id == sharableLink.id" class="ml-2 text-xs">
+          {{ copyToast?.message }}
+        </span>
       </div>
       <span class="text-gray-400" style="font-size: 0.65rem">
         {{ sharableLink.created_at | date:'long' }}
       </span>
 
       <div class="flex items-center absolute top-2 right-2">
-        <p-inputSwitch name="pdf-reader__publish-link" [(ngModel)]="sharableLink.published"
-          [title]="sharableLink.published ? 'unpublish' : 'publish'"></p-inputSwitch>
+        <p-inputSwitch name="published" [(ngModel)]="sharableLink.published"
+          [title]="sharableLink.published ? 'unpublish' : 'publish'" (onChange)="update(form, sharableLink)">
+        </p-inputSwitch>
 
         <span class="mx-1"></span>
 
@@ -48,22 +54,22 @@
       <ng-container *ngIf="tt[sharableLink.id]">
         <span class="font-bold ml-4 mt-2">Annotations</span>
         <div class="flex items-center ml-8">
-          <p-checkbox name="highlight" id="pdf-reader__highlight" [binary]="true"
+          <p-checkbox name="highlight" inputId="pdf-reader__highlight" [binary]="true"
             [(ngModel)]="sharableLink.highlight"></p-checkbox>
           <label class="ml-2" for="pdf-reader__highlight">Highlight</label>
         </div>
         <div class="flex items-center ml-8">
-          <p-checkbox name="underline" id="pdf-reader__underline" [binary]="true"
+          <p-checkbox name="underline" inputId="pdf-reader__underline" [binary]="true"
             [(ngModel)]="sharableLink.underline"></p-checkbox>
           <label class="ml-2" for="pdf-reader__underline">Underline</label>
         </div>
         <div class="flex items-center ml-8">
-          <p-checkbox name="linethrough" id="pdf-reader__linethrough" [binary]="true"
+          <p-checkbox name="linethrough" inputId="pdf-reader__linethrough" [binary]="true"
             [(ngModel)]="sharableLink.linethrough"></p-checkbox>
           <label class="ml-2" for="pdf-reader__linethrough">Line Through</label>
         </div>
         <div class="flex items-center ml-8">
-          <p-checkbox name="redact" id="pdf-reader__redact" [binary]="true"
+          <p-checkbox name="redact" inputId="pdf-reader__redact" [binary]="true"
             [(ngModel)]="sharableLink.redact"></p-checkbox>
           <label class="ml-2" for="pdf-reader__redact">Redact</label>
         </div>
@@ -73,21 +79,23 @@
             <input type="text" pInputText name="annotation_colors" placeholder="blue, #ff0000, rgb(0, 255, 0), ..."
               [(ngModel)]="sharableLink.annotation_colors" class="p-inputtext-sm flex-grow">
             <span class="p-inputgroup-addon">
-              <p-colorPicker [(ngModel)]="tmpColor1"></p-colorPicker>
-              <button class="ml-1">Add</button>
+              <p-colorPicker #freeformColor name="add_annotation_color" [(ngModel)]="tmpColor1"></p-colorPicker>
+              <button type="button" class="ml-1"
+                (click)="addColor(sharableLink,'annotation_colors', tmpColor1)">Add</button>
             </span>
           </div>
         </div>
 
         <span class="font-bold ml-4 mt-2">Notes</span>
         <div class="flex items-center ml-8">
-          <p-checkbox name="notes" id="pdf-reader__notes" [binary]="true" [(ngModel)]="sharableLink.notes"></p-checkbox>
+          <p-checkbox name="notes" inputId="pdf-reader__notes" [binary]="true"
+            [(ngModel)]="sharableLink.notes"></p-checkbox>
           <label class="ml-2" for="pdf-reader__notes">Enable</label>
         </div>
 
         <span class="font-bold ml-4 mt-2">Freehand Drawing</span>
         <div class="flex items-center ml-8">
-          <p-checkbox name="freeform" id="pdf-reader__freeform" [binary]="true"
+          <p-checkbox name="freeform" inputId="pdf-reader__freeform" [binary]="true"
             [(ngModel)]="sharableLink.freeform"></p-checkbox>
           <label class="ml-2" for="pdf-reader__freeform">Enable</label>
         </div>
@@ -105,8 +113,9 @@
               <input type="text" pInputText name="freeform_colors" placeholder="blue, #ff0000, rgb(0, 255, 0), ..."
                 [(ngModel)]="sharableLink.freeform_colors" class="p-inputtext-sm">
               <span class="p-inputgroup-addon">
-                <p-colorPicker [(ngModel)]="tmpColor2"></p-colorPicker>
-                <button class="ml-1">Add</button>
+                <p-colorPicker #freeformColor name="add_freeform_color" [(ngModel)]="tmpColor2"></p-colorPicker>
+                <button type="button" class="ml-1"
+                  (click)="addColor(sharableLink,'freeform_colors', tmpColor2)">Add</button>
               </span>
             </div>
           </div>
@@ -114,14 +123,14 @@
 
         <span class="font-bold ml-4 mt-2">Embedding Resources</span>
         <div class="flex items-center ml-8">
-          <p-checkbox name="embed_resource" id="pdf-reader__embed-resource" [binary]="true"
+          <p-checkbox name="embed_resource" inputId="pdf-reader__embed-resource" [binary]="true"
             [(ngModel)]="sharableLink.embed_resource"></p-checkbox>
           <label class="ml-2" for="pdf-reader__embed-resource">Enable</label>
         </div>
 
         <span class="font-bold ml-4 mt-2">Interaction Logger</span>
         <div class="flex items-center ml-8">
-          <p-checkbox name="log_interactions" id="pdf-reader__log-interactions" [binary]="true"
+          <p-checkbox name="log_interactions" inputId="pdf-reader__log-interactions" [binary]="true"
             [(ngModel)]="sharableLink.log_interactions"></p-checkbox>
           <label class="ml-2" for="pdf-reader__log-interactions">Enable</label>
         </div>
@@ -129,15 +138,15 @@
           <div class="flex flex-col ml-8">
             <div class="p-inputgroup">
               <span class="p-inputgroup-addon w-40">Document Events</span>
-              <p-multiSelect [options]="documentEvents" [(ngModel)]="sharableLink.document_events"
-                class="flex-grow"></p-multiSelect>
+              <p-multiSelect name="document_events" [options]="documentEvents"
+                [(ngModel)]="sharableLink.document_events" class="flex-grow"></p-multiSelect>
             </div>
           </div>
 
           <div class="flex flex-col ml-8">
             <div class="p-inputgroup">
               <span class="p-inputgroup-addon w-40">Pdfjs Events</span>
-              <p-multiSelect [options]="pdfJSEvents" [(ngModel)]="sharableLink.pdfjs_events"
+              <p-multiSelect name="pdfjs_events" [options]="pdfJSEvents" [(ngModel)]="sharableLink.pdfjs_events"
                 class="flex-grow"></p-multiSelect>
             </div>
           </div>
@@ -187,8 +196,16 @@
           </div>
         </ng-container>
 
-        <span class="my-1"></span>
+        <div class="flex items-center mt-2">
+          <span class="flex-grow"></span>
+
+          <button pButton type="button" label="Cancel" icon="pi pi-chevron-left"
+            class="p-button-sm p-button-text p-button-secondary" (click)="tt[sharableLink.id] = false">
+          </button>
+          <button pButton type="submit" label="Update" icon="pi pi-check" class="p-button-sm" [disabled]="form.invalid">
+          </button>
+        </div>
       </ng-container>
-    </div>
+    </form>
   </div>
 </div>

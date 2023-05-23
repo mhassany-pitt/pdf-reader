@@ -1,72 +1,60 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { v4 as uuid4, validate } from 'uuid';
-import {
-  existsSync, ensureDirSync, readFileSync,
-  writeFileSync, writeJsonSync, readJsonSync,
-  readdirSync
-} from 'fs-extra';
+import { ensureDirSync, readFileSync, writeFileSync } from 'fs-extra';
+import { storageRoot, toObject } from 'src/utils';
+import { InjectModel } from '@nestjs/mongoose';
+import { PDFDocument } from './pdf-document.schema';
+import { Model } from 'mongoose';
+import { PDFFile } from './pdf-file.schema';
 
 @Injectable()
 export class PDFDocumentsService {
 
   constructor(
     private config: ConfigService,
+    @InjectModel('pdf-files') private pdfFiles: Model<PDFFile>,
+    @InjectModel('pdf-documents') private pdfDocs: Model<PDFDocument>
   ) {
-    ensureDirSync(this.root('pdf-documents'));
-    ensureDirSync(this.root('upload-files'));
+    ensureDirSync(storageRoot(this.config, 'pdf-files'));
   }
 
-  root(...path: string[]) {
-    return this.config.get('STORAGE') + (path ? '/' + path.join('/') : '');
-  }
-
-  upload(id: string, file: any) {
+  async upload(fileId: string, file: any) {
     const { originalname, size, buffer } = file;
-    if (!id) id = uuid4();
-    writeFileSync(this.root('upload-files', id), buffer, { flag: 'w' });
-    writeJsonSync(this.root('upload-files', id + '-info'), { originalname, size }, { flag: 'w' });
-    return id;
+    if (fileId) {
+      await this.pdfFiles.updateOne({ _id: fileId }, { $set: { originalname, size } });
+    } else {
+      fileId = (await this.pdfFiles.create({ originalname, size }))._id.toString();
+    }
+    writeFileSync(storageRoot(this.config, 'pdf-files', fileId), buffer, { flag: 'w' });
+    return fileId;
   }
 
   download(id: any, pathOnly?: boolean) {
-    const path = this.root('upload-files', id);
+    const path = storageRoot(this.config, 'pdf-files', id);
     return pathOnly ? path : readFileSync(path);
   }
 
-  list() {
-    return readdirSync(this.root('pdf-documents')).filter(document => validate(document));
+  async list() {
+    const list = await this.pdfDocs.find();
+    return list.map(toObject);
   }
 
-  create(file: any) {
-    const document = {
-      id: uuid4(),
-      file_id: this.upload(null, file),
+  async create(file: any) {
+    return toObject(await this.pdfDocs.create({
+      file_id: await this.upload(null, file),
       created_at: new Date().toISOString(),
       modified_at: new Date().toISOString(),
-    };
-
-    writeJsonSync(this.root('pdf-documents', document.id), document);
-
-    return document;
+    }));
   }
 
-  write(id: string, document: any) {
-    document.id = id;
-    document.modified_at = new Date().toISOString();
-    writeJsonSync(this.root('pdf-documents', id), document);
-
-    return document;
+  async update(id: string, document: any) {
+    await this.pdfDocs.updateOne({ _id: id }, {
+      $set: { modified_at: new Date().toISOString(), ...document }
+    });
+    return this.read(id);
   }
 
-  exists(id: string) {
-    return validate(id) && existsSync(this.root('pdf-documents', id));
-  }
-
-  read(id: string) {
-    if (!this.exists(id))
-      return null;
-
-    return readJsonSync(this.root('pdf-documents', id));
+  async read(id: string) {
+    return toObject(await this.pdfDocs.findOne({ _id: id }));
   }
 }
