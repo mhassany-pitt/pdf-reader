@@ -5,6 +5,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRouting } from './app.routing';
 import { AppComponent } from './app.component';
+import { AuthenticatedAuthorGuard } from './auth-guards/authenticated-author.guard';
 import { AuthenticatedGuard } from './auth-guards/authenticated.guard';
 import { PublicGuard } from './auth-guards/public.guard';
 import { AppService } from './app.service';
@@ -18,7 +19,12 @@ import { AppService } from './app.service';
     BrowserAnimationsModule,
     AppRouting, HttpClientModule,
   ],
-  providers: [AppService, AuthenticatedGuard, PublicGuard],
+  providers: [
+    AppService,
+    AuthenticatedAuthorGuard,
+    AuthenticatedGuard,
+    PublicGuard
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

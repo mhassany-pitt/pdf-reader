@@ -24,8 +24,7 @@ export class PDFDocumentsComponent implements OnInit {
 
   ngOnInit(): void {
     this.service.list().subscribe({
-      next: (pdfDocuments: any) => this.pdfDocuments = pdfDocuments,
-      error: (error: any) => console.log(error)
+      next: (pdfDocuments: any) => this.pdfDocuments = pdfDocuments
     });
   }
 

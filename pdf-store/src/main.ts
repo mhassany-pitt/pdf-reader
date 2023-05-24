@@ -29,7 +29,7 @@ async function bootstrap() {
       : new (FileStore(session))({ path: config.get('STORAGE') + '/sessions' }),
     cookie: {
       secure: false,
-      maxAge: 3600000 // 1hr
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
     }
   }))
   app.use(passport.initialize());

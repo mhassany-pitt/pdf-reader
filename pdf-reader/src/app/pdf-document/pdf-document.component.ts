@@ -56,8 +56,7 @@ export class PDFDocumentComponent implements OnInit {
 
         this.updateTitle();
         this.prepare();
-      },
-      error: (error: any) => console.log(error)
+      }
     });
   }
 
@@ -137,10 +136,7 @@ export class PDFDocumentComponent implements OnInit {
             this.textExtractionProgress = `Texts (including their location) were extracted for ${this.pdfjs.pagesCount} pages.`;
             setTimeout(() => this.textExtractionProgress = undefined, 3000);
           });
-          this.service.updateTextLocations(this.pdfDocumentId, pageTexts).subscribe({
-            next: (resp: any) => { },
-            error: (error: any) => console.log(error)
-          });
+          this.service.updateTextLocations(this.pdfDocumentId, pageTexts).subscribe();
         }
       });
   }
@@ -209,11 +205,9 @@ export class PDFDocumentComponent implements OnInit {
     ).subscribe({  // update document
       next: (resp: any) => {
         this.service.update(this.pdfDocument).subscribe({
-          next: (resp: any) => this.router.navigate(['/pdf-documents']),
-          error: (error: any) => console.log(error)
+          next: (resp: any) => this.router.navigate(['/pdf-documents'])
         })
-      },
-      error: (error: any) => console.log(error)
+      }
     })
   }
 }

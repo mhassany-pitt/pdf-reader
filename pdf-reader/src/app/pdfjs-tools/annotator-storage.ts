@@ -19,8 +19,7 @@ export class AnnotationStorage<T extends Annotation> {
 
   private load() {
     this.http.get(`${this.api || (environment.apiUrl + '/annoations')}/${this.groupId}`, { withCredentials: true }).subscribe({
-      next: (resp: any) => this.annotations = resp,
-      error: (error: any) => console.log(error),
+      next: (resp: any) => this.annotations = resp
     });
   }
 
@@ -34,8 +33,7 @@ export class AnnotationStorage<T extends Annotation> {
         annotation.id = resp.id;
         this.annotations.push(annotation);
         then?.();
-      },
-      error: (error: any) => console.log(error),
+      }
     });
   }
 
@@ -48,8 +46,7 @@ export class AnnotationStorage<T extends Annotation> {
       next: (resp: any) => {
         this.annotations[this.annotations.indexOf(this.read(annotation.id))] = annotation;
         then?.();
-      },
-      error: (error: any) => console.log(error),
+      }
     });
   }
 
@@ -58,8 +55,7 @@ export class AnnotationStorage<T extends Annotation> {
       next: (resp: any) => {
         this.annotations.splice(this.annotations.indexOf(annotation), 1);
         then?.();
-      },
-      error: (error: any) => console.log(error),
+      }
     });
   }
 }

@@ -63,7 +63,10 @@ export class PDFReaderComponent implements OnInit {
 
         this.prepare();
       },
-      error: (error: any) => console.log(error)
+      error: (error: any) => {
+        if (error.status == 401)
+          this.router.navigate(['/unauthorized']);
+      }
     });
   }
 
@@ -156,10 +159,7 @@ export class PDFReaderComponent implements OnInit {
           if (this.configs?.interaction_logger_api) {
             this.http.post(
               this.configs?.interaction_logger_api || (environment.apiUrl + '/interaction-logs'),
-              logs, { withCredentials: true }).subscribe({
-                next: (response: any) => console.log(response),
-                error: (error: any) => console.log(error)
-              });
+              logs, { withCredentials: true }).subscribe();
           }
         },
         configs: {
