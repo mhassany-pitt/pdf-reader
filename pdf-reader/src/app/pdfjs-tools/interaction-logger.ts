@@ -216,7 +216,9 @@ export class InteractionLogger {
   }
 
   private _log($event: any) {
-    $event.timestamp = new Date().getTime() - this.startedAt;
+    const now = new Date().getTime();
+    $event.elapsed = now - this.startedAt;
+    $event.datetime = now;
     this.buffer.push($event);
 
     if (this.delay)

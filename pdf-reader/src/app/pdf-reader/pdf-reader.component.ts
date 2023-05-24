@@ -156,6 +156,8 @@ export class PDFReaderComponent implements OnInit {
       new InteractionLogger({
         iframe, pdfjs,
         persist: (logs: any[]) => {
+          logs.forEach(log => log.pdf_doc_id = this.pdfDocumentId);
+
           if (this.configs?.interaction_logger_api) {
             this.http.post(
               this.configs?.interaction_logger_api || (environment.apiUrl + '/interaction-logs'),
