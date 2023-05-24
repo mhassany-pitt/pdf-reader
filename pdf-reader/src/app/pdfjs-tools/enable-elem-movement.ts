@@ -75,9 +75,9 @@ export class EnableElemMovement {
         clearTimeout(timeout);
       timeout = setTimeout(() => {
         if (target == 'embed')
-          embedLinkViewer.fitIframeToParent($event.target);
+          embedLinkViewer?.fitIframeToParent($event.target);
         else if (target == 'freeform')
-          freeformViewer.fitImageToParent($event.target);
+          freeformViewer?.fitImageToParent($event.target);
       }, 300);
     });
 

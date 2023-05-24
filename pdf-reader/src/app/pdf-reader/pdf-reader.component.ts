@@ -4,11 +4,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { PDFReaderService } from './pdf-reader.service';
 import { Annotator } from '../pdfjs-tools/annotator';
-import { AnnotationStorage } from '../pdfjs-tools/annotator-storage';
+import { Annotation, AnnotationStorage } from '../pdfjs-tools/annotator-storage';
 import { FreeformAnnotator } from '../pdfjs-tools/freeform-annotator';
 import { EmbeddedResourceViewer } from '../pdfjs-tools/embedded-resource-viewer';
 import { FreeformViewer } from '../pdfjs-tools/freeform-viewer';
 import { InteractionLogger } from '../pdfjs-tools/interaction-logger';
+import { HttpClient } from '@angular/common/http';
+import { EmbedResource } from '../pdfjs-tools/embed-resource';
+import { EnableElemMovement } from '../pdfjs-tools/enable-elem-movement';
 
 @Component({
   selector: 'app-pdf-reader',
@@ -25,6 +28,7 @@ export class PDFReaderComponent implements OnInit {
 
   section: any;
   pdfDocument: any;
+  configs: any;
 
   get pdfDocumentId() {
     return (this.route.snapshot.params as any).id;
@@ -32,6 +36,7 @@ export class PDFReaderComponent implements OnInit {
 
   constructor(
     private router: Router,
+    private http: HttpClient,
     private route: ActivatedRoute,
     private service: PDFReaderService,
     private title: Title,
@@ -49,6 +54,9 @@ export class PDFReaderComponent implements OnInit {
           pdfDocument.tags = [];
         if (!pdfDocument.sections)
           pdfDocument.sections = [];
+
+        this.configs = pdfDocument.configs;
+        delete pdfDocument.configs;
 
         this.pdfDocument = pdfDocument;
         this.title.setTitle(`Reader: ${this.pdfDocument.title || 'unnamed'}`);
@@ -79,12 +87,89 @@ export class PDFReaderComponent implements OnInit {
 
     const iframe = this.iframe;
     const pdfjs = this.pdfjs;
-    const interactionLogger = new InteractionLogger({ iframe, pdfjs });
-    const storage = new AnnotationStorage({ groupId: this.pdfDocumentId });
-    const annotator = new Annotator({ iframe, pdfjs, storage });
-    const freeformViewer = new FreeformViewer({ iframe, pdfjs, annotator, storage, configs: { resize: false } });
-    const freefromAnnotator = new FreeformAnnotator({ iframe, pdfjs, annotator, freeformViewer, storage });
-    const embedLinkViewer = new EmbeddedResourceViewer({ iframe, pdfjs, annotator, storage, configs: { resize: false } });
+
+    this.setupInteractionLogger(iframe, pdfjs);
+    const storage = this.setupAnnotStorage();
+    const annotator = this.setupAnnotator(iframe, pdfjs, storage);
+    const freeformViewer = this.setupFreeform(iframe, pdfjs, annotator, storage);
+    const embedLinkViewer = this.setupEmbedResource(iframe, pdfjs, annotator, storage);
+
+    if (embedLinkViewer || freeformViewer)
+      new EnableElemMovement({ iframe, embedLinkViewer, freeformViewer, storage });
+  }
+
+  private setupEmbedResource(iframe, pdfjs, annotator, storage) {
+    const embedLinkViewer = new EmbeddedResourceViewer({
+      iframe, pdfjs, annotator,
+      storage, configs: { resize: false }
+    });
+
+    if (this.configs?.embed_resource)
+      new EmbedResource({ iframe, pdfjs, storage, annotator, embedLinkViewer });
+
+    return embedLinkViewer;
+  }
+
+  private setupFreeform(iframe, pdfjs, annotator, storage) {
+    const freeformViewer = new FreeformViewer({
+      iframe, pdfjs, annotator,
+      storage, configs: { resize: false }
+    });
+
+    if (this.configs?.freeform)
+      new FreeformAnnotator({
+        iframe, pdfjs, annotator, freeformViewer, storage, configs: {
+          freeform_stroke_sizes: this.configs.freeform_stroke_sizes,
+          freeform_colors: this.configs.freeform_colors,
+        }
+      });
+
+    return freeformViewer;
+  }
+
+  private setupAnnotator(iframe, pdfjs, storage) {
+    return new Annotator({
+      iframe, pdfjs, storage, configs: {
+        highlight: this.configs.highlight,
+        underline: this.configs.underline,
+        linethrough: this.configs.linethrough,
+        redact: this.configs.redact,
+        notes: this.configs.notes,
+        annotation_colors: this.configs.annotation_colors,
+      }
+    });
+  }
+
+  private setupAnnotStorage() {
+    return new AnnotationStorage({
+      http: this.http,
+      groupId: this.pdfDocumentId,
+      annotationApi: this.configs?.annotation_api,
+    });
+  }
+
+  private setupInteractionLogger(iframe: any, pdfjs: any) {
+    if (this.configs?.log_interactions) {
+      new InteractionLogger({
+        iframe, pdfjs,
+        persist: (logs: any[]) => {
+          if (this.configs.interaction_logger_api) {
+            this.http.post(this.configs.interaction_logger_api, logs, { withCredentials: true }).subscribe({
+              next: (response: any) => console.log(response),
+              error: (error: any) => console.log(error)
+            });
+          }
+        },
+        configs: {
+          document_events: this.configs.document_events,
+          pdfjs_events: this.configs.pdfjs_events,
+          mousemove_log_delay: this.configs.mousemove_log_delay,
+          scroll_log_delay: this.configs.scroll_log_delay,
+          resize_log_delay: this.configs.resize_log_delay,
+          interaction_logger_api: this.configs.interaction_logger_api,
+        }
+      });
+    }
   }
 
   private syncPageSection() {

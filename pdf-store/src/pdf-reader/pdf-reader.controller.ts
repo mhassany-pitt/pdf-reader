@@ -21,7 +21,7 @@ export class PDFReaderController {
     const pdfLink = await this.pdfLinksService.read({ user: user, id });
     if (pdfLink && pdfLink.published) {
       pdfDoc = await this.pdfDocsService.read({
-        user: { id: pdfLink.owner_id }, // TODO: use owner_id from pdfLink
+        user: { id: pdfLink.owner_id },
         id: pdfLink.pdf_doc_id,
       });
       pdfDoc.id = id;
@@ -38,6 +38,10 @@ export class PDFReaderController {
     const pdfDoc = await this._getOrFail({ user: req.user, id });
     delete pdfDoc.file_id;
     delete pdfDoc.owner_id;
+    if (pdfDoc.configs) {
+      delete pdfDoc.configs.owner_id;
+      delete pdfDoc.configs.pdf_doc_id;
+    }
     return pdfDoc;
   }
 

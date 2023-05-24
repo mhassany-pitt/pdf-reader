@@ -76,7 +76,7 @@
   </div>
 </form>
 
-<p-dialog [header]="getShareDialogTitle(pdfDocument.title)" [(visible)]="share" [modal]="true"
+<p-dialog [header]="getShareDialogTitle(pdfDocument?.title)" [(visible)]="share" [modal]="true"
   [style]="{ width: '75vw', 'max-width': '800px' }">
   <app-pdf-document-links *ngIf="share" [pdfDocumentId]="pdfDocument.id"></app-pdf-document-links>
 </p-dialog>

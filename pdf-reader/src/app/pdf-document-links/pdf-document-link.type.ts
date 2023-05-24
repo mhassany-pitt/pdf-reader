@@ -1,4 +1,4 @@
-export type SharableLink = {
+export type PDFDocumentLink = {
   id: string,
   title: string,
   published: string,

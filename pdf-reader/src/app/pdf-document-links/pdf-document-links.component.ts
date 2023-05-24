@@ -9,7 +9,7 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { environment } from 'src/environments/environment';
-import { SharableLink } from './sharable-link.type';
+import { PDFDocumentLink } from './pdf-document-link.type';
 import { ColorPickerModule } from 'primeng/colorpicker';
 
 @Component({
@@ -37,7 +37,7 @@ export class PDFDocumentLinksComponent implements OnInit {
   defColors = ['#ffd400', '#ff6563', '#5db221', '#2ba8e8', '#a28ae9', '#e66df2', '#f29823', '#aaaaaa', 'black'];
   defStrokes = ['thin-1', 'normal-3', 'thick-5'];
 
-  sharableLinks: SharableLink[] = [];
+  sharableLinks: PDFDocumentLink[] = [];
 
   copyToast: any = null;
 
@@ -79,7 +79,7 @@ export class PDFDocumentLinksComponent implements OnInit {
   }
 
   create() {
-    this.http.post<SharableLink>(
+    this.http.post<PDFDocumentLink>(
       `${environment.apiUrl}/pdf-document-links?pdfDocId=${this.pdfDocumentId}`,
       {
         id: `${Math.random().toString(36).substring(2)}`,
@@ -92,6 +92,9 @@ export class PDFDocumentLinksComponent implements OnInit {
         notes: true,
         document_events: this.documentEvents,
         pdfjs_events: this.pdfJSEvents,
+        mousemove_log_delay: 100,
+        scroll_log_delay: 100,
+        resize_log_delay: 100,
         annotation_colors: this.defColors.join(','),
         freeform_stroke_sizes: this.defStrokes.join(','),
         freeform_colors: this.defColors.join(','),
@@ -108,7 +111,7 @@ export class PDFDocumentLinksComponent implements OnInit {
   update(form, link) {
     this.tt[link.id] = false;
     const index = this.sharableLinks.indexOf(link);
-    this.http.patch<SharableLink>(
+    this.http.patch<PDFDocumentLink>(
       `${environment.apiUrl}/pdf-document-links/${link.id}`,
       link,
       { withCredentials: true }

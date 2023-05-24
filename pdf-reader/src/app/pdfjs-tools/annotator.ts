@@ -38,6 +38,7 @@ export class Annotator {
 
   private pdfjs: any;
   private storage: AnnotationStorage<Annotation>;
+  private configs;
 
   private selected: any;
   private pending: any;
@@ -63,19 +64,21 @@ export class Annotator {
     const rects = getSelectionRects(this.document, this.pdfjs);
     if (rects && Object.keys(rects).length) {
       const annot = { id: uuid(), type: 'highlight', rects };
-      this.storage.create(annot);
-      this.render(annot);
-      this.clearSelection();
+      this.storage.create(annot, () => {
+        this.clearSelection();
+        this.render(annot);
+      });
     }
   };
 
-  constructor({ iframe, pdfjs, storage }) {
+  constructor({ iframe, pdfjs, storage, configs }) {
     this.window = iframe?.contentWindow;
     this.document = iframe?.contentDocument;
     this.documentEl = this.document.documentElement;
 
     this.pdfjs = pdfjs;
     this.storage = storage;
+    this.configs = configs;
 
     this._attachStylesheet();
     this._renderOnPagerendered();
@@ -117,8 +120,9 @@ export class Annotator {
         && $event.target.classList.contains('pdfjs-annotation__bound')) {
         this.documentEl.querySelectorAll(`.pdfjs-annotations [data-annotation-id="${this.selected.id}"]`)
           .forEach((el: any) => el.remove());
-        this.storage.delete(this.selected);
-        this.selected = null;
+        this.storage.delete(this.selected, () => {
+          this.selected = null;
+        });
       }
     });
   }
@@ -193,7 +197,7 @@ export class Annotator {
       annotsLayerEl.setAttribute('data-rotation-degree', rotation(this.pdfjs));
 
       // current page and only annotations with rects
-      (this.storage.list() as Annotation[])
+      this.storage.list()
         .filter(annot => annot.rects)
         .filter(annot => Object.keys(annot.rects)
           .map(pageNum => parseInt(pageNum))
@@ -399,16 +403,19 @@ export class Annotator {
     });
   }
 
-  private _setAnnotationAttr(annotation: any, attr: string, value: any) {
-    if (!annotation.type)
-      annotation.type = 'highlight';
-    annotation[attr] = value;
-    if (annotation == this.pending)
-      this.storage.create(annotation);
+  private _setAnnotationAttr(annot: any, attr: string, value: any) {
+    if (!annot.type)
+      annot.type = 'highlight';
+    annot[attr] = value;
+    const then = () => {
+      this.clearSelection();
+      this.render(annot);
+      this.hidePopup();
+    };
+    if (annot == this.pending)
+      this.storage.create(annot, then);
     else
-      this.storage.update(annotation);
-    this.render(annotation);
-    this.clearSelection();
+      this.storage.update(annot, then);
   }
 
   private _isPendingAnnotOrRect($event: any) {
@@ -422,7 +429,8 @@ export class Annotator {
     this.register(POPUP_ROW_ITEM_UI, ($event: any) => {
       if (this._isPendingAnnotOrRect($event)) {
         const annot = this.pending || this.storage.read($event.target.getAttribute('data-annotation-id'));
-        const noteEl = htmlToElements(`<textarea class="pdfjs-annotation-popup__annot-note" rows="5">${annot.note || ''}</textarea>`);
+        const noteEl = htmlToElements(`<textarea class="pdfjs-annotation-popup__annot-note" rows="5" 
+          ${this.configs.notes ? '' : 'disabled'}>${annot.note || ''}</textarea>`);
         noteEl.onchange = ($ev: any) => this._setAnnotationAttr(annot, 'note', $ev.target.value);
         return noteEl;
       }
@@ -435,7 +443,7 @@ export class Annotator {
       if (this._isPendingAnnotOrRect($event)) {
         const annot = this.pending || this.storage.read($event.target.getAttribute('data-annotation-id'));
         const colorsEl = htmlToElements(`<div class="pdfjs-annotation-popup__annot-color-btns"></div>`);
-        ['#ffd400', '#ff6563', '#5db221', '#2ba8e8', '#a28ae9', '#e66df2', '#f29823', '#aaaaaa', 'black'].forEach(color => {
+        this.configs.annotation_colors.split(',').forEach(color => {
           const colorEl = htmlToElements(`<button class="pdfjs-annotation-popup__annot-color-btn--${color.replace('#', '')}"></button>`);
           colorEl.style.backgroundColor = color;
           colorEl.onclick = ($ev) => this._setAnnotationAttr(annot, 'color', color);
@@ -450,6 +458,15 @@ export class Annotator {
   private _registerPopupAnnotTypeItemUI() {
     this.register(POPUP_ROW_ITEM_UI, ($event: any) => {
       if (this._isPendingAnnotOrRect($event)) {
+        const typeBtnHtmls: any = {};
+        if (this.configs.highlight) /*  */ typeBtnHtmls.highlight = '<span style="background: orange;">highlight</span>';
+        if (this.configs.underline) /*  */ typeBtnHtmls.underline = '<span style="text-decoration: underline;">underline</span>';
+        if (this.configs.linethrough) /**/ typeBtnHtmls.linethrough = '<span style="text-decoration: line-through;">line-through</span>';
+        if (this.configs.redact) /*     */ typeBtnHtmls.redact = '<span style="background: darkgray;">redact</span>';
+
+        if (Object.keys(typeBtnHtmls).length < 1)
+          return null;
+
         const annot = this.pending || this.storage.read($event.target.getAttribute('data-annotation-id'));
 
         const pageEl = closestPageEl($event.target);
@@ -459,12 +476,6 @@ export class Annotator {
           left: `${bound.left}%`
         };
 
-        const typeBtnHtmls = {
-          'highlight': '<span style="background: orange;">highlight</span>',
-          'underline': '<span style="text-decoration: underline;">underline</span>',
-          'linethrough': '<span style="text-decoration: line-through;">line-through</span>',
-          'redact': '<span style="background: darkgray;">redact</span>',
-        };
         const typesEl = htmlToElements(`<div class="pdfjs-annotation-popup__annot-type-btns"></div>`);
         Object.keys(typeBtnHtmls).forEach(type => {
           const buttonEl = htmlToElements(`<button class="pdfjs-annotation-popup__annot-type-btn--${type}">${typeBtnHtmls[type]}</button>`);

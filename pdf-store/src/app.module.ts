@@ -10,6 +10,8 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { PDFDocumentLinksModule } from './pdf-document-links/pdf-document-links.module';
 import { PDFReaderModule } from './pdf-reader/pdf-reader.module';
+import { AnnotationsModule } from './annotations/annotations.module';
+import { InteractionLogsModule } from './interaction-logs/interaction-logs.module';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { PDFReaderModule } from './pdf-reader/pdf-reader.module';
     PDFDocumentsModule,
     PDFDocumentLinksModule,
     PDFReaderModule,
+    AnnotationsModule,
+    InteractionLogsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

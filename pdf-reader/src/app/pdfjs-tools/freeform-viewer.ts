@@ -58,7 +58,7 @@ export class FreeformViewer {
       const annotsLayerEl = this.annotator.getOrAttachLayerEl(pageNum);
       annotsLayerEl.querySelectorAll('.pdfjs-annotation__freeform').forEach((el: any) => el.remove());
 
-      (this.storage.list() as Freeform[])
+      this.storage.list()
         .filter(annot => annot.type == 'freeform')
         .filter(annot => Object.keys(annot.freeforms)
           .map(pageNum => parseInt(pageNum))

@@ -13,6 +13,7 @@ import { AddTextSelectionToOutline, Section } from './add-textselection-to-outli
 import { EmbeddedResourceViewer } from '../pdfjs-tools/embedded-resource-viewer';
 import { EnableElemMovement } from '../pdfjs-tools/enable-elem-movement';
 import { TextLocator } from '../pdfjs-tools/text-locator';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-pdf-document',
@@ -37,6 +38,7 @@ export class PDFDocumentComponent implements OnInit {
   }
 
   constructor(
+    private http: HttpClient,
     private router: Router,
     private ngZone: NgZone,
     private route: ActivatedRoute,
@@ -89,10 +91,24 @@ export class PDFDocumentComponent implements OnInit {
 
     const iframe = this.iframe;
     const pdfjs = this.pdfjs;
-    const storage = new AnnotationStorage({ groupId: this.pdfDocumentId });
-    const annotator = new Annotator({ iframe, pdfjs, storage });
+    const storage = new AnnotationStorage({
+      http: this.http,
+      groupId: this.pdfDocumentId,
+      annotationApi: `${environment.apiUrl}/annotations`,
+    });
+    const annotator = new Annotator({
+      iframe, pdfjs, storage, configs: {
+        highlight: true, underline: true, linethrough: true, redact: true, notes: true,
+        annotation_colors: '#ffd400,#ff6563,#5db221,#2ba8e8,#a28ae9,#e66df2,#f29823,#aaaaaa,black',
+      }
+    });
     const freeformViewer = new FreeformViewer({ iframe, pdfjs, storage, annotator, configs: { resize: true } });
-    new FreeformAnnotator({ iframe, pdfjs, storage, annotator, freeformViewer });
+    new FreeformAnnotator({
+      iframe, pdfjs, storage, annotator, freeformViewer, configs: {
+        freeform_stroke_sizes: 'thin-1,normal-3,thick-5',
+        freeform_colors: '#ffd400,#ff6563,#5db221,#2ba8e8,#a28ae9,#e66df2,#f29823,#aaaaaa,black',
+      }
+    });
     const embedLinkViewer = new EmbeddedResourceViewer({ iframe, pdfjs, storage, annotator, configs: { resize: true } });
     new EmbedResource({ iframe, pdfjs, storage, annotator, embedLinkViewer });
     new EnableElemMovement({ iframe, embedLinkViewer, freeformViewer, storage });

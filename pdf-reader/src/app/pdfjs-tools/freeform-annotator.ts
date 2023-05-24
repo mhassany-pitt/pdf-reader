@@ -14,13 +14,14 @@ export class FreeformAnnotator {
   private annotator: Annotator;
   private freeformViewer: FreeformViewer;
   private storage: AnnotationStorage<Freeform>;
+  private configs;
 
   private enabled = false;
   private canvases: { [pageNum: number]: HTMLCanvasElement } = {};
   private canvasLineWidth = 3;
   private canvasStrokeStyle = 'black';
 
-  constructor({ iframe, pdfjs, annotator, freeformViewer, storage }) {
+  constructor({ iframe, pdfjs, annotator, freeformViewer, storage, configs }) {
     this.document = iframe?.contentDocument;
     this.documentEl = this.document.documentElement;
 
@@ -28,7 +29,7 @@ export class FreeformAnnotator {
     this.storage = storage;
     this.annotator = annotator;
     this.freeformViewer = freeformViewer;
-
+    this.configs = configs;
 
     this._attachStylesheet();
     this._renderOnPagerendered();
@@ -67,8 +68,9 @@ export class FreeformAnnotator {
     }
 
     if (Object.keys(annot.freeforms).length) {
-      this.storage.create(annot);
-      this.freeformViewer.render(annot);
+      this.storage.create(annot, () => {
+        this.freeformViewer.render(annot);
+      });
     }
   }
 
@@ -106,8 +108,9 @@ export class FreeformAnnotator {
 
       const containerEl = htmlToElements(
         `<div class="pdfjs-annotation-freeform__stroke-btns"></div>`);
-      ["thin|1", "normal|3", "thick|5"].forEach(strokeSize => {
-        const parts = strokeSize.split('|');
+
+      this.configs.freeform_stroke_sizes.split(',').forEach(strokeSize => {
+        const parts = strokeSize.split('-');
         const buttonEl = htmlToElements(
           `<button class="pdfjs-annotation-freeform__stroke-btn--${parts[0]}">
             ${parts[0]}
@@ -131,7 +134,7 @@ export class FreeformAnnotator {
       const containerEl = htmlToElements(
         `<div class="pdfjs-annotation-freeform__color-btns"></div>`);
 
-      ['black', 'gray', 'green', 'blue', 'red'].forEach(color => {
+      this.configs.freeform_colors.split(',').forEach(color => {
         const buttonEl = htmlToElements(
           `<button class="pdfjs-annotation-freeform__color-btn--${color}" 
             style="flex-grow: 1; background-color: ${color};">&nbsp;</button>`);

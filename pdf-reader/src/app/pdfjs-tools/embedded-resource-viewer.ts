@@ -119,7 +119,7 @@ export class EmbeddedResourceViewer {
       const annotsLayerEl = this.annotator.getOrAttachLayerEl(pageNum);
       annotsLayerEl.querySelectorAll('.pdfjs-annotation__embed').forEach((el: any) => el.remove());
 
-      (this.storage.list() as EmbeddedResource[])
+      this.storage.list()
         .filter(annot => annot.type == 'embed')
         .filter(annot => annot.page == pageNum)
         .forEach(annot => this.render(annot));

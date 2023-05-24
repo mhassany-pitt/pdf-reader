@@ -71,9 +71,10 @@ export class EmbedResource {
           thumbnail: '/assets/info.png',
           target: 'popup-iframe',
         };
-        this.storage.create(annot);
-        this.annotator.hidePopup();
-        this.embedLinkViewer.render(annot);
+        this.storage.create(annot, () => {
+          this.embedLinkViewer.render(annot);
+          this.annotator.hidePopup();
+        });
       }
 
       return containerEl;
@@ -164,9 +165,10 @@ export class EmbedResource {
           elems.size.style.display = annot.target == 'popup-iframe' ? 'block' : 'none';
           if (embedEl) {
             elems.thumbnail.style.display = annot.target == 'inline-iframe' ? 'none' : 'block';
-            this.embedLinkViewer.render(annot);
+            this.storage.update(annot, () => this.embedLinkViewer.render(annot));
+          } else {
+            this.storage.update(annot);
           }
-          this.storage.update(annot);
         });
       });
 
