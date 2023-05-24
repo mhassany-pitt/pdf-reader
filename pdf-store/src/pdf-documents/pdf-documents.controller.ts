@@ -66,4 +66,11 @@ export class PDFDocumentsController {
     const pdfDoc = await this._getOrFail({ user: req.user, id });
     return new StreamableFile(createReadStream(this.service.getFilePath({ id: pdfDoc.file_id })));
   }
+
+  @Post(':id/text-locations')
+  @UseGuards(AuthenticatedGuard)
+  async updateTextLocations(@Req() req: any, @Param('id') id: string, @Body() pageTexts: any) {
+    const pdfDoc = await this._getOrFail({ user: req.user, id });
+    await this.service.updateTextLocations({ id, fileId: pdfDoc.file_id, pageTexts });
+  }
 }

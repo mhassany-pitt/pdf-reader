@@ -119,8 +119,8 @@ export class PDFReaderComponent implements OnInit {
     if (this.configs?.freeform)
       new FreeformAnnotator({
         iframe, pdfjs, annotator, freeformViewer, storage, configs: {
-          freeform_stroke_sizes: this.configs.freeform_stroke_sizes,
-          freeform_colors: this.configs.freeform_colors,
+          freeform_stroke_sizes: this.configs?.freeform_stroke_sizes,
+          freeform_colors: this.configs?.freeform_colors,
         }
       });
 
@@ -130,12 +130,12 @@ export class PDFReaderComponent implements OnInit {
   private setupAnnotator(iframe, pdfjs, storage) {
     return new Annotator({
       iframe, pdfjs, storage, configs: {
-        highlight: this.configs.highlight,
-        underline: this.configs.underline,
-        linethrough: this.configs.linethrough,
-        redact: this.configs.redact,
-        notes: this.configs.notes,
-        annotation_colors: this.configs.annotation_colors,
+        highlight: this.configs?.highlight,
+        underline: this.configs?.underline,
+        linethrough: this.configs?.linethrough,
+        redact: this.configs?.redact,
+        notes: this.configs?.notes,
+        annotation_colors: this.configs?.annotation_colors,
       }
     });
   }
@@ -153,20 +153,22 @@ export class PDFReaderComponent implements OnInit {
       new InteractionLogger({
         iframe, pdfjs,
         persist: (logs: any[]) => {
-          if (this.configs.interaction_logger_api) {
-            this.http.post(this.configs.interaction_logger_api, logs, { withCredentials: true }).subscribe({
-              next: (response: any) => console.log(response),
-              error: (error: any) => console.log(error)
-            });
+          if (this.configs?.interaction_logger_api) {
+            this.http.post(
+              this.configs?.interaction_logger_api || (environment.apiUrl + '/interaction-logs'),
+              logs, { withCredentials: true }).subscribe({
+                next: (response: any) => console.log(response),
+                error: (error: any) => console.log(error)
+              });
           }
         },
         configs: {
-          document_events: this.configs.document_events,
-          pdfjs_events: this.configs.pdfjs_events,
-          mousemove_log_delay: this.configs.mousemove_log_delay,
-          scroll_log_delay: this.configs.scroll_log_delay,
-          resize_log_delay: this.configs.resize_log_delay,
-          interaction_logger_api: this.configs.interaction_logger_api,
+          document_events: this.configs?.document_events,
+          pdfjs_events: this.configs?.pdfjs_events,
+          mousemove_log_delay: this.configs?.mousemove_log_delay,
+          scroll_log_delay: this.configs?.scroll_log_delay,
+          resize_log_delay: this.configs?.resize_log_delay,
+          interaction_logger_api: this.configs?.interaction_logger_api,
         }
       });
     }

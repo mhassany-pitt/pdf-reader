@@ -25,4 +25,8 @@ export class PDFDocumentService {
 
     return this.http.post(`${environment.apiUrl}/pdf-documents/${id}/file`, form, { withCredentials: true });
   }
+
+  updateTextLocations(id: string, texts: any) {
+    return this.http.post(`${environment.apiUrl}/pdf-documents/${id}/text-locations`, texts, { withCredentials: true });
+  }
 }

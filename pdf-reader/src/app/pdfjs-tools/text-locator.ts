@@ -17,11 +17,11 @@ export class TextLocator {
     then: (pageTexts: any) => void,
     progress: (percentage: number) => void
   }) {
-    this.pdfjs.eventBus.on('documentinit', ($event: any) => {
+    const onDocumentInit = ($event: any) => {
       const orgPageNum = this.pdfjs.page;
       const pageTextBounds = {};
       let page = 1, pages = this.pdfjs.pagesCount;
-      const extract = ($event: any) => {
+      const onTextLayerRendered = ($event: any) => {
         const pageNum = $event.pageNumber;
         const pageEl = this.documentEl.querySelector(`.pdfViewer .page[data-page-number="${pageNum}"]`);
         pageTextBounds[pageNum] = this._extractPageTexts(pageEl);
@@ -30,14 +30,16 @@ export class TextLocator {
         if (page < pages)
           setTimeout(() => this.pdfjs.page = ++page, 0);
         else {
-          this.pdfjs.eventBus.off('textlayerrendered', extract);
+          this.pdfjs.eventBus.off('textlayerrendered', onTextLayerRendered);
+          this.pdfjs.eventBus.off('documentinit', onDocumentInit);
           this.pdfjs.page = orgPageNum;
           args.then(pageTextBounds);
         }
       };
-      this.pdfjs.eventBus.on('textlayerrendered', extract);
-      this.pdfjs.page = 1;
-    });
+      this.pdfjs.eventBus.on('textlayerrendered', onTextLayerRendered);
+      this.pdfjs.page = page;
+    }
+    this.pdfjs.eventBus.on('documentinit', onDocumentInit);
   }
 
   private _extractPageTexts(pageEl: any) {

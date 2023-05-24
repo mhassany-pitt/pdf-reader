@@ -6,6 +6,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { PDFDocument } from './pdf-document.schema';
 import { Model } from 'mongoose';
 import { PDFFile } from './pdf-file.schema';
+import { PDFDocumentText } from '../pdf-document-texts/pdf-document-text.schema';
 
 @Injectable()
 export class PDFDocumentsService {
@@ -13,7 +14,8 @@ export class PDFDocumentsService {
   constructor(
     private config: ConfigService,
     @InjectModel('pdf-files') private pdfFiles: Model<PDFFile>,
-    @InjectModel('pdf-documents') private pdfDocs: Model<PDFDocument>
+    @InjectModel('pdf-documents') private pdfDocs: Model<PDFDocument>,
+    @InjectModel('pdf-document-texts') private pdfTexts: Model<PDFDocumentText>,
   ) {
     ensureDirSync(storageRoot(this.config, 'pdf-files'));
   }
@@ -56,5 +58,29 @@ export class PDFDocumentsService {
 
   getFilePath({ id }) {
     return storageRoot(this.config, 'pdf-files', id);
+  }
+
+  updateTextLocations({ id, fileId, pageTexts }) {
+    const updated_at = new Date().toISOString();
+    const texts = Object.keys(pageTexts)
+      .map(page => ({
+        pdf_doc_id: id,
+        file_id: fileId,
+        page: parseInt(page),
+        texts: pageTexts[page],
+        updated_at,
+      }))
+      .map(pageText => ({
+        updateOne: {
+          filter: {
+            pdf_doc_id: pageText.pdf_doc_id,
+            file_id: pageText.file_id,
+            page: pageText.page
+          },
+          update: { $set: pageText },
+          upsert: true
+        }
+      }));
+    this.pdfTexts.bulkWrite(texts);
   }
 }

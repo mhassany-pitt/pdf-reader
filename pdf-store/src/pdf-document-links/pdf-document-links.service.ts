@@ -12,9 +12,7 @@ export class PDFDocumentLinksService {
   constructor(
     private config: ConfigService,
     @InjectModel('pdf-document-links') private pdfDocLinks: Model<PDFDocumentLink>
-  ) {
-    ensureDirSync(storageRoot(this.config, 'pdf-document-links'));
-  }
+  ) { }
 
   async list({ user, pdfDocId }) {
     const list = await this.pdfDocLinks.find({

@@ -113,20 +113,36 @@ export class PDFDocumentComponent implements OnInit {
     new EmbedResource({ iframe, pdfjs, storage, annotator, embedLinkViewer });
     new EnableElemMovement({ iframe, embedLinkViewer, freeformViewer, storage });
 
-    // TODO: use to extract text bounds
-    // new TextLocator({ iframe, pdfjs }).extractTextBounds({
-    //   progress: (percentage: number) =>
-    //     this.ngZone.run(() => this.textExtractionProgress = percentage),
-    //   then: (pageTexts: any) => {
-    //     this.ngZone.run(() => this.textExtractionProgress = undefined);
-    //     console.log('text bounds:', pageTexts);
-    //   }
-    // });
-
     new AddTextSelectionToOutline({
       iframe, annotator, addToOutline: (selection, $event) =>
         this.ngZone.run(() => this.addToOutline(selection, $event))
     });
+  }
+
+  async locateTexts() {
+    this.share = false;
+
+    await this.pdfjs.open({
+      url: `${environment.apiUrl}/pdf-documents/${this.pdfDocument.id}/file`,
+      withCredentials: true,
+    });
+
+    new TextLocator({ iframe: this.iframe, pdfjs: this.pdfjs })
+      .extractTextBounds({
+        progress: (percentage: number) => {
+          this.ngZone.run(() => this.textExtractionProgress = `${(percentage * 100).toFixed(0)}%`);
+        },
+        then: (pageTexts: any) => {
+          this.ngZone.run(() => {
+            this.textExtractionProgress = `Texts (including their location) were extracted for ${this.pdfjs.pagesCount} pages.`;
+            setTimeout(() => this.textExtractionProgress = undefined, 3000);
+          });
+          this.service.updateTextLocations(this.pdfDocumentId, pageTexts).subscribe({
+            next: (resp: any) => { },
+            error: (error: any) => console.log(error)
+          });
+        }
+      });
   }
 
   add(section: Section) {

@@ -1,4 +1,5 @@
 import { HttpClient } from "@angular/common/http";
+import { environment } from "src/environments/environment";
 
 export type Annotation = { id: string, type: string };
 export class AnnotationStorage<T extends Annotation> {
@@ -17,7 +18,7 @@ export class AnnotationStorage<T extends Annotation> {
   }
 
   private load() {
-    this.http.get(`${this.api}/${this.groupId}`, { withCredentials: true }).subscribe({
+    this.http.get(`${this.api || (environment.apiUrl + '/annoations')}/${this.groupId}`, { withCredentials: true }).subscribe({
       next: (resp: any) => this.annotations = resp,
       error: (error: any) => console.log(error),
     });

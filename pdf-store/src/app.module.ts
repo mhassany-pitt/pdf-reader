@@ -12,6 +12,7 @@ import { PDFDocumentLinksModule } from './pdf-document-links/pdf-document-links.
 import { PDFReaderModule } from './pdf-reader/pdf-reader.module';
 import { AnnotationsModule } from './annotations/annotations.module';
 import { InteractionLogsModule } from './interaction-logs/interaction-logs.module';
+import { PDFDocumentTextsModule } from './pdf-document-texts/pdf-document-texts.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { InteractionLogsModule } from './interaction-logs/interaction-logs.modul
     PDFReaderModule,
     AnnotationsModule,
     InteractionLogsModule,
+    PDFDocumentTextsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

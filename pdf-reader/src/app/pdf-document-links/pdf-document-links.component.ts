@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -27,6 +27,7 @@ import { ColorPickerModule } from 'primeng/colorpicker';
 })
 export class PDFDocumentLinksComponent implements OnInit {
   @Input() pdfDocumentId: any;
+  @Output() locateTexts = new EventEmitter();
 
   tmpColor1 = 'blue';
   tmpColor2 = 'blue';

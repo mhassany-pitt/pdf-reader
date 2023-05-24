@@ -4,23 +4,22 @@ import { ConfigService } from '@nestjs/config';
 import * as session from 'express-session';
 import * as FileStore from 'session-file-store';
 import * as passport from 'passport';
- 
+import * as bodyParser from 'body-parser';
+
 declare const module: any;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const config = app.get(ConfigService);
-
-  const production = (
-    await config.get('PRODUCTION') || ''
-  ).toLowerCase() == 'true';
-
   app.setGlobalPrefix('api');
 
+  const config = app.get(ConfigService);
+  const production = (await config.get('PRODUCTION') || '').toLowerCase() == 'true';
   if (!production) {
     app.enableCors({ credentials: true, origin: 'http://localhost:4200' });
   }
 
+  app.use(bodyParser.json({ limit: '50mb' }));
+  app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
   app.use(session({
     secret: config.get('SESSION_SECRET'),
     resave: true,
