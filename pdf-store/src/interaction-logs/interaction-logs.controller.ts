@@ -8,6 +8,7 @@ export class InteractionLogsController {
 
   @Post()
   createBulk(@Body() logs: any[]) {
-    this.service.createBulk(logs);
+    // TODO: include user information
+    this.service.writeToFile(logs);
   }
 }

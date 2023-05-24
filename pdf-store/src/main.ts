@@ -26,7 +26,7 @@ async function bootstrap() {
     saveUninitialized: true,
     name: 'pdf-reader-session',
     store: production ? new session.MemoryStore()
-      : new (FileStore(session))({ path: config.get('STORAGE') + '/app/sessions' }),
+      : new (FileStore(session))({ path: config.get('STORAGE') + '/sessions' }),
     cookie: {
       secure: false,
       maxAge: 3600000 // 1hr
