@@ -2,6 +2,7 @@ export type PDFDocumentLink = {
   id: string,
   title: string,
   published: string,
+  archived: boolean,
   created_at: string,
   // --- features
   log_interactions: boolean,

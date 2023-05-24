@@ -19,12 +19,14 @@
       (ngSubmit)="update(form, sharableLink)" class="flex flex-col relative p-2 pdf-document-link__link"
       [ngClass]="{ 'bg-gray-100': i % 2 == 0 }">
       <input *ngIf="tt[sharableLink.id]" type="text" pInputText name="title" [(ngModel)]="sharableLink.title"
-        placeholder="Title" class="p-inputtext-sm title-input"
-        style="font-weight: bold; margin-right: 6rem; margin-bottom: 0.5rem;">
-      <span *ngIf="!tt[sharableLink.id]" class="font-bold">{{ sharableLink.title || 'Empty Title' }}</span>
+        placeholder="Title" class="title-input" style="font-weight: bold; margin-right: 6rem; margin-bottom: 0.5rem;">
+      <span *ngIf="!tt[sharableLink.id]" class="font-bold" [ngClass]="{ 'text-gray-400': !sharableLink.published }">
+        {{ sharableLink.title || 'Empty Title' }}
+        {{ sharableLink.archived ? '[archived]' : '' }}
+      </span>
 
-      <div class="text-xs font-bold flex items-center" [ngClass]="{ 
-          'text-gray-500': !sharableLink.published,
+      <div class="text-xs flex items-center" [ngClass]="{ 
+          'text-gray-400': !sharableLink.published,
           'text-blue-700': sharableLink.published
         } ">
         <span class="mr-2 underline text-sm">{{ getURL(sharableLink.id) }}</span>
@@ -38,8 +40,12 @@
       </span>
 
       <div class="flex items-center absolute top-2 right-2">
-        <p-inputSwitch name="published" [(ngModel)]="sharableLink.published"
-          [title]="sharableLink.published ? 'unpublish' : 'publish'" (onChange)="update(form, sharableLink)">
+        <label for="pdf-reader__published" class="mr-1 text-xs">
+          {{ sharableLink.published ? 'published' : 'unpublished' }}
+        </label>
+        <p-inputSwitch inputId="pdf-reader__published" name="published" [(ngModel)]="sharableLink.published"
+          [title]="sharableLink.published ? 'unpublish' : 'publish'" class="h-5"
+          (onChange)="update(form, sharableLink)">
         </p-inputSwitch>
 
         <span class="mx-1"></span>
@@ -53,25 +59,27 @@
 
       <ng-container *ngIf="tt[sharableLink.id]">
         <span class="font-bold ml-4 mt-2">Annotations</span>
-        <div class="flex items-center ml-8">
-          <p-checkbox name="highlight" inputId="pdf-reader__highlight" [binary]="true"
-            [(ngModel)]="sharableLink.highlight"></p-checkbox>
-          <label class="ml-2" for="pdf-reader__highlight">Highlight</label>
-        </div>
-        <div class="flex items-center ml-8">
-          <p-checkbox name="underline" inputId="pdf-reader__underline" [binary]="true"
-            [(ngModel)]="sharableLink.underline"></p-checkbox>
-          <label class="ml-2" for="pdf-reader__underline">Underline</label>
-        </div>
-        <div class="flex items-center ml-8">
-          <p-checkbox name="linethrough" inputId="pdf-reader__linethrough" [binary]="true"
-            [(ngModel)]="sharableLink.linethrough"></p-checkbox>
-          <label class="ml-2" for="pdf-reader__linethrough">Line Through</label>
-        </div>
-        <div class="flex items-center ml-8">
-          <p-checkbox name="redact" inputId="pdf-reader__redact" [binary]="true"
-            [(ngModel)]="sharableLink.redact"></p-checkbox>
-          <label class="ml-2" for="pdf-reader__redact">Redact</label>
+        <div class="flex items-center">
+          <div class="flex items-center ml-8">
+            <p-checkbox name="highlight" inputId="pdf-reader__highlight" [binary]="true"
+              [(ngModel)]="sharableLink.highlight"></p-checkbox>
+            <label class="ml-2" for="pdf-reader__highlight">Highlight</label>
+          </div>
+          <div class="flex items-center ml-8">
+            <p-checkbox name="underline" inputId="pdf-reader__underline" [binary]="true"
+              [(ngModel)]="sharableLink.underline"></p-checkbox>
+            <label class="ml-2" for="pdf-reader__underline">Underline</label>
+          </div>
+          <div class="flex items-center ml-8">
+            <p-checkbox name="linethrough" inputId="pdf-reader__linethrough" [binary]="true"
+              [(ngModel)]="sharableLink.linethrough"></p-checkbox>
+            <label class="ml-2" for="pdf-reader__linethrough">Line Through</label>
+          </div>
+          <div class="flex items-center ml-8">
+            <p-checkbox name="redact" inputId="pdf-reader__redact" [binary]="true"
+              [(ngModel)]="sharableLink.redact"></p-checkbox>
+            <label class="ml-2" for="pdf-reader__redact">Redact</label>
+          </div>
         </div>
         <div *ngIf="tt['advance_mode']" class="flex items-center ml-8">
           <div class="p-inputgroup">
@@ -196,7 +204,11 @@
           </div>
         </ng-container>
 
-        <div class="flex items-center mt-2">
+        <div class="flex items-center m-2 mt-4">
+          <button pButton type="button" [label]="sharableLink.archived ? 'Unarchive' : 'Archive'" icon="pi pi-database"
+            class="p-button-sm p-button-secondary" (click)="archive(form, sharableLink)">
+          </button>
+
           <span class="flex-grow"></span>
 
           <button pButton type="button" label="Cancel" icon="pi pi-chevron-left"
@@ -213,5 +225,10 @@
     <button pButton type="button" label="Locate Texts" icon="pi pi-box" class="p-button-sm p-button-help"
       (click)="locateTexts.emit()">
     </button>
+
+    <span class="flex-grow"></span>
+
+    <span class="mr-2">Archived</span>
+    <p-inputSwitch [(ngModel)]="archived" class="h-5"></p-inputSwitch>
   </div>
 </div>

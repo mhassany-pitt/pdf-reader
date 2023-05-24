@@ -10,6 +10,7 @@ export class PDFDocumentLink {
 
   @Prop() title: string;
   @Prop() published: boolean;
+  @Prop() archived: boolean;
   @Prop() created_at: string;
   // --- features
   @Prop() log_interactions: boolean;

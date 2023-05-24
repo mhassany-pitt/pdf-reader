@@ -41,11 +41,13 @@ export class PDFDocumentLinksComponent implements OnInit {
   sharableLinks: PDFDocumentLink[] = [];
 
   copyToast: any = null;
+  archived = false;
 
   tt = {};
   filter = '';
   get filteredSharableLinks() {
-    return this.sharableLinks.filter(link => link.title?.indexOf(this.filter) >= 0);
+    return this.sharableLinks.filter(link => this.archived || link.archived == false)
+      .filter(link => link.title?.indexOf(this.filter) >= 0);
   }
 
   constructor(private http: HttpClient) { }
@@ -77,6 +79,11 @@ export class PDFDocumentLinksComponent implements OnInit {
     navigator.clipboard.writeText(this.getURL(id));
     this.copyToast = { id, message: 'Copied!' };
     setTimeout(() => this.copyToast = null, 3000);
+  }
+
+  archive(form, link) {
+    link.archived = !link.archived;
+    this.update(form, link);
   }
 
   create() {
@@ -123,3 +130,6 @@ export class PDFDocumentLinksComponent implements OnInit {
   }
 }
 
+// TODO: is link public or private (list of user emails)
+// TODO: create dashboard for users to see the pdf-links
+// TODO: write interaction logs to file
