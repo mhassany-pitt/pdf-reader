@@ -64,7 +64,9 @@ export class PDFReaderComponent implements OnInit {
         this.prepare();
       },
       error: (error: any) => {
-        if (error.status == 401)
+        if (error.status == 403)
+          this.router.navigate(['/login']);
+        else if (error.status == 401)
           this.router.navigate(['/unauthorized']);
       }
     });

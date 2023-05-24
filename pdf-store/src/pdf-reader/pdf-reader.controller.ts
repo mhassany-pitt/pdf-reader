@@ -1,5 +1,4 @@
-import { Controller, Get, NotFoundException, Param, Req, StreamableFile, UnauthorizedException, UseGuards } from '@nestjs/common';
-import { AuthenticatedGuard } from 'src/auth/authenticated.guard';
+import { Controller, ForbiddenException, Get, NotFoundException, Param, Req, StreamableFile, UnauthorizedException } from '@nestjs/common';
 import { createReadStream } from 'fs-extra';
 import { useId } from 'src/utils';
 import { PDFReaderService } from './pdf-reader.service';
@@ -12,29 +11,40 @@ export class PDFReaderController {
   ) { }
 
   private async _getOrFail({ user, id }) {
-    let pdfDoc = await this.pdfReaderService.readPDFDoc({ user: user, id });
-    if (pdfDoc)
-      return useId(pdfDoc);
+    let pdfDoc: any = null;
+    if (user) { // user is the author
+      pdfDoc = await this.pdfReaderService.readPDFDoc({ user: user, id });
+      if (pdfDoc) // link was the org created by the author
+        return useId(pdfDoc);
+    }
 
     const pdfLink = await this.pdfReaderService.readPDFLink({ id });
     if (!pdfLink || !pdfLink.published)
-      throw new NotFoundException();
+      throw new NotFoundException(); // abort on non-published links
 
     const accounts = pdfLink.authorized_accounts.split(',').map(e => e.trim()).filter(e => e);
-    if (accounts.length && !accounts.includes(user.email))
-      throw new UnauthorizedException
+    // abort if authorized accounts is set and user is not logged in
+    if (accounts.length && !user)
+      throw new ForbiddenException();
 
+    // abort if authorized accounts is set and user is not in the list
+    if (accounts.length && !accounts.includes(user.email))
+      throw new UnauthorizedException();
+
+    // find the org document and return it
     pdfDoc = await this.pdfReaderService.readPDFDoc({
       user: { id: pdfLink.owner_id },
       id: pdfLink.pdf_doc_id,
     });
     pdfDoc.id = id;
+
+    // attach the link confgurations
     pdfDoc.configs = useId(pdfLink);
+
     return useId(pdfDoc);
   }
 
   @Get(':id')
-  @UseGuards(AuthenticatedGuard)
   async get(@Req() req: any, @Param('id') id: string) {
     const pdfDoc = await this._getOrFail({ user: req.user, id });
     delete pdfDoc.file_id;
@@ -47,7 +57,6 @@ export class PDFReaderController {
   }
 
   @Get(':id/file')
-  @UseGuards(AuthenticatedGuard)
   async download(@Req() req: any, @Param('id') id: string): Promise<StreamableFile> {
     const pdfDoc = await this._getOrFail({ user: req.user, id });
     return new StreamableFile(createReadStream(this.pdfReaderService.getFilePath({ id: pdfDoc.file_id })));
