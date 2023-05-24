@@ -35,6 +35,8 @@ export class PDFDocumentLink {
   // --- advanced features (apis)
   @Prop() annotation_api: string;
   @Prop() interaction_logger_api: string;
+  // --- 
+  @Prop() authorized_accounts: string;
 }
 
 export const PDFDocumentLinkSchema = SchemaFactory.createForClass(PDFDocumentLink);

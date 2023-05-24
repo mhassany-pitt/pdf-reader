@@ -11,6 +11,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { environment } from 'src/environments/environment';
 import { PDFDocumentLink } from './pdf-document-link.type';
 import { ColorPickerModule } from 'primeng/colorpicker';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 
 @Component({
   standalone: true,
@@ -19,7 +20,7 @@ import { ColorPickerModule } from 'primeng/colorpicker';
     ButtonModule, InputTextModule,
     InputSwitchModule, CheckboxModule,
     MultiSelectModule, InputNumberModule,
-    ColorPickerModule,
+    ColorPickerModule, InputTextareaModule,
   ],
   selector: 'app-pdf-document-links',
   templateUrl: './pdf-document-links.component.html',
@@ -92,6 +93,8 @@ export class PDFDocumentLinksComponent implements OnInit {
       {
         id: `${Math.random().toString(36).substring(2)}`,
         title: '',
+        archived: false,
+        published: false,
         created_at: new Date().toLocaleString(),
         highlight: true,
         underline: true,
@@ -108,6 +111,7 @@ export class PDFDocumentLinksComponent implements OnInit {
         freeform_colors: this.defColors.join(','),
         annotation_api: `${environment.apiUrl}/annotations`,
         interaction_logger_api: `${environment.apiUrl}/interaction-logs`,
+        authorized_accounts: '',
       },
       { withCredentials: true }
     ).subscribe({
@@ -129,7 +133,3 @@ export class PDFDocumentLinksComponent implements OnInit {
     });
   }
 }
-
-// TODO: is link public or private (list of user emails)
-// TODO: create dashboard for users to see the pdf-links
-// TODO: write interaction logs to file

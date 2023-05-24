@@ -46,9 +46,9 @@ export class PDFDocumentsController {
 
   @Patch(':id')
   @UseGuards(AuthenticatedGuard)
-  async update(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+  async update(@Req() req: any, @Param('id') id: string, @Body() pdfDoc: any) {
     await this._getOrFail({ user: req.user, id });
-    return useId(await this.service.update({ user: req.user, id, pdfDoc: body }));
+    return useId(await this.service.update({ user: req.user, id, pdfDoc }));
   }
 
   @Post(':id/file')

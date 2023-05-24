@@ -1,35 +1,36 @@
-import { Controller, Get, NotFoundException, Param, Req, StreamableFile, UseGuards } from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param, Req, StreamableFile, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { AuthenticatedGuard } from 'src/auth/authenticated.guard';
 import { createReadStream } from 'fs-extra';
-import { PDFDocumentsService } from 'src/pdf-documents/pdf-documents.service';
-import { PDFDocumentLinksService } from 'src/pdf-document-links/pdf-document-links.service';
 import { useId } from 'src/utils';
+import { PDFReaderService } from './pdf-reader.service';
 
 @Controller('pdf-reader')
 export class PDFReaderController {
 
   constructor(
-    private pdfDocsService: PDFDocumentsService,
-    private pdfLinksService: PDFDocumentLinksService,
+    private pdfReaderService: PDFReaderService,
   ) { }
 
   private async _getOrFail({ user, id }) {
-    let pdfDoc = await this.pdfDocsService.read({ user: user, id });
+    let pdfDoc = await this.pdfReaderService.readPDFDoc({ user: user, id });
     if (pdfDoc)
       return useId(pdfDoc);
 
-    const pdfLink = await this.pdfLinksService.read({ user: user, id });
-    if (pdfLink && pdfLink.published) {
-      pdfDoc = await this.pdfDocsService.read({
-        user: { id: pdfLink.owner_id },
-        id: pdfLink.pdf_doc_id,
-      });
-      pdfDoc.id = id;
-      pdfDoc.configs = useId(pdfLink);
-      return useId(pdfDoc);
-    }
+    const pdfLink = await this.pdfReaderService.readPDFLink({ id });
+    if (!pdfLink || !pdfLink.published)
+      throw new NotFoundException();
 
-    throw new NotFoundException();
+    const accounts = pdfLink.authorized_accounts.split(',').map(e => e.trim()).filter(e => e);
+    if (accounts.length && !accounts.includes(user.email))
+      throw new UnauthorizedException
+
+    pdfDoc = await this.pdfReaderService.readPDFDoc({
+      user: { id: pdfLink.owner_id },
+      id: pdfLink.pdf_doc_id,
+    });
+    pdfDoc.id = id;
+    pdfDoc.configs = useId(pdfLink);
+    return useId(pdfDoc);
   }
 
   @Get(':id')
@@ -49,6 +50,6 @@ export class PDFReaderController {
   @UseGuards(AuthenticatedGuard)
   async download(@Req() req: any, @Param('id') id: string): Promise<StreamableFile> {
     const pdfDoc = await this._getOrFail({ user: req.user, id });
-    return new StreamableFile(createReadStream(this.pdfDocsService.getFilePath({ id: pdfDoc.file_id })));
+    return new StreamableFile(createReadStream(this.pdfReaderService.getFilePath({ id: pdfDoc.file_id })));
   }
 }

@@ -27,4 +27,6 @@ export type PDFDocumentLink = {
   // --- advanced features (apis)
   annotation_api: string,
   interaction_logger_api: string,
+  // --- 
+  authorized_accounts: string,
 };

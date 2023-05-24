@@ -5,14 +5,19 @@ import { ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PDFDocumentLinkSchema } from './pdf-document-link.schema';
 
+const MongoSchemas = MongooseModule.forFeature([
+  { name: 'pdf-document-links', schema: PDFDocumentLinkSchema }
+])
+
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: 'pdf-document-links', schema: PDFDocumentLinkSchema }
-    ])
+    MongoSchemas
   ],
   controllers: [PDFDocumentLinksController],
   providers: [ConfigService, PDFDocumentLinksService],
-  exports: [PDFDocumentLinksService]
+  exports: [
+    PDFDocumentLinksService,
+    MongoSchemas
+  ]
 })
 export class PDFDocumentLinksModule { }

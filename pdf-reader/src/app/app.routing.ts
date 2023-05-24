@@ -15,7 +15,8 @@ const routes: Routes = [
   },
   {
     path: 'pdf-reader',
-    loadChildren: () => import('./pdf-reader/pdf-reader.module').then(m => m.PDFReaderModule)
+    loadChildren: () => import('./pdf-reader/pdf-reader.module').then(m => m.PDFReaderModule),
+    canActivate: [AuthenticatedGuard]
   },
   {
     path: 'login',

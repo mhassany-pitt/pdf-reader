@@ -6,17 +6,23 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { PDFDocumentSchema } from './pdf-document.schema';
 import { PDFFileSchema } from './pdf-file.schema';
 import { PDFDocumentTextSchema } from '../pdf-document-texts/pdf-document-text.schema';
+import { PDFDocumentTextsModule } from 'src/pdf-document-texts/pdf-document-texts.module';
+
+const MongoSchemas = MongooseModule.forFeature([
+  { name: 'pdf-files', schema: PDFFileSchema },
+  { name: 'pdf-documents', schema: PDFDocumentSchema },
+]);
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: 'pdf-files', schema: PDFFileSchema },
-      { name: 'pdf-documents', schema: PDFDocumentSchema },
-      { name: 'pdf-document-texts', schema: PDFDocumentTextSchema },
-    ])
+    PDFDocumentTextsModule,
+    MongoSchemas
   ],
   controllers: [PDFDocumentsController],
   providers: [ConfigService, PDFDocumentsService],
-  exports: [PDFDocumentsService]
+  exports: [
+    PDFDocumentsService,
+    MongoSchemas
+  ]
 })
 export class PDFDocumentsModule { }
