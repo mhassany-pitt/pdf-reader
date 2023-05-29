@@ -9,6 +9,7 @@ import { AuthenticatedAuthorGuard } from './auth-guards/authenticated-author.gua
 import { AuthenticatedGuard } from './auth-guards/authenticated.guard';
 import { PublicGuard } from './auth-guards/public.guard';
 import { AppService } from './app.service';
+import { HandshakeGuard } from './auth-guards/handshake.guard';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import { AppService } from './app.service';
     AppService,
     AuthenticatedAuthorGuard,
     AuthenticatedGuard,
-    PublicGuard
+    PublicGuard,
+    HandshakeGuard,
   ],
   bootstrap: [AppComponent]
 })

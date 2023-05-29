@@ -7,9 +7,7 @@ export class InteractionLogsController {
   constructor(private service: InteractionLogsService) { }
 
   @Post()
-  createBulk(@Req() req: any, @Body() logs: any[]) {
-    if (req.user)
-      logs.forEach(log => log.user_id = req.user.id);
+  createBulk(@Body() logs: any[]) {
     this.service.writeToFile(logs);
   }
 }

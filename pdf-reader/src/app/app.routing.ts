@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { AuthenticatedGuard } from './auth-guards/authenticated.guard';
 import { PublicGuard } from './auth-guards/public.guard';
 import { AuthenticatedAuthorGuard } from './auth-guards/authenticated-author.guard';
+import { HandshakeGuard } from './auth-guards/handshake.guard';
 
 const routes: Routes = [
   {
@@ -21,6 +22,7 @@ const routes: Routes = [
   {
     path: 'pdf-reader',
     loadChildren: () => import('./pdf-reader/pdf-reader.module').then(m => m.PDFReaderModule),
+    canActivate: [HandshakeGuard]
   },
   {
     path: 'login',

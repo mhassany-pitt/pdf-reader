@@ -12,6 +12,7 @@ import { InteractionLogger } from '../pdfjs-tools/interaction-logger';
 import { HttpClient } from '@angular/common/http';
 import { EmbedResource } from '../pdfjs-tools/embed-resource';
 import { EnableElemMovement } from '../pdfjs-tools/enable-elem-movement';
+import { AppService } from '../app.service';
 
 @Component({
   selector: 'app-pdf-reader',
@@ -41,6 +42,7 @@ export class PDFReaderComponent implements OnInit {
     private service: PDFReaderService,
     private title: Title,
     private ngZone: NgZone,
+    private app: AppService,
   ) { }
 
   ngOnInit(): void {
@@ -158,7 +160,12 @@ export class PDFReaderComponent implements OnInit {
       new InteractionLogger({
         iframe, pdfjs,
         persist: (logs: any[]) => {
-          logs.forEach(log => log.pdf_doc_id = this.pdfDocumentId);
+          const user = this.app.user;
+          logs = logs.map(log => ({
+            ...log,
+            ...(user ? { user_id: user.id } : null),
+            pdf_doc_id: this.pdfDocumentId,
+          }));
 
           if (this.configs?.interaction_logger_api) {
             this.http.post(

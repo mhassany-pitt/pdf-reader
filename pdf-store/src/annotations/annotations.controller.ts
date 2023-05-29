@@ -15,6 +15,8 @@ export class AnnotationsController {
     throw new NotFoundException();
   }
 
+  // TODO: can guest users read annotations?
+
   @Get(':groupId')
   @UseGuards(AuthenticatedGuard)
   async get(@Req() req: any, @Param('groupId') groupId: string) {

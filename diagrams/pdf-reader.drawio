@@ -1,0 +1,101 @@
+<mxfile host="app.diagrams.net" modified="2023-05-24T16:36:38.714Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36" etag="46IGXdMieXEftFZb7C89" version="21.3.3" type="device">
+  <diagram name="Page-1" id="kh7_7iN_Lh5P_zDhgjqO">
+    <mxGraphModel dx="2074" dy="1927" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="C1Zcpsywt-BcjhIcN1mG-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=-0.011;entryY=0.622;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="300" y="262.70000000000005" as="sourcePoint" />
+            <mxPoint x="588.9814000000001" y="264.01036" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="445" y="263" />
+              <mxPoint x="445" y="264" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="C1Zcpsywt-BcjhIcN1mG-6" value="(1) request pdf-document" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="C1Zcpsywt-BcjhIcN1mG-5" vertex="1" connectable="0">
+          <mxGeometry x="-0.0092" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="C1Zcpsywt-BcjhIcN1mG-11" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.13;entryY=0.77;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;startArrow=classic;startFill=1;" parent="1" source="1USeciv0PynhNwKMPec_-1" target="C1Zcpsywt-BcjhIcN1mG-2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="C1Zcpsywt-BcjhIcN1mG-16" value="(3)&lt;br&gt;load/store annotations&lt;br&gt;send interaction logs" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="C1Zcpsywt-BcjhIcN1mG-11" vertex="1" connectable="0">
+          <mxGeometry x="-0.0065" y="-2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="C1Zcpsywt-BcjhIcN1mG-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=-0.022;entryY=0.758;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;startArrow=classic;startFill=1;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="300" y="310" as="sourcePoint" />
+            <mxPoint x="587.9627999999998" y="309.97404000000006" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="370" y="310" />
+              <mxPoint x="370" y="310" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="C1Zcpsywt-BcjhIcN1mG-15" value="(3) load pdf/annotation, and log interactions" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="C1Zcpsywt-BcjhIcN1mG-13" vertex="1" connectable="0">
+          <mxGeometry x="-0.0277" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="C1Zcpsywt-BcjhIcN1mG-17" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;startArrow=classic;startFill=1;" parent="1" source="1USeciv0PynhNwKMPec_-1" target="C1Zcpsywt-BcjhIcN1mG-1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="C1Zcpsywt-BcjhIcN1mG-18" value="(3)&lt;br&gt;load external pdf-document" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="C1Zcpsywt-BcjhIcN1mG-17" vertex="1" connectable="0">
+          <mxGeometry x="-0.0186" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1USeciv0PynhNwKMPec_-1" value="&amp;lt;&amp;lt;client-side&amp;gt;&amp;gt;&lt;br&gt;pdf-reader" style="sketch=0;outlineConnect=0;gradientColor=none;fontColor=#545B64;strokeColor=none;fillColor=#879196;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.illustration_desktop;pointerEvents=1" parent="1" vertex="1">
+          <mxGeometry x="180" y="244.09" width="120" height="109.2" as="geometry" />
+        </mxCell>
+        <mxCell id="C1Zcpsywt-BcjhIcN1mG-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="590" y="285" as="sourcePoint" />
+            <mxPoint x="300" y="285" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="303" y="285" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="C1Zcpsywt-BcjhIcN1mG-9" value="(2) respond with pdf-document meta data" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="C1Zcpsywt-BcjhIcN1mG-8" vertex="1" connectable="0">
+          <mxGeometry x="0.0138" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1USeciv0PynhNwKMPec_-2" value="" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Server_Desktop.svg;" parent="1" vertex="1">
+          <mxGeometry x="590" y="227" width="92.6" height="117.38" as="geometry" />
+        </mxCell>
+        <mxCell id="1USeciv0PynhNwKMPec_-3" value="&amp;lt;&amp;lt;server-side&amp;gt;&amp;gt;&lt;br&gt;store pdf-documents,&amp;nbsp;&lt;br&gt;annotations, interaction-logs" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="693.29" y="255.69" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="C1Zcpsywt-BcjhIcN1mG-1" value="external pdf-document" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn4.iconfinder.com/data/icons/file-extensions-1/64/pdfs-128.png" parent="1" vertex="1">
+          <mxGeometry x="384.99999999999994" y="450" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="C1Zcpsywt-BcjhIcN1mG-12" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.8;exitY=0.8;exitDx=0;exitDy=0;exitPerimeter=0;dashed=1;startArrow=classic;startFill=1;" parent="1" source="C1Zcpsywt-BcjhIcN1mG-2" target="1USeciv0PynhNwKMPec_-2" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="570" y="250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="C1Zcpsywt-BcjhIcN1mG-19" value="(3)&lt;br&gt;utilize server to load/store&lt;br&gt;annotations and interaction logs" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="C1Zcpsywt-BcjhIcN1mG-12" vertex="1" connectable="0">
+          <mxGeometry x="-0.0997" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="C1Zcpsywt-BcjhIcN1mG-2" value="external &lt;br&gt;annotations/interaction-logger&lt;br&gt;api(s)" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="300" y="30" width="260" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="C1Zcpsywt-BcjhIcN1mG-7" value="uploaded &lt;br&gt;pdf-documents" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn4.iconfinder.com/data/icons/file-extensions-1/64/pdfs-128.png" parent="1" vertex="1">
+          <mxGeometry x="630" y="300" width="63.29" height="63.29" as="geometry" />
+        </mxCell>
+        <mxCell id="C1Zcpsywt-BcjhIcN1mG-20" value="can dynamically generate annotations&amp;nbsp;&lt;br&gt;based on session and user information" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="330" y="-10" width="230" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
