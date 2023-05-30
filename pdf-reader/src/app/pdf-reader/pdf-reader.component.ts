@@ -13,6 +13,7 @@ import { HttpClient } from '@angular/common/http';
 import { EmbedResource } from '../pdfjs-tools/embed-resource';
 import { EnableElemMovement } from '../pdfjs-tools/enable-elem-movement';
 import { AppService } from '../app.service';
+import { scrollTo } from '../pdfjs-tools/pdfjs-utils';
 
 @Component({
   selector: 'app-pdf-reader',
@@ -31,9 +32,9 @@ export class PDFReaderComponent implements OnInit {
   pdfDocument: any;
   configs: any;
 
-  get pdfDocumentId() {
-    return (this.route.snapshot.params as any).id;
-  }
+  get params() { return this.route.snapshot.params as any; }
+  get qparams() { return this.route.snapshot.queryParams as any; }
+  get pdfDocumentId() { return this.params.id; }
 
   constructor(
     private router: Router,
@@ -95,6 +96,8 @@ export class PDFReaderComponent implements OnInit {
     const iframe = this.iframe;
     const pdfjs = this.pdfjs;
 
+    this.applyConfigFromQParams();
+
     this.setupInteractionLogger(iframe, pdfjs);
     const storage = this.setupAnnotStorage();
     const annotator = this.setupAnnotator(iframe, pdfjs, storage);
@@ -103,6 +106,34 @@ export class PDFReaderComponent implements OnInit {
 
     if (embedLinkViewer || freeformViewer)
       new EnableElemMovement({ iframe, embedLinkViewer, freeformViewer, storage });
+  }
+
+  private applyConfigFromQParams() {
+    const onDocumentLoad = ($event: any) => {
+      this.pdfjs.eventBus.off('textlayerrendered', onDocumentLoad);
+
+      const zoom = this.qparams.zoom;
+      if (zoom) this.pdfjs.pdfViewer.currentScale = zoom;
+
+      const rotation = this.qparams.rotation;
+      if (rotation) this.pdfjs.pdfViewer.pagesRotation = parseFloat(rotation);
+
+      const page = this.qparams.page;
+      if (page) {
+        scrollTo(this.iframe.contentDocument, this.pdfjs, {
+          page: parseInt(page),
+          top: this.qparams.top || 0,
+          left: this.qparams.left || 0
+        });
+      }
+
+      const scrollmode = this.qparams.scrollmode;
+      if (scrollmode) this.pdfjs.pdfViewer.scrollMode = parseInt(scrollmode);
+
+      const spreadmode = this.qparams.spreadmode;
+      if (spreadmode) this.pdfjs.pdfViewer.spreadMode = parseInt(spreadmode);
+    };
+    this.pdfjs.eventBus.on('textlayerrendered', onDocumentLoad);
   }
 
   private setupEmbedResource(iframe, pdfjs, annotator, storage) {
@@ -212,21 +243,7 @@ export class PDFReaderComponent implements OnInit {
     children[children.length - 1].remove();
   }
 
-  locate(section: any) {
-    if (this.pdfjs.pdfViewer.scrollMode == 3) {
-      // for certain page layout, set page first
-      this.pdfjs.page = section.page;
-    }
-
-    const query = `.pdfViewer .page[data-page-number="${section.page}"]`;
-    const page = this.window.document.querySelector(query);
-    const offset = -32; // a bit to the top
-
-    let { top, left } = section;
-    this.window.document.getElementById('viewerContainer').scrollTo({
-      top: page.offsetTop + (top * page.offsetHeight) + offset,
-      left: page.offsetLeft + (left * page.offsetWidth) + offset,
-      behavior: 'smooth'
-    });
+  scrollToSection(section: any) {
+    scrollTo(this.window.document, this.pdfjs, section);
   }
 }

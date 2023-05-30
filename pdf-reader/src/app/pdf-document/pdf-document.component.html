@@ -33,7 +33,7 @@
 
           <input [id]="'outline-title-' + i" type="text" [name]="'outline-' + i" pInputText [(ngModel)]="section.title"
             autocomplete="off" class="p-inputtext-sm flex-grow mx-1" style="padding: 0.25rem 0.5rem;"
-            (focus)="locate(section)" />
+            (focus)="scrollToSection(section)" />
 
           <span
             class="py-1 absolute right-2 pi pi-times opacity-5 hover:opacity-100 hover:text-red-600 active:text-red-800"

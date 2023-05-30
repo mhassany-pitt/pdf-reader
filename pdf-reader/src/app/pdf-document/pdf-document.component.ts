@@ -14,6 +14,7 @@ import { EmbeddedResourceViewer } from '../pdfjs-tools/embedded-resource-viewer'
 import { EnableElemMovement } from '../pdfjs-tools/enable-elem-movement';
 import { TextLocator } from '../pdfjs-tools/text-locator';
 import { HttpClient } from '@angular/common/http';
+import { scrollTo } from '../pdfjs-tools/pdfjs-utils';
 
 @Component({
   selector: 'app-pdf-document',
@@ -178,20 +179,8 @@ export class PDFDocumentComponent implements OnInit {
     setTimeout(() => document.getElementById(`outline-title-${this.pdfDocument.sections.length - 1}`)?.focus(), 0);
   }
 
-  locate(section: any) {
-    if (this.pdfjs.pdfViewer.scrollMode == 3)
-      this.pdfjs.page = section.page;
-
-    const query = `.pdfViewer .page[data-page-number="${section.page}"]`;
-    const page = this.window.document.querySelector(query);
-    const offset = -32; // a bit to the top
-
-    let { top, left } = section;
-    this.window.document.getElementById('viewerContainer').scrollTo({
-      top: page.offsetTop + (top * page.offsetHeight) + offset,
-      left: page.offsetLeft + (left * page.offsetWidth) + offset,
-      behavior: 'smooth'
-    });
+  scrollToSection(section: any) {
+    scrollTo(this.window.document, this.pdfjs, section);
   }
 
   cancel() {
