@@ -1,5 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { environment } from "src/environments/environment";
+import { inSameOrigin } from "./pdfjs-utils";
 
 export type Annotation = { id: string, type: string };
 export class AnnotationStorage<T extends Annotation> {
@@ -18,7 +19,8 @@ export class AnnotationStorage<T extends Annotation> {
   }
 
   private load() {
-    this.http.get(`${this.api || (environment.apiUrl + '/annoations')}/${this.groupId}`, { withCredentials: true }).subscribe({
+    const api = `${this.api || (environment.apiUrl + '/annoations')}/${this.groupId}`;
+    this.http.get(api, { withCredentials: inSameOrigin(api) }).subscribe({
       next: (resp: any) => this.annotations = resp
     });
   }
@@ -28,7 +30,8 @@ export class AnnotationStorage<T extends Annotation> {
   }
 
   create(annotation: T, then?: () => void) {
-    this.http.post(`${this.api}/${this.groupId}`, annotation, { withCredentials: true }).subscribe({
+    const api = `${this.api}/${this.groupId}`;
+    this.http.post(api, annotation, { withCredentials: inSameOrigin(api) }).subscribe({
       next: (resp: any) => {
         annotation.id = resp.id;
         this.annotations.push(annotation);
@@ -42,7 +45,8 @@ export class AnnotationStorage<T extends Annotation> {
   }
 
   update(annotation: T, then?: () => void) {
-    this.http.patch(`${this.api}/${this.groupId}/${annotation.id}`, annotation, { withCredentials: true }).subscribe({
+    const api = `${this.api}/${this.groupId}/${annotation.id}`;
+    this.http.patch(api, annotation, { withCredentials: inSameOrigin(api) }).subscribe({
       next: (resp: any) => {
         this.annotations[this.annotations.indexOf(this.read(annotation.id))] = annotation;
         then?.();
@@ -51,7 +55,8 @@ export class AnnotationStorage<T extends Annotation> {
   }
 
   delete(annotation: T, then?: () => void) {
-    this.http.delete(`${this.api}/${this.groupId}/${annotation.id}`, { withCredentials: true }).subscribe({
+    const api = `${this.api}/${this.groupId}/${annotation.id}`;
+    this.http.delete(api, { withCredentials: inSameOrigin(api) }).subscribe({
       next: (resp: any) => {
         this.annotations.splice(this.annotations.indexOf(annotation), 1);
         then?.();

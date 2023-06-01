@@ -13,7 +13,7 @@ import { HttpClient } from '@angular/common/http';
 import { EmbedResource } from '../pdfjs-tools/embed-resource';
 import { EnableElemMovement } from '../pdfjs-tools/enable-elem-movement';
 import { AppService } from '../app.service';
-import { scrollTo } from '../pdfjs-tools/pdfjs-utils';
+import { inSameOrigin, scrollTo } from '../pdfjs-tools/pdfjs-utils';
 
 @Component({
   selector: 'app-pdf-reader',
@@ -199,9 +199,8 @@ export class PDFReaderComponent implements OnInit {
           }));
 
           if (this.configs?.interaction_logger_api) {
-            this.http.post(
-              this.configs?.interaction_logger_api || (environment.apiUrl + '/interaction-logs'),
-              logs, { withCredentials: true }).subscribe();
+            const api = this.configs?.interaction_logger_api || (environment.apiUrl + '/interaction-logs');
+            this.http.post(api, logs, { withCredentials: inSameOrigin(api) }).subscribe();
           }
         },
         configs: {
