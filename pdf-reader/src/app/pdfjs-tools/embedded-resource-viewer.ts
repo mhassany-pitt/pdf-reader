@@ -76,7 +76,7 @@ export class EmbeddedResourceViewer {
               <div class="pdfjs-embed-resource__popup-header">
                 <a href="${annot.resource}" target="_blank">open in new tab</a>
                 <span style="flex-grow: 1;"></span>
-                <button>close</button>
+                <button type="button">close</button>
               </div>
               <iframe src="${annot.resource}" style="flex-grow: 1; height: 0%;"></iframe>
             </div>`);

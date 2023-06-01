@@ -49,7 +49,7 @@ export class EmbedResource {
       $event.preventDefault();
       const containerEl = htmlToElements(
         `<div class="pdfjs-embed-resource__embed-btns">
-          <button class="pdfjs-embed-resource__embed-btn">embed resource</button>
+          <button type="button" class="pdfjs-embed-resource__embed-btn">embed resource</button>
         </div>`);
       const buttonEl = containerEl.querySelector('button') as any;
       buttonEl.onclick = ($ev) => {

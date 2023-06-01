@@ -84,7 +84,7 @@ export class FreeformAnnotator {
         `<div class="pdfjs-annotation-freeform__toggle-btns"></div>`);
 
       const buttonEl = htmlToElements(
-        `<button class="pdfjs-annotation-freeform__${this.enabled ? 'end-btn' : 'start-btn'}">
+        `<button type="button" class="pdfjs-annotation-freeform__${this.enabled ? 'end-btn' : 'start-btn'}">
           ${this.enabled ? 'end free hand' : 'start free hand'}
         </button>`);
       containerEl.appendChild(buttonEl);
@@ -112,7 +112,7 @@ export class FreeformAnnotator {
       this.configs.freeform_stroke_sizes.split(',').forEach(strokeSize => {
         const parts = strokeSize.split('-');
         const buttonEl = htmlToElements(
-          `<button class="pdfjs-annotation-freeform__stroke-btn--${parts[0]}">
+          `<button type="button" class="pdfjs-annotation-freeform__stroke-btn--${parts[0]}">
             ${parts[0]}
           </button>`);
         containerEl.appendChild(buttonEl);
@@ -136,7 +136,7 @@ export class FreeformAnnotator {
 
       this.configs.freeform_colors.split(',').forEach(color => {
         const buttonEl = htmlToElements(
-          `<button class="pdfjs-annotation-freeform__color-btn--${color}" 
+          `<button type="button" class="pdfjs-annotation-freeform__color-btn--${color}" 
             style="flex-grow: 1; background-color: ${color};">&nbsp;</button>`);
         containerEl.appendChild(buttonEl);
         buttonEl.onclick = ($ev) => {

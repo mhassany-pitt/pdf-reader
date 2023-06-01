@@ -343,13 +343,13 @@ export class Annotator {
     const height = (location ? location.height : null) || 'fit-content';
 
     const popupEl = htmlToElements(
-      `<div class="pdfjs-annotation-popup__container" style="
+      `<form class="pdfjs-annotation-popup__container" style="
           top: ${top};
           left: ${left};
           width: ${width};
           height: ${height};
-        ">
-      </div>`);
+        " autocomplete="off">
+      </form>`);
 
     const popupLayerEl = this.getOrAttachPopupLayerEl(pageEl);
     popupLayerEl.replaceChildren();
@@ -444,7 +444,7 @@ export class Annotator {
         const annot = this.pending || this.storage.read($event.target.getAttribute('data-annotation-id'));
         const colorsEl = htmlToElements(`<div class="pdfjs-annotation-popup__annot-color-btns"></div>`);
         this.configs.annotation_colors.split(',').forEach(color => {
-          const colorEl = htmlToElements(`<button class="pdfjs-annotation-popup__annot-color-btn--${color.replace('#', '')}"></button>`);
+          const colorEl = htmlToElements(`<button type="button" class="pdfjs-annotation-popup__annot-color-btn--${color.replace('#', '')}"></button>`);
           colorEl.style.backgroundColor = color;
           colorEl.onclick = ($ev) => this._setAnnotationAttr(annot, 'color', color);
           colorsEl.appendChild(colorEl);
@@ -478,7 +478,7 @@ export class Annotator {
 
         const typesEl = htmlToElements(`<div class="pdfjs-annotation-popup__annot-type-btns"></div>`);
         Object.keys(typeBtnHtmls).forEach(type => {
-          const buttonEl = htmlToElements(`<button class="pdfjs-annotation-popup__annot-type-btn--${type}">${typeBtnHtmls[type]}</button>`);
+          const buttonEl = htmlToElements(`<button type="button" class="pdfjs-annotation-popup__annot-type-btn--${type}">${typeBtnHtmls[type]}</button>`);
           buttonEl.onclick = ($ev) => this._setAnnotationAttr(annot, 'type', type);
           typesEl.appendChild(buttonEl);
         });
