@@ -10,6 +10,8 @@ export class PDFDocumentLink {
 
   @Prop() title: string;
   @Prop() published: boolean;
+  @Prop() delegated: boolean;
+  @Prop() delegated_to_url: string;
   @Prop() archived: boolean;
   @Prop() created_at: string;
   // --- features

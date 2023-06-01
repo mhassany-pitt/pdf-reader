@@ -17,211 +17,237 @@
     <form *ngFor="let sharableLink of filteredSharableLinks; let i = index" #form="ngForm"
       (ngSubmit)="update(form, sharableLink)" class="flex flex-col relative p-2 pdf-document-link__link"
       [ngClass]="{ 'bg-gray-100': i % 2 == 0 }">
-      <input *ngIf="tt[sharableLink.id]" type="text" pInputText name="title" [(ngModel)]="sharableLink.title"
-        placeholder="Title" class="title-input" style="font-weight: bold; margin-right: 10rem; margin-bottom: 0.5rem;">
-      <span *ngIf="!tt[sharableLink.id]" class="font-bold" [ngClass]="{ 'text-gray-400': !sharableLink.published }">
-        {{ sharableLink.title || 'Empty Title' }}
-        {{ sharableLink.archived ? '[archived]' : '' }}
+      <span class="text-gray-400" style="font-size: 0.65rem">
+        Created at: {{ sharableLink.created_at | date:'long' }}
       </span>
-
       <div class="text-xs flex items-center" [ngClass]="{ 
-          'text-gray-400': !sharableLink.published,
-          'text-blue-700': sharableLink.published
-        } ">
-        <span class="mr-2 underline text-sm">{{ getURL(sharableLink.id) }}</span>
-        <span class="pi pi-copy" (click)="copyURL(sharableLink.id)"></span>
+        'text-gray-400': !sharableLink.delegated && !sharableLink.published,
+        'text-blue-700': !sharableLink.delegated && sharableLink.published
+      } ">
+        <span class="underline text-sm">{{ getURL(sharableLink.id) }}</span>
+        <span class="ml-2 pi pi-copy" (click)="copyURL(sharableLink.id)"></span>
         <span *ngIf="copyToast?.id == sharableLink.id" class="ml-2 text-xs">
           {{ copyToast?.message }}
         </span>
       </div>
-      <span class="text-gray-400" style="font-size: 0.65rem">
-        {{ sharableLink.created_at | date:'long' }}
-      </span>
 
-      <div class="flex items-center absolute top-2 right-2">
-        <label for="pdf-reader__published" class="mr-1 text-xs">
-          {{ sharableLink.published ? 'published' : 'unpublished' }}
-        </label>
-        <p-inputSwitch inputId="pdf-reader__published" name="published" [(ngModel)]="sharableLink.published"
-          [title]="sharableLink.published ? 'unpublish' : 'publish'" class="h-5"
-          (onChange)="update(form, sharableLink)">
-        </p-inputSwitch>
-
-        <span class="mx-1"></span>
-
-        <span class="pi" [ngClass]="{ 
+      <span class="flex items-center absolute top-2 right-2 pi" [ngClass]="{ 
           'pi-chevron-up': tt[sharableLink.id], 
           'pi-chevron-down': !tt[sharableLink.id] 
         }" (click)="tt[sharableLink.id] = !tt[sharableLink.id]">
-        </span>
+      </span>
+
+      <div *ngIf="tt[sharableLink.id]" class="flex items-center mt-1">
+        <label for="pdf-reader__delegated" class="font-bold">
+          Delegated Configuration
+        </label>
+        <p-inputSwitch inputId="pdf-reader__delegated" name="delegated" [(ngModel)]="sharableLink.delegated"
+          [title]="sharableLink.delegated ? 'manage' : 'delegate'" class="h-5 ml-2"
+          (onChange)="update(form, sharableLink, true)">
+        </p-inputSwitch>
       </div>
 
-      <ng-container *ngIf="tt[sharableLink.id]">
-        <span class="font-bold ml-2 mt-2">Annotations</span>
-        <div class="flex items-center">
-          <div class="flex items-center ml-2">
-            <p-checkbox name="highlight" inputId="pdf-reader__highlight" [binary]="true"
-              [(ngModel)]="sharableLink.highlight"></p-checkbox>
-            <label class="ml-2" for="pdf-reader__highlight">Highlight</label>
-          </div>
-          <div class="flex items-center ml-2">
-            <p-checkbox name="underline" inputId="pdf-reader__underline" [binary]="true"
-              [(ngModel)]="sharableLink.underline"></p-checkbox>
-            <label class="ml-2" for="pdf-reader__underline">Underline</label>
-          </div>
-          <div class="flex items-center ml-2">
-            <p-checkbox name="linethrough" inputId="pdf-reader__linethrough" [binary]="true"
-              [(ngModel)]="sharableLink.linethrough"></p-checkbox>
-            <label class="ml-2" for="pdf-reader__linethrough">Line Through</label>
-          </div>
-          <div class="flex items-center ml-2">
-            <p-checkbox name="redact" inputId="pdf-reader__redact" [binary]="true"
-              [(ngModel)]="sharableLink.redact"></p-checkbox>
-            <label class="ml-2" for="pdf-reader__redact">Redact</label>
-          </div>
-        </div>
-        <div *ngIf="tt['advance_mode']" class="flex items-center ml-2">
-          <div class="p-inputgroup">
-            <span class="p-inputgroup-addon w-40">Annotation Colors</span>
-            <input type="text" pInputText name="annotation_colors" placeholder="blue, #ff0000, rgb(0, 255, 0), ..."
-              [(ngModel)]="sharableLink.annotation_colors" class="p-inputtext-sm flex-grow">
-            <span class="p-inputgroup-addon">
-              <p-colorPicker #freeformColor name="add_annotation_color" [(ngModel)]="tmpColor1"></p-colorPicker>
-              <button type="button" class="ml-1"
-                (click)="addColor(sharableLink,'annotation_colors', tmpColor1)">Add</button>
-            </span>
-          </div>
-        </div>
+      <ng-container *ngIf="sharableLink.delegated">
+        <ng-container *ngIf="!tt[sharableLink.id]">
+          <span class="text-xs">
+            <span>Delegated to: </span>
+            <span class="underline">{{ sharableLink.delegated_to_url }}</span>
+          </span>
+        </ng-container>
+        <ng-container *ngIf="tt[sharableLink.id]">
+          <input type="text" pInputText name="delegated_to_url" [(ngModel)]="sharableLink.delegated_to_url"
+            placeholder="Delegation URL" class="delegation-url-input my-1" (change)="update(form, sharableLink, true)">
+        </ng-container>
+      </ng-container>
+      <ng-container *ngIf="!sharableLink.delegated">
+        <ng-container *ngIf="!tt[sharableLink.id]">
+          <span class="font-bold" [ngClass]="{ 'text-gray-400': !sharableLink.published }">
+            {{ sharableLink.title || 'Empty Title' }}
+            {{ sharableLink.archived ? '[archived]' : '' }}
+          </span>
+        </ng-container>
 
-        <span class="font-bold ml-2 mt-2">Notes</span>
-        <div class="flex items-center ml-2">
-          <p-checkbox name="notes" inputId="pdf-reader__notes" [binary]="true"
-            [(ngModel)]="sharableLink.notes"></p-checkbox>
-          <label class="ml-2" for="pdf-reader__notes">Enable</label>
-        </div>
+        <ng-container *ngIf="tt[sharableLink.id]">
+          <input type="text" pInputText name="title" [(ngModel)]="sharableLink.title" placeholder="Title"
+            class="title-input my-1">
 
-        <span class="font-bold ml-2 mt-2">Freehand Drawing</span>
-        <div class="flex items-center ml-2">
-          <p-checkbox name="freeform" inputId="pdf-reader__freeform" [binary]="true"
-            [(ngModel)]="sharableLink.freeform"></p-checkbox>
-          <label class="ml-2" for="pdf-reader__freeform">Enable</label>
-        </div>
-        <ng-container *ngIf="sharableLink.freeform && tt['advance_mode']">
-          <div class="flex flex-col ml-2">
-            <div class="p-inputgroup">
-              <span class="p-inputgroup-addon w-40">Freeform Stroke Sizes</span>
-              <input type="text" pInputText name="freeform_stroke_sizes" placeholder="thick,5"
-                [(ngModel)]="sharableLink.freeform_stroke_sizes" class="p-inputtext-sm">
+          <div class="flex items-center ml-2 mt-1">
+            <label for="pdf-reader__published" class="font-bold">
+              Publish
+            </label>
+            <p-inputSwitch inputId="pdf-reader__published" name="published" [(ngModel)]="sharableLink.published"
+              [title]="sharableLink.published ? 'unpublish' : 'publish'" class="h-5 ml-2"
+              (onChange)="update(form, sharableLink, true)">
+            </p-inputSwitch>
+          </div>
+
+          <span class="font-bold ml-2 mt-2">Annotations</span>
+          <div class="flex items-center">
+            <div class="flex items-center ml-2">
+              <p-checkbox name="highlight" inputId="pdf-reader__highlight" [binary]="true"
+                [(ngModel)]="sharableLink.highlight"></p-checkbox>
+              <label class="ml-2" for="pdf-reader__highlight">Highlight</label>
+            </div>
+            <div class="flex items-center ml-2">
+              <p-checkbox name="underline" inputId="pdf-reader__underline" [binary]="true"
+                [(ngModel)]="sharableLink.underline"></p-checkbox>
+              <label class="ml-2" for="pdf-reader__underline">Underline</label>
+            </div>
+            <div class="flex items-center ml-2">
+              <p-checkbox name="linethrough" inputId="pdf-reader__linethrough" [binary]="true"
+                [(ngModel)]="sharableLink.linethrough"></p-checkbox>
+              <label class="ml-2" for="pdf-reader__linethrough">Line Through</label>
+            </div>
+            <div class="flex items-center ml-2">
+              <p-checkbox name="redact" inputId="pdf-reader__redact" [binary]="true"
+                [(ngModel)]="sharableLink.redact"></p-checkbox>
+              <label class="ml-2" for="pdf-reader__redact">Redact</label>
             </div>
           </div>
-          <div class="flex flex-col ml-2">
+          <div *ngIf="tt['advance_mode']" class="flex items-center ml-2">
             <div class="p-inputgroup">
-              <span class="p-inputgroup-addon w-40">Freeform Colors</span>
-              <input type="text" pInputText name="freeform_colors" placeholder="blue, #ff0000, rgb(0, 255, 0), ..."
-                [(ngModel)]="sharableLink.freeform_colors" class="p-inputtext-sm">
+              <span class="p-inputgroup-addon w-40">Annotation Colors</span>
+              <input type="text" pInputText name="annotation_colors" placeholder="blue, #ff0000, rgb(0, 255, 0), ..."
+                [(ngModel)]="sharableLink.annotation_colors" class="p-inputtext-sm flex-grow">
               <span class="p-inputgroup-addon">
-                <p-colorPicker #freeformColor name="add_freeform_color" [(ngModel)]="tmpColor2"></p-colorPicker>
+                <p-colorPicker #freeformColor name="add_annotation_color" [(ngModel)]="tmpColor1"></p-colorPicker>
                 <button type="button" class="ml-1"
-                  (click)="addColor(sharableLink,'freeform_colors', tmpColor2)">Add</button>
+                  (click)="addColor(sharableLink,'annotation_colors', tmpColor1)">Add</button>
               </span>
             </div>
           </div>
+
+          <span class="font-bold ml-2 mt-2">Notes</span>
+          <div class="flex items-center ml-2">
+            <p-checkbox name="notes" inputId="pdf-reader__notes" [binary]="true"
+              [(ngModel)]="sharableLink.notes"></p-checkbox>
+            <label class="ml-2" for="pdf-reader__notes">Enable</label>
+          </div>
+
+          <span class="font-bold ml-2 mt-2">Freehand Drawing</span>
+          <div class="flex items-center ml-2">
+            <p-checkbox name="freeform" inputId="pdf-reader__freeform" [binary]="true"
+              [(ngModel)]="sharableLink.freeform"></p-checkbox>
+            <label class="ml-2" for="pdf-reader__freeform">Enable</label>
+          </div>
+          <ng-container *ngIf="sharableLink.freeform && tt['advance_mode']">
+            <div class="flex flex-col ml-2">
+              <div class="p-inputgroup">
+                <span class="p-inputgroup-addon w-40">Freeform Stroke Sizes</span>
+                <input type="text" pInputText name="freeform_stroke_sizes" placeholder="thick,5"
+                  [(ngModel)]="sharableLink.freeform_stroke_sizes" class="p-inputtext-sm">
+              </div>
+            </div>
+            <div class="flex flex-col ml-2">
+              <div class="p-inputgroup">
+                <span class="p-inputgroup-addon w-40">Freeform Colors</span>
+                <input type="text" pInputText name="freeform_colors" placeholder="blue, #ff0000, rgb(0, 255, 0), ..."
+                  [(ngModel)]="sharableLink.freeform_colors" class="p-inputtext-sm">
+                <span class="p-inputgroup-addon">
+                  <p-colorPicker #freeformColor name="add_freeform_color" [(ngModel)]="tmpColor2"></p-colorPicker>
+                  <button type="button" class="ml-1"
+                    (click)="addColor(sharableLink,'freeform_colors', tmpColor2)">Add</button>
+                </span>
+              </div>
+            </div>
+          </ng-container>
+
+          <span class="font-bold ml-2 mt-2">Embedding Resources</span>
+          <div class="flex items-center ml-2">
+            <p-checkbox name="embed_resource" inputId="pdf-reader__embed-resource" [binary]="true"
+              [(ngModel)]="sharableLink.embed_resource"></p-checkbox>
+            <label class="ml-2" for="pdf-reader__embed-resource">Enable</label>
+          </div>
+
+          <span class="font-bold ml-2 mt-2">Interaction Logger</span>
+          <div class="flex items-center ml-2">
+            <p-checkbox name="log_interactions" inputId="pdf-reader__log-interactions" [binary]="true"
+              [(ngModel)]="sharableLink.log_interactions"></p-checkbox>
+            <label class="ml-2" for="pdf-reader__log-interactions">Enable</label>
+          </div>
+          <ng-container *ngIf="sharableLink.log_interactions && tt['advance_mode']">
+            <div class="flex flex-col ml-2">
+              <div class="p-inputgroup">
+                <span class="p-inputgroup-addon w-40">Document Events</span>
+                <p-multiSelect name="document_events" [options]="documentEvents"
+                  [(ngModel)]="sharableLink.document_events" class="flex-grow"></p-multiSelect>
+              </div>
+            </div>
+
+            <div class="flex flex-col ml-2">
+              <div class="p-inputgroup">
+                <span class="p-inputgroup-addon w-40">Pdfjs Events</span>
+                <p-multiSelect name="pdfjs_events" [options]="pdfJSEvents" [(ngModel)]="sharableLink.pdfjs_events"
+                  class="flex-grow"></p-multiSelect>
+              </div>
+            </div>
+
+            <div class="flex flex-col ml-2">
+              <div class="p-inputgroup">
+                <span class="p-inputgroup-addon w-40">Mousemove Log Delay</span>
+                <p-inputNumber name="mousemove_log_delay" [useGrouping]="false" placeholder="100"
+                  [(ngModel)]="sharableLink.mousemove_log_delay" class="p-inputtext-sm"></p-inputNumber>
+                <span class="p-inputgroup-addon justify-center" style="justify-content: center;">ms</span>
+              </div>
+            </div>
+            <div class="flex flex-col ml-2">
+              <div class="p-inputgroup">
+                <span class="p-inputgroup-addon w-40">Scroll Log Delay</span>
+                <p-inputNumber name="scroll_log_delay" [useGrouping]="false" placeholder="100"
+                  [(ngModel)]="sharableLink.scroll_log_delay" class="p-inputtext-sm"></p-inputNumber>
+                <span class="p-inputgroup-addon justify-center" style="justify-content: center;">ms</span>
+              </div>
+            </div>
+            <div class="flex flex-col ml-2">
+              <div class="p-inputgroup">
+                <span class="p-inputgroup-addon w-40">Resize Log Delay</span>
+                <p-inputNumber name="resize_log_delay" [useGrouping]="false" placeholder="100"
+                  [(ngModel)]="sharableLink.resize_log_delay" class="p-inputtext-sm"></p-inputNumber>
+                <span class="p-inputgroup-addon justify-center" style="justify-content: center;">ms</span>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="tt['advance_mode']">
+            <span class="font-bold ml-2 mt-2">Custom APIs</span>
+            <div class="flex flex-col ml-2">
+              <div class="p-inputgroup">
+                <span class="p-inputgroup-addon w-40">Annotation API</span>
+                <input type="text" pInputText name="annotation_api" placeholder="http://server-xyz/api/annotations"
+                  [(ngModel)]="sharableLink.annotation_api" class="p-inputtext-sm">
+              </div>
+            </div>
+            <div class="flex flex-col ml-2">
+              <div class="p-inputgroup">
+                <span class="p-inputgroup-addon w-40">Interaction Logger API</span>
+                <input type="text" pInputText name="interaction_logger_api"
+                  placeholder="http://server-xyz/api/interactions" [(ngModel)]="sharableLink.interaction_logger_api"
+                  class="p-inputtext-sm">
+              </div>
+            </div>
+          </ng-container>
+
+          <span class="font-bold ml-2 mt-2">Authorized Accounts</span>
+          <div class="flex flex-col mx-2">
+            <textarea name="authorized_accounts" rows="5" cols="30" pInputTextarea
+              [(ngModel)]="sharableLink.authorized_accounts" placeholder="user1@company.com, ..."></textarea>
+          </div>
+
+          <div class="flex items-center m-2 mt-4 gap-2">
+            <button pButton type="button" [label]="sharableLink.archived ? 'Unarchive' : 'Archive'"
+              icon="pi pi-database" class="p-button-sm p-button-secondary" (click)="archive(form, sharableLink)">
+            </button>
+
+            <span class="flex-grow"></span>
+
+            <button pButton type="button" label="Cancel" icon="pi pi-chevron-left"
+              class="p-button-sm p-button-text p-button-secondary" (click)="tt[sharableLink.id] = false">
+            </button>
+            <button pButton type="submit" label="Update" icon="pi pi-check" class="p-button-sm"
+              [disabled]="form.invalid">
+            </button>
+          </div>
         </ng-container>
-
-        <span class="font-bold ml-2 mt-2">Embedding Resources</span>
-        <div class="flex items-center ml-2">
-          <p-checkbox name="embed_resource" inputId="pdf-reader__embed-resource" [binary]="true"
-            [(ngModel)]="sharableLink.embed_resource"></p-checkbox>
-          <label class="ml-2" for="pdf-reader__embed-resource">Enable</label>
-        </div>
-
-        <span class="font-bold ml-2 mt-2">Interaction Logger</span>
-        <div class="flex items-center ml-2">
-          <p-checkbox name="log_interactions" inputId="pdf-reader__log-interactions" [binary]="true"
-            [(ngModel)]="sharableLink.log_interactions"></p-checkbox>
-          <label class="ml-2" for="pdf-reader__log-interactions">Enable</label>
-        </div>
-        <ng-container *ngIf="sharableLink.log_interactions && tt['advance_mode']">
-          <div class="flex flex-col ml-2">
-            <div class="p-inputgroup">
-              <span class="p-inputgroup-addon w-40">Document Events</span>
-              <p-multiSelect name="document_events" [options]="documentEvents"
-                [(ngModel)]="sharableLink.document_events" class="flex-grow"></p-multiSelect>
-            </div>
-          </div>
-
-          <div class="flex flex-col ml-2">
-            <div class="p-inputgroup">
-              <span class="p-inputgroup-addon w-40">Pdfjs Events</span>
-              <p-multiSelect name="pdfjs_events" [options]="pdfJSEvents" [(ngModel)]="sharableLink.pdfjs_events"
-                class="flex-grow"></p-multiSelect>
-            </div>
-          </div>
-
-          <div class="flex flex-col ml-2">
-            <div class="p-inputgroup">
-              <span class="p-inputgroup-addon w-40">Mousemove Log Delay</span>
-              <p-inputNumber name="mousemove_log_delay" [useGrouping]="false" placeholder="100"
-                [(ngModel)]="sharableLink.mousemove_log_delay" class="p-inputtext-sm"></p-inputNumber>
-              <span class="p-inputgroup-addon justify-center" style="justify-content: center;">ms</span>
-            </div>
-          </div>
-          <div class="flex flex-col ml-2">
-            <div class="p-inputgroup">
-              <span class="p-inputgroup-addon w-40">Scroll Log Delay</span>
-              <p-inputNumber name="scroll_log_delay" [useGrouping]="false" placeholder="100"
-                [(ngModel)]="sharableLink.scroll_log_delay" class="p-inputtext-sm"></p-inputNumber>
-              <span class="p-inputgroup-addon justify-center" style="justify-content: center;">ms</span>
-            </div>
-          </div>
-          <div class="flex flex-col ml-2">
-            <div class="p-inputgroup">
-              <span class="p-inputgroup-addon w-40">Resize Log Delay</span>
-              <p-inputNumber name="resize_log_delay" [useGrouping]="false" placeholder="100"
-                [(ngModel)]="sharableLink.resize_log_delay" class="p-inputtext-sm"></p-inputNumber>
-              <span class="p-inputgroup-addon justify-center" style="justify-content: center;">ms</span>
-            </div>
-          </div>
-        </ng-container>
-
-        <ng-container *ngIf="tt['advance_mode']">
-          <span class="font-bold ml-2 mt-2">Custom APIs</span>
-          <div class="flex flex-col ml-2">
-            <div class="p-inputgroup">
-              <span class="p-inputgroup-addon w-40">Annotation API</span>
-              <input type="text" pInputText name="annotation_api" placeholder="http://server-xyz/api/annotations"
-                [(ngModel)]="sharableLink.annotation_api" class="p-inputtext-sm">
-            </div>
-          </div>
-          <div class="flex flex-col ml-2">
-            <div class="p-inputgroup">
-              <span class="p-inputgroup-addon w-40">Interaction Logger API</span>
-              <input type="text" pInputText name="interaction_logger_api"
-                placeholder="http://server-xyz/api/interactions" [(ngModel)]="sharableLink.interaction_logger_api"
-                class="p-inputtext-sm">
-            </div>
-          </div>
-        </ng-container>
-
-        <span class="font-bold ml-2 mt-2">Authorized Accounts</span>
-        <div class="flex flex-col mx-2">
-          <textarea name="authorized_accounts" rows="5" cols="30" pInputTextarea
-            [(ngModel)]="sharableLink.authorized_accounts" placeholder="user1@company.com, ..."></textarea>
-        </div>
-
-        <div class="flex items-center m-2 mt-4 gap-2">
-          <button pButton type="button" [label]="sharableLink.archived ? 'Unarchive' : 'Archive'" icon="pi pi-database"
-            class="p-button-sm p-button-secondary" (click)="archive(form, sharableLink)">
-          </button>
-
-          <span class="flex-grow"></span>
-
-          <button pButton type="button" label="Cancel" icon="pi pi-chevron-left"
-            class="p-button-sm p-button-text p-button-secondary" (click)="tt[sharableLink.id] = false">
-          </button>
-          <button pButton type="submit" label="Update" icon="pi pi-check" class="p-button-sm" [disabled]="form.invalid">
-          </button>
-        </div>
       </ng-container>
     </form>
   </div>

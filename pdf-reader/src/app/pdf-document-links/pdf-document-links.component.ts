@@ -120,16 +120,22 @@ export class PDFDocumentLinksComponent implements OnInit {
     });
   }
 
-  update(form, link) {
-    this.tt[link.id] = false;
-    const index = this.sharableLinks.indexOf(link);
+  update(form, link, skip = false) {
     this.http.patch<PDFDocumentLink>(
       `${environment.apiUrl}/pdf-document-links/${link.id}`,
       link,
       { withCredentials: true }
     ).subscribe({
-      next: (link) => this.sharableLinks.splice(index, 1, link),
+      next: (link) => {
+        if (!skip) {
+          this.tt[link.id] = false;
+          const index = this.sharableLinks.indexOf(link);
+          this.sharableLinks.splice(index, 1, link);
+        }
+      },
       error: (err) => console.error(err),
     });
   }
 }
+
+// TODO: add link config delegation to 3rd party service
