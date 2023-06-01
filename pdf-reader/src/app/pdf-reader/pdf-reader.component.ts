@@ -228,17 +228,17 @@ export class PDFReaderComponent implements OnInit {
   }
 
   private removeExtraElements() {
-    const docs = this.window.document;
+    const documentEl = this.window.document;
 
-    docs.getElementById('openFile').remove();
-    docs.getElementById('secondaryOpenFile').remove();
-    docs.getElementById('download').remove();
-    docs.getElementById('secondaryDownload').remove();
-    docs.getElementById('print').remove();
-    docs.getElementById('secondaryPrint').remove();
-    docs.getElementById('documentProperties').remove();
+    documentEl.getElementById('openFile').remove();
+    documentEl.getElementById('secondaryOpenFile').remove();
+    documentEl.getElementById('download').remove();
+    documentEl.getElementById('secondaryDownload').remove();
+    documentEl.getElementById('print').remove();
+    documentEl.getElementById('secondaryPrint').remove();
+    documentEl.getElementById('documentProperties').remove();
 
-    const children = docs.getElementById('secondaryToolbarButtonContainer').children;
+    const children = documentEl.getElementById('secondaryToolbarButtonContainer').children;
     children[0].remove();
     children[children.length - 1].remove();
   }

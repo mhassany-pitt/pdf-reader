@@ -12,6 +12,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ColorPickerModule } from 'primeng/colorpicker';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { DialogModule } from 'primeng/dialog';
 import { PDFDocumentService } from './pdf-document.service';
 import { PDFDocumentLinksComponent } from '../pdf-document-links/pdf-document-links.component';
@@ -24,7 +25,7 @@ import { UserAuthCtrlComponent } from '../user-auth-ctrl/user-auth-ctrl.componen
   imports: [
     CommonModule,
     FormsModule,
-    DocumentRoutingModule,
+    DocumentRoutingModule, SelectButtonModule,
     InputTextModule, InputNumberModule,
     ButtonModule, ChipsModule, DialogModule,
     InputSwitchModule, CheckboxModule,

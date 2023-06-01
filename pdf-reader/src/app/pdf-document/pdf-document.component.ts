@@ -74,20 +74,25 @@ export class PDFDocumentComponent implements OnInit {
     this.prepare();
   }
 
+  getFileURL() {
+    return this.pdfDocument.file_url
+      ? `${environment.apiUrl}/proxy/${encodeURIComponent(this.pdfDocument.file_url)}`
+      : `${environment.apiUrl}/pdf-documents/${this.pdfDocument.id}/file`;
+  }
+
   async prepare() {
     if (!this.pdfDocument || !this.iframe)
       return;
 
     this.window = this.iframe.contentWindow;
     this.pdfjs = this.window.PDFViewerApplication;
-    await this.pdfjs.open({
-      url: `${environment.apiUrl}/pdf-documents/${this.pdfDocument.id}/file`,
-      withCredentials: true,
-    });
-    this.pdfjs.eventBus.on('fileinputchange', ($event) => {
+    this.removeExtraElements();
+    await this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });
+    this.pdfjs.eventBus.on('fileinputchange', ($event) => this.ngZone.run(() => {
       const files = $event.source.files;
       this.newfile = files.length ? $event.source.files[0] : null;
-    });
+      this.pdfDocument.file_url = null;
+    }));
 
     const iframe = this.iframe;
     const pdfjs = this.pdfjs;
@@ -121,12 +126,7 @@ export class PDFDocumentComponent implements OnInit {
 
   async locateTexts() {
     this.share = false;
-
-    await this.pdfjs.open({
-      url: `${environment.apiUrl}/pdf-documents/${this.pdfDocument.id}/file`,
-      withCredentials: true,
-    });
-
+    await this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });
     new TextLocator({ iframe: this.iframe, pdfjs: this.pdfjs })
       .extractTextBounds({
         progress: (percentage: number) => {
@@ -181,6 +181,20 @@ export class PDFDocumentComponent implements OnInit {
 
   scrollToSection(section: any) {
     scrollTo(this.window.document, this.pdfjs, section);
+  }
+
+  selectFile($event) {
+    this.pdfjs.appConfig.openFileInput.click();
+  }
+
+  fileUrlChanged($event) {
+    this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });
+  }
+
+  private removeExtraElements() {
+    const documentEl = this.window.document;
+    documentEl.getElementById('openFile').style.display = 'none';
+    documentEl.getElementById('secondaryOpenFile').style.display = 'none';
   }
 
   cancel() {

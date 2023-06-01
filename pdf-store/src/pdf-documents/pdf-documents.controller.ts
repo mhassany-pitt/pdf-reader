@@ -1,12 +1,11 @@
 import {
   Body, Controller, Get, NotFoundException, Param,
-  Patch, Post, Req, StreamableFile, UploadedFile,
+  Patch, Post, Req, Res, UploadedFile,
   UseGuards, UseInterceptors
 } from '@nestjs/common';
-import { Express } from 'express';
+import { Express, Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PDFDocumentsService } from './pdf-documents.service';
-import { createReadStream } from 'fs-extra';
 import { AuthenticatedGuard } from 'src/auth/authenticated.guard';
 import { useId } from 'src/utils';
 
@@ -62,9 +61,10 @@ export class PDFDocumentsController {
 
   @Get(':id/file')
   @UseGuards(AuthenticatedGuard)
-  async download(@Req() req: any, @Param('id') id: string): Promise<StreamableFile> {
+  async download(@Req() req: any, @Res() res: Response, @Param('id') id: string) {
     const pdfDoc = await this._getOrFail({ user: req.user, id });
-    return new StreamableFile(createReadStream(this.service.getFilePath({ id: pdfDoc.file_id })));
+    res.setHeader('Content-Type', 'application/pdf');
+    res.sendFile(this.service.getFilePath({ id: pdfDoc.file_id }), { root: '.' });
   }
 
   @Post(':id/text-locations')

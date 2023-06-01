@@ -1,7 +1,11 @@
-import { Controller, ForbiddenException, Get, NotFoundException, Param, Req, StreamableFile, UnauthorizedException } from '@nestjs/common';
-import { createReadStream } from 'fs-extra';
+import {
+  Controller, ForbiddenException, Get,
+  NotFoundException, Param, Req, Res, UnauthorizedException
+} from '@nestjs/common';
 import { useId } from 'src/utils';
 import { PDFReaderService } from './pdf-reader.service';
+import axios from 'axios';
+import { Response } from 'express';
 
 @Controller('pdf-reader')
 export class PDFReaderController {
@@ -57,8 +61,15 @@ export class PDFReaderController {
   }
 
   @Get(':id/file')
-  async download(@Req() req: any, @Param('id') id: string): Promise<StreamableFile> {
+  async download(@Req() req: any, @Res() res: Response, @Param('id') id: string) {
     const pdfDoc = await this._getOrFail({ user: req.user, id });
-    return new StreamableFile(createReadStream(this.pdfReaderService.getFilePath({ id: pdfDoc.file_id })));
+    res.setHeader('Content-Type', 'application/pdf');
+    if (pdfDoc.file_url) {
+      const resp = await axios.get(pdfDoc.file_url, { responseType: 'arraybuffer' });
+      res.send(resp.data);
+    } else {
+      const path = this.pdfReaderService.getFilePath({ id: pdfDoc.file_id });
+      res.sendFile(path, { root: '.' });
+    }
   }
 }

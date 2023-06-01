@@ -9,6 +9,7 @@ export class PDFDocument {
   @Prop() title: string;
   @Prop() tags: [string];
   @Prop() file_id: string;
+  @Prop() file_url: string;
   @Prop() sections: [any];
   @Prop() created_at: string;
   @Prop() modified_at: string;
