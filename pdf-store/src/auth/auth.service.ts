@@ -9,7 +9,7 @@ export class AuthService {
   constructor(private users: UsersService) { }
 
   async validateUser(email: string, password: string) {
-    const user = useId(await this.users.findOne(email));
+    const user = useId(await this.users.findUser(email));
     if (user && await compare(password, user.password)) {
       const { password, ...result } = user;
       return result;

@@ -11,7 +11,11 @@ export class UsersService {
     @InjectModel('users') private users: Model<User>
   ) { }
 
-  async findOne(email: string) {
+  async findUser(email: string) {
     return toObject(await this.users.findOne({ email }));
+  }
+
+  async findAPIUser(apiKey: string) {
+    return toObject(await this.users.findOne({ apiKey, userType: 'api' }));
   }
 }

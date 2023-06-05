@@ -10,9 +10,7 @@ const MongoSchemas = MongooseModule.forFeature([
 ])
 
 @Module({
-  imports: [
-    MongoSchemas
-  ],
+  imports: [MongoSchemas],
   controllers: [PDFDocumentLinksController],
   providers: [ConfigService, PDFDocumentLinksService],
   exports: [

@@ -1,25 +1,35 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
-import { AuthenticatedGuard } from 'src/auth/authenticated.guard';
+import { Controller, ForbiddenException, Get, Param, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { PDFDocumentTextsService } from './pdf-document-texts.service';
 import { useId } from 'src/utils';
+import { ConfigService } from '@nestjs/config';
+import { UsersService } from 'src/users/users.service';
 
 @Controller('pdf-document-texts')
 export class PDFDocumentTextsController {
 
-  constructor(private service: PDFDocumentTextsService) { }
+  constructor(
+    private config: ConfigService,
+    private service: PDFDocumentTextsService,
+    private users: UsersService,
+  ) { }
 
-  // TODO: support api token for 3rd party api
+  private async authorize({ apiKey, pdfDocId }) {
+    const user = await this.users.findAPIUser(apiKey);
+    const permissions: string[] = user?.permissions || [];
+    if (!permissions.includes(`pdf-document-texts:${pdfDocId}`))
+      throw new UnauthorizedException();
+  }
 
   @Get(':id/:fileId')
-  // @UseGuards(AuthenticatedGuard)
-  async index(@Param('id') pdfDocId: string, @Param('fileId') fileId: string) {
+  async index(@Req() req: any, @Param('id') pdfDocId: string, @Param('fileId') fileId: string) {
+    await this.authorize({ apiKey: req.query.API_KEY, pdfDocId });
     const list = await this.service.list({ pdfDocId, fileId, page: null });
     return list.map(useId);
   }
 
   @Get(':id/:fileId/:page')
-  // @UseGuards(AuthenticatedGuard)
-  async get(@Param('id') pdfDocId: string, @Param('fileId') fileId: string, @Param('page') page: number) {
+  async get(@Req() req: any, @Param('id') pdfDocId: string, @Param('fileId') fileId: string, @Param('page') page: number) {
+    await this.authorize({ apiKey: req.query.API_KEY, pdfDocId });
     const list = await this.service.list({ pdfDocId, fileId, page });
     return list.map(useId);
   }
