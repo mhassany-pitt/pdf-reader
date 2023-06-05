@@ -1,0 +1,3 @@
+as the author, you can delegate some configurations (annotation crud api, interaction-log destination api, and even pdf-link configuration delegation) to 3rd party services (e.g.: your app). this will provide a more dynamic way of providing those configuration, enabling more advanced features.
+
+the `main.py` is a python-flask application that demonstrate how you ccan utilize this feature. note, that you need to run this flask app, and use its ip:port in the pdf-link configuration.

@@ -14,13 +14,6 @@ export class PDFReaderController {
     private pdfReaderService: PDFReaderService,
   ) { }
 
-  // -- delegation demo
-  @Get('delegation/:id')
-  delegation(@Req() req: any, @Param('id') id: string) {
-    const userId = req.query.user_id; // use for auth
-    return { published: true };
-  }
-
   private async _getOrFail({ user, id }) {
     let pdfDoc: any = null;
     if (user) { // 1. user is the author
