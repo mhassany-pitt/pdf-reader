@@ -21,13 +21,13 @@ export class PDFDocumentsService {
   }
 
   async list({ user }) {
-    const list = await this.pdfDocs.find({ owner_id: user.id });
+    const list = await this.pdfDocs.find({ user_id: user.id });
     return list.map(toObject);
   }
 
   async create({ user, file }) {
     return toObject(await this.pdfDocs.create({
-      owner_id: user.id,
+      user_id: user.id,
       file_id: await this.upload({ user, file, fileId: null }),
       created_at: new Date().toISOString(),
       modified_at: new Date().toISOString(),
@@ -35,11 +35,11 @@ export class PDFDocumentsService {
   }
 
   async read({ user, id }) {
-    return toObject(await this.pdfDocs.findOne({ owner_id: user.id, _id: id }));
+    return toObject(await this.pdfDocs.findOne({ user_id: user.id, _id: id }));
   }
 
   async update({ user, id, pdfDoc }) {
-    await this.pdfDocs.updateOne({ owner_id: user.id, _id: id }, {
+    await this.pdfDocs.updateOne({ user_id: user.id, _id: id }, {
       $set: { modified_at: new Date().toISOString(), ...pdfDoc }
     });
     return this.read({ user, id });
@@ -48,9 +48,9 @@ export class PDFDocumentsService {
   async upload({ user, fileId, file }) {
     const { originalname, size, buffer } = file;
     if (fileId) {
-      await this.pdfFiles.updateOne({ owner_id: user.id, _id: fileId }, { $set: { originalname, size } });
+      await this.pdfFiles.updateOne({ user_id: user.id, _id: fileId }, { $set: { originalname, size } });
     } else {
-      fileId = (await this.pdfFiles.create({ owner_id: user.id, originalname, size }))._id.toString();
+      fileId = (await this.pdfFiles.create({ user_id: user.id, originalname, size }))._id.toString();
     }
     writeFileSync(storageRoot(this.config, 'pdf-files', fileId), buffer, { flag: 'w' });
     return fileId;

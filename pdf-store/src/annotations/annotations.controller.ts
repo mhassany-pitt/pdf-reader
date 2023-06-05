@@ -15,13 +15,10 @@ export class AnnotationsController {
     throw new NotFoundException();
   }
 
-  // TODO: can guest users read annotations?
-
   @Get(':groupId')
   @UseGuards(AuthenticatedGuard)
   async get(@Req() req: any, @Param('groupId') groupId: string) {
-    const list = await this.service.list({ user: req.user, groupId });
-    return list.map(useId);
+    return (await this.service.list({ user: req.user, groupId })).map(useId);
   }
 
   @Post(':groupId')

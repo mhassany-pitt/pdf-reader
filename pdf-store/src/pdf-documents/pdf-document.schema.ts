@@ -5,12 +5,12 @@ export type PDFDocumentDocument = HydratedDocument<PDFDocument>;
 
 @Schema()
 export class PDFDocument {
-  @Prop() owner_id: string;
+  @Prop() user_id: string;
   @Prop() title: string;
   @Prop() tags: [string];
   @Prop() file_id: string;
   @Prop() file_url: string;
-  @Prop() sections: [any];
+  @Prop() outline: [any];
   @Prop() created_at: string;
   @Prop() modified_at: string;
 }

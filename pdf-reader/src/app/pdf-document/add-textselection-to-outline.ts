@@ -1,7 +1,7 @@
 import { isLeftClick, htmlToElements, } from '../pdfjs-tools/annotator-utils';
 import { POPUP_ROW_ITEM_UI } from '../pdfjs-tools/annotator';
 
-export type Section = {
+export type Entry = {
   level: number,
   title: string,
   page: number,

@@ -16,7 +16,7 @@ export class PDFDocumentLinksService {
 
   async list({ user, pdfDocId }) {
     const list = await this.pdfDocLinks.find({
-      owner_id: user.id,
+      user_id: user.id,
       pdf_doc_id: pdfDocId
     });
     return list.map(toObject);
@@ -25,19 +25,19 @@ export class PDFDocumentLinksService {
   async create({ user, pdfDocId, pdfLink }) {
     return toObject(await this.pdfDocLinks.create({
       ...pdfLink,
-      owner_id: user.id,
+      user_id: user.id,
       pdf_doc_id: pdfDocId,
       created_at: new Date().toISOString()
     }));
   }
 
   async read({ user, id }) {
-    return toObject(await this.pdfDocLinks.findOne({ owner_id: user.id, _id: id }));
+    return toObject(await this.pdfDocLinks.findOne({ user_id: user.id, _id: id }));
   }
 
   async update({ user, id, pdfLink }) {
     await this.pdfDocLinks.updateOne(
-      { owner_id: user.id, _id: id },
+      { user_id: user.id, _id: id },
       { $set: { ...pdfLink } }
     );
     return this.read({ user, id });

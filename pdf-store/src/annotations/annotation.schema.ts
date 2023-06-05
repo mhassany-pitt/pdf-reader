@@ -5,7 +5,7 @@ export type AnnotationDocument = HydratedDocument<Annotation>;
 
 @Schema()
 export class Annotation {
-  @Prop() owner_id: string;
+  @Prop() user_id: string;
   @Prop() group_id: string;
 
   @Prop() type: string;

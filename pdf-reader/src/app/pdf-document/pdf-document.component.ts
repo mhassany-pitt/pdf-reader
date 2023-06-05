@@ -9,7 +9,7 @@ import { Annotator } from '../pdfjs-tools/annotator';
 import { FreeformAnnotator } from '../pdfjs-tools/freeform-annotator';
 import { EmbedResource } from '../pdfjs-tools/embed-resource';
 import { FreeformViewer } from '../pdfjs-tools/freeform-viewer';
-import { AddTextSelectionToOutline, Section } from './add-textselection-to-outline';
+import { AddTextSelectionToOutline, Entry } from './add-textselection-to-outline';
 import { EmbeddedResourceViewer } from '../pdfjs-tools/embedded-resource-viewer';
 import { EnableElemMovement } from '../pdfjs-tools/enable-elem-movement';
 import { TextLocator } from '../pdfjs-tools/text-locator';
@@ -53,7 +53,7 @@ export class PDFDocumentComponent implements OnInit {
     this.service.get(this.pdfDocumentId).subscribe({
       next: (pdfDocument: any) => {
         if (!pdfDocument.tags) pdfDocument.tags = [];
-        if (!pdfDocument.sections) pdfDocument.sections = [];
+        if (!pdfDocument.outline) pdfDocument.outline = [];
 
         this.pdfDocument = pdfDocument;
 
@@ -149,17 +149,17 @@ export class PDFDocumentComponent implements OnInit {
       });
   }
 
-  add(section: Section) {
-    this.pdfDocument.sections.push(section);
+  add(entry: Entry) {
+    this.pdfDocument.outline.push(entry);
   }
 
-  remove(section: Section) {
-    const sections = this.pdfDocument.sections;
-    sections.splice(sections.indexOf(section), 1);
+  remove(entry: Entry) {
+    const outline = this.pdfDocument.outline;
+    outline.splice(outline.indexOf(entry), 1);
   }
 
-  level(section: Section, change: number) {
-    section.level = Math.min(Math.max(0, (section.level || 0) + change), 5);
+  level(entry: Entry, change: number) {
+    entry.level = Math.min(Math.max(0, (entry.level || 0) + change), 5);
   }
 
   addToOutline(selection: any, $event: any) {
@@ -183,11 +183,11 @@ export class PDFDocumentComponent implements OnInit {
     this.add({ level, title, page, top, left, width, height });
 
     selection.removeAllRanges();
-    setTimeout(() => document.getElementById(`outline-title-${this.pdfDocument.sections.length - 1}`)?.focus(), 0);
+    setTimeout(() => document.getElementById(`outline-title-${this.pdfDocument.outline.length - 1}`)?.focus(), 0);
   }
 
-  scrollToSection(section: any) {
-    scrollTo(this.window.document, this.pdfjs, section);
+  scrollToEntry(entry: any) {
+    scrollTo(this.window.document, this.pdfjs, entry);
   }
 
   selectFile($event) {

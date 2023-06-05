@@ -38,8 +38,8 @@ export class PDFReaderController {
 
       try { // 3.1. fetch the config from the delegated url
         const resp = await axios.get(`${pdfLink.delegated_to_url}/${id}?user_id=${user?.id}`);
-        const { _id, owner_id, pdf_doc_id, created_at } = pdfLink;
-        pdfLink = { ...(resp.data), _id, owner_id, pdf_doc_id, created_at };
+        const { _id, user_id, pdf_doc_id, created_at } = pdfLink;
+        pdfLink = { ...(resp.data), _id, user_id, pdf_doc_id, created_at };
       } catch (exp) {
         console.error(exp);
         throw new NotFoundException();
@@ -60,7 +60,7 @@ export class PDFReaderController {
 
     // 6. find the org document and return it
     pdfDoc = await this.pdfReaderService.readPDFDoc({
-      user: { id: pdfLink.owner_id },
+      user: { id: pdfLink.user_id },
       id: pdfLink.pdf_doc_id,
     });
     pdfDoc.id = id;
@@ -75,9 +75,9 @@ export class PDFReaderController {
   async get(@Req() req: any, @Param('id') id: string) {
     const pdfDoc = await this._getOrFail({ user: req.user, id });
     delete pdfDoc.file_id;
-    delete pdfDoc.owner_id;
+    delete pdfDoc.user_id;
     if (pdfDoc.configs) {
-      delete pdfDoc.configs.owner_id;
+      delete pdfDoc.configs.user_id;
       delete pdfDoc.configs.pdf_doc_id;
     }
     return pdfDoc;

@@ -5,7 +5,7 @@ export type PDFFileDocument = HydratedDocument<PDFFile>;
 
 @Schema()
 export class PDFFile {
-  @Prop() owner_id: string;
+  @Prop() user_id: string;
   @Prop() originalname: string;
   @Prop() size: number;
 }

@@ -28,7 +28,7 @@ export class PDFReaderComponent implements OnInit {
   window: any;
   pdfjs: any;
 
-  section: any;
+  entry: any;
   pdfDocument: any;
   configs: any;
 
@@ -55,8 +55,8 @@ export class PDFReaderComponent implements OnInit {
       next: (pdfDocument: any) => {
         if (!pdfDocument.tags)
           pdfDocument.tags = [];
-        if (!pdfDocument.sections)
-          pdfDocument.sections = [];
+        if (!pdfDocument.outline)
+          pdfDocument.outline = [];
 
         this.configs = pdfDocument.configs;
         delete pdfDocument.configs;
@@ -101,7 +101,7 @@ export class PDFReaderComponent implements OnInit {
       url: `${environment.apiUrl}/pdf-reader/${this.pdfDocument.id}/file`,
       withCredentials: true
     });
-    this.syncPageSection();
+    this.syncPageOutline();
 
     const iframe = this.iframe;
     const pdfjs = this.pdfjs;
@@ -127,15 +127,15 @@ export class PDFReaderComponent implements OnInit {
       const rotation = this.qparams.rotation;
       if (rotation) this.pdfjs.pdfViewer.pagesRotation = parseFloat(rotation);
 
-      const sectionNum = this.qparams.section;
-      if (sectionNum && !isNaN(sectionNum)) {
-        const index = parseInt(sectionNum) - 1;
-        if (index >= 0 && index < this.pdfDocument.sections.length)
-          this.scrollToSection(this.pdfDocument.sections[index]);
+      const entryNum = this.qparams.section;
+      if (entryNum && !isNaN(entryNum)) {
+        const index = parseInt(entryNum) - 1;
+        if (index >= 0 && index < this.pdfDocument.outline.length)
+          this.scrollToEntry(this.pdfDocument.outline[index]);
       }
 
       const page = this.qparams.page;
-      if (!sectionNum && page) {
+      if (!entryNum && page) {
         scrollTo(this.iframe.contentDocument, this.pdfjs, {
           page: parseInt(page),
           top: this.qparams.top || 0,
@@ -224,12 +224,12 @@ export class PDFReaderComponent implements OnInit {
     }
   }
 
-  private syncPageSection() {
+  private syncPageOutline() {
     this.pdfjs.eventBus.on('pagechanging', ($event) => {
-      const sections = [...this.pdfDocument.sections];
-      for (const section of sections.sort((a, b) => b.page - a.page)) {
-        if (section.page <= $event.pageNumber) {
-          this.ngZone.run(() => this.section = section);
+      const outline = [...this.pdfDocument.outline];
+      for (const entry of outline.sort((a, b) => b.page - a.page)) {
+        if (entry.page <= $event.pageNumber) {
+          this.ngZone.run(() => this.entry = entry);
           break;
         }
       }
@@ -252,7 +252,7 @@ export class PDFReaderComponent implements OnInit {
     children[children.length - 1].remove();
   }
 
-  scrollToSection(section: any) {
-    scrollTo(this.window.document, this.pdfjs, section);
+  scrollToEntry(entry: any) {
+    scrollTo(this.window.document, this.pdfjs, entry);
   }
 }

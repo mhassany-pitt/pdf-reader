@@ -5,7 +5,7 @@ export type PDFDocumentLinkDocument = HydratedDocument<PDFDocumentLink>;
 
 @Schema()
 export class PDFDocumentLink {
-  @Prop() owner_id: string;
+  @Prop() user_id: string;
   @Prop() pdf_doc_id: string;
 
   @Prop() title: string;

@@ -16,7 +16,7 @@ export class PDFReaderService {
   ) { }
 
   async readPDFDoc({ user, id }) {
-    return toObject(await this.pdfDocs.findOne({ owner_id: user.id, _id: id }));
+    return toObject(await this.pdfDocs.findOne({ user_id: user.id, _id: id }));
   }
 
   async readPDFLink({ id }) {
