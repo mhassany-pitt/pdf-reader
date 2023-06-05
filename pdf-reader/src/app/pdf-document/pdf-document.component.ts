@@ -117,7 +117,7 @@ export class PDFDocumentComponent implements OnInit {
     const freeformViewer = new FreeformViewer({ iframe, pdfjs, storage, annotator, configs: { resize: true } });
     new FreeformAnnotator({
       iframe, pdfjs, storage, annotator, freeformViewer, configs: {
-        freeform_stroke_sizes: 'thin-1,normal-3,thick-5',
+        freeform_stroke_sizes: 'Thin-1,Normal-3,Thick-5',
         freeform_colors: '#ffd400,#ff6563,#5db221,#2ba8e8,#a28ae9,#e66df2,#f29823,#aaaaaa,black',
       }
     });

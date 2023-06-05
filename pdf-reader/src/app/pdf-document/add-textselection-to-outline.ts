@@ -27,6 +27,9 @@ export class AddTextSelectionToOutline {
         
         .pdf-reader__add2outline-btns button {
           flex-grow: 1;
+          display: flex;
+          align-items: center;
+          column-gap: 0.25rem;
         }
       <style>`
     ));
@@ -41,7 +44,11 @@ export class AddTextSelectionToOutline {
       if (selectionRects.length && isLeftClick($event)) {
         const containerEl = htmlToElements(
           `<div class="pdf-reader__add2outline-btns">
-            <button class="pdf-reader__add2outline-btn">add to outline</button>  
+            <button class="pdf-reader__add2outline-btn">
+              <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA2ElEQVR4AaTRtVUEURSAYdzduoACSHGnBTqgCNxdc+iAkATXCF33bHvYP7iz4/7O+cbnXasYW5wOpXzBqnTivEEI2ug96EOvQR863TZowzcKSCMrUijiRr6rdupBtRO3DGoxhhlMYVpMYR6DUs6w3QYtuMUnXvCGV9zjB2cSIIpabVYVyojcsAbwYHhWqVw0Yh3H2MMJVtCDNXl2hRS2cYkFbQmN8uEhdmWjZXRhRZ5d223gCavftgS5qUGtRo08b5DzqFUT3SNLkx3H6HWT0sjMTAhDsKVIAE45tRAc7R1PAAAAAElFTkSuQmCC" />
+            
+              <span>Add to Outline</span>
+            </button>  
           </div>`);
         const add2outlineBtnEl = containerEl.querySelector('button') as any;
         add2outlineBtnEl.onclick = ($event: any) => {

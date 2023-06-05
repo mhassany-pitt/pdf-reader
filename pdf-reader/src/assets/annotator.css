@@ -57,6 +57,7 @@
   padding: 0.3rem 0.5rem;
   box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;
   background: white;
+  text-align: left;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;

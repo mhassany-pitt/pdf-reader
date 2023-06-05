@@ -470,10 +470,10 @@ export class Annotator {
     this.register(POPUP_ROW_ITEM_UI, ($event: any) => {
       if (this._isPendingAnnotOrRect($event)) {
         const typeBtnHtmls: any = {};
-        if (this.configs.highlight) /*  */ typeBtnHtmls.highlight = '<span style="background: orange;">highlight</span>';
-        if (this.configs.underline) /*  */ typeBtnHtmls.underline = '<span style="text-decoration: underline;">underline</span>';
-        if (this.configs.linethrough) /**/ typeBtnHtmls.linethrough = '<span style="text-decoration: line-through;">line-through</span>';
-        if (this.configs.redact) /*     */ typeBtnHtmls.redact = '<span style="background: darkgray;">redact</span>';
+        if (this.configs.highlight) /*  */ typeBtnHtmls.highlight = '<span style="background: orange;">Highlight</span>';
+        if (this.configs.underline) /*  */ typeBtnHtmls.underline = '<span style="text-decoration: underline;">Underline</span>';
+        if (this.configs.linethrough) /**/ typeBtnHtmls.linethrough = '<span style="text-decoration: line-through;">Line through</span>';
+        if (this.configs.redact) /*     */ typeBtnHtmls.redact = '<span style="background: darkgray;">Redact</span>';
 
         if (Object.keys(typeBtnHtmls).length < 1)
           return null;

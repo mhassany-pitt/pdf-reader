@@ -27,6 +27,12 @@
   flex-grow: 1;
 }
 
+.pdfjs-annotation-freeform__toggle-btns button {
+  display: flex;
+  align-items: center;
+  column-gap: 0.25rem;
+}
+
 .pdfjs-annotation-freeform__color-btns button {
   height: 0.75rem;
   border-width: 1px;

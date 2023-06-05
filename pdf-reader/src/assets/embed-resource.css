@@ -17,6 +17,9 @@
 
 .pdfjs-embed-resource__embed-btns button {
   flex-grow: 1;
+  display: flex;
+  align-items: center;
+  column-gap: 0.25rem;
 }
 
 .pdfjs-annotation__embed:active {
@@ -46,12 +49,8 @@
   display: flex;
 }
 
-.pdfjs-embed-resource__resource-url span,
-.pdfjs-embed-resource__thumbnail-url span {
-  width: 5rem;
-}
-
 .pdfjs-embed-resource__resource-url input,
 .pdfjs-embed-resource__thumbnail-url input {
   flex-grow: 1;
+  margin-left: 0.125rem;
 }

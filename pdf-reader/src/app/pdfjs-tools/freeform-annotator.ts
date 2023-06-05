@@ -85,7 +85,8 @@ export class FreeformAnnotator {
 
       const buttonEl = htmlToElements(
         `<button type="button" class="pdfjs-annotation-freeform__${this.enabled ? 'end-btn' : 'start-btn'}">
-          ${this.enabled ? 'end free hand' : 'start free hand'}
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABFElEQVR4AWJwL/ChCJOugQFQOR1AdAxEcRzfrtWomCBBABCAJBCJgAAgNQgwAAgAAklMCFYqQAABEBFIEkgLVkoCIUCo73jLz22HHh//7dn73e5vF42YuBdAuVZgMG71ntcH5DoJDVMlzga3QM1iIvRW1BHuzflfgKQf4gvb3X5luMKTBH+j6L0yNYMGa9KrUGPM7ndwi2ldfRSLyPGBZeuf4FGGd/GCTLewhRo3uMKm9U+9lffQYFwWjebxiiXvzytxh9Tu9/Gsw/YbrePBG17AD1bt/mBouAtIcYl3FNYsLOANF6gxqcMdXTXHhl0fW8AnrpHpsNIvUJtzWMGUnoHwYbJ0OST+Z+z+dRophwROAgf9Av3htycKGTnjAAAAAElFTkSuQmCC"/>
+          <span>${this.enabled ? 'End Freehand' : 'Start Freehand'}<span>
         </button>`);
       containerEl.appendChild(buttonEl);
       buttonEl.onclick = ($ev) => {
