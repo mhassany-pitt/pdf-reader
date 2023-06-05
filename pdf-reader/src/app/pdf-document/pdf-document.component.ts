@@ -15,6 +15,7 @@ import { EnableElemMovement } from '../pdfjs-tools/enable-elem-movement';
 import { TextLocator } from '../pdfjs-tools/text-locator';
 import { HttpClient } from '@angular/common/http';
 import { scrollTo } from '../pdfjs-tools/pdfjs-utils';
+import { AppService } from '../app.service';
 
 @Component({
   selector: 'app-pdf-document',
@@ -45,6 +46,7 @@ export class PDFDocumentComponent implements OnInit {
     private route: ActivatedRoute,
     private service: PDFDocumentService,
     private title: Title,
+    private app: AppService,
   ) { }
 
   ngOnInit(): void {
@@ -87,6 +89,16 @@ export class PDFDocumentComponent implements OnInit {
     this.window = this.iframe.contentWindow;
     this.pdfjs = this.window.PDFViewerApplication;
     this.removeExtraElements();
+
+    // load annotations first so can be rendered on document load
+    const storage = new AnnotationStorage({
+      app: this.app,
+      api: `${environment.apiUrl}/annotations`,
+      http: this.http,
+      groupId: this.pdfDocumentId,
+    });
+    await storage.load();
+
     await this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });
     this.pdfjs.eventBus.on('fileinputchange', ($event) => this.ngZone.run(() => {
       const files = $event.source.files;
@@ -96,11 +108,6 @@ export class PDFDocumentComponent implements OnInit {
 
     const iframe = this.iframe;
     const pdfjs = this.pdfjs;
-    const storage = new AnnotationStorage({
-      http: this.http,
-      groupId: this.pdfDocumentId,
-      annotationApi: `${environment.apiUrl}/annotations`,
-    });
     const annotator = new Annotator({
       iframe, pdfjs, storage, configs: {
         highlight: true, underline: true, linethrough: true, redact: true, notes: true,

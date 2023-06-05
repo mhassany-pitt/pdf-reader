@@ -93,7 +93,11 @@
   flex-grow: 1;
 }
 
-.pdfjs-annotation-popup__annot-note {
+span.pdfjs-annotation-popup__annot-note {
+  max-width: 480px;
+}
+
+textarea.pdfjs-annotation-popup__annot-note {
   width: 100%;
 }
 

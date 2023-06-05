@@ -137,5 +137,3 @@ export class PDFDocumentLinksComponent implements OnInit {
     });
   }
 }
-
-// TODO: add link config delegation to 3rd party service

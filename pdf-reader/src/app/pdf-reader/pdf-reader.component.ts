@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { PDFReaderService } from './pdf-reader.service';
 import { Annotator } from '../pdfjs-tools/annotator';
-import { Annotation, AnnotationStorage } from '../pdfjs-tools/annotator-storage';
+import { AnnotationStorage } from '../pdfjs-tools/annotator-storage';
 import { FreeformAnnotator } from '../pdfjs-tools/freeform-annotator';
 import { EmbeddedResourceViewer } from '../pdfjs-tools/embedded-resource-viewer';
 import { FreeformViewer } from '../pdfjs-tools/freeform-viewer';
@@ -87,6 +87,16 @@ export class PDFReaderComponent implements OnInit {
     this.window = this.iframe.contentWindow;
     this.pdfjs = this.window.PDFViewerApplication;
     this.removeExtraElements();
+
+    // load annotations first so can be rendered on document load
+    const storage = new AnnotationStorage({
+      app: this.app,
+      api: this.configs?.annotation_api,
+      http: this.http,
+      groupId: this.pdfDocumentId,
+    });
+    await storage.load();
+
     await this.pdfjs.open({
       url: `${environment.apiUrl}/pdf-reader/${this.pdfDocument.id}/file`,
       withCredentials: true
@@ -99,12 +109,11 @@ export class PDFReaderComponent implements OnInit {
     this.applyConfigFromQParams();
 
     this.setupInteractionLogger(iframe, pdfjs);
-    const storage = this.setupAnnotStorage();
     const annotator = this.setupAnnotator(iframe, pdfjs, storage);
     const freeformViewer = this.setupFreeform(iframe, pdfjs, annotator, storage);
     const embedLinkViewer = this.setupEmbedResource(iframe, pdfjs, annotator, storage);
 
-    if (embedLinkViewer || freeformViewer)
+    if (this.configs?.embed_resource || this.configs?.freeform)
       new EnableElemMovement({ iframe, embedLinkViewer, freeformViewer, storage });
   }
 
@@ -118,8 +127,15 @@ export class PDFReaderComponent implements OnInit {
       const rotation = this.qparams.rotation;
       if (rotation) this.pdfjs.pdfViewer.pagesRotation = parseFloat(rotation);
 
+      const sectionNum = this.qparams.section;
+      if (sectionNum && !isNaN(sectionNum)) {
+        const index = parseInt(sectionNum) - 1;
+        if (index >= 0 && index < this.pdfDocument.sections.length)
+          this.scrollToSection(this.pdfDocument.sections[index]);
+      }
+
       const page = this.qparams.page;
-      if (page) {
+      if (!sectionNum && page) {
         scrollTo(this.iframe.contentDocument, this.pdfjs, {
           page: parseInt(page),
           top: this.qparams.top || 0,
@@ -168,6 +184,7 @@ export class PDFReaderComponent implements OnInit {
   private setupAnnotator(iframe, pdfjs, storage) {
     return new Annotator({
       iframe, pdfjs, storage, configs: {
+        onleftclick: true,
         highlight: this.configs?.highlight,
         underline: this.configs?.underline,
         linethrough: this.configs?.linethrough,
@@ -175,14 +192,6 @@ export class PDFReaderComponent implements OnInit {
         notes: this.configs?.notes,
         annotation_colors: this.configs?.annotation_colors,
       }
-    });
-  }
-
-  private setupAnnotStorage() {
-    return new AnnotationStorage({
-      http: this.http,
-      groupId: this.pdfDocumentId,
-      annotationApi: this.configs?.annotation_api,
     });
   }
 
@@ -217,7 +226,8 @@ export class PDFReaderComponent implements OnInit {
 
   private syncPageSection() {
     this.pdfjs.eventBus.on('pagechanging', ($event) => {
-      for (const section of this.pdfDocument.sections.sort((a, b) => b.page - a.page)) {
+      const sections = [...this.pdfDocument.sections];
+      for (const section of sections.sort((a, b) => b.page - a.page)) {
         if (section.page <= $event.pageNumber) {
           this.ngZone.run(() => this.section = section);
           break;

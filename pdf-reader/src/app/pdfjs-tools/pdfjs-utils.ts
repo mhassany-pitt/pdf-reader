@@ -4,9 +4,10 @@ export const scrollTo = (document, pdfjs, { page, top, left }) => {
   if (pdfjs.pdfViewer.scrollMode == 3)
     pdfjs.page = page; // for certain page layout, set page first
   const pageEl = document.querySelector(`.pdfViewer .page[data-page-number="${page}"]`);
+  const { width, height } = pageEl.getBoundingClientRect();
   document.getElementById('viewerContainer').scrollTo({
-    top: pageEl.offsetTop + (top * pageEl.offsetHeight) - 32,
-    left: pageEl.offsetLeft + (left * pageEl.offsetWidth) - 32,
+    top: pageEl.offsetTop + (top ? top / 100 * height : -32),
+    left: pageEl.offsetLeft + (left ? left / 100 * width : -32),
     behavior: 'smooth'
   });
 }

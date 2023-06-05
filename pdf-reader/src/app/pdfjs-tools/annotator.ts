@@ -422,17 +422,22 @@ export class Annotator {
     const selectionRects = getSelectionRects(this.document, this.pdfjs);
     const isPendingAnnot = this.pending && selectionRects && Object.keys(selectionRects).length;
     const isAnnotRect = $event.target.classList.contains('pdfjs-annotation__rect');
-    return isPendingAnnot || (isAnnotRect && isRightClick($event));
+    return isPendingAnnot || (isAnnotRect && (
+      (this.configs.onleftclick && isLeftClick($event)) || isRightClick($event)
+    ));
   }
 
   private _registerPopupAnnotNoteItemUI() {
     this.register(POPUP_ROW_ITEM_UI, ($event: any) => {
       if (this._isPendingAnnotOrRect($event)) {
         const annot = this.pending || this.storage.read($event.target.getAttribute('data-annotation-id'));
-        const noteEl = htmlToElements(`<textarea class="pdfjs-annotation-popup__annot-note" rows="5" 
-          ${this.configs.notes ? '' : 'disabled'}>${annot.note || ''}</textarea>`);
-        noteEl.onchange = ($ev: any) => this._setAnnotationAttr(annot, 'note', $ev.target.value);
-        return noteEl;
+        if (this.configs.notes) {
+          const noteEl = htmlToElements(`<textarea class="pdfjs-annotation-popup__annot-note" rows="5">${annot.note || ''}</textarea>`);
+          noteEl.onchange = ($ev: any) => this._setAnnotationAttr(annot, 'note', $ev.target.value);
+          return noteEl;
+        } else if (annot.note) {
+          return htmlToElements(`<span class="pdfjs-annotation-popup__annot-note">${annot.note}</span>`);
+        }
       }
       return null as any;
     });
@@ -441,6 +446,12 @@ export class Annotator {
   private _registerPopupAnnotColorItemUI() {
     this.register(POPUP_ROW_ITEM_UI, ($event: any) => {
       if (this._isPendingAnnotOrRect($event)) {
+        if (!this.configs.highlight
+          && !this.configs.underline
+          && !this.configs.linethrough
+          && !this.configs.redact)
+          return null;
+
         const annot = this.pending || this.storage.read($event.target.getAttribute('data-annotation-id'));
         const colorsEl = htmlToElements(`<div class="pdfjs-annotation-popup__annot-color-btns"></div>`);
         this.configs.annotation_colors.split(',').forEach(color => {
