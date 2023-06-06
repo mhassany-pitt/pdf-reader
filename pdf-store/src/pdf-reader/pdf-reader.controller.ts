@@ -1,11 +1,14 @@
 import {
   Controller, ForbiddenException, Get,
-  NotFoundException, Param, Req, Res, UnauthorizedException
+  NotFoundException, Param, Req, Res,
+  UnauthorizedException
 } from '@nestjs/common';
 import axios from 'axios';
 import { useId } from 'src/utils';
 import { Response } from 'express';
 import { PDFReaderService } from './pdf-reader.service';
+import { createHash } from 'node:crypto';
+import { existsSync, writeFileSync } from 'fs-extra';
 
 @Controller('pdf-reader')
 export class PDFReaderController {
@@ -80,12 +83,24 @@ export class PDFReaderController {
   async download(@Req() req: any, @Res() res: Response, @Param('id') id: string) {
     const pdfDoc = await this._getOrFail({ user: req.user, id });
     res.setHeader('Content-Type', 'application/pdf');
+
+    let path: string = null;
     if (pdfDoc.file_url) {
-      const resp = await axios.get(pdfDoc.file_url, { responseType: 'arraybuffer' });
-      res.send(resp.data);
+      path = this.pdfReaderService.getFilePath({
+        id: createHash('sha256').update(pdfDoc.file_url).digest('hex')
+      });
+      // cache the file_url to local storage (path)
+      if (!existsSync(path)) {
+        writeFileSync(path,
+          (await axios.get(pdfDoc.file_url, { responseType: 'arraybuffer' })).data,
+          { encoding: 'binary' });
+      }
     } else {
-      const path = this.pdfReaderService.getFilePath({ id: pdfDoc.file_id });
-      res.sendFile(path, { root: '.' });
+      path = this.pdfReaderService.getFilePath({ id: pdfDoc.file_id });
     }
+
+    if (!path || !existsSync(path))
+      throw new NotFoundException();
+    res.sendFile(path, { root: '.' });
   }
 }
