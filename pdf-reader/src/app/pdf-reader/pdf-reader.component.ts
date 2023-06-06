@@ -115,6 +115,24 @@ export class PDFReaderComponent implements OnInit {
 
     if (this.configs?.embed_resource || this.configs?.freeform)
       new EnableElemMovement({ iframe, embedLinkViewer, freeformViewer, storage });
+
+    this.loadCustomPlugins(annotator);
+  }
+
+  private loadCustomPlugins(annotator: Annotator) {
+    this.configs.custom_plugins.split('\n').forEach((each: string) => {
+      const parts = each.split(',', 2);
+      var script = document.createElement('script');
+      script.src = parts[1];
+      script.onload = () => {
+        this.iframe.contentWindow[parts[0]]({
+          iframe: this.iframe,
+          pdfjs: this.pdfjs,
+          annotator,
+        });
+      };
+      this.iframe.contentDocument.head.appendChild(script);
+    });
   }
 
   private applyConfigFromQParams() {

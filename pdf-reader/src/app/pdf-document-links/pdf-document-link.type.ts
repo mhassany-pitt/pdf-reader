@@ -31,4 +31,5 @@ export type PDFDocumentLink = {
   interaction_logger_api: string,
   // --- 
   authorized_accounts: string,
+  custom_plugins: string,
 };
