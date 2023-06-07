@@ -37,6 +37,7 @@ export class PDFReaderComponent implements OnInit {
 
   get params() { return this.route.snapshot.params as any; }
   get qparams() { return this.route.snapshot.queryParams as any; }
+  get qparamsString() { return location.href.split('?').reverse()[0]; }
   get pdfDocumentId() { return this.params.id; }
 
   constructor(
@@ -54,8 +55,7 @@ export class PDFReaderComponent implements OnInit {
   }
 
   private reload() {
-    // TODO: pass query params (prefixed by e.g.: annot) to api
-    this.service.get(this.pdfDocumentId).subscribe({
+    this.service.get(`${this.pdfDocumentId}?${this.qparamsString}`).subscribe({
       next: (pdfDocument: any) => {
         if (!pdfDocument.tags)
           pdfDocument.tags = [];
@@ -103,7 +103,7 @@ export class PDFReaderComponent implements OnInit {
     await storage.load();
 
     await this.pdfjs.open({
-      url: `${environment.apiUrl}/pdf-reader/${this.pdfDocument.id}/file`,
+      url: `${environment.apiUrl}/pdf-reader/${this.pdfDocument.id}/file?${this.qparamsString}`,
       withCredentials: true
     });
     this.syncPageOutline();
@@ -147,7 +147,7 @@ export class PDFReaderComponent implements OnInit {
     const onDocumentLoad = ($event: any) => {
       this.pdfjs.eventBus.off('textlayerrendered', onDocumentLoad);
 
-      // apply configs from query params or viewer configs
+      // apply configs from query params OR viewer configs
       const viewer = this.configs.viewer || {};
 
       const zoom = this.qparams.zoom || viewer.zoom;

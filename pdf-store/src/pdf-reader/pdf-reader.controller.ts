@@ -17,7 +17,7 @@ export class PDFReaderController {
     private pdfReaderService: PDFReaderService,
   ) { }
 
-  private async _getOrFail({ user, id }) {
+  private async _getOrFail({ user, id, req }) {
     let pdfDoc: any = null;
     if (user) { // 1. user is the author
       pdfDoc = await this.pdfReaderService.readPDFDoc({ user: user, id });
@@ -33,7 +33,13 @@ export class PDFReaderController {
         throw new NotFoundException();
 
       try { // 3.1. fetch the config from the delegated url
-        const resp = await axios.get(`${pdfLink.delegated_to_url}/${id}?user_id=${user?.id}`);
+        let url = `${pdfLink.delegated_to_url}/${id}?user_id=${user?.id}`;
+
+        const qparams = req.url.split('?').reverse()[0];
+        if (qparams) // 3.2. append the query params (except user_id)
+          url += `&${qparams.split('&').filter(q => !q.startsWith('user_id=')).join('&')}`;
+
+        const resp = await axios.get(url);
         const { _id, user_id, pdf_doc_id, created_at } = pdfLink;
         pdfLink = { ...(resp.data), _id, user_id, pdf_doc_id, created_at };
       } catch (exp) {
@@ -71,7 +77,7 @@ export class PDFReaderController {
 
   @Get(':id')
   async get(@Req() req: any, @Param('id') id: string) {
-    const pdfDoc = await this._getOrFail({ user: req.user, id });
+    const pdfDoc = await this._getOrFail({ user: req.user, id, req });
     delete pdfDoc.user_id;
     delete pdfDoc.file_id;
     delete pdfDoc.file_url;
@@ -84,7 +90,7 @@ export class PDFReaderController {
 
   @Get(':id/file')
   async download(@Req() req: any, @Res() res: Response, @Param('id') id: string) {
-    const pdfDoc = await this._getOrFail({ user: req.user, id });
+    const pdfDoc = await this._getOrFail({ user: req.user, id, req });
     res.setHeader('Content-Type', 'application/pdf');
 
     let path: string = null;
