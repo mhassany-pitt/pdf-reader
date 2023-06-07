@@ -13,7 +13,19 @@ cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 def delegation():
     # in your system, this api should return the delegated configuration for the pdf link
     user_id = request.query.user_id  # use for auth
-    return {"published": True}
+    configs = {"published": True}
+    # --- following can also be defined by delegated configuration ---
+    # configs["viewer"] = {
+    #     "zoom": 0,
+    #     "rotation": 0,
+    #     "section": 0,
+    #     "page": 0,
+    #     "pagetop": 0,
+    #     "pageleft": 0,
+    #     "scrollmode": 0,
+    #     "spreadmode": 0,
+    # }
+    return configs
 
 
 @app.route("/api/annotations/<pdfDocId>")

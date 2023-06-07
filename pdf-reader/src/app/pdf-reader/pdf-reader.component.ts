@@ -54,6 +54,7 @@ export class PDFReaderComponent implements OnInit {
   }
 
   private reload() {
+    // TODO: pass query params (prefixed by e.g.: annot) to api
     this.service.get(this.pdfDocumentId).subscribe({
       next: (pdfDocument: any) => {
         if (!pdfDocument.tags)
@@ -146,32 +147,35 @@ export class PDFReaderComponent implements OnInit {
     const onDocumentLoad = ($event: any) => {
       this.pdfjs.eventBus.off('textlayerrendered', onDocumentLoad);
 
-      const zoom = this.qparams.zoom;
+      // apply configs from query params or viewer configs
+      const viewer = this.configs.viewer || {};
+
+      const zoom = this.qparams.zoom || viewer.zoom;
       if (zoom) this.pdfjs.pdfViewer.currentScale = zoom;
 
-      const rotation = this.qparams.rotation;
+      const rotation = this.qparams.rotation || viewer.rotation;
       if (rotation) this.pdfjs.pdfViewer.pagesRotation = parseFloat(rotation);
 
-      const entryNum = this.qparams.section;
+      const entryNum = this.qparams.section || viewer.section;
       if (entryNum && !isNaN(entryNum)) {
         const index = parseInt(entryNum) - 1;
         if (index >= 0 && index < this.pdfDocument.outline.length)
           this.scrollToEntry(this.pdfDocument.outline[index]);
       }
 
-      const page = this.qparams.page;
+      const page = this.qparams.page || viewer.page;
       if (!entryNum && page) {
         scrollTo(this.iframe.contentDocument, this.pdfjs, {
           page: parseInt(page),
-          top: this.qparams.top || 0,
-          left: this.qparams.left || 0
+          top: this.qparams.pagetop || viewer.pagetop || 0,
+          left: this.qparams.pageleft || viewer.pageleft || 0
         });
       }
 
-      const scrollmode = this.qparams.scrollmode;
+      const scrollmode = this.qparams.scrollmode || viewer.scrollmode;
       if (scrollmode) this.pdfjs.pdfViewer.scrollMode = parseInt(scrollmode);
 
-      const spreadmode = this.qparams.spreadmode;
+      const spreadmode = this.qparams.spreadmode || viewer.spreadmode;
       if (spreadmode) this.pdfjs.pdfViewer.spreadMode = parseInt(spreadmode);
     };
     this.pdfjs.eventBus.on('textlayerrendered', onDocumentLoad);
@@ -281,5 +285,3 @@ export class PDFReaderComponent implements OnInit {
     scrollTo(this.window.document, this.pdfjs, entry);
   }
 }
-
-// TODO: pass query params prefixed with annot_ to annotation api

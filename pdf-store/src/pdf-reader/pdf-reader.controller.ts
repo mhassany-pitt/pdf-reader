@@ -54,6 +54,8 @@ export class PDFReaderController {
     if (accounts?.length && !accounts.includes(user.email))
       throw new UnauthorizedException();
 
+    // TODO: do we need to delegate pdf_doc to 3rd party api?
+
     // 6. find the org document and return it
     pdfDoc = await this.pdfReaderService.readPDFDoc({
       user: { id: pdfLink.user_id },
@@ -70,8 +72,9 @@ export class PDFReaderController {
   @Get(':id')
   async get(@Req() req: any, @Param('id') id: string) {
     const pdfDoc = await this._getOrFail({ user: req.user, id });
-    delete pdfDoc.file_id;
     delete pdfDoc.user_id;
+    delete pdfDoc.file_id;
+    delete pdfDoc.file_url;
     if (pdfDoc.configs) {
       delete pdfDoc.configs.user_id;
       delete pdfDoc.configs.pdf_doc_id;

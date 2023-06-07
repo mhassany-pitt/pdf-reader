@@ -82,7 +82,6 @@ export const mergeRects = (rects: WHRect[]): WHRect[] => {
   let $rects = rects.map(({ top, right, bottom, left, width, height }) =>
     ({ top, right, bottom, left, width, height })) as IgnorableRect[];
   $rects = $rects.sort((a, b) => (a.width * a.height) - (b.width * b.height));
-  // TODO: using 'ignore' may not be efficient
 
   // merge horizontal rects
   for (var i = 1; i < $rects.length; i++)
