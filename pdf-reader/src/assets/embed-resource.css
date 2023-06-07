@@ -26,10 +26,17 @@
   cursor: grabbing;
 }
 
-.pdfjs-embed-resource__popup {
-  row-gap: 2px;
-  padding-left: 10px;
-  box-sizing: border-box;
+.pdfjs-embed-resource__title {
+  font-weight: bold;
+}
+
+.pdfjs-embed-resource__controls {
+  width: 15rem;
+  display: flex;
+  flex-direction: column;
+  border-left: solid 2px #ccc;
+  padding-left: 0.5rem;
+  gap: 0.25rem;
 }
 
 .pdfjs-embed-resource__target-size-options {
@@ -38,10 +45,6 @@
 
 .pdfjs-embed-resource__custom-size-option input[type="text"] {
   width: 40px;
-}
-
-.pdfjs-embed-resource__resource-url {
-  margin-left: -10px;
 }
 
 .pdfjs-embed-resource__resource-url,

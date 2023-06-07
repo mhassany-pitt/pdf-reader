@@ -193,45 +193,48 @@ export class EmbedResource {
 
     return htmlToElements
       (`<div class="pdfjs-embed-resource__popup">
-          <div class="pdfjs-embed-resource__resource-url">
-            <span>Resource:</span>
-            <input type="text" placeholder="url" value="${annot.resource || ''}" autocomplete="off"/>
-          </div>
-          <div class="pdfjs-embed-resource__inline-iframe-option">
-            <input id="${id}-inline-iframe" type="radio" name="pdfjs-embed-resource-target" ${checked(annot.target == 'inline-iframe')}/>
-            <label for="${id}-inline-iframe">Embed Inline</label>
-          </div>
-          <div class="pdfjs-embed-resource__popup-iframe-option">
-            <input id="${id}-popup-iframe" type="radio" name="pdfjs-embed-resource-target" ${checked(annot.target == 'popup-iframe')}/>
-            <label for="${id}-popup-iframe">Open in Popup</label>
-          </div>
-          <div class="pdfjs-embed-resource__target-size-options" 
-            style="${annot.target != 'popup-iframe' ? 'display: none;' : ''}">
-            <div class="pdfjs-embed-resource__fullscreen-option">
-              <input id="${id}-fullscreen" type="radio" name="target-size" ${fullscreen}/>
-              <label for="${id}-fullscreen">Fullscreen</label>
+          <div class="pdfjs-embed-resource__title">Embedded Resource</div>
+          <div class="pdfjs-embed-resource__controls"> 
+            <div class="pdfjs-embed-resource__resource-url">
+              <span>Resource:</span>
+              <input type="text" placeholder="url" value="${annot.resource || ''}" autocomplete="off"/>
             </div>
-            <div class="pdfjs-embed-resource__fullpage-option">
-              <input id="${id}-fullpage" type="radio" name="target-size" ${fullpage}/>
-              <label for="${id}-fullpage">Fullpage</label>
+            <div class="pdfjs-embed-resource__inline-iframe-option">
+              <input id="${id}-inline-iframe" type="radio" name="pdfjs-embed-resource-target" ${checked(annot.target == 'inline-iframe')}/>
+              <label for="${id}-inline-iframe">Embed Inline</label>
             </div>
-            <div class="pdfjs-embed-resource__custom-size-option">
-              <input id="${id}-custom" type="radio" name="target-size" ${custom}/>
-              <label for="${id}-custom">
-                <span>Custom width:</span>
-                <input type="text" placeholder="640px" value="${customTargetSize[0]}" ${custom ? '' : 'disabled'} />
-                <span> height:</span>
-                <input type="text" placeholder="480px" value="${customTargetSize[1]}" ${custom ? '' : 'disabled'} />
-              </label>
+            <div class="pdfjs-embed-resource__popup-iframe-option">
+              <input id="${id}-popup-iframe" type="radio" name="pdfjs-embed-resource-target" ${checked(annot.target == 'popup-iframe')}/>
+              <label for="${id}-popup-iframe">Open in Popup</label>
             </div>
-          </div>
-          <div class="pdfjs-embed-resource__new-page-option">
-            <input id="${id}-new-page" type="radio" name="pdfjs-embed-resource-target" ${checked(annot.target == 'new-page')}/>
-            <label for="${id}-new-page">Open in New Page</label>
-          </div>
-          <div class="pdfjs-embed-resource__thumbnail-url">
-            <span>Thumbnail:</span>
-            <input type="text" placeholder="url" value="${annot.thumbnail || ''}" autocomplete="off"/>
+            <div class="pdfjs-embed-resource__target-size-options" 
+              style="${annot.target != 'popup-iframe' ? 'display: none;' : ''}">
+              <div class="pdfjs-embed-resource__fullscreen-option">
+                <input id="${id}-fullscreen" type="radio" name="target-size" ${fullscreen}/>
+                <label for="${id}-fullscreen">Fullscreen</label>
+              </div>
+              <div class="pdfjs-embed-resource__fullpage-option">
+                <input id="${id}-fullpage" type="radio" name="target-size" ${fullpage}/>
+                <label for="${id}-fullpage">Fullpage</label>
+              </div>
+              <div class="pdfjs-embed-resource__custom-size-option">
+                <input id="${id}-custom" type="radio" name="target-size" ${custom}/>
+                <label for="${id}-custom">
+                  <span>Custom width:</span>
+                  <input type="text" placeholder="640px" value="${customTargetSize[0]}" ${custom ? '' : 'disabled'} />
+                  <span> height:</span>
+                  <input type="text" placeholder="480px" value="${customTargetSize[1]}" ${custom ? '' : 'disabled'} />
+                </label>
+              </div>
+            </div>
+            <div class="pdfjs-embed-resource__new-page-option">
+              <input id="${id}-new-page" type="radio" name="pdfjs-embed-resource-target" ${checked(annot.target == 'new-page')}/>
+              <label for="${id}-new-page">Open in New Page</label>
+            </div>
+            <div class="pdfjs-embed-resource__thumbnail-url">
+              <span>Thumbnail:</span>
+              <input type="text" placeholder="url" value="${annot.thumbnail || ''}" autocomplete="off"/>
+            </div>
           </div>
         </div>`);
   }

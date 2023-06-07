@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { PDFReaderService } from './pdf-reader.service';
 import { Annotator } from '../pdfjs-tools/annotator';
-import { AnnotationStorage } from '../pdfjs-tools/annotator-storage';
+import { Annotation, AnnotationStorage } from '../pdfjs-tools/annotator-storage';
 import { FreeformAnnotator } from '../pdfjs-tools/freeform-annotator';
 import { EmbeddedResourceViewer } from '../pdfjs-tools/embedded-resource-viewer';
 import { FreeformViewer } from '../pdfjs-tools/freeform-viewer';
@@ -13,7 +13,7 @@ import { HttpClient } from '@angular/common/http';
 import { EmbedResource } from '../pdfjs-tools/embed-resource';
 import { EnableElemMovement } from '../pdfjs-tools/enable-elem-movement';
 import { AppService } from '../app.service';
-import { inSameOrigin, scrollTo } from '../pdfjs-tools/pdfjs-utils';
+import { inSameOrigin, loadPlugin, scrollTo } from '../pdfjs-tools/pdfjs-utils';
 
 @Component({
   selector: 'app-pdf-reader',
@@ -31,6 +31,9 @@ export class PDFReaderComponent implements OnInit {
   entry: any;
   pdfDocument: any;
   configs: any;
+
+  storage: AnnotationStorage<Annotation> = null as any;
+  annotator: Annotator = null as any;
 
   get params() { return this.route.snapshot.params as any; }
   get qparams() { return this.route.snapshot.queryParams as any; }
@@ -95,6 +98,7 @@ export class PDFReaderComponent implements OnInit {
       http: this.http,
       groupId: this.pdfDocumentId,
     });
+    this.storage = storage;
     await storage.load();
 
     await this.pdfjs.open({
@@ -110,28 +114,31 @@ export class PDFReaderComponent implements OnInit {
 
     this.setupInteractionLogger(iframe, pdfjs);
     const annotator = this.setupAnnotator(iframe, pdfjs, storage);
+    this.annotator = annotator;
     const freeformViewer = this.setupFreeform(iframe, pdfjs, annotator, storage);
     const embedLinkViewer = this.setupEmbedResource(iframe, pdfjs, annotator, storage);
 
     if (this.configs?.embed_resource || this.configs?.freeform)
       new EnableElemMovement({ iframe, embedLinkViewer, freeformViewer, storage });
 
-    this.loadCustomPlugins(annotator);
+    this.loadPlugins(annotator);
   }
 
-  private loadCustomPlugins(annotator: Annotator) {
-    this.configs.custom_plugins.split('\n').forEach((each: string) => {
-      const parts = each.split(',', 2);
-      var script = document.createElement('script');
-      script.src = parts[1];
-      script.onload = () => {
-        this.iframe.contentWindow[parts[0]]({
+  private loadPlugins(annotator: Annotator) {
+    this.configs.custom_plugins.split('\n').forEach((url: string) => {
+      try {
+        loadPlugin({
+          url,
           iframe: this.iframe,
           pdfjs: this.pdfjs,
-          annotator,
-        });
-      };
-      this.iframe.contentDocument.head.appendChild(script);
+          storage: this.storage,
+          annotator: this.annotator,
+          loaded: () => { },
+          failed: () => { },
+        })
+      } catch (exp) {
+        console.error(exp);
+      }
     });
   }
 
@@ -274,3 +281,5 @@ export class PDFReaderComponent implements OnInit {
     scrollTo(this.window.document, this.pdfjs, entry);
   }
 }
+
+// TODO: pass query params prefixed with annot_ to annotation api

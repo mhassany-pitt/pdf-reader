@@ -15,3 +15,15 @@ export const scrollTo = (document, pdfjs, { page, top, left }) => {
 export const inSameOrigin = (api: string) => {
   return api.startsWith(window.location.origin) || api.startsWith(environment.apiUrl);
 }
+
+export const loadPlugin = ({ url, iframe, pdfjs, storage, annotator, loaded, failed }) => {
+  const funcName = url.split('/').reverse()[0].replace('.js', '').replaceAll('-', '_');
+  var script = iframe.contentDocument.createElement('script');
+  script.src = url;
+  script.onload = () => {
+    iframe.contentWindow[funcName]({ iframe, pdfjs, storage, annotator });
+    loaded?.();
+  }
+  script.onerror = () => failed?.();
+  iframe.contentDocument.head.appendChild(script);
+}

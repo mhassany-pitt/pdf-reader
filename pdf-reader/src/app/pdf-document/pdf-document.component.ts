@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { PDFDocumentService } from './pdf-document.service';
-import { AnnotationStorage } from '../pdfjs-tools/annotator-storage';
+import { Annotation, AnnotationStorage } from '../pdfjs-tools/annotator-storage';
 import { Annotator } from '../pdfjs-tools/annotator';
 import { FreeformAnnotator } from '../pdfjs-tools/freeform-annotator';
 import { EmbedResource } from '../pdfjs-tools/embed-resource';
@@ -14,8 +14,9 @@ import { EmbeddedResourceViewer } from '../pdfjs-tools/embedded-resource-viewer'
 import { EnableElemMovement } from '../pdfjs-tools/enable-elem-movement';
 import { TextLocator } from '../pdfjs-tools/text-locator';
 import { HttpClient } from '@angular/common/http';
-import { scrollTo } from '../pdfjs-tools/pdfjs-utils';
+import { loadPlugin, scrollTo } from '../pdfjs-tools/pdfjs-utils';
 import { AppService } from '../app.service';
+// import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
 
 @Component({
   selector: 'app-pdf-document',
@@ -31,9 +32,12 @@ export class PDFDocumentComponent implements OnInit {
   newfile: any;
   pdfDocument: any;
 
+  storage: AnnotationStorage<Annotation> = null as any;
+  annotator: Annotator = null as any;
+
   textExtractionProgress: any = undefined;
 
-  share = false;
+  tt = {};
 
   get pdfDocumentId() {
     return (this.route.snapshot.params as any).id;
@@ -97,6 +101,7 @@ export class PDFDocumentComponent implements OnInit {
       http: this.http,
       groupId: this.pdfDocumentId,
     });
+    this.storage = storage;
     await storage.load();
 
     await this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });
@@ -114,6 +119,7 @@ export class PDFDocumentComponent implements OnInit {
         annotation_colors: '#ffd400,#ff6563,#5db221,#2ba8e8,#a28ae9,#e66df2,#f29823,#aaaaaa,black',
       }
     });
+    this.annotator = annotator;
     const freeformViewer = new FreeformViewer({ iframe, pdfjs, storage, annotator, configs: { resize: true } });
     new FreeformAnnotator({
       iframe, pdfjs, storage, annotator, freeformViewer, configs: {
@@ -129,10 +135,12 @@ export class PDFDocumentComponent implements OnInit {
       iframe, annotator, addToOutline: (selection, $event) =>
         this.ngZone.run(() => this.addToOutline(selection, $event))
     });
+
+    // TODO:development: new HelperAnnotator({ iframe, pdfjs, storage, annotator });
   }
 
   async locateTexts() {
-    this.share = false;
+    delete this.tt['share'];
     await this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });
     new TextLocator({ iframe: this.iframe, pdfjs: this.pdfjs })
       .extractTextBounds({
@@ -202,6 +210,24 @@ export class PDFDocumentComponent implements OnInit {
     const documentEl = this.window.document;
     documentEl.getElementById('openFile').style.display = 'none';
     documentEl.getElementById('secondaryOpenFile').style.display = 'none';
+  }
+
+  loadPlugin(el: any) {
+    loadPlugin({
+      url: el.value,
+      iframe: this.iframe,
+      pdfjs: this.pdfjs,
+      storage: this.storage,
+      annotator: this.annotator,
+      loaded: () => {
+        this.ngZone.run(() => {
+          delete this.tt['custom_plugin'];
+          this.tt['custom_plugin_msg'] = 'custom plugin loaded.';
+          setTimeout(() => delete this.tt['custom_plugin_msg'], 3000);
+        });
+      },
+      failed: () => { },
+    });
   }
 
   cancel() {
