@@ -67,10 +67,13 @@ export class AnnotationFilter {
           gap: 0.25rem;
         }
 
+        .pdfjs-annotation-filter__header > img {
+          width: 0.85rem;
+          height: 0.85rem;
+        }
         .pdfjs-annotation-filter__header > select {
           flex: 1;
         }
-
         .pdfjs-annotation-filter__header > button {
           display: none;
         }
@@ -109,12 +112,14 @@ export class AnnotationFilter {
   private _registerPopupFilterAnnotsItemUI() {
     this.annotator.register(POPUP_ROW_ITEM_UI, ($event: any) => {
       if (isRightClick($event)) {
-        const containerEl = htmlToElements(`<div class="pdfjs-annotation-filter">
+        const containerEl = htmlToElements(
+          `<div class="pdfjs-annotation-filter">
             <div class="pdfjs-annotation-filter__header">
-              <span>Annotations by:</span>
+              <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA+klEQVR4AaXSNU4FURTG8cHdnQZnCbg0OJS41Tj0bAB3p8UdNoHrivi/5Ezy4fJO8ptr3x13qAA0Yxi96PtBr2Wbba+TgyvUoBttaP9Cm2VqbE+uUz3S4FDjqPf0f4OqxaSnr5P7aLZ+KPzgb/wQamtNOJB9jp8MjlBt/UCZD7S2Escy7+d2/N0gLlD8yW0X4RxBukcD7kmicIoCJJh8m4vWrJwAoAKsTccLlswLMjTz1Ql8rI3BgswvIkYzX53A19pErMv8OhIl8+MJEqAnWEPCX0+w5O0J9GfZ+NUJFDWKTaRiFkl/OoGFy7CNe4T99BWU/lh+KNcrq1dAtKfIAniV1AAAAABJRU5ErkJggg=="/>
+
               <select>
-                <option value="none">only me</option>
-                <option value="all">everyone</option>
+                <option value="none">My Annotations</option>
+                <option value="all">All Annotations</option>
                 ${this.annotators.map(user => `<option value="${user.id}">${user.fullname}</option>`).join('')}
               </select>
               <button type="button">Show</button>

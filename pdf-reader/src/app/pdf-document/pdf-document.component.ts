@@ -136,7 +136,8 @@ export class PDFDocumentComponent implements OnInit {
         this.ngZone.run(() => this.addToOutline(selection, $event))
     });
 
-    // TODO:development: new HelperAnnotator({ iframe, pdfjs, storage, annotator });
+    // TODO: for development only --
+    // new HelperAnnotator({ iframe, pdfjs, storage, annotator });
   }
 
   async locateTexts() {

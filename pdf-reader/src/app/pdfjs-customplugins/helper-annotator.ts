@@ -50,8 +50,16 @@ export class HelperAnnotator {
   private _attachStylesheet() {
     this.documentEl.querySelector('head').appendChild(htmlToElements(
       `<style>
+        .helper-annotation * {
+          user-select: none;
+        }
         .helper-annotation__title { 
-          font-weight: bold;
+          display: flex;
+          align-items: center;
+          cursor: pointer;
+        }
+        .helper-annotation__title > span {
+          flex-grow: 1;
         }
         .helper-annotation__controls { 
           width: 15rem; 
@@ -89,11 +97,18 @@ export class HelperAnnotator {
       if (!isRightClick($event))
         return null as any;
 
+      let expanded = localStorage.getItem('helper-annotation-expanded') == 'true';
+
       const containerEl = htmlToElements(
         `<div class="helper-annotation">
-          <div class="helper-annotation__title">HELPeR Annotator</div>  
+          <div class="helper-annotation__title" style="font-weight: ${expanded ? 'bold' : 'normal'}">
+            <span>HELPeR Annotator</span>
 
-          <div class="helper-annotation__controls">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAaUlEQVR4AWNwL/ChCA93A4BACYTJMgAITIH4PRC/AWIDXOoIaf4PwvgMIaiZkCHomo2A+C2Sps0gDOND5YywGgAETED8Ek0zGwQjDIGqYcLlgmZkzTBxNENaCIWBHbJmNEPsMMNgNC8AADFm7UCWb4SEAAAAAElFTkSuQmCC" style="${expanded ? '' : 'display: none'}" />
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAXElEQVR4Ac3BwQmDMAAF0IeHDOIEQcjV5dqNMpUQcYRfeiiItD37nltZFR/F6uIpuuKt6OLhZLKJ6Iqii9hMTha7iK6L2C0uqiEi4tB8UQ0Rh+aHajg0f8xmt/MCXVog4rd+rrcAAAAASUVORK5CYII=" style="${expanded ? 'display: none' : ''}"/>
+          </div>  
+
+          <div class="helper-annotation__controls" style="${expanded ? '' : 'display: none'}">
             <span class="helper-annotation__control-label">Cancer Type</span>
             <div class="helper-annotation__control-values helper-annotation__cancer-type">
               <button type="button" value="ovarian-cancer">Ovarian Cancer</button>
@@ -200,6 +215,18 @@ export class HelperAnnotator {
       toggle('.helper-annotation__red-flags',
         (value) => update('red_flags', [...this.annotation.red_flags, value]),
         (value) => update('red_flags', this.annotation.red_flags.filter((v) => v != value)));
+
+      const titleEl = containerEl.querySelector('.helper-annotation__title') as HTMLElement;
+      const toggleDisplay = (display: string) => display == 'none' ? 'block' : 'none';
+      titleEl.addEventListener('click', ($event) => {
+        expanded = !expanded;
+        titleEl.style.fontWeight = expanded ? 'bold' : 'normal';
+        titleEl.querySelectorAll('img')
+          .forEach((img: any) => img.style.display = toggleDisplay(img.style.display));
+        const controlsEl = containerEl.querySelector('.helper-annotation__controls') as HTMLElement;
+        controlsEl.style.display = toggleDisplay(controlsEl.style.display);
+        localStorage.setItem('helper-annotation-expanded', expanded ? 'true' : 'false');
+      });
 
       return containerEl;
     });
