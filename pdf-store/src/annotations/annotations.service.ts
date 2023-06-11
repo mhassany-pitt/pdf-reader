@@ -13,12 +13,15 @@ export class AnnotationsService {
     @InjectModel('annotations') private annotations: Model<Annotation>
   ) { }
 
-  async list({ user, groupId }) {
-    const list = await this.annotations.find({
-      user_id: user?.id,
-      group_id: groupId
-    });
-    return list.map(toObject);
+  async list({ user, groupId, annotators }) {
+    const filter: any = { group_id: groupId };
+    if (annotators == 'all') { }
+    else if (annotators == 'none') filter.user_id = user?.id;
+    else {
+      if (user?.id) annotators += ',' + user?.id;
+      filter.user_id = { $in: annotators.split(',') };
+    }
+    return (await this.annotations.find(filter)).map(toObject);
   }
 
   async create({ user, groupId, annotation }) {
@@ -34,6 +37,10 @@ export class AnnotationsService {
     return toObject(await this.annotations.findOne(
       { user_id: user?.id, group_id: groupId, _id: id }
     ));
+  }
+
+  async getAnnotators({ groupId }) {
+    return await this.annotations.find({ group_id: groupId }).distinct('user_id');
   }
 
   async update({ user, groupId, id, annotation }) {

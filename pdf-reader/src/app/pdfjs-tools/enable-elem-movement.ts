@@ -104,3 +104,5 @@ export class EnableElemMovement {
     });
   }
 }
+
+// TODO: fix-bug: mouse interaction changes the annotation of incorrect annotation

@@ -143,3 +143,11 @@ textarea.pdfjs-annotation-popup__annot-note {
   height: 100%;
   border-right: 2px solid var(--annotation-color);
 }
+
+.pdfjs-annotation-popup__user-fullname {
+  font-size: 0.75rem;
+  color: gray;
+  font-style: italic;
+  padding-left: 0.25rem;
+  border-left: 2px solid lightgray;
+}

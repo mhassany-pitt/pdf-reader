@@ -20,8 +20,9 @@ export class AnnotationStorage<T extends Annotation> {
     this.groupId = groupId;
   }
 
-  async load() {
-    const api = `${this.api || (environment.apiUrl + '/annotations')}/${this.groupId}`;
+  async load(qparams?: string) {
+    let api = this.api || (environment.apiUrl + '/annotations');
+    api += `/${this.groupId}${qparams ? '?' + qparams : ''}`;
     const req = this.http.get(api, { withCredentials: inSameOrigin(api) });
     try {
       this.annotations = await firstValueFrom(req) as any;
@@ -68,5 +69,3 @@ export class AnnotationStorage<T extends Annotation> {
     });
   }
 }
-
-// TODO: include/exclude annotations by user_id

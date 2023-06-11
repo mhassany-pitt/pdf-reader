@@ -10,7 +10,7 @@ cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 @app.route("/api/delegation/<pdfLinkId>")
 @cross_origin()
-def delegation():
+def delegation(pdfLinkId):
     # in your system, this api should return the delegated configuration for the pdf link
     user_id = request.query.user_id  # use for auth
     configs = {"published": True}
@@ -30,7 +30,7 @@ def delegation():
 
 @app.route("/api/annotations/<pdfDocId>")
 @cross_origin()
-def annotations():
+def annotations(pdfDocId):
     # in your system, this api should return the annotations for the pdf document
     # you need to support the following methods:
     #   - @Get(':pdfDocId')

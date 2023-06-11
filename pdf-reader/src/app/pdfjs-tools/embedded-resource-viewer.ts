@@ -92,7 +92,7 @@ export class EmbeddedResourceViewer {
               top: '0', left: '0',
               width: '100%', height: '100%'
             };
-          } else {
+          } else { // custom size popup
             const style = getComputedStyle(el);
             const targetSize = annot.targetSize ? annot.targetSize.split(',') : ['640px', '480px'];
             this.annotator.location = {

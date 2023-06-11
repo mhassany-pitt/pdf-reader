@@ -97,11 +97,6 @@ export class EmbedResource {
       if (!el) return null as any;
 
       const annot = this.storage.read(el.getAttribute('data-annotation-id'));
-      const style = getComputedStyle(el);
-      this.annotator.location = {
-        top: `calc(100% - ${style.bottom})`,
-        left: `${style.left}`
-      };
 
       const containerEl = this._getContainerEl(annot);
       const elems = {

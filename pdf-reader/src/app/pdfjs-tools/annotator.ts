@@ -2,7 +2,7 @@ import { AnnotationStorage } from './annotator-storage';
 import {
   WHRect, closestPageEl, getBound,
   getPageEl, getPageNum, getSelectionRects, htmlToElements,
-  isLeftClick, isRightClick, rotateRect,
+  isLeftClick, isRightClick, relativeToPageEl, rotateRect,
   rotation, uuid
 } from './annotator-utils';
 
@@ -98,6 +98,7 @@ export class Annotator {
     this._registerPopupAnnotTypeItemUI();
     this._registerPopupAnnotColorItemUI();
     this._registerPopupAnnotNoteItemUI();
+    this._registerPopupAnnotUserItemUI();
   }
 
   private _attachStylesheet() {
@@ -269,6 +270,14 @@ export class Annotator {
       });
   }
 
+  rerender() {
+    const querySelector = '#viewerContainer .pdfViewer .page[data-loaded="true"]';
+    this.documentEl.querySelectorAll(querySelector).forEach(el => {
+      const pageNumber = parseInt(el.getAttribute('data-page-number'));
+      this.pdfjs.eventBus.dispatch("pagerendered", { pageNumber });
+    });
+  }
+
   // -- annotator popup 
 
   getOrAttachPopupLayerEl(pageEl: HTMLElement) {
@@ -303,10 +312,10 @@ export class Annotator {
     this.document.addEventListener('contextmenu', ($event: any) => {
       const pageEl = closestPageEl($event.target);
       if (pageEl) {
-        const pageBound = pageEl.getBoundingClientRect();
+        const bound = pageEl.getBoundingClientRect();
         this.location = {
-          top: `${$event.y - pageBound.y}px`,
-          left: `${$event.x - pageBound.x}px`,
+          top: `${$event.y - bound.y}px`,
+          left: `${$event.x - bound.x}px`,
         };
         this._preparePopupRowItemUIs($event);
       }
@@ -334,20 +343,31 @@ export class Annotator {
     this.callbacks['hide']?.forEach(callback => callback());
   }
 
-  showPopup(pageEl: HTMLElement, elements: HTMLElement[], $event: any) {
-    const location = this.location;
-    const styles = getComputedStyle($event.target);
-    const top = location ? location.top : `calc(${styles.top} + ${styles.height})`;
-    const left = location ? location.left : `${styles.left}`;
-    const width = (location ? location.width : null) || 'fit-content';
-    const height = (location ? location.height : null) || 'fit-content';
+  private _calcAnnotBound(pageEl: HTMLElement, $event: any) {
+    const annot = $event.target.closest('[data-annotation-id]');
+    if (!annot) return null;
 
+    const annotId = annot.getAttribute('data-annotation-id');
+    const annotLayerEl = $event.target.closest('.pdfjs-annotations');
+    const annotEls = Array.from(annotLayerEl.querySelectorAll(`[data-annotation-id="${annotId}"]`));
+    const annotElsBound = annotEls.map((el: any) => {
+      const rect = relativeToPageEl(el.getBoundingClientRect(), pageEl);
+      const { left, right, top, bottom, width, height } = rect;
+      return { left, right, top, bottom, width, height };
+    });
+
+    const bound = getBound(annotElsBound);
+    return { top: `calc(100% - ${bound.bottom}%)`, left: `${bound.left}%` };
+  }
+
+  showPopup(pageEl: HTMLElement, elements: HTMLElement[], $event: any) {
+    const location = this.location || this._calcAnnotBound(pageEl, $event);
     const popupEl = htmlToElements(
       `<form class="pdfjs-annotation-popup__container" style="
-          top: ${top};
-          left: ${left};
-          width: ${width};
-          height: ${height};
+          top: ${location.top};
+          left: ${location.left};
+          width: ${location.width || 'fit-content'};
+          height: ${location.height || 'fit-content'};
         " autocomplete="off">
       </form>`);
 
@@ -427,17 +447,34 @@ export class Annotator {
     ));
   }
 
-  private _registerPopupAnnotNoteItemUI() {
+  private _registerPopupAnnotTypeItemUI() {
     this.register(POPUP_ROW_ITEM_UI, ($event: any) => {
       if (this._isPendingAnnotOrRect($event)) {
+        const typeBtnHtmls: any = {};
+        if (this.configs.highlight) /*  */ typeBtnHtmls.highlight = '<span style="background: orange;">Highlight</span>';
+        if (this.configs.underline) /*  */ typeBtnHtmls.underline = '<span style="text-decoration: underline;">Underline</span>';
+        if (this.configs.linethrough) /**/ typeBtnHtmls.linethrough = '<span style="text-decoration: line-through;">Line through</span>';
+        if (this.configs.redact) /*     */ typeBtnHtmls.redact = '<span style="background: darkgray;">Redact</span>';
+
+        if (Object.keys(typeBtnHtmls).length < 1)
+          return null;
+
         const annot = this.pending || this.storage.read($event.target.getAttribute('data-annotation-id'));
-        if (this.configs.notes) {
-          const noteEl = htmlToElements(`<textarea class="pdfjs-annotation-popup__annot-note" rows="5">${annot.note || ''}</textarea>`);
-          noteEl.onchange = ($ev: any) => this._setAnnotationAttr(annot, 'note', $ev.target.value);
-          return noteEl;
-        } else if (annot.note) {
-          return htmlToElements(`<span class="pdfjs-annotation-popup__annot-note">${annot.note}</span>`);
-        }
+        // const pageEl = closestPageEl($event.target);
+        // const bound = getBound(annot.rects[getPageNum(pageEl)]);
+        // this.location = {
+        //   top: `calc(100% - ${bound.bottom}%)`,
+        //   left: `${bound.left}%`
+        // };
+
+        const typesEl = htmlToElements(`<div class="pdfjs-annotation-popup__annot-type-btns"></div>`);
+        Object.keys(typeBtnHtmls).forEach(type => {
+          const buttonEl = htmlToElements(`<button type="button" class="pdfjs-annotation-popup__annot-type-btn--${type}">${typeBtnHtmls[type]}</button>`);
+          buttonEl.onclick = ($ev) => this._setAnnotationAttr(annot, 'type', type);
+          typesEl.appendChild(buttonEl);
+        });
+
+        return typesEl;
       }
       return null as any;
     });
@@ -466,37 +503,28 @@ export class Annotator {
     });
   }
 
-  private _registerPopupAnnotTypeItemUI() {
+  private _registerPopupAnnotNoteItemUI() {
     this.register(POPUP_ROW_ITEM_UI, ($event: any) => {
       if (this._isPendingAnnotOrRect($event)) {
-        const typeBtnHtmls: any = {};
-        if (this.configs.highlight) /*  */ typeBtnHtmls.highlight = '<span style="background: orange;">Highlight</span>';
-        if (this.configs.underline) /*  */ typeBtnHtmls.underline = '<span style="text-decoration: underline;">Underline</span>';
-        if (this.configs.linethrough) /**/ typeBtnHtmls.linethrough = '<span style="text-decoration: line-through;">Line through</span>';
-        if (this.configs.redact) /*     */ typeBtnHtmls.redact = '<span style="background: darkgray;">Redact</span>';
-
-        if (Object.keys(typeBtnHtmls).length < 1)
-          return null;
-
         const annot = this.pending || this.storage.read($event.target.getAttribute('data-annotation-id'));
-
-        const pageEl = closestPageEl($event.target);
-        const bound = getBound(annot.rects[getPageNum(pageEl)]);
-        this.location = {
-          top: `calc(100% - ${bound.bottom}%)`,
-          left: `${bound.left}%`
-        };
-
-        const typesEl = htmlToElements(`<div class="pdfjs-annotation-popup__annot-type-btns"></div>`);
-        Object.keys(typeBtnHtmls).forEach(type => {
-          const buttonEl = htmlToElements(`<button type="button" class="pdfjs-annotation-popup__annot-type-btn--${type}">${typeBtnHtmls[type]}</button>`);
-          buttonEl.onclick = ($ev) => this._setAnnotationAttr(annot, 'type', type);
-          typesEl.appendChild(buttonEl);
-        });
-
-        return typesEl;
+        if (this.configs.notes) {
+          const noteEl = htmlToElements(`<textarea class="pdfjs-annotation-popup__annot-note" rows="5">${annot.note || ''}</textarea>`);
+          noteEl.onchange = ($ev: any) => this._setAnnotationAttr(annot, 'note', $ev.target.value);
+          return noteEl;
+        } else if (annot.note) {
+          return htmlToElements(`<span class="pdfjs-annotation-popup__annot-note">${annot.note}</span>`);
+        }
       }
       return null as any;
+    });
+  }
+
+  private _registerPopupAnnotUserItemUI() {
+    this.register(POPUP_ROW_ITEM_UI, ($event: any) => {
+      const target = $event.target.closest('[data-annotation-id]');
+      if (!target) return null as any;
+      const annot: any = this.storage.read(target.getAttribute('data-annotation-id'));
+      return htmlToElements(`<span class="pdfjs-annotation-popup__user-fullname">by ${annot.user_fullname || 'unknown'}</span>`);
     });
   }
 }

@@ -14,6 +14,7 @@ import { EmbedResource } from '../pdfjs-tools/embed-resource';
 import { EnableElemMovement } from '../pdfjs-tools/enable-elem-movement';
 import { AppService } from '../app.service';
 import { inSameOrigin, loadPlugin, scrollTo } from '../pdfjs-tools/pdfjs-utils';
+import { AnnotationFilter } from '../pdfjs-tools/annotation-filter';
 
 @Component({
   selector: 'app-pdf-reader',
@@ -92,6 +93,9 @@ export class PDFReaderComponent implements OnInit {
     this.pdfjs = this.window.PDFViewerApplication;
     this.removeExtraElements();
 
+    const iframe = this.iframe;
+    const pdfjs = this.pdfjs;
+
     // load annotations first so can be rendered on document load
     const storage = new AnnotationStorage({
       app: this.app,
@@ -100,7 +104,6 @@ export class PDFReaderComponent implements OnInit {
       groupId: this.pdfDocumentId,
     });
     this.storage = storage;
-    await storage.load();
 
     await this.pdfjs.open({
       url: `${environment.apiUrl}/pdf-reader/${this.pdfDocument.id}/file?${this.qparamsString}`,
@@ -108,14 +111,20 @@ export class PDFReaderComponent implements OnInit {
     });
     this.syncPageOutline();
 
-    const iframe = this.iframe;
-    const pdfjs = this.pdfjs;
-
     this.applyConfigFromQParams();
 
     this.setupInteractionLogger(iframe, pdfjs);
     const annotator = this.setupAnnotator(iframe, pdfjs, storage);
     this.annotator = annotator;
+
+    const filter = new AnnotationFilter({
+      http: this.http, iframe,
+      annotator, storage,
+      groupId: this.pdfDocumentId
+    });
+    await filter.loadAnnotators();
+    await filter.loadAnnotations();
+
     const freeformViewer = this.setupFreeform(iframe, pdfjs, annotator, storage);
     const embedLinkViewer = this.setupEmbedResource(iframe, pdfjs, annotator, storage);
 
