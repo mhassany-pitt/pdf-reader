@@ -13,18 +13,20 @@ export const htmlToElements = (html: string) => {
   return temp.firstChild as HTMLElement;
 }
 
-export const closestPageEl = (el: Element) => el.closest(`.pdfViewer .page`) as HTMLElement;
 export const getPageNum = (pageEl: HTMLElement) => parseInt(pageEl.getAttribute('data-page-number') || '');
-export const findPageNumAt = (document: Document, rect: WHRect): number => {
+export const getPageNumAtRect = (document: Document, rect: WHRect): number => {
   const pointEl = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
   if (pointEl) {
-    const pageEl = closestPageEl(pointEl);
+    const pageEl = getPageEl(pointEl);
     if (pageEl) return getPageNum(pageEl);
   }
   return null as any;
 }
-export const getPageEl = (documentEl: any, pageNum: number) =>
-  documentEl.querySelector(`.pdfViewer .page[data-page-number="${pageNum}"]`);
+export const getPageEl = (el: any, pageNum?: number) => {
+  return pageNum
+    ? el.querySelector(`.pdfViewer .page[data-page-number="${pageNum}"]`)
+    : el.closest(`.pdfViewer .page`);
+}
 
 export const relativeToPageEl = (rect: PageRect, pageEl: any): PageRect => {
   let { top, left, right, bottom, width, height, ...other } = rect;
@@ -57,7 +59,7 @@ export const getSelectionRects = (document: Document, pdfjs: any) => {
   const rects: WHRect[] = Array.from(range.getClientRects());
 
   const merged = mergeRects(rects)
-    .map(rect => ({ ...rect, page: findPageNumAt(document, rect) }))
+    .map(rect => ({ ...rect, page: getPageNumAtRect(document, rect) }))
     .filter(rect => rect.page && rect.width > 0 && rect.height > 0);
 
   if (merged.length < 1)
@@ -179,12 +181,28 @@ export const getBound = (rects: WHRect[]): WHRect => {
 export const scale = (pdfjs: any) => pdfjs.pdfViewer.currentScale;
 export const rotation = (pdfjs: any) => pdfjs.pdfViewer.pagesRotation;
 
-export const isLeftClick = ($event: any, strict = false) =>
-  (!strict || typeof $event.pointerType !== 'undefined') && $event.button === 0;
-export const isRightClick = ($event: any, strict = false) =>
-  (!strict || typeof $event.pointerType !== 'undefined') && $event.button === 2;
+export const isLeftClick = ($event: any, checkType = false) => (!checkType || $event.type == 'click') && $event.button === 0;
+export const isRightClick = ($event: any, checkType = false) => (!checkType || $event.type == 'contextmenu') && $event.button === 2;
 
 export const getOrParent = ($event: any, className: string) => {
   return $event.target.classList.contains(className)
     ? $event.target : $event.target.closest(`.${className}`);
+}
+
+export const getAnnotEl = (el: HTMLElement): HTMLElement => {
+  return (el.getAttribute('data-annotation-id') ? el : el.closest('[data-annotation-id]')) as any;
+}
+
+export const getAnnotBound = ($event: any): WHRect => {
+  const annot = getAnnotEl($event.target);
+  if (!annot) return null as any;
+  const annotId = annot.getAttribute('data-annotation-id');
+  const annotLayerEl = $event.target.closest('.pdfjs-annotations');
+  const annotEls = Array.from(annotLayerEl.querySelectorAll(`[data-annotation-id="${annotId}"]`));
+  const pageEl = getPageEl($event.target);
+  const annotElsBound = annotEls.map((el: any) => {
+    const { left, right, top, bottom, width, height } = relativeToPageEl(el.getBoundingClientRect(), pageEl);
+    return { left, right, top, bottom, width, height };
+  });
+  return getBound(annotElsBound);
 }

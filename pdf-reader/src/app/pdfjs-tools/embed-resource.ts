@@ -1,6 +1,6 @@
 import { AnnotationStorage } from './annotator-storage';
 import {
-  closestPageEl, uuid, getPageNum,
+  getPageEl, uuid, getPageNum,
   htmlToElements, isRightClick, relativeToPageEl,
   WHRect, isLeftClick, getOrParent
 } from './annotator-utils';
@@ -24,11 +24,6 @@ export class EmbedResource {
     this.storage = storage;
     this.annotator = annotator;
     this.embedLinkViewer = embedLinkViewer;
-    this.embedLinkViewer._clickguard = ($event: any) => {
-      if ($event.ctrlKey)
-        $event.preventDefault();
-      return $event.ctrlKey;
-    }
 
     this._attachStylesheet();
     this._registerToggleItemUI();
@@ -57,7 +52,7 @@ export class EmbedResource {
         </div>`);
       const buttonEl = containerEl.querySelector('button') as any;
       buttonEl.onclick = ($ev) => {
-        const pageEl = closestPageEl($event.target);
+        const pageEl = getPageEl($event.target);
         const pageNum = getPageNum(pageEl);
         const { top, left, right, bottom } = relativeToPageEl({
           top: $event.y,
@@ -215,9 +210,9 @@ export class EmbedResource {
               <div class="pdfjs-embed-resource__custom-size-option">
                 <input id="${id}-custom" type="radio" name="target-size" ${custom}/>
                 <label for="${id}-custom">
-                  <span>Custom width:</span>
+                  <span>Custom </span>
                   <input type="text" placeholder="640px" value="${customTargetSize[0]}" ${custom ? '' : 'disabled'} />
-                  <span> height:</span>
+                  <span>x</span>
                   <input type="text" placeholder="480px" value="${customTargetSize[1]}" ${custom ? '' : 'disabled'} />
                 </label>
               </div>

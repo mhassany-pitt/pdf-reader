@@ -193,7 +193,7 @@ export class PDFReaderComponent implements OnInit {
   private setupEmbedResource(iframe, pdfjs, annotator, storage) {
     const embedLinkViewer = new EmbeddedResourceViewer({
       iframe, pdfjs, annotator,
-      storage, configs: { resize: false }
+      storage, configs: { resize: this.configs?.embed_resource }
     });
 
     if (this.configs?.embed_resource)
@@ -205,7 +205,7 @@ export class PDFReaderComponent implements OnInit {
   private setupFreeform(iframe, pdfjs, annotator, storage) {
     const freeformViewer = new FreeformViewer({
       iframe, pdfjs, annotator,
-      storage, configs: { resize: false }
+      storage, configs: { resize: this.configs?.freeform }
     });
 
     if (this.configs?.freeform)

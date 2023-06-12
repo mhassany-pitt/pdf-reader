@@ -3,8 +3,7 @@ import {
   rotateRect, rotation, scale
 } from './annotator-utils';
 import {
-  Annotator, GET_ANNOTATION_BOUND,
-  GetAnnotationBound, POPUP_ROW_ITEM_UI
+  Annotator, GetAnnotationBound, POPUP_ROW_ITEM_UI
 } from './annotator';
 import { AnnotationStorage } from './annotator-storage';
 
@@ -31,8 +30,6 @@ export class EmbeddedResourceViewer {
     resize: boolean,
   };
 
-  _clickguard: ($event: any) => boolean = ($ev) => true;
-
   constructor({ iframe, pdfjs, annotator, storage, configs }) {
     this.document = iframe?.contentDocument;
     this.documentEl = this.document.documentElement;
@@ -44,8 +41,7 @@ export class EmbeddedResourceViewer {
     this.configs = configs;
 
     this._attachStylesheet();
-    this._renderOnPagerendered();
-    this._registerGetEmbedBound();
+    this._renderOnPagerendered(); 
     this._registerViewItemUI();
   }
 
@@ -53,26 +49,32 @@ export class EmbeddedResourceViewer {
     this.documentEl.querySelector('head').appendChild(htmlToElements(
       `<link rel="stylesheet" type="text/css" href="/assets/embedded-resource-viewer.css" />`
     ));
-  }
-
-  private _registerGetEmbedBound() {
-    this.annotator.register(GET_ANNOTATION_BOUND, (pageNum, annot) => ({
-      className: 'pdfjs-annotation__embed',
-      getBound: (pageNum: number, annot: any) => annot.bound
-    }) as GetAnnotationBound);
-  }
+  } 
 
   private _registerViewItemUI() {
+    let lastEvTypes: any = {};
     this.annotator.register(POPUP_ROW_ITEM_UI, ($event: any) => {
-      const embedEl = getOrParent($event, 'pdfjs-annotation__embed');
       const rectEl = getOrParent($event, 'pdfjs-annotation__rect');
+      const embedEl = getOrParent($event, 'pdfjs-annotation__embed');
       const freeformEl = getOrParent($event, 'pdfjs-annotation__freeform');
-      const el = embedEl || rectEl || freeformEl;
-      if (el && isLeftClick($event, true) && this._clickguard($event)) {
-        const annot = this.storage.read(el.getAttribute('data-annotation-id'));
-        if (annot.target == 'popup-iframe') {
-          const popupEl = htmlToElements(
-            `<div class="pdfjs-embed-resource__popup">
+      const annotEl = embedEl || rectEl || freeformEl;
+      if (!annotEl) return null as any;
+
+      const annotId = annotEl.getAttribute('data-annotation-id');
+
+      // moving the annotEl will trigger mouseup and then click
+      // we don't want to show the popup just after moving the annotEl
+      // we record the last event type to check if the current one is a click
+      const ifLeftClick = isLeftClick($event, true)
+        && (!lastEvTypes[annotId] || lastEvTypes[annotId] == 'click');
+      lastEvTypes[annotId] = $event.type;
+
+      if (!ifLeftClick) return null as any;
+
+      const annot = this.storage.read(annotId);
+      if (annot.target == 'popup-iframe') {
+        const popupEl = htmlToElements(
+          `<div class="pdfjs-embed-resource__popup" data-annotation-id="${annotId}">
               <div class="pdfjs-embed-resource__popup-header">
                 <a href="${annot.resource}" target="_blank">open in new tab</a>
                 <span style="flex-grow: 1;"></span>
@@ -81,35 +83,30 @@ export class EmbeddedResourceViewer {
               <iframe src="${annot.resource}" style="flex-grow: 1; height: 0%;"></iframe>
             </div>`);
 
-          const closeBtnEl = popupEl.querySelector('button') as any;
-          closeBtnEl.addEventListener('click', () => this.annotator.hidePopup());
+        const closeBtnEl = popupEl.querySelector('button') as any;
+        closeBtnEl.addEventListener('click', () => this.annotator.hidePopup());
 
-          if (annot.targetSize == 'fullscreen') {
-            popupEl.style.position = 'fixed';
-            popupEl.style.inset = '32px 0 0 0';
-          } else if (annot.targetSize == 'fullpage') {
-            this.annotator.location = {
-              top: '0', left: '0',
-              width: '100%', height: '100%'
-            };
-          } else { // custom size popup
-            const style = getComputedStyle(el);
-            const targetSize = annot.targetSize ? annot.targetSize.split(',') : ['640px', '480px'];
-            this.annotator.location = {
-              top: `calc(100% - ${style.bottom})`,
-              left: `calc(${style.left} + (${style.width} / 2) - (${targetSize[0]} / 2))`,
-              width: `${targetSize[0]}`,
-              height: `${targetSize[1]}`
-            };
-          }
-
-          return popupEl;
-        } else if (annot.target == 'new-page') {
-          window.open(annot.resource, '_blank');
+        if (annot.targetSize == 'fullscreen') {
+          popupEl.style.position = 'fixed';
+          popupEl.style.inset = '32px 0 0 0';
+        } else if (annot.targetSize == 'fullpage') {
+          this.annotator.location = { top: '0', left: '0', width: '100%', height: '100%' };
+        } else { // custom size popup
+          const style = getComputedStyle(annotEl);
+          const targetSize = annot.targetSize ? annot.targetSize.split(',') : ['640px', '480px'];
+          this.annotator.location = {
+            top: `calc(100% - ${style.bottom} + 5px)`,
+            left: `calc(${style.left} + (${style.width} / 2) - (${targetSize[0]} / 2))`,
+            width: `${targetSize[0]}`,
+            height: `${targetSize[1]}`
+          };
         }
-      }
 
-      return null as any;
+        return popupEl;
+      } else if (annot.target == 'new-page') {
+        window.open(annot.resource, '_blank');
+        return null as any;
+      }
     });
   }
 

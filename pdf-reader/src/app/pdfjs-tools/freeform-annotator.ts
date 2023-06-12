@@ -1,6 +1,6 @@
 import { AnnotationStorage } from './annotator-storage';
 import {
-  closestPageEl, uuid, getPageEl, getPageNum, htmlToElements,
+  getPageEl, uuid, getPageNum, htmlToElements,
   isLeftClick, isRightClick, rotation, scale,
 } from './annotator-utils';
 import { Annotator, POPUP_ROW_ITEM_UI } from './annotator';
@@ -153,7 +153,7 @@ export class FreeformAnnotator {
   private _attachCanvasOnMousedown() {
     this.document.addEventListener('mousedown', ($event: any) => {
       if (this.enabled && isLeftClick($event)) {
-        const pageEl = closestPageEl($event.target);
+        const pageEl = getPageEl($event.target);
         if (!pageEl)
           return;
 

@@ -1,6 +1,6 @@
 import { AnnotationStorage } from './annotator-storage';
 import { WHRect, htmlToElements, rotateRect, rotation } from './annotator-utils';
-import { Annotator, GET_ANNOTATION_BOUND, GetAnnotationBound } from './annotator';
+import { Annotator, GetAnnotationBound } from './annotator';
 
 export type FreeformRect = WHRect & {
   dataUrl: string,
@@ -36,20 +36,12 @@ export class FreeformViewer {
 
     this._attachStylesheet();
     this._renderOnPagerendered();
-    this._registerGetFreeformBound();
   }
 
   private _attachStylesheet() {
     this.documentEl.querySelector('head').appendChild(htmlToElements(
       `<link rel="stylesheet" type="text/css" href="/assets/freeform-viewer.css" />`
     ));
-  }
-
-  private _registerGetFreeformBound() {
-    this.annotator.register(GET_ANNOTATION_BOUND, (pageNum, annot) => ({
-      className: 'pdfjs-annotation__freeform',
-      getBound: (pageNum: number, annot: any) => annot.freeforms[pageNum]
-    }) as GetAnnotationBound);
   }
 
   private _renderOnPagerendered() {
