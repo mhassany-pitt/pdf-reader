@@ -37,27 +37,35 @@ export class Annotator {
 
   private pdfjs: any;
   private storage: AnnotationStorage<Annotation>;
-  private configs;
+  private configs: any;
 
   private selected: any;
   private pending: any;
 
   location: Location = null as any;
 
-  private callbacks: { [type: string]: ((...args: any) => any)[] } = {};
-  register(type: string, callback: (...args: any) => any) {
-    if (!this.callbacks[type])
-      this.callbacks[type] = [];
-    this.callbacks[type].push(callback);
+  private ebus: {
+    [type: string]: {
+      priority: number,
+      callback: ((...args: any) => any),
+    }[]
+  } = {};
+  register(type: string, callback: (...args: any) => any, priority = 0) {
+    if (type in this.ebus == false)
+      this.ebus[type] = [];
+    this.ebus[type].push({ callback, priority });
+    this.ebus[type].sort((a, b) => b.priority - a.priority); // descending
   }
   unregister(type: string, callback: (...args: any) => any) {
-    const index = this.callbacks[type]?.indexOf(callback);
-    if (index > -1) this.callbacks[type].splice(index, 1);
-  }
+    if (type in this.ebus == false)
+      return;
 
-  // private boundGetters: {
-  //   [className: string]: (pageNum: number, annot: any) => WHRect
-  // } = {};
+    const filtered = this.ebus[type].filter(cb => cb.callback == callback);
+    if (filtered.length < 1)
+      return;
+
+    this.ebus[type].splice(this.ebus[type].indexOf(filtered[0]), 1);
+  }
 
   onTextSelection = ($event: any) => {
     const rects = getSelectionRects(this.document, this.pdfjs);
@@ -281,6 +289,7 @@ export class Annotator {
 
       if (!this._getPopupContainerEl($event.target)
         && this._prepareAndShowPopup($event).length < 1) {
+        $event.preventDefault();
         // hide popup if clicked outside it
         this.hidePopup();
       }
@@ -291,6 +300,8 @@ export class Annotator {
     this.document.addEventListener('contextmenu', ($event: any) => {
       const pageEl = getPageEl($event.target);
       if (!pageEl) return;
+
+      $event.preventDefault();
 
       if (getAnnotEl($event.target))
         this.location = null as any; // let popup decide its location
@@ -307,8 +318,8 @@ export class Annotator {
     const pageEl = getPageEl($event.target);
     if (!pageEl) return [];
 
-    const callbacks = this.callbacks[POPUP_ROW_ITEM_UI] || [];
-    const rowItemUIs = callbacks.map(callback => callback($event)).filter(rowItemEl => rowItemEl);
+    const cbs = this.ebus[POPUP_ROW_ITEM_UI] || [];
+    const rowItemUIs = cbs.map(cb => cb.callback($event)).filter(rowItemEl => rowItemEl);
     if (rowItemUIs.length)
       this.showPopup(pageEl, rowItemUIs, $event);
 
@@ -319,7 +330,7 @@ export class Annotator {
     this.location = null as any;
     const popupEl = this.documentEl.querySelector('.pdfjs-annotation-popup');
     popupEl?.remove();
-    this.callbacks['hide']?.forEach(callback => callback());
+    this.ebus['hide']?.forEach(cb => cb.callback());
   }
 
   showPopup(pageEl: HTMLElement, elements: HTMLElement[], $event: any) {
@@ -341,7 +352,7 @@ export class Annotator {
     popupLayerEl.replaceChildren();
     popupLayerEl.appendChild(popupEl);
     elements.forEach(rowItemUI => popupEl.appendChild(rowItemUI));
-    this.callbacks['show']?.forEach(callback => callback());
+    this.ebus['show']?.forEach(cb => cb.callback());
   }
 
   private _getPopupContainerEl(target: HTMLElement) {

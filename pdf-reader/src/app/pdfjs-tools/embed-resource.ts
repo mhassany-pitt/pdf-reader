@@ -41,7 +41,6 @@ export class EmbedResource {
       if (!isRightClick($event))
         return null as any;
 
-      $event.preventDefault();
       const containerEl = htmlToElements(
         `<div class="pdfjs-embed-resource__embed-btns">
           <button type="button" class="pdfjs-embed-resource__embed-btn">

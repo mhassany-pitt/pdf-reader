@@ -79,7 +79,6 @@ export class FreeformAnnotator {
       if (!isRightClick($event))
         return null as any;
 
-      $event.preventDefault();
       const containerEl = htmlToElements(
         `<div class="pdfjs-annotation-freeform__toggle-btns"></div>`);
 

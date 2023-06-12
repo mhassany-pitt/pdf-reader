@@ -180,6 +180,6 @@ export class AnnotationFilter {
       }
 
       return null as any;
-    });
+    }, 999 /* top in popup list */);
   }
 }
