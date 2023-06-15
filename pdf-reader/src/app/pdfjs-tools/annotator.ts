@@ -493,9 +493,12 @@ export class Annotator {
   private _registerPopupAnnotUserItemUI() {
     this.register(POPUP_ROW_ITEM_UI, ($event: any) => {
       const target: any = getAnnotEl($event.target);
-      if (!target) return null as any;
-      const annot: any = this.storage.read(target.getAttribute('data-annotation-id'));
-      return htmlToElements(`<span class="pdfjs-annotation-popup__user-fullname">${annot.user_fullname || 'unknown'}</span>`);
+      if (target) {
+        const annot: any = this.storage.read(target.getAttribute('data-annotation-id'));
+        if (annot.user_fullname)
+          return htmlToElements(`<span class="pdfjs-annotation-popup__user-fullname">${annot.user_fullname}</span>`);
+      }
+      return null as any;
     });
   }
 }

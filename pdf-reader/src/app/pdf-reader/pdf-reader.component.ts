@@ -165,15 +165,19 @@ export class PDFReaderComponent implements OnInit {
       const rotation = this.qparams.rotation || viewer.rotation;
       if (rotation) this.pdfjs.pdfViewer.pagesRotation = parseFloat(rotation);
 
-      const entryNum = this.qparams.section || viewer.section;
-      if (entryNum && !isNaN(entryNum)) {
-        const index = parseInt(entryNum) - 1;
-        if (index >= 0 && index < this.pdfDocument.outline.length)
-          this.scrollToEntry(this.pdfDocument.outline[index]);
+      const section = this.qparams.section || viewer.section;
+      if (section) {
+        const entryIndex = !isNaN(section)
+          ? parseInt(section) - 1
+          : this.pdfDocument.outline.findIndex(
+            (e: any) => e.title.toLowerCase() == section.toLowerCase());
+
+        if (entryIndex >= 0 && entryIndex < this.pdfDocument.outline.length)
+          this.scrollToEntry(this.pdfDocument.outline[entryIndex]);
       }
 
       const page = this.qparams.page || viewer.page;
-      if (!entryNum && page) {
+      if (!section && page) {
         scrollTo(this.iframe.contentDocument, this.pdfjs, {
           page: parseInt(page),
           top: this.qparams.pagetop || viewer.pagetop || 0,
