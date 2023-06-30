@@ -25,6 +25,10 @@ const routes: Routes = [
     canActivate: [HandshakeGuard]
   },
   {
+    path: 'iframe-integration-testground',
+    loadChildren: () => import('./iframe-integration-testground/iframe-integration-testground.module').then(m => m.IframeIntegrationTestgroundModule),
+  },
+  {
     path: 'login',
     loadChildren: () => import('./login/login.module').then(m => m.LoginModule),
     canActivate: [PublicGuard]

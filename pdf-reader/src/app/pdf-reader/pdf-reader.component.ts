@@ -55,9 +55,14 @@ export class PDFReaderComponent implements OnInit {
     this.reload();
   }
 
+  private postMessage({ type, data }) {
+    if (window.parent != window)
+      window.parent.postMessage({ type, data }, '*');
+  }
+
   private reload() {
     this.service.get(`${this.pdfDocumentId}?${this.qparamsString}`).subscribe({
-      next: (pdfDocument: any) => {
+      next: async (pdfDocument: any) => {
         if (!pdfDocument.tags)
           pdfDocument.tags = [];
         if (!pdfDocument.outline)
@@ -69,7 +74,9 @@ export class PDFReaderComponent implements OnInit {
         this.pdfDocument = pdfDocument;
         this.title.setTitle(`Reader: ${this.pdfDocument.title || 'unnamed'}`);
 
-        this.prepare();
+        this.postMessage({ type: 'pdf-info-loaded', data: this.pdfDocument });
+
+        await this.prepare();
       },
       error: (error: any) => {
         if (error.status == 403)
@@ -105,13 +112,12 @@ export class PDFReaderComponent implements OnInit {
     });
     this.storage = storage;
 
-    await this.pdfjs.open({
-      url: `${environment.apiUrl}/pdf-reader/${this.pdfDocument.id}/file?${this.qparamsString}`,
-      withCredentials: true
-    });
-    this.syncPageOutline();
+    const url = `${environment.apiUrl}/pdf-reader/${this.pdfDocument.id}/file?${this.qparamsString}`;
+    await this.pdfjs.open({ url, withCredentials: true });
+    this.postMessage({ type: 'pdf-document-loaded', data: { url } });
 
-    this.applyConfigFromQParams();
+    this.bindPageOutline();
+    this.applyQParamsConfig();
 
     this.setupInteractionLogger(iframe, pdfjs);
     const annotator = this.setupAnnotator(iframe, pdfjs, storage);
@@ -132,6 +138,11 @@ export class PDFReaderComponent implements OnInit {
       new EnableElemMovement({ iframe, embedLinkViewer, freeformViewer, storage });
 
     this.loadPlugins(annotator);
+
+    this.postPdfEventsToParent();
+    this.listenToParentMessages();
+
+    this.postMessage({ type: 'pdf-ready', data: null });
   }
 
   private loadPlugins(annotator: Annotator) {
@@ -152,7 +163,7 @@ export class PDFReaderComponent implements OnInit {
     });
   }
 
-  private applyConfigFromQParams() {
+  private applyQParamsConfig() {
     const onDocumentLoad = ($event: any) => {
       this.pdfjs.eventBus.off('textlayerrendered', onDocumentLoad);
 
@@ -237,7 +248,7 @@ export class PDFReaderComponent implements OnInit {
     });
   }
 
-  private setupInteractionLogger(iframe: any, pdfjs: any) {
+  private setupInteractionLogger(iframe, pdfjs) {
     if (this.configs?.log_interactions) {
       new InteractionLogger({
         iframe, pdfjs,
@@ -266,15 +277,16 @@ export class PDFReaderComponent implements OnInit {
     }
   }
 
-  private syncPageOutline() {
+  private bindPageOutline() {
     this.pdfjs.eventBus.on('pagechanging', ($event) => {
       const outline = [...this.pdfDocument.outline];
-      for (const entry of outline.sort((a, b) => b.page - a.page)) {
+      for (const entry of outline.sort((a, b) => b.page - a.page))
         if (entry.page <= $event.pageNumber) {
           this.ngZone.run(() => this.entry = entry);
           break;
         }
-      }
+
+      this.postMessage({ type: 'pdf-event', data: { type: 'pagechanging', page: $event.pageNumber } });
     });
   }
 
@@ -294,7 +306,73 @@ export class PDFReaderComponent implements OnInit {
     children[children.length - 1].remove();
   }
 
-  scrollToEntry(entry: any) {
+  scrollToEntry(entry) {
     scrollTo(this.window.document, this.pdfjs, entry);
+    this.postMessage({ type: 'navto-outline-entry', data: entry });
+  }
+
+  postPdfEventsToParent() {
+    const $postMessage = (data) => this.postMessage({ type: 'pdf-event', data });
+    const eb = this.pdfjs.eventBus;
+    eb.on('find', ($ev) => {
+      const { caseSensitive, entireWord, findPrevious,
+        highlightAll, matchDiacritics, phraseSearch,
+        query } = $ev;
+      $postMessage({
+        type: 'find',
+        caseSensitive, entireWord, findPrevious,
+        highlightAll, matchDiacritics, phraseSearch,
+        query
+      })
+    });
+    eb.on('currentoutlineitem',/*     */($ev) => $postMessage({ type: 'currentoutlineitem' }));
+    eb.on('findbarclose',/*           */($ev) => $postMessage({ type: 'findbarclose' }));
+    eb.on('outlineloaded',/*          */($ev) => $postMessage({ type: 'outlineloaded', outlineCount: $ev.outlineCount }));
+    eb.on('pagenumberchanged',/*      */($ev) => $postMessage({ type: 'pagenumberchanged', value: $ev.value }));
+    eb.on('presentationmodechanged',/**/($ev) => $postMessage({ type: 'presentationmodechanged', state: $ev.state }));
+    eb.on('resize',/*                 */($ev) => $postMessage({ type: 'resize' }));
+    eb.on('rotateccw',/*              */($ev) => $postMessage({ type: 'rotateccw' }));
+    eb.on('rotatecw',/*               */($ev) => $postMessage({ type: 'rotatecw' }));
+    eb.on('scalechanged',/*           */($ev) => $postMessage({ type: 'scalechanged', value: $ev.value }));
+    eb.on('scrollmodechanged',/*      */($ev) => $postMessage({ type: 'scrollmodechanged', mode: $ev.mode }));
+    eb.on('sidebarviewchanged',/*     */($ev) => $postMessage({ type: 'sidebarviewchanged', view: $ev.view }));
+    eb.on('spreadmodechanged',/*      */($ev) => $postMessage({ type: 'spreadmodechanged', mode: $ev.mode }));
+    eb.on('toggleoutlinetree',/*      */($ev) => $postMessage({ type: 'toggleoutlinetree' }));
+    eb.on('zoomin',/*                 */($ev) => $postMessage({ type: 'zoomin' }));
+    eb.on('zoomout',/*                */($ev) => $postMessage({ type: 'zoomout' }));
+
+    // scroll event
+    const vcontainer = this.window.document.getElementById('viewerContainer');
+    let scrolltimeout: any = null;
+    vcontainer.addEventListener('scroll', ($event: any) => {
+      if (scrolltimeout) clearTimeout(scrolltimeout);
+      const { scrollTop, scrollLeft, scrollWidth, scrollHeight } = vcontainer;
+      scrolltimeout = setTimeout(() =>
+        $postMessage({ type: 'scrol', scrollWidth, scrollHeight, scrollLeft, scrollTop })
+        , 300);
+    });
+  }
+
+  listenToParentMessages() {
+    const ebus = this.pdfjs.eventBus;
+    const viewer = this.pdfjs.pdfViewer;
+    const sidebar = this.pdfjs.pdfSidebar;
+    window.addEventListener('message', (event) => {
+      // // IMPORTANT: check the origin of the data!
+      // if (event.origin !== 'http://example.org:8080')
+      //   return;
+      const type = event.data.type;
+      /**/ if (type == 'find')/*                  */ebus.dispatch('find', event.data);
+      else if (type == 'changepagenumber')/*      */viewer.currentPageNumber = event.data.value;
+      else if (type == 'changepresentationmode')/**/viewer.presentationMode = event.data.state;
+      else if (type == 'rotateccw')/*             */viewer.pagesRotation -= 90;
+      else if (type == 'rotatecw')/*              */viewer.pagesRotation += 90;
+      else if (type == 'changescale')/*           */viewer.currentScaleValue = event.data.value;
+      else if (type == 'changescrollmode')/*      */viewer.scrollMode = event.data.mode;
+      else if (type == 'changesidebarview')/*     */sidebar.switchView(event.data.view);
+      else if (type == 'changespreadmode')/*      */viewer.spreadMode = event.data.mode;
+      else if (type == 'zoomin')/*                */viewer.currentScaleValue += 0.1;
+      else if (type == 'zoomout')/*               */viewer.currentScaleValue -= 0.1;
+    }, false);
   }
 }

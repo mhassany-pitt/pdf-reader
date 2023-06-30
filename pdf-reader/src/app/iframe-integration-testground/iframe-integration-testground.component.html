@@ -1,0 +1,10 @@
+<div class="flex flex-col h-full">
+  <div class="p-4 h-96 overflow-y-auto">
+    <h1 class="text-lg font-bold">IFrame Messages</h1>
+    <div *ngFor="let message of messages; let i = index" [ngClass]="{ 'bg-gray-100': i % 2 === 0 }">
+      <span class="text-xs font-mono">{{ messages.length - i }}: {{ json(message) }}</span>
+    </div>
+  </div>
+  <iframe #iframe [src]="url" class="flex-grow">
+  </iframe>
+</div>
