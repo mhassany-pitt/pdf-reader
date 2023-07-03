@@ -9,9 +9,7 @@ import { PDFDocumentsService } from './pdf-documents.service';
 })
 export class PDFDocumentsComponent implements OnInit {
 
-  pdfDocuments = [
-    { id: '123', name: 'Chapter 1 - ...', modified_at: new Date() }
-  ]
+  pdfDocuments = [];
 
   constructor(
     private service: PDFDocumentsService,

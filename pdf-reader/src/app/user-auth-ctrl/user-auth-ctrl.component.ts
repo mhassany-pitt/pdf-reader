@@ -9,7 +9,7 @@ import { Router, RouterModule } from '@angular/router';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonModule],
+  imports: [CommonModule, FormsModule, ButtonModule, RouterModule],
   selector: 'app-user-auth-ctrl',
   templateUrl: './user-auth-ctrl.component.html',
   styleUrls: ['./user-auth-ctrl.component.less']

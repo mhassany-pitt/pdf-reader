@@ -4,6 +4,7 @@ import { AuthenticatedGuard } from './auth-guards/authenticated.guard';
 import { PublicGuard } from './auth-guards/public.guard';
 import { AuthenticatedAuthorGuard } from './auth-guards/authenticated-author.guard';
 import { HandshakeGuard } from './auth-guards/handshake.guard';
+import { AppAdminGuard } from './auth-guards/app-admin.guard';
 
 const routes: Routes = [
   {
@@ -27,6 +28,11 @@ const routes: Routes = [
   {
     path: 'iframe-integration-testground',
     loadChildren: () => import('./iframe-integration-testground/iframe-integration-testground.module').then(m => m.IframeIntegrationTestgroundModule),
+  },
+  {
+    path: 'user-admin',
+    loadChildren: () => import('./user-admin/user-admin.module').then(m => m.UserAdminModule),
+    canActivate: [AppAdminGuard]
   },
   {
     path: 'login',

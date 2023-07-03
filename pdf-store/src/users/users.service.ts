@@ -11,6 +11,22 @@ export class UsersService {
     @InjectModel('users') private users: Model<User>
   ) { }
 
+  async list() {
+    return (await this.users.find()).map(toObject);
+  }
+
+  async create(model: any) {
+    await this.users.create(model);
+  }
+
+  async update(email, model: any) {
+    await this.users.updateOne({ email }, model);
+  }
+
+  async remove(emails) {
+    await this.users.deleteMany({ email: { $in: emails } });
+  }
+
   async findUser(email: string) {
     return toObject(await this.users.findOne({ email }));
   }

@@ -16,8 +16,7 @@ import { UserAuthCtrlComponent } from '../user-auth-ctrl/user-auth-ctrl.componen
     PDFDocumentsComponent
   ],
   imports: [
-    CommonModule,
-    RouterModule,
+    CommonModule, RouterModule,
     DocumentsRoutingModule,
     TableModule, InputTextModule,
     ButtonModule, TagModule,

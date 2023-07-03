@@ -13,6 +13,7 @@ import { PDFReaderModule } from './pdf-reader/pdf-reader.module';
 import { AnnotationsModule } from './annotations/annotations.module';
 import { InteractionLogsModule } from './interaction-logs/interaction-logs.module';
 import { PDFDocumentTextsModule } from './pdf-document-texts/pdf-document-texts.module';
+import { UserAdminModule } from './user-admin/user-admin.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { PDFDocumentTextsModule } from './pdf-document-texts/pdf-document-texts.
     AnnotationsModule,
     InteractionLogsModule,
     PDFDocumentTextsModule,
+    UserAdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
