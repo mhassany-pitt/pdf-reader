@@ -22,4 +22,8 @@ export class UserAdminService {
   update(model: any) {
     return this.http.patch(`${environment.apiUrl}/user-admin`, model, { withCredentials: true });
   }
+
+  genUpdatePassTokens(emails: string[]) {
+    return this.http.post(`${environment.apiUrl}/user-admin/update-password-tokens`, emails, { withCredentials: true });
+  }
 }

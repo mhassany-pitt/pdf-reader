@@ -6,6 +6,7 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
+    "build:ui": "ng build && rsync -a --delete --exclude /plugins/ ./dist/pdf-reader/ ../pdf-store/public",
     "test": "ng test"
   },
   "private": true,

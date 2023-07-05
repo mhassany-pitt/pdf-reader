@@ -5,6 +5,7 @@ export type UserDocument = HydratedDocument<User>;
 
 @Schema()
 export class User {
+  @Prop() active: boolean;
   @Prop() userType: string;
   @Prop() apiKey: string;
   @Prop() fullname: string;
@@ -12,6 +13,7 @@ export class User {
   @Prop() password: string;
   @Prop() roles: [string];
   @Prop() permissions: [string];
+  @Prop({ type: Object }) reset_pass_token: any;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

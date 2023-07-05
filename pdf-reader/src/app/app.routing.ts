@@ -28,6 +28,7 @@ const routes: Routes = [
   {
     path: 'iframe-integration-testground',
     loadChildren: () => import('./iframe-integration-testground/iframe-integration-testground.module').then(m => m.IframeIntegrationTestgroundModule),
+    canActivate: [HandshakeGuard]
   },
   {
     path: 'user-admin',
@@ -38,6 +39,11 @@ const routes: Routes = [
     path: 'login',
     loadChildren: () => import('./login/login.module').then(m => m.LoginModule),
     canActivate: [PublicGuard]
+  },
+  {
+    path: 'update-password',
+    loadChildren: () => import('./update-password/update-password.module').then(m => m.UpdatePasswordModule),
+    canActivate: [HandshakeGuard]
   },
   { path: '**', redirectTo: 'pdf-documents' }
 ];

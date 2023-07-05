@@ -60,11 +60,13 @@
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-user>
-        <tr>
-          <td>
-            <p-tableCheckbox *ngIf="!user.itIsMe" [value]="user"></p-tableCheckbox>
+        <tr [ngClass]="{ 'line-through': !user.active }">
+          <td><p-tableCheckbox *ngIf="!user.itIsMe" [value]="user"></p-tableCheckbox></td>
+          <td class="group" [ngClass]="{ 'italic': !user.fullname }">
+            <span>{{ user.fullname || 'empty' }}</span>
+            <i class="pi pi-pencil cursor-pointer ml-1 opacity-0 group-hover:opacity-100" style="font-size: 0.75rem;"
+              (click)="updateFullname(user)"></i>
           </td>
-          <td>{{ user.fullname }}</td>
           <td>{{ user.email }}</td>
           <td>{{ user.roles?.join(', ') }}</td>
         </tr>

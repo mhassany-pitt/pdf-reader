@@ -107,3 +107,5 @@ dist
 
 pdf-store/storage/
 pdf-store/.env.development
+pdf-store/public/*
+!pdf-store/public/plugins

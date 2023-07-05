@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { UserAdminService } from './user-admin.service';
 import { Router } from '@angular/router';
-import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'app-user-admin',
@@ -10,12 +9,26 @@ import { ConfirmationService } from 'primeng/api';
 })
 export class UserAdminComponent {
 
+  private __areyousure = 'Are you sure that you want to proceed?';
   actions = [
     { label: 'Update Roles', icon: 'pi pi-shield', command: () => this.dialog = 'update-role' },
+    {
+      label: 'Generate Password Update Tokens', icon: 'pi pi-envelope',
+      command: () => { if (confirm(this.__areyousure)) this.genUpdatePassTokens() }
+    },
     { separator: true },
-    { label: 'Activate', icon: 'pi pi-check', command: () => this.confirm(() => this.toggle(true)) },
-    { label: 'Deactive', icon: 'pi pi-ban', command: () => this.confirm(() => this.toggle(false)) },
-    { label: 'Delete', icon: 'pi pi-trash', command: () => this.confirm(() => this.removeUsers()) },
+    {
+      label: 'Activate', icon: 'pi pi-check',
+      command: () => { if (confirm(this.__areyousure)) this.toggle(true); }
+    },
+    {
+      label: 'Deactive', icon: 'pi pi-ban',
+      command: () => { if (confirm(this.__areyousure)) this.toggle(false); }
+    },
+    {
+      label: 'Delete', icon: 'pi pi-trash',
+      command: () => { if (confirm(this.__areyousure)) this.removeUsers(); }
+    },
   ];
 
   dialog: 'create' | 'update-role' | boolean = false;
@@ -27,7 +40,6 @@ export class UserAdminComponent {
   constructor(
     private router: Router,
     private service: UserAdminService,
-    private confirmService: ConfirmationService,
   ) { }
 
   filter(table: any, $event: any) {
@@ -55,20 +67,10 @@ export class UserAdminComponent {
     })
   }
 
-  confirm(then: () => void) {
-    this.confirmService.confirm({
-      message: 'Are you sure that you want to proceed?',
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      rejectButtonStyleClass: 'p-button-outlined p-button-secondary',
-      accept: () => then()
-    });
-  }
+  getSelecteds() { return this.selected.filter(obj => !obj.itIsMe); }
 
   updateRoles() {
-    const data = this.selected
-      .map(obj => ({ ...obj, roles: this.model.roles }))
-      .filter(obj => !obj.itIsMe);
+    const data = this.getSelecteds().map(obj => ({ ...obj, roles: this.model.roles }));
     this.service.update({ action: 'update', data }).subscribe({
       next: (resp: any) => {
         this.dialog = false;
@@ -80,9 +82,7 @@ export class UserAdminComponent {
   }
 
   toggle(active) {
-    const data = this.selected
-      .map(obj => ({ ...obj, active }))
-      .filter(obj => !obj.itIsMe);
+    const data = this.getSelecteds().map(obj => ({ ...obj, active }));
     this.service.update({ action: 'update', data }).subscribe({
       next: (resp: any) => {
         this.dialog = false;
@@ -94,12 +94,42 @@ export class UserAdminComponent {
   }
 
   removeUsers() {
-    const data = this.selected
-      .filter(obj => !obj.itIsMe)
-      .map(obj => obj.email);
+    const data = this.getSelecteds().map(obj => obj.email);
     this.service.update({ action: 'delete', data }).subscribe({
       next: (resp: any) => this.reload(),
       error: (error: any) => { console.log(error) },
     });
+  }
+
+  genUpdatePassTokens() {
+    const data = this.getSelecteds().map(obj => obj.email);
+    this.service.genUpdatePassTokens(data).subscribe({
+      next: (resp: any) => {
+        resp.forEach(each => each.link = `${window.location.origin}/update-password?token=${each.token}&expires=${each.expires}`);
+        const blob = new Blob([JSON.stringify(resp)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = 'update-password-tokens.json';
+        anchor.style.display = 'none';
+
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+
+        URL.revokeObjectURL(url);
+      },
+      error: (error: any) => { console.log(error) },
+    });
+  }
+
+  updateFullname(user) {
+    const fullname = prompt('Enter new fullname:', user.fullname);
+    if (fullname || fullname != user.fullname)
+      this.service.update({ action: 'update-fullname', data: [{ ...user, fullname }] }).subscribe({
+        next: (resp: any) => this.reload(),
+        error: (error: any) => { console.log(error) },
+      });
   }
 }

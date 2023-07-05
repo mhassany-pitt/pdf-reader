@@ -10,7 +10,7 @@ import { environment } from 'src/environments/environment';
 })
 export class LoginComponent {
 
-  credentials = { email: '', password: '' };
+  model = { email: '', password: '' };
 
   constructor(
     private http: HttpClient,
@@ -18,9 +18,13 @@ export class LoginComponent {
   ) { }
 
   login() {
-    this.http.post(`${environment.apiUrl}/auth/login`, this.credentials, { withCredentials: true }).subscribe({
+    this.http.post(`${environment.apiUrl}/auth/login`, this.model, { withCredentials: true }).subscribe({
       next: (resp: any) => this.router.navigate(['/']),
-      error: (error: any) => alert('Login failed! try again, if this issue persists contact administrator.')
+      error: (error: any) => {
+        if (error.status == 401)
+          alert(error.error.message);
+        else alert('Login failed! try again, if this issue persists contact administrator.');
+      }
     })
   }
 }
