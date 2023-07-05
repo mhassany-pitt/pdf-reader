@@ -13,7 +13,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   const config = app.get(ConfigService);
-  const production = (await config.get('PRODUCTION') || '').toLowerCase() == 'true';
+  const production = (process.env.NODE_ENV || 'development').toLowerCase() == 'production';
   if (!production) {
     app.enableCors({ credentials: true, origin: 'http://localhost:4200' });
   }

@@ -17,12 +17,8 @@ import { UserAdminModule } from './user-admin/user-admin.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
-    }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
-    }),
+    ConfigModule.forRoot({ envFilePath: `.env.${(process.env.NODE_ENV || 'development').toLowerCase()}` }),
+    ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', 'public') }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

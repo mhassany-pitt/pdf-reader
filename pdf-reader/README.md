@@ -1,23 +1,13 @@
-## Installation
+# PDF-Reader UI (Angular)
+
+## Running the App (dev)
 
 ```bash
+# install deps
 $ npm install
-```
 
-## Running the app
-
-```bash
 # development
 $ ng serve
 ```
-then open: http://localhost:4200/ 
 
-## Test
-
-```bash
-# unit tests
-$ ng test
-
-# e2e tests
-$ ng e2e
-```
+then open: http://localhost:4200/

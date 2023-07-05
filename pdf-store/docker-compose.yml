@@ -4,18 +4,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    env_file:
+      - .env.production
     ports:
       - "3000:3000"
     volumes:
-      - ./pdf-storage:/pdf-store/storage/pdf-files
+      - ../testground/pdf-files:/pdf-store/storage/pdf-files
     depends_on:
       - mongodb
   mongodb:
-    image: bitnami/mongodb:latest
+    image: bitnami/mongodb
     ports:
       - "27017:27017"
     volumes:
-      - ./mongodb-data:/data/db
-volumes:
-  mongodb-data:
-  pdf-storage: 
+      - ../testground/mongodb-data:/bitnami/mongodb

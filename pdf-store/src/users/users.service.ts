@@ -16,12 +16,13 @@ export class UsersService {
   }
 
   private async addInitialUsers() {
-    const exists = await this.findUser('moh70@pitt.edu');
-    if (!exists) {
+    const list = await this.list();
+    if (list.length === 0) {
       await this.create({
-        fullname: 'Mohammad Hassany',
-        email: 'moh70@pitt.edu',
-        password: await hash('hassany', 10),
+        active: true,
+        fullname: 'Admin',
+        email: 'admin@tmp.com',
+        password: await hash('admin@tmp.com', 10),
         roles: ['app-admin', 'author'],
       });
     }

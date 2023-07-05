@@ -107,5 +107,7 @@ dist
 
 pdf-store/storage/
 pdf-store/.env.development
+pdf-store/.env.production
 pdf-store/public/*
 !pdf-store/public/plugins
+testground/
