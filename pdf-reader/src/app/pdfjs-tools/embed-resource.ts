@@ -16,7 +16,7 @@ export class EmbedResource {
   private annotator: Annotator;
   private embedLinkViewer: EmbeddedResourceViewer;
 
-  constructor({ iframe, pdfjs, annotator, embedLinkViewer, storage }) {
+  constructor({ baseHref, iframe, pdfjs, annotator, embedLinkViewer, storage }) {
     this.document = iframe?.contentDocument;
     this.documentEl = this.document.documentElement;
 
@@ -25,14 +25,14 @@ export class EmbedResource {
     this.annotator = annotator;
     this.embedLinkViewer = embedLinkViewer;
 
-    this._attachStylesheet();
+    this._attachStylesheet(baseHref);
     this._registerToggleItemUI();
     this._registerEditorItemUI();
   }
 
-  private _attachStylesheet() {
+  private _attachStylesheet(baseHref: string) {
     this.documentEl.querySelector('head').appendChild(htmlToElements(
-      `<link rel="stylesheet" type="text/css" href="/assets/embed-resource.css" />`
+      `<link rel="stylesheet" type="text/css" href="${baseHref}assets/embed-resource.css" />`
     ));
   }
 

@@ -37,6 +37,8 @@ export class PDFDocumentComponent implements OnInit {
 
   textExtractionProgress: any = undefined;
 
+  baseHref = document.querySelector('base')?.href;
+
   tt = {};
 
   get pdfDocumentId() {
@@ -96,7 +98,7 @@ export class PDFDocumentComponent implements OnInit {
 
     // load annotations first so can be rendered on document load
     const storage = new AnnotationStorage({
-      app: this.app,
+      user: () => this.app.user,
       api: `${environment.apiUrl}/annotations`,
       http: this.http,
       groupId: this.pdfDocumentId,
@@ -114,21 +116,31 @@ export class PDFDocumentComponent implements OnInit {
     const iframe = this.iframe;
     const pdfjs = this.pdfjs;
     const annotator = new Annotator({
-      iframe, pdfjs, storage, configs: {
+      baseHref: this.baseHref, iframe, pdfjs, storage, configs: {
         highlight: true, underline: true, linethrough: true, redact: true, notes: true,
         annotation_colors: '#ffd400,#ff6563,#5db221,#2ba8e8,#a28ae9,#e66df2,#f29823,#aaaaaa,black',
       }
     });
     this.annotator = annotator;
-    const freeformViewer = new FreeformViewer({ iframe, pdfjs, storage, annotator, configs: { resize: true } });
+    const freeformViewer = new FreeformViewer({
+      baseHref: this.baseHref, iframe, pdfjs,
+      storage, annotator, configs: { resize: true }
+    });
     new FreeformAnnotator({
-      iframe, pdfjs, storage, annotator, freeformViewer, configs: {
+      baseHref: this.baseHref, iframe, pdfjs,
+      storage, annotator, freeformViewer, configs: {
         freeform_stroke_sizes: 'Thin-1,Normal-3,Thick-5',
         freeform_colors: '#ffd400,#ff6563,#5db221,#2ba8e8,#a28ae9,#e66df2,#f29823,#aaaaaa,black',
       }
     });
-    const embedLinkViewer = new EmbeddedResourceViewer({ iframe, pdfjs, storage, annotator, configs: { resize: true } });
-    new EmbedResource({ iframe, pdfjs, storage, annotator, embedLinkViewer });
+    const embedLinkViewer = new EmbeddedResourceViewer({
+      baseHref: this.baseHref, iframe, pdfjs,
+      storage, annotator, configs: { resize: true }
+    });
+    new EmbedResource({
+      baseHref: this.baseHref, iframe, pdfjs,
+      storage, annotator, embedLinkViewer
+    });
     new EnableElemMovement({ iframe, embedLinkViewer, freeformViewer, storage });
 
     new AddTextSelectionToOutline({

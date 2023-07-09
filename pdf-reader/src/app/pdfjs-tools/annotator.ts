@@ -78,7 +78,7 @@ export class Annotator {
     }
   };
 
-  constructor({ iframe, pdfjs, storage, configs }) {
+  constructor({ baseHref, iframe, pdfjs, storage, configs }) {
     this.window = iframe?.contentWindow;
     this.document = iframe?.contentDocument;
     this.documentEl = this.document.documentElement;
@@ -87,7 +87,7 @@ export class Annotator {
     this.storage = storage;
     this.configs = configs;
 
-    this._attachStylesheet();
+    this._attachStylesheet(baseHref);
     this._renderOnPagerendered();
     this._setupOnTextSelection();
     this._toggleBoundaryOnClick();
@@ -107,9 +107,9 @@ export class Annotator {
     this._registerPopupAnnotNoteItemUI();
   }
 
-  private _attachStylesheet() {
+  private _attachStylesheet(baseHref: string) {
     this.documentEl.querySelector('head').appendChild(htmlToElements(
-      `<link rel="stylesheet" type="text/css" href="/assets/annotator.css" />`
+      `<link rel="stylesheet" type="text/css" href="${baseHref}assets/annotator.css" />`
     ));
   }
 

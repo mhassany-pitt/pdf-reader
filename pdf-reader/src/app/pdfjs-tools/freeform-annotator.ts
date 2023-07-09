@@ -21,7 +21,7 @@ export class FreeformAnnotator {
   private canvasLineWidth = 3;
   private canvasStrokeStyle = 'black';
 
-  constructor({ iframe, pdfjs, annotator, freeformViewer, storage, configs }) {
+  constructor({ baseHref, iframe, pdfjs, annotator, freeformViewer, storage, configs }) {
     this.document = iframe?.contentDocument;
     this.documentEl = this.document.documentElement;
 
@@ -31,7 +31,7 @@ export class FreeformAnnotator {
     this.freeformViewer = freeformViewer;
     this.configs = configs;
 
-    this._attachStylesheet();
+    this._attachStylesheet(baseHref);
     this._renderOnPagerendered();
     this._attachCanvasOnMousedown();
     this._reattachCanvasOnPagechanging();
@@ -40,9 +40,9 @@ export class FreeformAnnotator {
     this._registerStrokeColorItemUI();
   }
 
-  private _attachStylesheet() {
+  private _attachStylesheet(baseHref: string) {
     this.documentEl.querySelector('head').appendChild(htmlToElements(
-      `<link rel="stylesheet" type="text/css" href="/assets/freeform-annotator.css" />`
+      `<link rel="stylesheet" type="text/css" href="${baseHref}assets/freeform-annotator.css" />`
     ));
   }
 

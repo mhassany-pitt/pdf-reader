@@ -25,7 +25,7 @@
         'text-blue-700': !sharableLink.delegated && sharableLink.published
       } ">
         <span class="underline text-sm">{{ getURL(sharableLink.id) }}</span>
-        <span class="ml-2 pi pi-copy" (click)="copyURL(sharableLink.id)"></span>
+        <span *ngIf="isHttps" class="ml-2 pi pi-copy" (click)="copyURL(sharableLink.id)"></span>
         <span *ngIf="copyToast?.id == sharableLink.id" class="ml-2 text-xs">
           {{ copyToast?.message }}
         </span>

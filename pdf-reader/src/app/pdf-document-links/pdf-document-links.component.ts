@@ -73,7 +73,11 @@ export class PDFDocumentLinksComponent implements OnInit {
   }
 
   getURL(id: string) {
-    return [window.location.origin, 'pdf-reader', id].join('/');
+    return `${document.querySelector('base')?.href}#/pdf-reader/${id}`;
+  }
+
+  get isHttps() {
+    return document.location.origin.startsWith('https://');
   }
 
   copyURL(id: string) {

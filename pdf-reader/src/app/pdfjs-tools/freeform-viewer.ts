@@ -24,7 +24,7 @@ export class FreeformViewer {
     resize: boolean,
   };
 
-  constructor({ iframe, pdfjs, annotator, storage, configs }) {
+  constructor({ baseHref, iframe, pdfjs, annotator, storage, configs }) {
     this.document = iframe?.contentDocument;
     this.documentEl = this.document.documentElement;
 
@@ -34,13 +34,13 @@ export class FreeformViewer {
 
     this.configs = configs;
 
-    this._attachStylesheet();
+    this._attachStylesheet(baseHref);
     this._renderOnPagerendered();
   }
 
-  private _attachStylesheet() {
+  private _attachStylesheet(baseHref: string) {
     this.documentEl.querySelector('head').appendChild(htmlToElements(
-      `<link rel="stylesheet" type="text/css" href="/assets/freeform-viewer.css" />`
+      `<link rel="stylesheet" type="text/css" href="${baseHref}assets/freeform-viewer.css" />`
     ));
   }
 

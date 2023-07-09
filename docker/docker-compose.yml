@@ -1,15 +1,16 @@
+# run: docker-compose up
 version: "3"
 services:
   webapp:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../pdf-store/
+      dockerfile: ../pdf-store/Dockerfile
     env_file:
       - .env.production
     ports:
       - "3000:3000"
     volumes:
-      - ../testground/pdf-files:/pdf-store/storage/pdf-files
+      - ./pdf-files:/pdf-store/storage/pdf-files
     depends_on:
       - mongodb
   mongodb:
@@ -17,4 +18,4 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - ../testground/mongodb-data:/bitnami/mongodb
+      - ./mongodb-data:/bitnami/mongodb

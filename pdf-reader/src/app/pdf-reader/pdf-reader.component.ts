@@ -36,6 +36,8 @@ export class PDFReaderComponent implements OnInit {
   storage: AnnotationStorage<Annotation> = null as any;
   annotator: Annotator = null as any;
 
+  baseHref = document.querySelector('base')?.href;
+
   get params() { return this.route.snapshot.params as any; }
   get qparams() { return this.route.snapshot.queryParams as any; }
   get qparamsString() { return location.href.split('?').reverse()[0]; }
@@ -105,7 +107,7 @@ export class PDFReaderComponent implements OnInit {
 
     // load annotations first so can be rendered on document load
     const storage = new AnnotationStorage({
-      app: this.app,
+      user: () => this.app.user,
       api: this.configs?.annotation_api,
       http: this.http,
       groupId: this.pdfDocumentId,
@@ -207,25 +209,29 @@ export class PDFReaderComponent implements OnInit {
 
   private setupEmbedResource(iframe, pdfjs, annotator, storage) {
     const embedLinkViewer = new EmbeddedResourceViewer({
-      iframe, pdfjs, annotator,
+      baseHref: this.baseHref, iframe, pdfjs, annotator,
       storage, configs: { resize: this.configs?.embed_resource }
     });
 
     if (this.configs?.embed_resource)
-      new EmbedResource({ iframe, pdfjs, storage, annotator, embedLinkViewer });
+      new EmbedResource({
+        baseHref: this.baseHref, iframe, pdfjs,
+        storage, annotator, embedLinkViewer
+      });
 
     return embedLinkViewer;
   }
 
   private setupFreeform(iframe, pdfjs, annotator, storage) {
     const freeformViewer = new FreeformViewer({
-      iframe, pdfjs, annotator,
+      baseHref: this.baseHref, iframe, pdfjs, annotator,
       storage, configs: { resize: this.configs?.freeform }
     });
 
     if (this.configs?.freeform)
       new FreeformAnnotator({
-        iframe, pdfjs, annotator, freeformViewer, storage, configs: {
+        baseHref: this.baseHref, iframe, pdfjs, annotator,
+        freeformViewer, storage, configs: {
           freeform_stroke_sizes: this.configs?.freeform_stroke_sizes,
           freeform_colors: this.configs?.freeform_colors,
         }
@@ -236,6 +242,7 @@ export class PDFReaderComponent implements OnInit {
 
   private setupAnnotator(iframe, pdfjs, storage) {
     return new Annotator({
+      baseHref: this.baseHref,
       iframe, pdfjs, storage, configs: {
         onleftclick: true,
         highlight: this.configs?.highlight,

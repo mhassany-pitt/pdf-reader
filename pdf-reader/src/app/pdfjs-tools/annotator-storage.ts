@@ -8,13 +8,13 @@ export type Annotation = { id: string, type: string };
 export class AnnotationStorage<T extends Annotation> {
   private annotations: T[] = [];
 
-  private app: AppService;
+  private user: () => any;
   private http: HttpClient;
   private groupId: string;
   private api: string;
 
-  constructor({ app, api, http, groupId }) {
-    this.app = app;
+  constructor({ user, api, http, groupId }) {
+    this.user = user;
     this.api = api;
     this.http = http;
     this.groupId = groupId;
@@ -35,7 +35,7 @@ export class AnnotationStorage<T extends Annotation> {
     const api = `${this.api}/${this.groupId}`;
     this.http.post(api, {
       ...annotation,
-      user_id: this.app.user?.id,
+      user_id: this.user?.().id,
     }, { withCredentials: inSameOrigin(api) }).subscribe({
       next: (resp: any) => {
         annotation.id = resp.id;

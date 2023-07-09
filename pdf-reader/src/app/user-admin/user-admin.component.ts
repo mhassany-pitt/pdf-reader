@@ -105,7 +105,8 @@ export class UserAdminComponent {
     const data = this.getSelecteds().map(obj => obj.email);
     this.service.genUpdatePassTokens(data).subscribe({
       next: (resp: any) => {
-        resp.forEach(each => each.link = `${window.location.origin}/update-password?token=${each.token}&expires=${each.expires}`);
+        const baseHref = document.querySelector('base')?.href;
+        resp.forEach(each => each.link = `${baseHref}/#/update-password?token=${each.token}&expires=${each.expires}`);
         const blob = new Blob([JSON.stringify(resp)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
 

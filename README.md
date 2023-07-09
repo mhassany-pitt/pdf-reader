@@ -11,5 +11,5 @@ a pdf-reader that support multiple type of annotations (highlight, underline, li
 - [PDF-Reader UI (Angular)](./pdf-reader/README.md)
 - [PDF-Store Service (NestJS/MongoDB)](./pdf-store/README.md)
 
-## How to Use
-- [Run in Production/Docker](./pdf-store/README.md)
+## Run in Docker
+- [Run in Production/Docker](./docker/README.md)
