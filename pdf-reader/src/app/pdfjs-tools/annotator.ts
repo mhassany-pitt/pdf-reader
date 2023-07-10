@@ -2,8 +2,8 @@ import { AnnotationStorage } from './annotator-storage';
 import {
   WHRect, getPageEl, getBound,
   getPageNum, getSelectionRects, htmlToElements,
-  getAnnotEl, isLeftClick, isRightClick, relativeToPageEl, rotateRect,
-  rotation, uuid, getAnnotBound
+  getAnnotEl, isLeftClick, isRightClick, rotateRect,
+  rotation, uuid, getAnnotBound, removeSelectorAll
 } from './annotator-utils';
 
 // -- annotator
@@ -118,8 +118,7 @@ export class Annotator {
       if (this.selected
         && $event.key == 'Delete' || $event.key == 'Backspace'
         && $event.target.classList.contains('pdfjs-annotation__bound')) {
-        this.documentEl.querySelectorAll(`.pdfjs-annotations [data-annotation-id="${this.selected.id}"]`)
-          .forEach((el: any) => el.remove());
+        removeSelectorAll(this.documentEl, `.pdfjs-annotations [data-annotation-id="${this.selected.id}"]`);
         this.storage.delete(this.selected, () => {
           this.selected = null;
         });
@@ -160,7 +159,7 @@ export class Annotator {
 
       // remove boundaries if clicked outside one
       if (!classList.contains('pdfjs-annotation__bound')) {
-        pageEl.querySelectorAll(`.pdfjs-annotation__bound`).forEach((el: any) => el.remove());
+        removeSelectorAll(pageEl, '.pdfjs-annotation__bound');
         this.selected = null;
       }
 
@@ -177,8 +176,8 @@ export class Annotator {
     this.pdfjs.eventBus.on('pagerendered', ($event: any) => {
       const pageNum = $event.pageNumber;
       const annotsLayerEl = this.getOrAttachLayerEl(pageNum);
-      annotsLayerEl.querySelectorAll('.pdfjs-annotation__rect').forEach((el: any) => el.remove());
-      annotsLayerEl.querySelectorAll('.pdfjs-annotation__bound').forEach((el: any) => el.remove());
+      removeSelectorAll(annotsLayerEl, '.pdfjs-annotation__rect');
+      removeSelectorAll(annotsLayerEl, '.pdfjs-annotation__bound');
       annotsLayerEl.setAttribute('data-rotation-degree', rotation(this.pdfjs));
 
       // current page and only annotations with rects
@@ -228,8 +227,7 @@ export class Annotator {
       .forEach(pageNum => {
         const annotsLayerEl = this.getOrAttachLayerEl(pageNum);
 
-        annotsLayerEl.querySelectorAll(`[data-annotation-id="${annot.id}"].pdfjs-annotation__rect`)
-          .forEach((el: any) => el.remove());
+        removeSelectorAll(annotsLayerEl, `[data-annotation-id="${annot.id}"].pdfjs-annotation__rect`);
 
         const degree = rotation(this.pdfjs);
         const rects: WHRect[] = annot.rects[pageNum];
@@ -289,9 +287,7 @@ export class Annotator {
 
       if (!this._getPopupContainerEl($event.target)
         && this._prepareAndShowPopup($event).length < 1) {
-        $event.preventDefault();
-        // hide popup if clicked outside it
-        this.hidePopup();
+        this.hidePopup();  // hide popup if clicked outside it
       }
     });
   }
@@ -328,8 +324,7 @@ export class Annotator {
 
   hidePopup() {
     this.location = null as any;
-    const popupEl = this.documentEl.querySelector('.pdfjs-annotation-popup');
-    popupEl?.remove();
+    removeSelectorAll(this.documentEl, '.pdfjs-annotation-popup');
     this.ebus['hide']?.forEach(cb => cb.callback());
   }
 
@@ -355,9 +350,9 @@ export class Annotator {
     this.ebus['show']?.forEach(cb => cb.callback());
   }
 
-  private _getPopupContainerEl(target: HTMLElement) {
+  private _getPopupContainerEl(target: HTMLElement, closest = true) {
     return !target.classList.contains('pdfjs-annotation-popup__container')
-      ? target.closest('.pdfjs-annotation-popup__container') as HTMLElement
+      ? (closest ? target.closest('.pdfjs-annotation-popup__container') : null) as HTMLElement
       : target;
   }
 
@@ -367,11 +362,14 @@ export class Annotator {
     let offset = { left: 0, top: 0 };
     let popupContainerEl: HTMLElement;
     this.document.addEventListener('mousedown', ($event) => {
-      popupContainerEl = this._getPopupContainerEl($event.target);
+      this._renderNoteTmpHighlight($event);
+
+      popupContainerEl = this._getPopupContainerEl($event.target, false);
       if (isLeftClick($event) && popupContainerEl) {
         isdragging = true;
         offset.left = $event.clientX - popupContainerEl.offsetLeft;
         offset.top = $event.clientY - popupContainerEl.offsetTop;
+        $event.preventDefault();
       }
     });
 
@@ -383,6 +381,22 @@ export class Annotator {
     });
 
     this.document.addEventListener('mouseup', () => isdragging = false);
+  }
+
+  private _renderNoteTmpHighlight($event) {
+    const noteEl = $event.target;
+    if (!noteEl.classList.contains('pdfjs-annotation-popup__annot-note'))
+      return;
+
+    const id = 'tmpid' + Math.random().toString().substring(2);
+    const rects: any = getSelectionRects(this.document, this.pdfjs);
+    this.render({ id, type: 'highlight', rects });
+
+    const removeTmpHighlight = ($event) => {
+      removeSelectorAll(this.documentEl, `.pdfjs-annotations [data-annotation-id="${id}"]`);
+      noteEl.removeEventListener('blur', removeTmpHighlight);
+    }
+    noteEl.addEventListener('blur', removeTmpHighlight);
   }
 
   // -- popup row items

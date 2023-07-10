@@ -2,6 +2,7 @@
 version: "3"
 services:
   webapp:
+    container_name: pdf-reader
     build:
       context: ../pdf-store/
       dockerfile: ../pdf-store/Dockerfile
@@ -10,10 +11,11 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./pdf-files:/pdf-store/storage/pdf-files
+      - ./storage:/pdf-store/storage
     depends_on:
       - mongodb
   mongodb:
+    container_name: mongodb
     image: bitnami/mongodb
     ports:
       - "27017:27017"

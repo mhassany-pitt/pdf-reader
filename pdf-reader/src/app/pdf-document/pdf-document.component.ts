@@ -115,30 +115,31 @@ export class PDFDocumentComponent implements OnInit {
 
     const iframe = this.iframe;
     const pdfjs = this.pdfjs;
+    const baseHref = this.baseHref;
     const annotator = new Annotator({
-      baseHref: this.baseHref, iframe, pdfjs, storage, configs: {
+      baseHref, iframe, pdfjs, storage, configs: {
         highlight: true, underline: true, linethrough: true, redact: true, notes: true,
         annotation_colors: '#ffd400,#ff6563,#5db221,#2ba8e8,#a28ae9,#e66df2,#f29823,#aaaaaa,black',
       }
     });
     this.annotator = annotator;
     const freeformViewer = new FreeformViewer({
-      baseHref: this.baseHref, iframe, pdfjs,
+      baseHref, iframe, pdfjs,
       storage, annotator, configs: { resize: true }
     });
     new FreeformAnnotator({
-      baseHref: this.baseHref, iframe, pdfjs,
+      baseHref, iframe, pdfjs,
       storage, annotator, freeformViewer, configs: {
         freeform_stroke_sizes: 'Thin-1,Normal-3,Thick-5',
         freeform_colors: '#ffd400,#ff6563,#5db221,#2ba8e8,#a28ae9,#e66df2,#f29823,#aaaaaa,black',
       }
     });
     const embedLinkViewer = new EmbeddedResourceViewer({
-      baseHref: this.baseHref, iframe, pdfjs,
+      baseHref, iframe, pdfjs,
       storage, annotator, configs: { resize: true }
     });
     new EmbedResource({
-      baseHref: this.baseHref, iframe, pdfjs,
+      baseHref, iframe, pdfjs,
       storage, annotator, embedLinkViewer
     });
     new EnableElemMovement({ iframe, embedLinkViewer, freeformViewer, storage });
@@ -244,7 +245,7 @@ export class PDFDocumentComponent implements OnInit {
   }
 
   cancel() {
-    this.router.navigate(['/Documents']);
+    this.router.navigate(['/pdf-documents']);
   }
 
   update() {

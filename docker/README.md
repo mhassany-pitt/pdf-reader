@@ -2,15 +2,9 @@
 
 ## Run the App
 
-- clone the codebase: _`git clone https://github.com/mhassany-pitt/pdf-reader.git`_
-- in _`./docker`_, create _`.env.production`_
-
-```bash
-PORT=3000
-STORAGE_PATH=./storage
-MONGO_URI=mongodb://mongodb:27017/pdf-store
-SESSION_SECRET=<<REPLACE THIS TEXT WITH A SECRET>>
-```
-
-- run _`docker-compose up`_ to spin up the containers
-- navigate to _`http://localhost:3000/#/login`_ (use _`admin@tmp.com`_ for the email and password)
+- clone the repo: _`git clone https://github.com/mhassany-pitt/pdf-reader.git`_
+- in _`./docker`_ directory, 
+  - create _`.env.production`_  from _`.env.production.example`_ (set a value for __SESSION_SECRET__)
+  - create _`docker-compose.yml`_ from _`docker-compose.example.yml`_ (apply changes if required)
+  - run _`docker-compose up`_ to spin up the containers
+  - navigate to _`http://localhost:3000/#/login`_ (use _`admin@tmp.com`_ for the email and password)

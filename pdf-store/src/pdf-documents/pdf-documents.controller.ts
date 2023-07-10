@@ -74,3 +74,5 @@ export class PDFDocumentsController {
     await this.service.updateTextLocations({ id, fileId: pdfDoc.file_id, pageTexts });
   }
 }
+
+// TODO: when spreading the vars ensure you don't accept any extra values (security issue)

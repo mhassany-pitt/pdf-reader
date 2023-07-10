@@ -206,3 +206,6 @@ export const getAnnotBound = ($event: any): WHRect => {
   });
   return getBound(annotElsBound);
 }
+
+export const removeSelectorAll = (el: HTMLElement, selector: string) =>
+  el.querySelectorAll(selector).forEach((el: any) => el.remove());

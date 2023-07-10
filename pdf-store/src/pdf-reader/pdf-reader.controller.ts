@@ -91,8 +91,6 @@ export class PDFReaderController {
   @Get(':id/file')
   async download(@Req() req: any, @Res() res: Response, @Param('id') id: string) {
     const pdfDoc = await this._getOrFail({ user: req.user, id, req });
-    res.setHeader('Content-Type', 'application/pdf');
-
     let path: string = null;
     if (pdfDoc.file_url) {
       path = this.pdfReaderService.getFilePath({
@@ -110,6 +108,10 @@ export class PDFReaderController {
 
     if (!path || !existsSync(path))
       throw new NotFoundException();
+
+    res.setHeader('Content-Type', 'application/pdf');
+    // TODO: cache this file (ensure new file is returned if updated)
+    // res.setHeader('Cache-Control', 'max-age=2592000'); // 30 days
     res.sendFile(path, { root: '.' });
   }
 }

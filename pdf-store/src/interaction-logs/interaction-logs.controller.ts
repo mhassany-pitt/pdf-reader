@@ -8,6 +8,7 @@ export class InteractionLogsController {
 
   @Post()
   createBulk(@Body() logs: any[]) {
+    // TODO: use a logger and compress the logs
     this.service.writeToFile(logs);
   }
 }
