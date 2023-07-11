@@ -10,7 +10,8 @@ export class InteractionLogsService {
   ) { }
 
   writeToFile(logs: any[]) {
+    const server_datetime = new Date();
     for (const log of logs)
-      this.logger.info(log);
+      this.logger.info({ ...log, server_datetime });
   }
 }

@@ -10,6 +10,7 @@ import { PDFDocumentsService } from './pdf-documents.service';
 export class PDFDocumentsComponent implements OnInit {
 
   pdfDocuments = [];
+  uploading = false;
 
   constructor(
     private service: PDFDocumentsService,
@@ -29,14 +30,17 @@ export class PDFDocumentsComponent implements OnInit {
   create($event: any) {
     const files = $event.target.files;
 
-    if (files.length < 1)
+    if (files.length < 1) {
+      this.uploading = false;
       return;
+    }
 
     this.service.create(files[0]).subscribe({
       next: (resp: any) => {
         this.router.navigate(['/pdf-documents', resp.id])
       },
       error: (error: any) => { console.log(error) },
+      complete: () => { this.uploading = false }
     })
   }
 }

@@ -39,6 +39,7 @@ export class PDFDocumentComponent implements OnInit {
   textExtractionProgress: any = undefined;
 
   baseHref = document.querySelector('base')?.href;
+  updating = false;
 
   tt = {};
 
@@ -254,6 +255,7 @@ export class PDFDocumentComponent implements OnInit {
   }
 
   update() {
+    this.updating = true;
     (this.newfile // upload file
       ? this.service.upload(this.pdfDocumentId, this.newfile)
       : of({})
@@ -262,7 +264,8 @@ export class PDFDocumentComponent implements OnInit {
         this.service.update(this.pdfDocument).subscribe({
           next: (resp: any) => this.router.navigate(['/pdf-documents'])
         })
-      }
+      },
+      complete: () => this.updating = false,
     })
   }
 }

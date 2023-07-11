@@ -64,7 +64,8 @@
         <button pButton type="button" label="Cancel" icon="pi pi-chevron-left"
           class="p-button-sm p-button-text p-button-secondary" (click)="cancel()">
         </button>
-        <button pButton type="submit" label="Update" icon="pi pi-check" class="p-button-sm" [disabled]="form.invalid">
+        <button pButton type="submit" label="Update" icon="pi pi-check" class="p-button-sm" [disabled]="form.invalid"
+          [loading]="updating">
         </button>
       </div>
     </div>
