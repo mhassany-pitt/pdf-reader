@@ -16,6 +16,7 @@ import { TextLocator } from '../pdfjs-tools/text-locator';
 import { HttpClient } from '@angular/common/http';
 import { loadPlugin, scrollTo } from '../pdfjs-tools/pdfjs-utils';
 import { AppService } from '../app.service';
+import { encode } from 'base-64';
 // import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
 
 @Component({
@@ -83,9 +84,10 @@ export class PDFDocumentComponent implements OnInit {
   }
 
   getFileURL() {
-    return this.pdfDocument.file_url
-      ? `${environment.apiUrl}/proxy/${encodeURIComponent(this.pdfDocument.file_url)}`
-      : `${environment.apiUrl}/pdf-documents/${this.pdfDocument.id}/file`;
+    const doc = this.pdfDocument;
+    return doc.file_url
+      ? `${environment.apiUrl}/load-remote-pdf/${encode(doc.file_url)}`
+      : `${environment.apiUrl}/pdf-documents/${doc.id}/file?_hash=${doc.file_hash}`;
   }
 
   async prepare() {
@@ -106,7 +108,10 @@ export class PDFDocumentComponent implements OnInit {
     this.storage = storage;
     await storage.load();
 
-    await this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });
+    try {
+      await this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });
+    } catch (exp) { console.error(exp); }
+
     this.pdfjs.eventBus.on('fileinputchange', ($event) => this.ngZone.run(() => {
       const files = $event.source.files;
       this.newfile = files.length ? $event.source.files[0] : null;

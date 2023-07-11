@@ -40,9 +40,14 @@ export class PDFReaderComponent implements OnInit {
 
   get params() { return this.route.snapshot.params as any; }
   get qparams() { return this.route.snapshot.queryParams as any; }
-  get qparamsString() {
-    const parts = location.href.split('?');
-    return parts.length > 1 ? `?${parts[parts.length - 1]}` : '';
+  get sqparams() { // server query params
+    const qparams = Object.keys(this.qparams)
+      .filter(key => key.startsWith('s__'))
+      .reduce((map, key) => {
+        map[key] = this.qparams[key];
+        return map;
+      }, {});
+    return Object.keys(qparams).length ? `?${new URLSearchParams(qparams)}` : '';
   }
   get pdfDocumentId() { return this.params.id; }
 
@@ -66,7 +71,7 @@ export class PDFReaderComponent implements OnInit {
   }
 
   private reload() {
-    this.service.get(`${this.pdfDocumentId}${this.qparamsString}`).subscribe({
+    this.service.get(`${this.pdfDocumentId}${this.sqparams}`).subscribe({
       next: async (pdfDocument: any) => {
         if (!pdfDocument.tags)
           pdfDocument.tags = [];
@@ -117,7 +122,8 @@ export class PDFReaderComponent implements OnInit {
     });
     this.storage = storage;
 
-    const url = `${environment.apiUrl}/pdf-reader/${this.pdfDocument.id}/file${this.qparamsString}`;
+    const doc = this.pdfDocument;
+    const url = `${environment.apiUrl}/pdf-reader/${doc.id}/file?_hash=${doc.file_hash}`;
     await this.pdfjs.open({ url, withCredentials: true });
     this.postMessage({ type: 'pdf-document-loaded', data: { url } });
 

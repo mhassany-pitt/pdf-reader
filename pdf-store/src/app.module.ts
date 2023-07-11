@@ -14,11 +14,28 @@ import { AnnotationsModule } from './annotations/annotations.module';
 import { InteractionLogsModule } from './interaction-logs/interaction-logs.module';
 import { PDFDocumentTextsModule } from './pdf-document-texts/pdf-document-texts.module';
 import { UserAdminModule } from './user-admin/user-admin.module';
+import { WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
+import * as DailyRotateFile from 'winston-daily-rotate-file';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ envFilePath: `.env.${(process.env.NODE_ENV || 'development').toLowerCase()}` }),
     ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', 'public') }),
+    ConfigModule.forRoot({ envFilePath: `.env.${(process.env.NODE_ENV || 'development').toLowerCase()}` }),
+    WinstonModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService], //
+      useFactory: (config: ConfigService) => ({
+        transports: [
+          new winston.transports.Console(),
+          new DailyRotateFile({
+            filename: `${config.get('STORAGE_PATH')}/logs/app-%DATE%.log`,
+            datePattern: 'YYYY-MM-DD',
+            zippedArchive: true,
+          }),
+        ],
+      })
+    }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

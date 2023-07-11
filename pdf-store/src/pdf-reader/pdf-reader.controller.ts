@@ -60,8 +60,6 @@ export class PDFReaderController {
     if (accounts?.length && !accounts.includes(user.email))
       throw new UnauthorizedException();
 
-    // TODO: do we need to delegate pdf_doc to 3rd party api?
-
     // 6. find the org document and return it
     pdfDoc = await this.pdfReaderService.readPDFDoc({
       user: { id: pdfLink.user_id },
@@ -78,6 +76,7 @@ export class PDFReaderController {
   @Get(':id')
   async get(@Req() req: any, @Param('id') id: string) {
     const pdfDoc = await this._getOrFail({ user: req.user, id, req });
+    pdfDoc.file_hash = createHash('sha256').update(pdfDoc.file_url || pdfDoc.file_id).digest('hex');
     delete pdfDoc.user_id;
     delete pdfDoc.file_id;
     delete pdfDoc.file_url;
@@ -110,8 +109,7 @@ export class PDFReaderController {
       throw new NotFoundException();
 
     res.setHeader('Content-Type', 'application/pdf');
-    // TODO: cache this file (ensure new file is returned if updated)
-    // res.setHeader('Cache-Control', 'max-age=2592000'); // 30 days
+    res.setHeader('Cache-Control', 'max-age=2592000'); // 30 days
     res.sendFile(path, { root: '.' });
   }
 }

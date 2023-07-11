@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ensureDirSync, readFileSync, writeFileSync } from 'fs-extra';
+import { ensureDirSync, readFileSync, rm, writeFile, writeFileSync } from 'fs-extra';
 import { storageRoot, toObject } from 'src/utils';
 import { InjectModel } from '@nestjs/mongoose';
 import { PDFDocument } from './pdf-document.schema';
@@ -48,11 +48,11 @@ export class PDFDocumentsService {
   async upload({ user, fileId, file }) {
     const { originalname, size, buffer } = file;
     if (fileId) {
-      await this.pdfFiles.updateOne({ user_id: user.id, _id: fileId }, { $set: { originalname, size } });
-    } else {
-      fileId = (await this.pdfFiles.create({ user_id: user.id, originalname, size }))._id.toString();
+      await this.pdfFiles.deleteOne({ user_id: user.id, _id: fileId });
+      await rm(storageRoot(this.config, 'pdf-files', fileId), { force: true });
     }
-    writeFileSync(storageRoot(this.config, 'pdf-files', fileId), buffer, { flag: 'w' });
+    fileId = (await this.pdfFiles.create({ user_id: user.id, originalname, size }))._id.toString();
+    await writeFile(storageRoot(this.config, 'pdf-files', fileId), buffer, { flag: 'w' });
     return fileId;
   }
 
@@ -60,7 +60,7 @@ export class PDFDocumentsService {
     return storageRoot(this.config, 'pdf-files', id);
   }
 
-  updateTextLocations({ id, fileId, pageTexts }) {
+  async updateTextLocations({ id, fileId, pageTexts }) {
     const updated_at = new Date().toISOString();
     const texts = Object.keys(pageTexts)
       .map(page => ({
@@ -81,6 +81,6 @@ export class PDFDocumentsService {
           upsert: true
         }
       }));
-    this.pdfTexts.bulkWrite(texts);
+    await this.pdfTexts.bulkWrite(texts);
   }
 }

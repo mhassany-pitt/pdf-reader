@@ -1,21 +1,16 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { ensureDirSync, writeFileSync } from 'fs-extra';
-import { storageRoot } from 'src/utils';
+import { Inject, Injectable } from '@nestjs/common';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { Logger } from 'winston';
 
 @Injectable()
 export class InteractionLogsService {
 
-  constructor(private config: ConfigService) {
-    ensureDirSync(storageRoot(this.config, 'interaction-logs'));
-  }
+  constructor(
+    @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger
+  ) { }
 
   writeToFile(logs: any[]) {
-    const date = new Date().toISOString().substring(0, 10);
-    writeFileSync(
-      storageRoot(this.config, `interaction-logs/${date}.log`),
-      logs.map(log => JSON.stringify(log)).join('\n'),
-      { flag: 'a' }
-    );
+    for (const log of logs)
+      this.logger.info(log);
   }
 }

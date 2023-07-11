@@ -40,5 +40,3 @@ export class PDFDocumentsComponent implements OnInit {
     })
   }
 }
-
-// TODO: in small screens alert user that app (author view) is not optimized for small screens

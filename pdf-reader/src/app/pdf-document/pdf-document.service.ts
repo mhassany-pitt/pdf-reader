@@ -20,7 +20,6 @@ export class PDFDocumentService {
   upload(id: string, file: any) {
     const form = new FormData();
     form.append('file', file);
-
     return this.http.post(`${environment.apiUrl}/pdf-documents/${id}/file`, form, { withCredentials: true });
   }
 

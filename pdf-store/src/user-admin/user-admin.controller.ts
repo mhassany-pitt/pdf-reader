@@ -40,13 +40,13 @@ export class UserAdminController {
       return { fullname, email };
     }).filter(user => user && user.email != myEmail);
 
-    for (const account of accounts) {
+    for (const { fullname, email } of accounts) {
       const password = await hash(Math.random().toString(), 10);
       const reset_pass_token = {
         token: sha256(Math.random().toString(36).substring(2)).toString(),
         expires: Date.now() + 60 * 60 * 1000,
       };
-      await this.service.create({ ...account, password, roles, reset_pass_token });
+      await this.service.create({ fullname, email, password, roles, reset_pass_token });
     }
 
     return {};
