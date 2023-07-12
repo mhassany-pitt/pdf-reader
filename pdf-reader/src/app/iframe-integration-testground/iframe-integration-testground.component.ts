@@ -9,13 +9,23 @@ import { DomSanitizer } from '@angular/platform-browser';
 export class IframeIntegrationTestgroundComponent implements OnInit {
   @ViewChild('iframe', { static: true }) iframe: any;
 
+  iframeUrl = '';
+
   url: any;
+  agent: any;
   messages: any[] = [];
 
-  constructor(private domSanitizer: DomSanitizer) {
-    this.url = this.domSanitizer.bypassSecurityTrustResourceUrl('http://localhost:4200/pdf-reader/647de3be451dcad88a4b726a');
+  constructor(private domSanitizer: DomSanitizer) { }
 
-    window.addEventListener('message', (event) => {
+  ngOnInit(): void {
+    this.postMessagesToIframe();
+  }
+
+  reloadIframe() {
+    this.url = this.domSanitizer.bypassSecurityTrustResourceUrl(this.iframeUrl);
+    if (this.agent) window.removeEventListener('message', this.agent);
+
+    this.agent = (event: any) => {
       // // IMPORTANT: check the origin of the data!
       // if (event.origin !== 'http://example.org:8080')
       //   return;
@@ -24,11 +34,8 @@ export class IframeIntegrationTestgroundComponent implements OnInit {
       // just a sample on how to send messages to iframe
       if (event.data.type == 'pdf-ready')
         this.postMessagesToIframe();
-    }, false);
-  }
-
-  ngOnInit(): void {
-    this.postMessagesToIframe();
+    };
+    window.addEventListener('message', this.agent, false);
   }
 
   postMessagesToIframe() {

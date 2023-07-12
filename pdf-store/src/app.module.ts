@@ -21,7 +21,10 @@ import * as DailyRotateFile from 'winston-daily-rotate-file';
 @Module({
   imports: [
     ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', 'public') }),
-    ConfigModule.forRoot({ envFilePath: `.env.${(process.env.NODE_ENV || 'development').toLowerCase()}` }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: `.env.${(process.env.NODE_ENV || 'development').toLowerCase()}`
+    }),
     WinstonModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService], //
@@ -41,15 +44,13 @@ import * as DailyRotateFile from 'winston-daily-rotate-file';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({ uri: config.get('MONGO_URI') }),
     }),
-    AuthModule,
-    UsersModule,
+    AuthModule, UsersModule, UserAdminModule,
     PDFDocumentsModule,
     PDFDocumentLinksModule,
     PDFReaderModule,
     AnnotationsModule,
     InteractionLogsModule,
     PDFDocumentTextsModule,
-    UserAdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
