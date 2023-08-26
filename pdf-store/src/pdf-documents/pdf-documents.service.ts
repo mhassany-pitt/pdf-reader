@@ -20,15 +20,20 @@ export class PDFDocumentsService {
     ensureDirSync(storageRoot(this.config, 'pdf-files'));
   }
 
-  async list({ user }) {
-    const list = await this.pdfDocs.find({ user_id: user.id });
+  async list({ user, includeArchives }) {
+    const filter: any = { user_id: user.id };
+    if (includeArchives) {
+      // nothing is necessary
+    } else filter.archived = false;
+    const list = await this.pdfDocs.find(filter);
     return list.map(toObject);
   }
 
-  async create({ user, file }) {
+  async create({ user }) {
     return toObject(await this.pdfDocs.create({
+      archived: false,
       user_id: user.id,
-      file_id: await this.upload({ user, file, fileId: null }),
+      file_id: '04accfd333c3ab5318808e0d', // default blank pdf
       created_at: new Date().toISOString(),
       modified_at: new Date().toISOString(),
     }));

@@ -1,6 +1,6 @@
 import {
   Body, Controller, Get, NotFoundException, Param,
-  Patch, Post, Req, Res, UploadedFile,
+  Patch, Post, Query, Req, Res, UploadedFile,
   UseGuards, UseInterceptors
 } from '@nestjs/common';
 import { Express, Response } from 'express';
@@ -9,6 +9,7 @@ import { PDFDocumentsService } from './pdf-documents.service';
 import { AuthenticatedGuard } from 'src/auth/authenticated.guard';
 import { useId } from 'src/utils';
 import { createHash } from 'node:crypto';
+import { createReadStream, statSync } from 'fs-extra';
 
 @Controller('pdf-documents')
 export class PDFDocumentsController {
@@ -29,16 +30,15 @@ export class PDFDocumentsController {
 
   @Get()
   @UseGuards(AuthenticatedGuard)
-  async index(@Req() req: any) {
-    const list = await this.service.list({ user: req.user });
+  async index(@Req() req: any, @Query('include-archives') includeArchives: boolean) {
+    const list = await this.service.list({ user: req.user, includeArchives });
     return list.map(useId);
   }
 
   @Post()
   @UseGuards(AuthenticatedGuard)
-  @UseInterceptors(FileInterceptor('file'))
-  async create(@Req() req: any, @UploadedFile() file: Express.Multer.File) {
-    return useId(await this.service.create({ user: req.user, file }));
+  async create(@Req() req: any) {
+    return useId(await this.service.create({ user: req.user }));
   }
 
   @Get(':id')
@@ -55,6 +55,14 @@ export class PDFDocumentsController {
     return useId(await this.service.update({ user: req.user, id, pdfDoc }));
   }
 
+  @Patch(':id/archive')
+  @UseGuards(AuthenticatedGuard)
+  async archive(@Req() req: any, @Param('id') id: string) {
+    const pdfDoc = await this._getOrFail({ user: req.user, id });
+    useId(await this.service.update({ user: req.user, id, pdfDoc: { archived: !pdfDoc.archived } }));
+    return {};
+  }
+
   @Post(':id/file')
   @UseGuards(AuthenticatedGuard)
   @UseInterceptors(FileInterceptor('file'))
@@ -69,9 +77,29 @@ export class PDFDocumentsController {
   @UseGuards(AuthenticatedGuard)
   async download(@Req() req: any, @Res() res: Response, @Param('id') id: string) {
     const pdfDoc = await this._getOrFail({ user: req.user, id });
+    const filePath = this.service.getFilePath({ id: pdfDoc.file_id });
+
+    const fileSize = statSync(filePath).size;
+    let start = 0, end = fileSize - 1;
+
+    const rangeHeader = req.headers.range;
+    if (rangeHeader) {
+      const parts = rangeHeader.replace(/bytes=/, '').split('-');
+      start = parseInt(parts[0], 10);
+      end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+
+      res.status(206);
+      res.setHeader('Content-Range', `bytes ${start}-${end}/${fileSize}`);
+      res.setHeader('Content-Length', end - start + 1);
+      res.setHeader('Accept-Ranges', 'bytes');
+    } else {
+      res.setHeader('Content-Length', fileSize);
+    }
+
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Cache-Control', 'max-age=2592000'); // 30 days
-    res.sendFile(this.service.getFilePath({ id: pdfDoc.file_id }), { root: '.' });
+
+    createReadStream(filePath, { start, end }).pipe(res);
   }
 
   @Post(':id/text-locations')

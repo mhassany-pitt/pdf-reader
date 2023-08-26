@@ -106,6 +106,8 @@ dist
 .DS_Store
 
 pdf-store/storage/
+# default blank pdf file
+!pdf-store/storage/pdf-files/04accfd333c3ab5318808e0d
 pdf-store/.env.development
 pdf-store/public/*
 !pdf-store/public/plugins

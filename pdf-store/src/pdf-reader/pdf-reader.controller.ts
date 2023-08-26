@@ -8,7 +8,7 @@ import { useId } from 'src/utils';
 import { Response } from 'express';
 import { PDFReaderService } from './pdf-reader.service';
 import { createHash } from 'node:crypto';
-import { existsSync, writeFileSync } from 'fs-extra';
+import { createReadStream, existsSync, statSync, writeFileSync } from 'fs-extra';
 
 @Controller('pdf-reader')
 export class PDFReaderController {
@@ -93,23 +93,44 @@ export class PDFReaderController {
     let path: string = null;
     if (pdfDoc.file_url) {
       path = this.pdfReaderService.getFilePath({
-        id: createHash('sha256').update(pdfDoc.file_url).digest('hex')
+        id: createHash('sha256').update(pdfDoc.file_url).digest('hex'),
       });
-      // cache the file_url to local storage (path)
       if (!existsSync(path)) {
-        writeFileSync(path,
+        writeFileSync(
+          path,
           (await axios.get(pdfDoc.file_url, { responseType: 'arraybuffer' })).data,
-          { encoding: 'binary' });
+          { encoding: 'binary' }
+        );
       }
     } else {
       path = this.pdfReaderService.getFilePath({ id: pdfDoc.file_id });
     }
 
-    if (!path || !existsSync(path))
+    if (!path || !existsSync(path)) {
       throw new NotFoundException();
+    }
+
+    const fileSize = statSync(path).size;
+    let start = 0, end = fileSize - 1;
+
+    const rangeHeader = req.headers.range;
+    if (rangeHeader) {
+      const parts = rangeHeader.replace(/bytes=/, '').split('-');
+      start = parseInt(parts[0], 10);
+      end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+      const chunkSize = end - start + 1;
+
+      res.status(206);
+      res.setHeader('Content-Range', `bytes ${start}-${end}/${fileSize}`);
+      res.setHeader('Content-Length', chunkSize);
+      res.setHeader('Accept-Ranges', 'bytes');
+    } else {
+      res.setHeader('Content-Length', fileSize);
+    }
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Cache-Control', 'max-age=2592000'); // 30 days
-    res.sendFile(path, { root: '.' });
+
+    createReadStream(path, { start, end }).pipe(res);
   }
 }

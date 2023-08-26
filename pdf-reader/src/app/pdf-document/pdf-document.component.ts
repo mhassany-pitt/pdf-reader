@@ -17,6 +17,7 @@ import { HttpClient } from '@angular/common/http';
 import { loadPlugin, scrollTo } from '../pdfjs-tools/pdfjs-utils';
 import { AppService } from '../app.service';
 import { encode } from 'base-64';
+import { ConfirmationService } from 'primeng/api';
 // import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
 
 @Component({
@@ -41,11 +42,12 @@ export class PDFDocumentComponent implements OnInit {
   baseHref = document.querySelector('base')?.href;
   updating = false;
 
+  outlineRefMapping = {};
   tt = {};
 
-  get pdfDocumentId() {
-    return (this.route.snapshot.params as any).id;
-  }
+  get pdfDocumentId() { return (this.route.snapshot.params as any).id; }
+
+  rndom = 0;
 
   constructor(
     private http: HttpClient,
@@ -55,6 +57,7 @@ export class PDFDocumentComponent implements OnInit {
     private service: PDFDocumentService,
     private title: Title,
     private app: AppService,
+    private confirm: ConfirmationService,
   ) { }
 
   ngOnInit(): void {
@@ -97,6 +100,7 @@ export class PDFDocumentComponent implements OnInit {
 
     this.window = this.iframe.contentWindow;
     this.pdfjs = this.window.PDFViewerApplication;
+    this.pdfjs.preferences.set('sidebarViewOnLoad', 0);
     this.removeExtraElements();
 
     // load annotations first so can be rendered on document load
@@ -117,6 +121,8 @@ export class PDFDocumentComponent implements OnInit {
       const files = $event.source.files;
       this.newfile = files.length ? $event.source.files[0] : null;
       this.pdfDocument.file_url = null;
+
+      this.confirmOutlineExtraction();
     }));
 
     const iframe = this.iframe;
@@ -177,21 +183,24 @@ export class PDFDocumentComponent implements OnInit {
       });
   }
 
-  add(entry: Entry) {
-    this.pdfDocument.outline.push(entry);
+  addOutlineEntry(entry: Entry) {
+    this.pdfDocument.outline.push({
+      id: Math.max(...this.pdfDocument.outline.map(e => e.id), 0) + 1,
+      ...entry,
+    });
   }
 
-  remove(entry: Entry) {
+  removeOutlineEntry(entry: Entry) {
     const outline = this.pdfDocument.outline;
     outline.splice(outline.indexOf(entry), 1);
   }
 
-  level(entry: Entry, change: number) {
+  updateEntryLevel(entry: Entry, change: number) {
     entry.level = Math.min(Math.max(0, (entry.level || 0) + change), 5);
   }
 
   addToOutline(selection: any, $event: any) {
-    let { top, left, width, height } = selection.getRangeAt(0).getBoundingClientRect();
+    let { top, left } = selection.getRangeAt(0).getBoundingClientRect();
     const textLayer = selection.anchorNode.parentElement.closest(`.pdfViewer .textLayer`);
     const page = parseInt(textLayer.parentElement.getAttribute('data-page-number'));
     const bound = textLayer.getBoundingClientRect();
@@ -199,22 +208,80 @@ export class PDFDocumentComponent implements OnInit {
     // relative % to parent
     top = (top - bound.top) / bound.height;
     left = (left - bound.left) / bound.width;
-    width /= bound.width;
-    height /= bound.height;
 
     const title = selection.toString().trim();
     const level = 0;
 
-    if (!title)
-      return;
+    if (!title) return;
 
-    this.add({ level, title, page, top, left, width, height });
+    this.addOutlineEntry({ level, title, page, top, left });
 
     selection.removeAllRanges();
     setTimeout(() => document.getElementById(`outline-title-${this.pdfDocument.outline.length - 1}`)?.focus(), 0);
   }
 
-  scrollToEntry(entry: any) {
+  confirmOutlineExtraction() {
+    this.confirm.confirm({
+      header: 'Sync Outline?',
+      message: 'This will overwrite the outline from the PDF document!',
+      acceptLabel: 'Yes, Sure!',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.extractOutline()
+    });
+  }
+
+  async extractOutline() {
+    this.pdfDocument.outline = [];
+    const outline = await this.pdfjs.pdfDocument.getOutline();
+    for (const entry of (outline || []))
+      await this.extractOutlineEntry(entry, 0);
+  }
+
+  async extractOutlineEntry({ title, dest, items }, level: number) {
+    dest = await this.pdfjs.pdfDocument.getDestination(dest);
+    this.addOutlineEntry({
+      level,
+      title: title,
+      page: await this.pdfjs.pdfDocument.getPageIndex(dest[0]) + 1,
+      dest,
+    } as any);
+    for (const subentry of (items || []))
+      await this.extractOutlineEntry(subentry, level + 1);
+  }
+
+  manageOutlineEntry($event: any, i: number) {
+    this.rndom = Date.now();
+    const outline = this.pdfDocument.outline,
+      /* */ entry = outline[i];
+    if ($event.code == 'Tab') {
+      $event.preventDefault();
+      this.updateEntryLevel(entry, $event.shiftKey ? -1 : 1);
+    } else if ($event.code == 'ArrowUp' && i > 0) {
+      this.focusEntryTitle(i - 1);
+      if ($event.altKey) this.swapOutlineEntry(i, i - 1);
+    } else if ($event.code == 'ArrowDown' && i < outline.length - 1) {
+      this.focusEntryTitle(i + 1);
+      if ($event.altKey) this.swapOutlineEntry(i, i + 1);
+    }
+  }
+
+  focusEntryTitle(i: any) {
+    setTimeout(() => document.getElementById('outline-entry-' + i)?.focus(), 0);
+  }
+
+  swapOutlineEntry(i, j) {
+    const array = this.pdfDocument.outline;
+    if (i >= 0 && j >= 0 && i < array.length && j < array.length) {
+      [i, j] = [Math.min(i, j), Math.max(i, j)]
+      this.pdfDocument.outline = [
+        ...array.slice(0, i),
+        array[j], array[i],
+        ...array.slice(j + 1)
+      ];
+    }
+  }
+
+  async scrollToEntry(entry: any) {
     scrollTo(this.window.document, this.pdfjs, entry);
   }
 
@@ -222,8 +289,11 @@ export class PDFDocumentComponent implements OnInit {
     this.pdfjs.appConfig.openFileInput.click();
   }
 
-  fileUrlChanged($event) {
-    this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });
+  async fileUrlChanged($event) {
+    try {
+      await this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });
+      this.confirmOutlineExtraction();
+    } catch (exp) { console.error(exp); }
   }
 
   private removeExtraElements() {
@@ -266,6 +336,6 @@ export class PDFDocumentComponent implements OnInit {
         })
       },
       complete: () => this.updating = false,
-    })
+    });
   }
 }

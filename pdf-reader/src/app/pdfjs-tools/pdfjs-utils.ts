@@ -1,15 +1,17 @@
 import { environment } from "src/environments/environment";
 
-export const scrollTo = (document, pdfjs, { page, top, left }) => {
-  if (pdfjs.pdfViewer.scrollMode == 3)
-    pdfjs.page = page; // for certain page layout, set page first
-  const pageEl = document.querySelector(`.pdfViewer .page[data-page-number="${page}"]`);
-  const { width, height } = pageEl.getBoundingClientRect();
-  document.getElementById('viewerContainer').scrollTo({
-    top: pageEl.offsetTop + (top ? top / 100 * height : -32),
-    left: pageEl.offsetLeft + (left ? left / 100 * width : -32),
-    behavior: 'smooth'
-  });
+export const scrollTo = async (document, pdfjs, { page, top, left, dest }: any) => {
+  if (dest)
+    pdfjs.pdfViewer.scrollPageIntoView({ pageNumber: page, destArray: dest });
+  else {
+    if (pdfjs.pdfViewer.scrollMode == 3)
+      pdfjs.page = page; // for certain page layout, set page first
+    const pageEl = document.querySelector(`.pdfViewer .page[data-page-number="${page}"]`);
+    const { width, height } = pageEl.getBoundingClientRect();
+    const container = document.getElementById('viewerContainer');
+    container.scrollTop = pageEl.offsetTop + ((top - 0.075) * height);
+    container.scrollLeft = pageEl.offsetLeft + (left * width);
+  }
 }
 
 export const inSameOrigin = (api: string) => {
@@ -26,4 +28,25 @@ export const loadPlugin = ({ url, iframe, pdfjs, storage, annotator, loaded, fai
   }
   script.onerror = () => failed?.();
   iframe.contentDocument.head.appendChild(script);
+}
+
+export const num2Base62 = (num: number, pad?: number) => {
+  const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  const base62 = (chars[(num / chars.length) | 0] + chars[num % chars.length])
+  return pad ? base62.padStart(pad, '0') : base62;
+}
+
+export const assignNumbering = (outline) => {
+  const numbering = [0];
+  for (const entry of outline) {
+    if (entry.level == numbering.length) {
+      numbering.push(1);
+    } else if (entry.level == numbering.length - 2) {
+      numbering.pop();
+      numbering[numbering.length - 1]++;
+    } else {
+      numbering[numbering.length - 1]++;
+    }
+    entry.numbering = [...numbering];
+  }
 }

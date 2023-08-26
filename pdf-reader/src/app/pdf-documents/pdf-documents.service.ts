@@ -9,14 +9,15 @@ export class PDFDocumentsService {
     private http: HttpClient,
   ) { }
 
-  list() {
-    return this.http.get(`${environment.apiUrl}/pdf-documents`, { withCredentials: true });
+  list({ includeArchives }) {
+    return this.http.get(`${environment.apiUrl}/pdf-documents${includeArchives ? '?include-archives=true' : ''}`, { withCredentials: true });
   }
 
-  create(file: any) {
-    const form = new FormData();
-    form.append('file', file);
+  create() {
+    return this.http.post(`${environment.apiUrl}/pdf-documents`, {}, { withCredentials: true });
+  }
 
-    return this.http.post(`${environment.apiUrl}/pdf-documents`, form, { withCredentials: true });
+  toggleArchive(id: string) {
+    return this.http.patch(`${environment.apiUrl}/pdf-documents/${id}/archive`, {}, { withCredentials: true });
   }
 }

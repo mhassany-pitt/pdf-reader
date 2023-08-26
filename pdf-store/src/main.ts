@@ -42,3 +42,8 @@ async function bootstrap() {
   }
 }
 bootstrap();
+ 
+// TODO: enable logging
+// TODO: privacy issue with sharing annotations
+// TODO: remember who is selected in showing annoations
+// TODO: add fingerprintjs to the interaction logs

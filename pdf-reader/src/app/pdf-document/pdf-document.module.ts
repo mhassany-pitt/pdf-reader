@@ -17,22 +17,25 @@ import { DialogModule } from 'primeng/dialog';
 import { PDFDocumentService } from './pdf-document.service';
 import { PDFDocumentLinksComponent } from '../pdf-document-links/pdf-document-links.component';
 import { UserAuthCtrlComponent } from '../user-auth-ctrl/user-auth-ctrl.component';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
 
 @NgModule({
   declarations: [
     PDFDocumentComponent,
   ],
   imports: [
-    CommonModule,
-    FormsModule,
+    CommonModule, FormsModule,
     DocumentRoutingModule, SelectButtonModule,
     InputTextModule, InputNumberModule,
     ButtonModule, ChipsModule, DialogModule,
     InputSwitchModule, CheckboxModule,
     ColorPickerModule, MultiSelectModule,
-    PDFDocumentLinksComponent,
+    PDFDocumentLinksComponent, InputTextareaModule,
+    ConfirmDialogModule,
     UserAuthCtrlComponent,
   ],
-  providers: [PDFDocumentService]
+  providers: [PDFDocumentService, ConfirmationService]
 })
 export class PDFDocumentModule { }

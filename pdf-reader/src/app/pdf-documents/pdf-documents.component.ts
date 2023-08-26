@@ -10,7 +10,8 @@ import { PDFDocumentsService } from './pdf-documents.service';
 export class PDFDocumentsComponent implements OnInit {
 
   pdfDocuments = [];
-  uploading = false;
+
+  includeArchives: boolean = false;
 
   constructor(
     private service: PDFDocumentsService,
@@ -22,25 +23,26 @@ export class PDFDocumentsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.service.list().subscribe({
+    this.reload();
+  }
+
+  reload() {
+    this.service.list({ includeArchives: this.includeArchives }).subscribe({
       next: (pdfDocuments: any) => this.pdfDocuments = pdfDocuments
     });
   }
 
-  create($event: any) {
-    const files = $event.target.files;
-
-    if (files.length < 1) {
-      this.uploading = false;
-      return;
-    }
-
-    this.service.create(files[0]).subscribe({
-      next: (resp: any) => {
-        this.router.navigate(['/pdf-documents', resp.id])
-      },
+  create() {
+    this.service.create().subscribe({
+      next: (resp: any) => this.router.navigate(['/pdf-documents', resp.id]),
       error: (error: any) => { console.log(error) },
-      complete: () => { this.uploading = false }
+    })
+  }
+
+  toggleArchive(pdfDocument: any) {
+    this.service.toggleArchive(pdfDocument.id).subscribe({
+      next: (resp: any) => this.reload(),
+      error: (error: any) => { console.log(error) },
     })
   }
 }

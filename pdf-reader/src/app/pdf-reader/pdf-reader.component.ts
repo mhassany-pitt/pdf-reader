@@ -322,7 +322,7 @@ export class PDFReaderComponent implements OnInit {
     children[children.length - 1].remove();
   }
 
-  scrollToEntry(entry) {
+  async scrollToEntry(entry) {
     scrollTo(this.window.document, this.pdfjs, entry);
     this.postMessage({ type: 'navto-outline-entry', data: entry });
   }

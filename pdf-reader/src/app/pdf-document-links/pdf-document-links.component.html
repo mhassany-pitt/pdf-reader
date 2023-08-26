@@ -20,18 +20,19 @@
       <span class="text-gray-400" style="font-size: 0.65rem">
         Created at: {{ sharableLink.created_at | date:'long' }}
       </span>
-      <div class="text-xs flex items-center" [ngClass]="{ 
+      <div class="text-xs flex items-center gap-2" [ngClass]="{ 
         'text-gray-400': !sharableLink.delegated && !sharableLink.published,
         'text-blue-700': !sharableLink.delegated && sharableLink.published
       } ">
         <span class="underline text-sm">{{ getURL(sharableLink.id) }}</span>
-        <span *ngIf="isHttps" class="ml-2 pi pi-copy" (click)="copyURL(sharableLink.id)"></span>
-        <span *ngIf="copyToast?.id == sharableLink.id" class="ml-2 text-xs">
+        <span *ngIf="isHttps" class="pi pi-copy" (click)="copyURL(sharableLink.id)"></span>
+        <span *ngIf="copyToast?.id == sharableLink.id" class="text-xs">
           {{ copyToast?.message }}
         </span>
+        <a [href]="getURL(sharableLink.id)" target="_blank" class="pi pi-external-link" style="font-size: 0.75rem;"></a>
       </div>
 
-      <span class="flex items-center absolute top-2 right-2 pi" [ngClass]="{ 
+      <span class="flex items-center cursor-pointer absolute top-2 right-2 pi" [ngClass]="{ 
           'pi-chevron-up': tt[sharableLink.id], 
           'pi-chevron-down': !tt[sharableLink.id] 
         }" (click)="tt[sharableLink.id] = !tt[sharableLink.id]">

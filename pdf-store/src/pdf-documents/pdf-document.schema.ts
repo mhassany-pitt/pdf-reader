@@ -5,6 +5,7 @@ export type PDFDocumentDocument = HydratedDocument<PDFDocument>;
 
 @Schema()
 export class PDFDocument {
+  @Prop() archived: boolean;
   @Prop() user_id: string;
   @Prop() title: string;
   @Prop() tags: [string];

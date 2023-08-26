@@ -1,7 +1,10 @@
 <div class="flex flex-col">
   <div class="px-10 py-4 bg-gray-100 shadow-md">
     <div class="container mx-auto flex items-center gap-2 h-7">
-      <h1 class="text-xl">PDF Documents</h1>
+      <a routerLink="/pdf-documents" class="flex items-center gap-2">
+        <img src="./assets/logo.png" class="w-8 mx-auto" />
+        <h1 class="cursor-pointer text-xl">PDF Documents</h1>
+      </a>
 
       <span class="flex-grow"></span>
 
@@ -12,20 +15,20 @@
   <div class="container mx-auto my-10 border shadow-md">
     <p-table #table [value]="pdfDocuments" styleClass="p-datatable-striped">
       <ng-template pTemplate="caption">
-        <div class="table-header flex items-center">
+        <div class="table-header flex items-center gap-1">
           <span class="text-2xl">
             Documents
           </span>
 
           <span class="flex-grow"></span>
 
-          <input #file type="file" class="w-0 h-0" accept="application/pdf" (change)="create($event)"
-            (cancel)="uploading = false" />
-          <button pButton type="button" label="New Document" icon="pi pi-plus" class="p-button-sm"
-            (click)="uploading = true; file.click()" [loading]="uploading">
+          <button pButton type="button" [label]="includeArchives ? 'Show Archives' : 'Hide Archives'"
+            class="p-button-sm p-button-outlined" [ngClass]="{ 'p-button-plain': !includeArchives }"
+            (click)="includeArchives = !includeArchives; reload();">
           </button>
 
-          <span class="mx-1"></span>
+          <button pButton type="button" label="New Document" icon="pi pi-plus" class="p-button-sm" (click)="create()">
+          </button>
 
           <span class="p-input-icon-right">
             <input pInputText type="text" (input)="filter(table, $event)" placeholder="Search" class="p-inputtext-sm" />
@@ -43,11 +46,12 @@
             <span>Modified at</span>
             <p-sortIcon field="modified_at"></p-sortIcon>
           </th>
+          <th class="w-16">Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="2">
+          <td colspan="3">
             <div class="flex items-center justify-center">
               <span class="text-gray-500">empty list</span>
             </div>
@@ -55,14 +59,14 @@
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-pdfDocument>
-        <tr>
-          <td>
+        <tr [ngClass]="{ 'line-through decoration-gray-400': pdfDocument.archived }">
+          <td [ngClass]="{ 'text-gray-400': pdfDocument.archived }">
             <div class="flex items-center">
               <a [routerLink]="['/pdf-documents', pdfDocument.id]" class="font-bold">
                 {{ pdfDocument.title || 'unnamed' }}
               </a>
 
-              <span [routerLink]="['/pdf-reader', pdfDocument.id]" class="text-gray-500 ml-2 cursor-pointer">
+              <span [routerLink]="['/pdf-reader', pdfDocument.id]" class="ml-2 cursor-pointer">
                 <i class="pi pi-window-maximize" style="font-size: 0.75rem;"></i>
               </span>
 
@@ -75,7 +79,15 @@
               </div>
             </div>
           </td>
-          <td class="w-64">{{pdfDocument.modified_at | date:'medium' }}</td>
+          <td class="w-64" [ngClass]="{ 'text-gray-400': pdfDocument.archived }">
+            {{pdfDocument.modified_at | date:'medium' }}
+          </td>
+          <td class="w-16" [ngClass]="{ 'text-gray-400': pdfDocument.archived }">
+            <div class="flex items-center justify-center">
+              <i class="pi pi-briefcase text-gray-400 hover:text-red-400 active:text-red-600 cursor-pointer"
+                [title]="pdfDocument.archived ? 'Unarchive' : 'Archive'" (click)="toggleArchive(pdfDocument)"></i>
+            </div>
+          </td>
         </tr>
       </ng-template>
     </p-table>

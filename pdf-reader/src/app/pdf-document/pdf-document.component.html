@@ -1,9 +1,10 @@
 <form *ngIf="pdfDocument" #form="ngForm" (ngSubmit)="update()" class="flex flex-col h-full pdf-document">
-  <div class="px-10 py-4 bg-gray-100 shadow-md">
+  <div #navbarEl class="px-10 py-4 bg-gray-100 shadow-md">
     <div class="container mx-auto flex items-center gap-2 h-7">
-      <h1 routerLink="/pdf-documents" class="cursor-pointer text-xl">
-        PDF Documents
-      </h1>
+      <a routerLink="/pdf-documents" class="flex items-center gap-2">
+        <img src="./assets/logo.png" class="w-8 mx-auto" />
+        <h1 class="cursor-pointer text-xl">PDF Documents</h1>
+      </a>
 
       <span class="flex-grow"></span>
 
@@ -18,37 +19,44 @@
 
       <p-chips name="tags" [(ngModel)]="pdfDocument.tags" separator="," placeholder="Tags (comma separated)"></p-chips>
 
-      <span class="my-1"></span>
-
-      <span class="flex items-center">
-        <span class="text-xl font-bold">Outline</span>
-      </span>
-
       <hr class="my-1" />
 
-      <div class="flex-grow flex flex-col gap-1">
-        <div *ngIf="pdfDocument.outline.length < 1" class="flex items-center relative">
-          <span class="text-xs text-gray-400 text-center m-4">
-            Select a text on the pdf file, and click on "Add to Outline" to add a new entry to the outline
+      <span class="font-bold">Outline</span>
+
+      <div class="flex flex-col text-xs border border-gray-600 p-2 rounded-sm overflow-y-auto"
+        [ngStyle]="{ 'max-height': 'calc(100vh - 425px)' }">
+        <div *ngIf="this.pdfDocument.outline?.length < 1" class="text-gray-400">
+          No outline entries
+        </div>
+        <div *ngFor="let entry of this.pdfDocument.outline; let i = index;" class="flex items-center relative"
+          (mouseenter)="tt['outline-hovered'] = i">
+          <input [id]="'outline-entry-' + i" [name]="rndom + 'outline-entry-' + i" [(ngModel)]="entry.title"
+            class="flex-grow"
+            [ngClass]="{ 'bg-gray-200': !entry.title, 'border rounded-sm mr-6': tt['outline-hovered'] == i }"
+            style="min-width: 1rem;" [ngStyle]="{ 'margin-left': (entry.level * .5) + 'rem' }"
+            (click)="scrollToEntry(entry)" (keydown)="manageOutlineEntry($event, i)" />
+          <span
+            class="py-1 absolute right-1 pi pi-trash cursor-pointer opacity-0 text-gray-200 hover:text-red-500 active:text-red-700"
+            [ngClass]="{ 'opacity-100': tt['outline-hovered'] == i }" style="font-size: 0.75rem"
+            (click)="removeOutlineEntry(entry)">
           </span>
         </div>
+      </div>
 
-        <div *ngFor="let entry of pdfDocument.outline; let i = index" class="flex items-center relative">
-          <span [ngStyle]="{ width: entry.level + 'rem' }"></span>
-
-          <input [id]="'outline-title-' + i" type="text" [name]="'outline-' + i" pInputText [(ngModel)]="entry.title"
-            autocomplete="off" class="p-inputtext-sm flex-grow mx-1" style="padding: 0.25rem 0.5rem;"
-            (focus)="scrollToEntry(entry)" />
-
-          <span
-            class="py-1 absolute right-2 pi pi-times opacity-5 hover:opacity-100 hover:text-red-600 active:text-red-800"
-            style="font-size: 0.75rem" (click)="remove(entry)">
-          </span>
-
-          <span class="py-1 absolute right-12 pi pi-chevron-left opacity-5 hover:opacity-60 active:opacity-100"
-            style="font-size: 0.75rem" (click)="level(entry, -1)"></span>
-          <span class="py-1 absolute right-8 pi pi-chevron-right opacity-5 hover:opacity-60 active:opacity-100"
-            style="font-size: 0.75rem" (click)="level(entry, +1)"></span>
+      <div class="text-xs text-gray-400">
+        <div>Select a text, then click on "Add to Outline"</div>
+        <div>Click in an outline entry, then:</div>
+        <div>
+          - press <span class="howto-key-comb">up</span> or <span class="howto-key-comb">down</span>
+          for navigation
+        </div>
+        <div>
+          - press <span class="howto-key-comb">alt+up</span> or <span class="howto-key-comb">alt+down</span>
+          to move up or down
+        </div>
+        <div>
+          - press <span class="howto-key-comb">tab</span> or <span class="howto-key-comb">shift+tab</span>
+          to change indenation
         </div>
       </div>
 
@@ -122,3 +130,5 @@
   <app-pdf-document-links *ngIf="tt['share']" [pdfDocumentId]="pdfDocument.id"
     (locateTexts)="locateTexts()"></app-pdf-document-links>
 </p-dialog>
+
+<p-confirmDialog></p-confirmDialog>
