@@ -252,7 +252,9 @@ export class PDFReaderComponent implements OnInit {
   private setupAnnotator(iframe, pdfjs, storage) {
     return new Annotator({
       baseHref: this.baseHref,
-      iframe, pdfjs, storage, configs: {
+      iframe, pdfjs, storage,
+      toolbar: null, // TODO: add toolbar
+      configs: {
         onleftclick: true,
         highlight: this.configs?.highlight,
         underline: this.configs?.underline,

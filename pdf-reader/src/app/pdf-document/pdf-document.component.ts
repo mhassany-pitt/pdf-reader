@@ -18,6 +18,7 @@ import { loadPlugin, scrollTo } from '../pdfjs-tools/pdfjs-utils';
 import { AppService } from '../app.service';
 import { encode } from 'base-64';
 import { ConfirmationService } from 'primeng/api';
+import { Toolbar } from '../pdfjs-tools/toolbar';
 // import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
 
 @Component({
@@ -128,8 +129,11 @@ export class PDFDocumentComponent implements OnInit {
     const iframe = this.iframe;
     const pdfjs = this.pdfjs;
     const baseHref = this.baseHref;
+
+    const toolbar = new Toolbar({ iframe, pdfjs });
+
     const annotator = new Annotator({
-      baseHref, iframe, pdfjs, storage, configs: {
+      baseHref, iframe, pdfjs, storage, toolbar, configs: {
         highlight: true, underline: true, linethrough: true, redact: true, notes: true,
         annotation_colors: '#ffd400,#ff6563,#5db221,#2ba8e8,#a28ae9,#e66df2,#f29823,#aaaaaa,black',
       }
@@ -220,8 +224,9 @@ export class PDFDocumentComponent implements OnInit {
     setTimeout(() => document.getElementById(`outline-title-${this.pdfDocument.outline.length - 1}`)?.focus(), 0);
   }
 
-  confirmOutlineExtraction() {
-    this.confirm.confirm({
+  async confirmOutlineExtraction() {
+    const outline = await this.pdfjs.pdfDocument.getOutline();
+    if (outline.length) this.confirm.confirm({
       header: 'Sync Outline?',
       message: 'This will overwrite the outline from the PDF document!',
       acceptLabel: 'Yes, Sure!',
@@ -250,7 +255,6 @@ export class PDFDocumentComponent implements OnInit {
   }
 
   manageOutlineEntry($event: any, i: number) {
-    this.rndom = Date.now();
     const outline = this.pdfDocument.outline,
       /* */ entry = outline[i];
     if ($event.code == 'Tab') {
@@ -272,6 +276,7 @@ export class PDFDocumentComponent implements OnInit {
   swapOutlineEntry(i, j) {
     const array = this.pdfDocument.outline;
     if (i >= 0 && j >= 0 && i < array.length && j < array.length) {
+      this.rndom = Date.now();
       [i, j] = [Math.min(i, j), Math.max(i, j)]
       this.pdfDocument.outline = [
         ...array.slice(0, i),

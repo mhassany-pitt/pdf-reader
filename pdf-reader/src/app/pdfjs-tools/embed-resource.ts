@@ -45,7 +45,6 @@ export class EmbedResource {
         `<div class="pdfjs-embed-resource__embed-btns">
           <button type="button" class="pdfjs-embed-resource__embed-btn">
             <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABAElEQVR4AWJwL/BhAAJGAKX0kJABFIVhONvWJK4m2/YaapqxkWxrHxmzbPdW3+Dk/sFzfa7h5iBnxb4XHKeFVfBEGvKQ8xvkIgNeb7GaoBPPDmq3E4yo8QjncoEbuTb5kcaO2Amm0YIApCABcfCHrxGutlZM2wkWUPXpgkJQhCojXX2VWLATzKNRZX/lNXjGICawgmfT92WCBpV9lDdiwewoHPu/7aBeZW/lmbjDBrZwgD31VX+eYBZNKnvDVXkEoiXqlcY0YdZOsIYiB35gEdbsBP3YxSgWMId5LBjzWNSYPfTaCTxQjGbUo+EH9RpTCs+XwQ2gPDMhsjMrcRiRnQGKlqDNgHz6DQAAAABJRU5ErkJggg==" />
-
             <span>Embed Resource</span>
           </button>
         </div>`);
