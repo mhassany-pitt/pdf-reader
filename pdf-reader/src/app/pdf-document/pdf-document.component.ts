@@ -23,6 +23,7 @@ import { PdfRegistry } from '../pdfjs-tools/pdf-registry';
 import { PdfHighlighter } from '../pdfjs-tools/pdf-highlighter';
 import { PdfHighlightViewer } from '../pdfjs-tools/pdf-highlight-viewer';
 import { PdfAnnotationLayer } from '../pdfjs-tools/pdf-annotation-layer';
+import { PdfHighlighterToolbarBtn } from '../pdfjs-tools/pdf-highlighter-toolbar-btn';
 // import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
 
 @Component({
@@ -130,12 +131,14 @@ export class PDFDocumentComponent implements OnInit {
     }));
 
     const registry = new PdfRegistry({ iframe: this.iframe, pdfjs: this.pdfjs });
-    registry.register('baseHref', document.querySelector('base')?.href);
+    // registry.register('baseHref', document.querySelector('base')?.href);
     registry.register('storage', storage);
+
     new PdfAnnotationLayer({ registry });
-    const toolbar = new PdfToolbar({ registry });
-    const highlighter = new PdfHighlighter({ registry });
-    const highlightViewer = new PdfHighlightViewer({ registry });
+    new PdfToolbar({ registry });
+    new PdfHighlighter({ registry });
+    new PdfHighlighterToolbarBtn({ registry });
+    new PdfHighlightViewer({ registry });
 
     // const annotator = new Annotator({
     //   baseHref, iframe, pdfjs, storage, toolbar, configs: {
