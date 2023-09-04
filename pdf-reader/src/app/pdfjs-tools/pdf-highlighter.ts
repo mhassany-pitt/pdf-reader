@@ -12,8 +12,11 @@ export class PdfHighlighter {
   private registry: PdfRegistry;
   private selected: any;
 
-  highlighting: boolean = false;
-  color: string = '';
+  enabled: boolean = false;
+  type = 'highlight';
+  color: string = 'transparent';
+  stroke = '0.125rem';
+  strokeStyle = 'solid';
 
   constructor({ registry }) {
     this.registry = registry;
@@ -46,13 +49,13 @@ export class PdfHighlighter {
   private _highlightOnTextSelection() {
     let mdown = false, mdragging = false;
     this._getDocument().addEventListener('mousedown', ($event: any) => {
-      if (this.highlighting && isLeftClick($event)) {
+      if (this.enabled && isLeftClick($event)) {
         mdown = true;
       }
     });
 
     this._getDocument().addEventListener('mousemove', ($event: any) => {
-      if (this.highlighting && isLeftClick($event)) {
+      if (this.enabled && isLeftClick($event)) {
         mdragging = mdown;
       }
     });
@@ -63,7 +66,14 @@ export class PdfHighlighter {
       if (mdragging) {
         const rects = getSelectionRects(this._getDocument(), this._getPdfJS());
         if (rects && Object.keys(rects).length) {
-          const highlight = { id: uuid(), type: 'highlight', color: this.color, rects };
+          const highlight = {
+            id: uuid(),
+            type: this.type,
+            color: this.color,
+            stroke: this.stroke,
+            strokeStyle: this.strokeStyle,
+            rects
+          };
           this._getStorage().create(highlight, () => {
             this._getWindow().getSelection().removeAllRanges();
             this.registry.get('highlight-viewer').render(highlight);
@@ -73,12 +83,12 @@ export class PdfHighlighter {
     };
 
     this._getDocument().addEventListener('mouseup', ($event: any) => {
-      if (this.highlighting && isLeftClick($event)) {
+      if (this.enabled && isLeftClick($event)) {
         handle($event);
       }
     });
     this._getDocument().addEventListener('dblclick', ($event: any) => {
-      if (this.highlighting) {
+      if (this.enabled) {
         mdragging = true;
         handle($event);
       }

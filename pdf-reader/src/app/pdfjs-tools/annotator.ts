@@ -109,7 +109,7 @@ export class Annotator {
     this._registerPopupAnnotNoteItemUI();
 
     // -- toolbar
-    this._addToolbarUI();
+    // this._addToolbarUI();
   }
 
   private _addToolbarUI() {

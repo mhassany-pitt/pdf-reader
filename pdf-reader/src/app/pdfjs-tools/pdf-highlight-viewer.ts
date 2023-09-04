@@ -61,8 +61,9 @@ export class PdfHighlightViewer {
                 left: ${rect.left}%;
                 right: ${rect.right}%;
                 --annotation-color: ${annot.color || 'rgb(255, 212, 0)'};
-              ">
-            </div>`
+                --annotation-stroke: ${annot.stroke || '0.125rem'};
+                --annotation-stroke-style: ${annot.strokeStyle || 'solid'};
+              "></div>`
           );
 
           annotsLayerEl.appendChild(rectEl);
@@ -76,13 +77,55 @@ export class PdfHighlightViewer {
         .pdfjs-annotation__rect {
           position: absolute;
           pointer-events: auto;
-          border-radius: 5px;
+          border-radius: 0.125rem;
           z-index: 5;
         }
 
+        /* highlight */
         .pdfjs-annotation__highlight {
           background-color: var(--annotation-color);
-          opacity: 0.5;
+        }
+
+        /* underline */
+        .pdfjs-annotation__underline {
+          border-radius: 0;
+        }
+        
+        [data-rotation-degree="0"] .pdfjs-annotation__underline {
+          border-bottom: var(--annotation-stroke) var(--annotation-stroke-style) var(--annotation-color);
+        }
+        
+        [data-rotation-degree="180"] .pdfjs-annotation__underline {
+          border-top: var(--annotation-stroke) var(--annotation-stroke-style) var(--annotation-color);
+        }
+        
+        [data-rotation-degree="90"] .pdfjs-annotation__underline {
+          border-left: var(--annotation-stroke) var(--annotation-stroke-style) var(--annotation-color);
+        }
+        
+        [data-rotation-degree="270"] .pdfjs-annotation__underline {
+          border-right: var(--annotation-stroke) var(--annotation-stroke-style) var(--annotation-color);
+        }
+
+        /* strikethrough */
+        .pdfjs-annotation__strikethrough::before {
+          content: "";
+          display: block;
+          position: absolute;
+        }
+        
+        [data-rotation-degree="0"] .pdfjs-annotation__strikethrough::before,
+        [data-rotation-degree="180"] .pdfjs-annotation__strikethrough::before {
+          top: calc(50%);
+          width: 100%;
+          border-top: var(--annotation-stroke) var(--annotation-stroke-style) var(--annotation-color);
+        }
+        
+        [data-rotation-degree="90"] .pdfjs-annotation__strikethrough::before,
+        [data-rotation-degree="270"] .pdfjs-annotation__strikethrough::before {
+          left: calc(50%);
+          height: 100%;
+          border-right: var(--annotation-stroke) var(--annotation-stroke-style) var(--annotation-color);
         }
       </style>`;
     this.registry.getDocumentEl().querySelector('head').appendChild(htmlToElements(styles));

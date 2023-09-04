@@ -12,6 +12,8 @@ export class Annotation {
 
   // -- highlight, ... 
   @Prop() color: string;
+  @Prop() stroke: string;
+  @Prop() strokeStyle: string;
   @Prop({ type: Object }) rects: any;
   @Prop() note: string;
 

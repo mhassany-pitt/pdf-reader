@@ -5,72 +5,118 @@ import { PdfToolbar } from './pdf-toolbar';
 
 export class PdfHighlighterToolbarBtn {
 
-  private registry: PdfRegistry;
-  private dot: HTMLElement = null as any;
+  protected registry: PdfRegistry;
+  private colorDotEl: HTMLElement = null as any;
+
+  protected getType() { return 'highlight'; }
+  protected color = 'transparent';
+  protected stroke = '0.125rem';
+  protected strokeStyle = 'solid';
 
   constructor({ registry }) {
     this.registry = registry;
 
     this._addToolbarUI();
-    this._hideDetailsOnOutsideMouseDown();
     this._attachStylesheet();
   }
 
-  private _getColors() {
-    return ['#ffd400', '#ff6563', '#5db221', '#2ba8e8', '#a28ae9', '#e66df2', '#f29823', '#aaaaaa', 'black'];
+  protected _getDocument() { return this.registry.getDocument(); }
+  protected _getToolbarEl(): PdfToolbar { return this.registry.get('toolbar'); }
+  protected _getHighlighter(): PdfHighlighter { return this.registry.get('highlighter'); }
+
+  protected _setType(value: string) { this._getHighlighter().type = value; }
+  protected _getType() { return this._getHighlighter().type; }
+  protected _isEnabled() { return this._getHighlighter().enabled; }
+  protected _setEnable(value: boolean) { this._getHighlighter().enabled = value; }
+  protected _getColor() { return this._getHighlighter().color; }
+  protected _setColor(value: string) { this._getHighlighter().color = value; }
+  protected _getStroke() { return this._getHighlighter().stroke; }
+  protected _setStroke(value: string) { this._getHighlighter().stroke = value; }
+  protected _getStrokeStyle() { return this._getHighlighter().strokeStyle; }
+  protected _setStrokeStyle(value: string) { this._getHighlighter().strokeStyle = value; }
+
+  protected getIcon() {
+    return `<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAFEElEQVR4AWJwL/ABtHdOYbAjQRT+7l3btm3btm3br2vbtm3btm3b3pw9D7VO1yQ9k57qbJ3v+9+6+uKf7kpmAkM4kYWOC3EhjgtxXIgLcVwIgEHIABfSfxEjk3PIt+RLchQZyoX0R8Zo5Gn8N0e5ECMyJF+RgS7EgAzJ92QQF2JAhuQ837LsyHiOjOpCbMh4kYzlh70uoxYuw4W4DI2cZTyDzrmeDOFCUq8MPTeQIV2IARk5SslJxijkGcTn2hy2r1xkDEZuh54XyCdppLiQfSucgY9BZshdSg4yxibfVT20BTC9SGmop7iQ/RHO82SMkpoGV4oLeQ7l+YCMo9RlKcX+kVU4W+j1TUhxITMgnDFlXEIpLmQBhDOIjEsoxYXsgXAmkXGtkmJZxrDkM4Szt4xNJMWF7Ao9P5C52ibFqowhyHvonC/JHNXnjj15dCFbQU9rpViUMSh5nSB/Ke0Qsj70tFqKNRkDyfMoz4/kOuj5gsyec6O3JmQVhHMSGYSc1+aVYk3IIyjPr2QyGdNqKZZkLIlwzpVxpN1SLAm5G+UpyHQyrvVSrMiYF+Fc2eEQ+ZIcGj2ABcnl5HayGxnMspDrEYp8wnOWAmBbUuCfucCkEAAzkQLluUWvNyxFlyHBZPaE6P+RC8u4DKXoMiQLmhICYEryG8rzgF5vW0oFGV+TkawJORPhLCfjcpSyUwcZBdnAVA8BMB75CeV5Kv5GfwOHxHoKsp3MZ0rIcQhnTaU2Vym6DKFfMsYg36M8r5JBZWz+UnQZZoQciXA2UWqb6ilf9qqnKDK2MXmmDmBnhPM2GVzG5iLloDgZBoQA2Al6tlfqzW1fADYnRdQ2FcDEypB8RIYO1VtbKfp5hr4yNKzIKMgqoXprUgBsFyfDgBAAm1WQsbmMJ2akfEu2IUP+rW5MckJczzAgBMCs5GcTMiKkSL4jT5EXyW/xMmwIubXDX34zrd6MFEmjMoSmvxoplL/81oaex3heD2RsK3OaFbIOwtnS0E/Hc5HrEJ+fyMbmf8JVLpZ+1oiIRcnt6C5vkflkTvNCtkV5PiMj9UnCALICeQjd5RWySzYXOQCYkLyJcB4gwyfuE2tHPgniNXIQ2Y2sS6bK6kI5AONXvFj6UTJSwyIGJ+uTF1E/z0rtoClXcXoZCaQAGIbsQN5B/TxB1u/Xk0vTyUggBcBwIuID1M+9+s/GaWheRgIpAEYje5IvUD+3kLlbc5+6NPA3oOchvcnHNXoAQ5PDyPeol9/IhWQGmcsMKWQ8SEYgE/ZSCoCRyeMRJ3Gnkclb9zQg2aZeq7IVRdcEADAieQTV8yM5iYwnc5glmYzua6NkfE2OImNLvXmSyoidI0LGJ2RPSH1ONNYzejOX9JTqPeN9siMZJgsBJSSXETHny+SwSuNka8qZNNtU93Ojggx5mFnLhQAYPX5l9HSl2FgZBoQchc7Zr9tPKIAd7cuwIeRuVMuv5CayDhm6pow1yC+ol6d0Ge0Vcgbq52tyOlmADOilDBl7Ahk2fwFxQqYgnyM+b5C9yWSRMm6WlXcO2YlM+L9/0yeAickp5Ct0l/vIFmTEijL28Vev6mKGImuTG8iviM8PLqP3Xy6ORXYgj6P3OchfTtwFAKYhB5IPXYat39QHIYuSs8l3LsPWdVkjkvXJLaRwGbbuD5mC7Elecxk6/XiE3yLkDPICuZes5iIqCHFciONCXIjjQlyI40JciONCXIjjQpzfAYn3DrhYdJOXAAAAAElFTkSuQmCC">`;
   }
 
-  private _getDocument() { return this.registry.getDocument(); }
-  private _getToolbarEl(): PdfToolbar { return this.registry.get('toolbar'); }
-  private _getHighlighter(): PdfHighlighter { return this.registry.get('highlighter'); }
-
-  private _isHighlighting() { return this._getHighlighter().highlighting; }
-  private _setHighlighting(value: boolean) { this._getHighlighter().highlighting = value; }
-  private _getColor() { return this._getHighlighter().color; }
-  private _setColor(value: string) { this._getHighlighter().color = value; }
+  protected getColorOptions() {
+    return [
+      // btn-color:highlight-color
+      '#ffd400:#ffd40075',
+      '#ff6563:#ff656375',
+      '#5db221:#5db22175',
+      '#2ba8e8:#2ba8e875',
+      '#a28ae9:#a28ae975',
+      '#e66df2:#e66df275',
+      '#f29823:#f2982375',
+      '#aaaaaa:#aaaaaa75',
+      'black:black'];
+  }
 
   private _addToolbarUI() {
-    const highlightBtn = this._getButtonEl();
-    this._getToolbarEl().addItem(highlightBtn);
-    this.dot = highlightBtn.querySelector('.highlighting-color-dot') as HTMLElement;
-    this.dot.style.display = 'none';
+    // add toolbar button
+    const button = htmlToElements(
+      `<span class="pdf-toolbar-btn pdf-toolbar__${this.getType()}-btn" title="Highlight">
+        <span class="color-dot"></span>
+        ${this.getIcon()}    
+       <span>`);
+    this.colorDotEl = button.querySelector(`.color-dot`) as HTMLElement;
+    this.colorDotEl.style.display = 'none';
+    this._getToolbarEl().addItem(button);
 
-    highlightBtn.addEventListener('click', () => {
-      highlightBtn.classList.toggle('selected');
-      if (highlightBtn.classList.contains('selected')) {
-        this._setHighlighting(true);
-        this._getToolbarEl().showDetails(this._getToolbarDetailsEl());
+    // toggle details on click
+    button.addEventListener('click', () => {
+      button.classList.toggle('selected');
+      if (button.classList.contains('selected')) {
+        this._getToolbarEl().getEl()
+          .querySelectorAll('.pdf-toolbar-btn.selected')
+          .forEach(other => {
+            if (other != button)
+              other.click();
+          });
+        this._setEnable(true);
+        this._setType(this.getType());
+        this._setColor(this.getColorOptions()[0].split(':')[1]);
+        this._getToolbarEl().showDetails(this.getToolbarDetailsEl());
       } else {
-        this._setHighlighting(false);
-        this.dot.style.display = 'none';
-        this.dot.style.backgroundColor = '';
-        this._setColor('')
+        this._setEnable(false);
+        this._hideColorDot();
+        this._setColor('transparent');
+        this._setStroke('0.125rem');
+        this._setStrokeStyle('solid');
         this._getToolbarEl().showDetails(null as any);
       }
     });
 
-    highlightBtn.addEventListener('mouseover', () => {
-      if (this._isHighlighting() && !this._getToolbarEl().hasDetails()) {
-        const details = this._getToolbarDetailsEl();
-        this._getToolbarEl().showDetails(details);
-        (details.querySelector(`[data-highlight-color="${this._getColor()}"]`) as HTMLElement)?.click();
+    // show details on hover
+    button.addEventListener('mouseover', () => {
+      if (this._isEnabled() && this._getType() == this.getType() && !this._getToolbarEl().hasDetails()) {
+        this._getToolbarEl().showDetails(this.getToolbarDetailsEl());
+      }
+    });
+
+    this._getDocument().addEventListener('mousedown', ($event: any) => {
+      if (this._isEnabled() && this._getType() == this.getType() && isLeftClick($event)) {
+        if (!$event.target.closest('.pdf-toolbar')) {
+          this.colorDotEl.style.display = 'block';
+          this._getToolbarEl().showDetails(null as any);
+        }
       }
     });
   }
 
-  private _getButtonEl() {
-    return htmlToElements(`<span class="pdf-toolbar-btn pdf-toolbar__highlight-btn" title="Highlight">
-        <span class="highlighting-color-dot"></span>
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAFEElEQVR4AWJwL/ABtHdOYbAjQRT+7l3btm3btm3br2vbtm3btm3b3pw9D7VO1yQ9k57qbJ3v+9+6+uKf7kpmAkM4kYWOC3EhjgtxXIgLcVwIgEHIABfSfxEjk3PIt+RLchQZyoX0R8Zo5Gn8N0e5ECMyJF+RgS7EgAzJ92QQF2JAhuQ837LsyHiOjOpCbMh4kYzlh70uoxYuw4W4DI2cZTyDzrmeDOFCUq8MPTeQIV2IARk5SslJxijkGcTn2hy2r1xkDEZuh54XyCdppLiQfSucgY9BZshdSg4yxibfVT20BTC9SGmop7iQ/RHO82SMkpoGV4oLeQ7l+YCMo9RlKcX+kVU4W+j1TUhxITMgnDFlXEIpLmQBhDOIjEsoxYXsgXAmkXGtkmJZxrDkM4Szt4xNJMWF7Ao9P5C52ibFqowhyHvonC/JHNXnjj15dCFbQU9rpViUMSh5nSB/Ke0Qsj70tFqKNRkDyfMoz4/kOuj5gsyec6O3JmQVhHMSGYSc1+aVYk3IIyjPr2QyGdNqKZZkLIlwzpVxpN1SLAm5G+UpyHQyrvVSrMiYF+Fc2eEQ+ZIcGj2ABcnl5HayGxnMspDrEYp8wnOWAmBbUuCfucCkEAAzkQLluUWvNyxFlyHBZPaE6P+RC8u4DKXoMiQLmhICYEryG8rzgF5vW0oFGV+TkawJORPhLCfjcpSyUwcZBdnAVA8BMB75CeV5Kv5GfwOHxHoKsp3MZ0rIcQhnTaU2Vym6DKFfMsYg36M8r5JBZWz+UnQZZoQciXA2UWqb6ilf9qqnKDK2MXmmDmBnhPM2GVzG5iLloDgZBoQA2Al6tlfqzW1fADYnRdQ2FcDEypB8RIYO1VtbKfp5hr4yNKzIKMgqoXprUgBsFyfDgBAAm1WQsbmMJ2akfEu2IUP+rW5MckJczzAgBMCs5GcTMiKkSL4jT5EXyW/xMmwIubXDX34zrd6MFEmjMoSmvxoplL/81oaex3heD2RsK3OaFbIOwtnS0E/Hc5HrEJ+fyMbmf8JVLpZ+1oiIRcnt6C5vkflkTvNCtkV5PiMj9UnCALICeQjd5RWySzYXOQCYkLyJcB4gwyfuE2tHPgniNXIQ2Y2sS6bK6kI5AONXvFj6UTJSwyIGJ+uTF1E/z0rtoClXcXoZCaQAGIbsQN5B/TxB1u/Xk0vTyUggBcBwIuID1M+9+s/GaWheRgIpAEYje5IvUD+3kLlbc5+6NPA3oOchvcnHNXoAQ5PDyPeol9/IhWQGmcsMKWQ8SEYgE/ZSCoCRyeMRJ3Gnkclb9zQg2aZeq7IVRdcEADAieQTV8yM5iYwnc5glmYzua6NkfE2OImNLvXmSyoidI0LGJ2RPSH1ONNYzejOX9JTqPeN9siMZJgsBJSSXETHny+SwSuNka8qZNNtU93Ojggx5mFnLhQAYPX5l9HSl2FgZBoQchc7Zr9tPKIAd7cuwIeRuVMuv5CayDhm6pow1yC+ol6d0Ge0Vcgbq52tyOlmADOilDBl7Ahk2fwFxQqYgnyM+b5C9yWSRMm6WlXcO2YlM+L9/0yeAickp5Ct0l/vIFmTEijL28Vev6mKGImuTG8iviM8PLqP3Xy6ORXYgj6P3OchfTtwFAKYhB5IPXYat39QHIYuSs8l3LsPWdVkjkvXJLaRwGbbuD5mC7Elecxk6/XiE3yLkDPICuZes5iIqCHFciONCXIjjQlyI40JciONCXIjjQpzfAYn3DrhYdJOXAAAAAElFTkSuQmCC">
-      <span>`);
+  private _hideColorDot() {
+    this.colorDotEl.style.display = 'none';
+    this.colorDotEl.style.backgroundColor = '';
   }
 
-  private _getToolbarDetailsEl() {
+  protected getToolbarDetailsEl() {
     const className = 'pdfjs-annotation-toolbar__color-options';
     const colorsEl = htmlToElements(
       `<div>
         <div class="${className}">
-          ${this._getColors().map(color => `<span data-highlight-color="${color}" style="background-color: ${color}"></span>`).join('')}
+          ${this.getColorOptions().map(color =>
+        `<span data-highlight-color="${color.split(':')[1]}" style="background-color: ${color.split(':')[0]}"></span>`).join('')}
         </div>
         <style>
           .${className} {
@@ -85,47 +131,36 @@ export class PdfHighlighterToolbarBtn {
             height: 0.975rem;
             border: dashed 0.125rem transparent;
           }
+          .${className} > span.selected {
+            border-style: dashed;
+            border-color: white;
+          }
         </style>
       </div>`);
 
     colorsEl.querySelector(`.${className}`)?.addEventListener('click', ($event: any) => {
       const el = $event.target;
       const color = el.getAttribute('data-highlight-color');
-      if (!color)
-        return;
-
-      if (!el.classList.contains('selected')) {
-        this._setColor(color);
-        const otherColorEls = colorsEl.querySelectorAll(`.${className} > span`);
-        otherColorEls.forEach((other: any) => {
-          other.classList.remove('selected');
-          other.style.borderColor = 'transparent';
-        });
+      if (color && !el.classList.contains('selected')) {
+        colorsEl.querySelectorAll(`.${className} > span.selected`).forEach(other => other.classList.remove('selected'));
         el.classList.add('selected');
-        el.style.borderColor = 'white';
-        this.dot.style.backgroundColor = this._getColor();
+
+        this.color = color;
+        this._setColor(this.color);
+        this.colorDotEl.style.backgroundColor = el.style.backgroundColor;
       }
     });
 
-    return colorsEl;
-  };
+    (colorsEl.querySelector(`[data-highlight-color="${this._getColor()}"]`) as HTMLElement)?.click();
 
-  private _hideDetailsOnOutsideMouseDown() {
-    this._getDocument().addEventListener('mousedown', ($event: any) => {
-      if (this._isHighlighting() && isLeftClick($event)) {
-        if (!$event.target.closest('.pdf-toolbar')) {
-          this.dot.style.display = 'block';
-          this._getToolbarEl().showDetails(null as any);
-        }
-      }
-    });
+    return [colorsEl];
   }
 
   private _attachStylesheet() {
     this.registry.getDocumentEl().querySelector('head').appendChild(htmlToElements(
       `<style>
-        .pdf-toolbar__highlight-btn .highlighting-color-dot {
-          background-color: red;
+        .pdf-toolbar__${this.getType()}-btn.selected .color-dot {
+          background-color: transparent;
           position: absolute;
           bottom: 0;
           right: 0;

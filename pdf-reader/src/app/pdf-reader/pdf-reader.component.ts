@@ -157,21 +157,23 @@ export class PDFReaderComponent implements OnInit {
   }
 
   private loadPlugins(annotator: Annotator) {
-    this.configs.custom_plugins.split('\n').forEach((url: string) => {
-      try {
-        loadPlugin({
-          url,
-          iframe: this.iframe,
-          pdfjs: this.pdfjs,
-          storage: this.storage,
-          annotator: this.annotator,
-          loaded: () => { },
-          failed: () => { },
-        })
-      } catch (exp) {
-        console.error(exp);
-      }
-    });
+    const plugins = this.configs.custom_plugins;
+    if (plugins) plugins.split('\n')
+      .forEach((url: string) => {
+        try {
+          loadPlugin({
+            url,
+            iframe: this.iframe,
+            pdfjs: this.pdfjs,
+            storage: this.storage,
+            annotator: this.annotator,
+            loaded: () => { },
+            failed: () => { },
+          })
+        } catch (exp) {
+          console.error(exp);
+        }
+      });
   }
 
   private applyQParamsConfig() {
