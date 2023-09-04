@@ -18,7 +18,11 @@ import { loadPlugin, scrollTo } from '../pdfjs-tools/pdfjs-utils';
 import { AppService } from '../app.service';
 import { encode } from 'base-64';
 import { ConfirmationService } from 'primeng/api';
-import { Toolbar } from '../pdfjs-tools/toolbar';
+import { PdfToolbar } from '../pdfjs-tools/pdf-toolbar';
+import { PdfRegistry } from '../pdfjs-tools/pdf-registry';
+import { PdfHighlighter } from '../pdfjs-tools/pdf-highlighter';
+import { PdfHighlightViewer } from '../pdfjs-tools/pdf-highlight-viewer';
+import { PdfAnnotationLayer } from '../pdfjs-tools/pdf-annotation-layer';
 // import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
 
 @Component({
@@ -40,7 +44,6 @@ export class PDFDocumentComponent implements OnInit {
 
   textExtractionProgress: any = undefined;
 
-  baseHref = document.querySelector('base')?.href;
   updating = false;
 
   outlineRefMapping = {};
@@ -126,44 +129,46 @@ export class PDFDocumentComponent implements OnInit {
       this.confirmOutlineExtraction();
     }));
 
-    const iframe = this.iframe;
-    const pdfjs = this.pdfjs;
-    const baseHref = this.baseHref;
+    const registry = new PdfRegistry({ iframe: this.iframe, pdfjs: this.pdfjs });
+    registry.register('baseHref', document.querySelector('base')?.href);
+    registry.register('storage', storage);
+    new PdfAnnotationLayer({ registry });
+    const toolbar = new PdfToolbar({ registry });
+    const highlighter = new PdfHighlighter({ registry });
+    const highlightViewer = new PdfHighlightViewer({ registry });
 
-    const toolbar = new Toolbar({ iframe, pdfjs });
+    // const annotator = new Annotator({
+    //   baseHref, iframe, pdfjs, storage, toolbar, configs: {
+    //     highlight: true, underline: true, linethrough: true, redact: true, notes: true,
+    //     annotation_colors: '#ffd400,#ff6563,#5db221,#2ba8e8,#a28ae9,#e66df2,#f29823,#aaaaaa,black',
+    //   }
+    // });
+    // this.annotator = annotator;
+    // const freeformViewer = new FreeformViewer({
+    //   baseHref, iframe, pdfjs,
+    //   storage, annotator, configs: { resize: true }
+    // });
+    // new FreeformAnnotator({
+    //   baseHref, iframe, pdfjs,
+    //   storage, annotator, freeformViewer, configs: {
+    //     freeform_stroke_sizes: 'Thin-1,Normal-3,Thick-5',
+    //     freeform_colors: '#ffd400,#ff6563,#5db221,#2ba8e8,#a28ae9,#e66df2,#f29823,#aaaaaa,black',
+    //   }
+    // });
+    // const embedLinkViewer = new EmbeddedResourceViewer({
+    //   baseHref, iframe, pdfjs,
+    //   storage, annotator, configs: { resize: true }
+    // });
+    // new EmbedResource({
+    //   baseHref, iframe, pdfjs,
+    //   storage, annotator, embedLinkViewer
+    // });
+    // new EnableElemMovement({ iframe, embedLinkViewer, freeformViewer, storage });
 
-    const annotator = new Annotator({
-      baseHref, iframe, pdfjs, storage, toolbar, configs: {
-        highlight: true, underline: true, linethrough: true, redact: true, notes: true,
-        annotation_colors: '#ffd400,#ff6563,#5db221,#2ba8e8,#a28ae9,#e66df2,#f29823,#aaaaaa,black',
-      }
-    });
-    this.annotator = annotator;
-    const freeformViewer = new FreeformViewer({
-      baseHref, iframe, pdfjs,
-      storage, annotator, configs: { resize: true }
-    });
-    new FreeformAnnotator({
-      baseHref, iframe, pdfjs,
-      storage, annotator, freeformViewer, configs: {
-        freeform_stroke_sizes: 'Thin-1,Normal-3,Thick-5',
-        freeform_colors: '#ffd400,#ff6563,#5db221,#2ba8e8,#a28ae9,#e66df2,#f29823,#aaaaaa,black',
-      }
-    });
-    const embedLinkViewer = new EmbeddedResourceViewer({
-      baseHref, iframe, pdfjs,
-      storage, annotator, configs: { resize: true }
-    });
-    new EmbedResource({
-      baseHref, iframe, pdfjs,
-      storage, annotator, embedLinkViewer
-    });
-    new EnableElemMovement({ iframe, embedLinkViewer, freeformViewer, storage });
-
-    new AddTextSelectionToOutline({
-      iframe, annotator, addToOutline: (selection, $event) =>
-        this.ngZone.run(() => this.addToOutline(selection, $event))
-    });
+    // new AddTextSelectionToOutline({
+    //   iframe, annotator, addToOutline: (selection, $event) =>
+    //     this.ngZone.run(() => this.addToOutline(selection, $event))
+    // });
 
     // TODO: for development only --
     // new HelperAnnotator({ iframe, pdfjs, storage, annotator });
@@ -262,10 +267,16 @@ export class PDFDocumentComponent implements OnInit {
       this.updateEntryLevel(entry, $event.shiftKey ? -1 : 1);
     } else if ($event.code == 'ArrowUp' && i > 0) {
       this.focusEntryTitle(i - 1);
-      if ($event.altKey) this.swapOutlineEntry(i, i - 1);
+      if ($event.altKey) {
+        $event.preventDefault();
+        this.swapOutlineEntry(i, i - 1);
+      }
     } else if ($event.code == 'ArrowDown' && i < outline.length - 1) {
       this.focusEntryTitle(i + 1);
-      if ($event.altKey) this.swapOutlineEntry(i, i + 1);
+      if ($event.altKey) {
+        $event.preventDefault();
+        this.swapOutlineEntry(i, i + 1);
+      }
     }
   }
 

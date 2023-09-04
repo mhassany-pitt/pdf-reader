@@ -50,3 +50,4 @@ export const assignNumbering = (outline) => {
     entry.numbering = [...numbering];
   }
 }
+
