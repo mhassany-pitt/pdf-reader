@@ -194,12 +194,15 @@ export const getAnnotEl = (el: HTMLElement): HTMLElement => {
 }
 
 export const getAnnotBound = ($event: any): WHRect => {
-  const annot = getAnnotEl($event.target);
-  if (!annot) return null as any;
-  const annotId = annot.getAttribute('data-annotation-id');
-  const annotLayerEl = $event.target.closest('.pdfjs-annotations');
+  return getAnnotElBound(getAnnotEl($event.target));
+}
+
+export const getAnnotElBound = (el: any): WHRect => {
+  if (!el) return null as any;
+  const annotId = el.getAttribute('data-annotation-id');
+  const annotLayerEl = el.closest('.pdfjs-annotations');
   const annotEls = Array.from(annotLayerEl.querySelectorAll(`[data-annotation-id="${annotId}"]`));
-  const pageEl = getPageEl($event.target);
+  const pageEl = getPageEl(el);
   const annotElsBound = annotEls.map((el: any) => {
     const { left, right, top, bottom, width, height } = relativeToPageEl(el.getBoundingClientRect(), pageEl);
     return { left, right, top, bottom, width, height };

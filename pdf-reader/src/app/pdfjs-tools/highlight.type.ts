@@ -6,6 +6,7 @@ export interface Highlight {
     color: string;
     stroke?: number;
     strokeStyle?: string;
+    note?: string;
     rects: {
         [pageNum: number]: WHRect[]
     };

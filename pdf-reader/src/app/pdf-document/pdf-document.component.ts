@@ -26,6 +26,8 @@ import { PdfAnnotationLayer } from '../pdfjs-tools/pdf-annotation-layer';
 import { PdfHighlighterToolbarBtn } from '../pdfjs-tools/pdf-highlighter-toolbar-btn';
 import { PdfStrikeThourghToolbarBtn } from '../pdfjs-tools/pdf-strikethrough-toolbar-btn';
 import { PdfUnderlineToolbarBtn } from '../pdfjs-tools/pdf-underline-toolbar-btn';
+import { PdfHighlightNoteEditor } from '../pdfjs-tools/pdf-highlight-note-editor';
+import { PdfHighlightNoteViewer } from '../pdfjs-tools/pdf-highlight-note-viewer';
 // import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
 
 @Component({
@@ -145,6 +147,13 @@ export class PDFDocumentComponent implements OnInit {
 
     new PdfUnderlineToolbarBtn({ registry });
     new PdfStrikeThourghToolbarBtn({ registry });
+
+    new PdfHighlightNoteEditor({ registry });
+    new PdfHighlightNoteViewer({ registry });
+
+    // const baseHref = document.querySelector('base')?.href
+    // const iframe = this.iframe;
+    // const pdfjs = this.pdfjs;
 
     // const annotator = new Annotator({
     //   baseHref, iframe, pdfjs, storage, toolbar, configs: {

@@ -40,17 +40,7 @@ export class PdfHighlighterToolbarBtn {
   }
 
   protected getColorOptions() {
-    return [
-      // btn-color:highlight-color
-      '#ffd400:#ffd40075',
-      '#ff6563:#ff656375',
-      '#5db221:#5db22175',
-      '#2ba8e8:#2ba8e875',
-      '#a28ae9:#a28ae975',
-      '#e66df2:#e66df275',
-      '#f29823:#f2982375',
-      '#aaaaaa:#aaaaaa75',
-      'black:black'];
+    return ['#ffd40075', '#ff656375', '#5db22175', '#2ba8e875', '#a28ae975', '#e66df275', '#f2982375', '#aaaaaa75', 'black'];
   }
 
   private _addToolbarUI() {
@@ -76,7 +66,7 @@ export class PdfHighlighterToolbarBtn {
           });
         this._setEnable(true);
         this._setType(this.getType());
-        this._setColor(this.getColorOptions()[0].split(':')[1]);
+        this._setColor(this.getColorOptions()[0]);
         this._getToolbarEl().showDetails(this.getToolbarDetailsEl());
       } else {
         this._setEnable(false);
@@ -116,7 +106,7 @@ export class PdfHighlighterToolbarBtn {
       `<div>
         <div class="${className}">
           ${this.getColorOptions().map(color =>
-        `<span data-highlight-color="${color.split(':')[1]}" style="background-color: ${color.split(':')[0]}"></span>`).join('')}
+        `<span data-highlight-color="${color}" style="background-color: ${color.startsWith('#') && color.length == 9 ? color.substring(0, 7) : color}"></span>`).join('')}
         </div>
         <style>
           .${className} {

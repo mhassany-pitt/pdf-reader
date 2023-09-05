@@ -14,17 +14,7 @@ export class PdfUnderlineToolbarBtn extends PdfHighlighterToolbarBtn {
   }
 
   protected override getColorOptions() {
-    return [
-      // btn-color:highlight-color
-      '#ffd400:#ffd400',
-      '#ff6563:#ff6563',
-      '#5db221:#5db221',
-      '#2ba8e8:#2ba8e8',
-      '#a28ae9:#a28ae9',
-      '#e66df2:#e66df2',
-      '#f29823:#f29823',
-      '#aaaaaa:#aaaaaa',
-      'black:black'];
+    return ['#ffd400', '#ff6563', '#5db221', '#2ba8e8', '#a28ae9', '#e66df2', '#f29823', '#aaaaaa', 'black'];
   }
 
   private _getStrokesEl() {

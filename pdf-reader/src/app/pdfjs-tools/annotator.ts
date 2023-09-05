@@ -641,7 +641,7 @@ export class Annotator {
         const typeBtnHtmls: any = {};
         if (this.configs.highlight) /*  */ typeBtnHtmls.highlight = '<span style="background: orange;">Highlight</span>';
         if (this.configs.underline) /*  */ typeBtnHtmls.underline = '<span style="text-decoration: underline;">Underline</span>';
-        if (this.configs.linethrough) /**/ typeBtnHtmls.linethrough = '<span style="text-decoration: line-through;">Line through</span>';
+        if (this.configs.linethrough) /**/ typeBtnHtmls.linethrough = '<span style="text-decoration: line-through;">Strikethrough</span>';
         if (this.configs.redact) /*     */ typeBtnHtmls.redact = '<span style="background: darkgray;">Redact</span>';
 
         if (Object.keys(typeBtnHtmls).length < 1)
