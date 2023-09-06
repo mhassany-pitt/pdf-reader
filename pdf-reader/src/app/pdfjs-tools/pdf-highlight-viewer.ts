@@ -27,11 +27,10 @@ export class PdfHighlightViewer {
       const annotsLayerEl = this.registry.get('annotation-layer').getOrAttachLayerEl(pageNum);
       removeSelectorAll(annotsLayerEl, '.pdfjs-annotation__rect');
       removeSelectorAll(annotsLayerEl, '.pdfjs-annotation__bound');
-      annotsLayerEl.setAttribute('data-rotation-degree', rotation(this._getPdfJS()));
 
       // current page and only annotations with rects
       const annots: Highlight[] = this._getStorage().list();
-      annots.filter(annot => annot.rects)
+      annots.filter(annot => ['highlight', 'underline', 'strikethrough'].includes(annot.type))
         .filter(annot => Object.keys(annot.rects)
           .map(pageNum => parseInt(pageNum))
           .indexOf(pageNum) > -1)

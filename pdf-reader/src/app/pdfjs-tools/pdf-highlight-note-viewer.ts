@@ -50,7 +50,7 @@ export class PdfHighlightNoteViewer {
           const annotId = isEditor
             ? isEditor.getAttribute('data-highlight-id')
             : annotEl.getAttribute('data-annotation-id');
-          const annot = await this.registry.get('storage').read(annotId);
+          const annot = this.registry.get('storage').read(annotId);
           if (annot.note && !pageEl.querySelector(`.pdfjs-annotation__highlight-note-editor-popup[data-highlight-id="${annotId}"]`)) {
             const bound = getAnnotElBound(pageEl.querySelector(`[data-annotation-id="${annotId}"]`));
             this._showNoteViewerPopup(annot, getPageNum(pageEl), bound);

@@ -28,10 +28,6 @@ export class PdfToolbar {
     return this.registry.getDocumentEl().querySelector(`.pdf-toolbar > div:nth-child(${id == 'main' ? 1 : 2})`);
   }
 
-  public getEl() {
-    return this.registry.getDocumentEl().querySelector('.pdf-toolbar');
-  }
-
   public addItem(element: HTMLElement) {
     this.showMainContainer(true);
     return this._getContainerEl('main').appendChild(element);
@@ -51,6 +47,15 @@ export class PdfToolbar {
 
   public hasDetails() {
     return this._getContainerEl('details').style.display != 'none';
+  }
+
+  deselect(except: HTMLElement) {
+    [...this.registry
+      .getDocumentEl()
+      .querySelector('.pdf-toolbar')
+      .querySelectorAll('.pdf-toolbar-btn.selected')
+    ].filter(el => el != except)
+      .forEach(el => el.click());
   }
 
   private _attachStylesheet() {

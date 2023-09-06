@@ -1,4 +1,4 @@
-import { getPageEl, htmlToElements } from './annotator-utils';
+import { getPageEl, htmlToElements, rotation } from './annotator-utils';
 import { PdfRegistry } from './pdf-registry';
 
 export class PdfAnnotationLayer {
@@ -18,7 +18,9 @@ export class PdfAnnotationLayer {
     const pageEl = getPageEl(this._getDocumentEl(), pageNum);
     if (!pageEl.querySelector('.pdfjs-annotations'))
       pageEl.appendChild(htmlToElements(`<div class="pdfjs-annotations"></div>`));
-    return pageEl.querySelector('.pdfjs-annotations');
+    const layer = pageEl.querySelector('.pdfjs-annotations');
+    layer.setAttribute('data-rotation-degree', rotation(this.registry.getPdfJS()));
+    return layer;
   }
 
   private _attachStylesheet() {

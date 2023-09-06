@@ -58,12 +58,7 @@ export class PdfHighlighterToolbarBtn {
     button.addEventListener('click', () => {
       button.classList.toggle('selected');
       if (button.classList.contains('selected')) {
-        this._getToolbarEl().getEl()
-          .querySelectorAll('.pdf-toolbar-btn.selected')
-          .forEach(other => {
-            if (other != button)
-              other.click();
-          });
+        this._getToolbarEl().deselect(button);
         this._setEnable(true);
         this._setType(this.getType());
         this._setColor(this.getColorOptions()[0]);

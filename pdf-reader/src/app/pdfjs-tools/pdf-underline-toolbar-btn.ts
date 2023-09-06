@@ -75,6 +75,7 @@ export class PdfUnderlineToolbarBtn extends PdfHighlighterToolbarBtn {
               background-color: #38383d;
               color: white;
               text-decoration: ${this.getType() == 'strikethrough' ? 'line-through' : this.getType()};
+              text-decoration-thickness: from-font;
               padding: 0 0.25rem;
               flex-grow: 1;
               text-align: center;

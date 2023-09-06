@@ -28,6 +28,16 @@ import { PdfStrikeThourghToolbarBtn } from '../pdfjs-tools/pdf-strikethrough-too
 import { PdfUnderlineToolbarBtn } from '../pdfjs-tools/pdf-underline-toolbar-btn';
 import { PdfHighlightNoteEditor } from '../pdfjs-tools/pdf-highlight-note-editor';
 import { PdfHighlightNoteViewer } from '../pdfjs-tools/pdf-highlight-note-viewer';
+import { htmlToElements } from '../pdfjs-tools/annotator-utils';
+import { PdfMoveElements } from '../pdfjs-tools/pdf-move-elements';
+import { PdfNoteToolbarBtn } from '../pdfjs-tools/pdf-note-toolbar-btn';
+import { PdfTextToolbarBtn } from '../pdfjs-tools/pdf-text-toolbar-btn';
+import { PdfNoteEditor } from '../pdfjs-tools/pdf-note-editor';
+import { PdfTextEditor } from '../pdfjs-tools/pdf-text-editor';
+import { PdfNoteViewer } from '../pdfjs-tools/pdf-note-viewer';
+import { PdfTextViewer } from '../pdfjs-tools/pdf-text-viewer';
+import { PdfRemoveOnDelete } from '../pdfjs-tools/pdf-remove-on-delete';
+import { PdfShowBoundary } from '../pdfjs-tools/pdf-show-boundary';
 // import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
 
 @Component({
@@ -138,7 +148,10 @@ export class PDFDocumentComponent implements OnInit {
     registry.register('storage', storage);
 
     new PdfAnnotationLayer({ registry });
-    new PdfToolbar({ registry });
+    const toolbar = new PdfToolbar({ registry });
+
+    new PdfRemoveOnDelete({ registry });
+    new PdfShowBoundary({ registry });
 
     new PdfHighlightViewer({ registry });
     new PdfHighlighter({ registry });
@@ -149,6 +162,19 @@ export class PDFDocumentComponent implements OnInit {
 
     new PdfHighlightNoteEditor({ registry });
     new PdfHighlightNoteViewer({ registry });
+
+    toolbar.addItem(htmlToElements('<hr style="width: 75%; border: none; border-top: 1px solid #2a2a2e;"/>'));
+
+    new PdfMoveElements({ registry });
+
+    new PdfNoteViewer({ registry });
+    new PdfTextViewer({ registry });
+
+    new PdfNoteEditor({ registry });
+    new PdfTextEditor({ registry });
+
+    new PdfNoteToolbarBtn({ registry });
+    new PdfTextToolbarBtn({ registry });
 
     // const baseHref = document.querySelector('base')?.href
     // const iframe = this.iframe;
