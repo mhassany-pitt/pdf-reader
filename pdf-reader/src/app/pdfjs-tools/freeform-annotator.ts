@@ -1,4 +1,4 @@
-import { AnnotationStorage } from './annotator-storage';
+import { Annotations } from './annotations';
 import {
   getPageEl, uuid, getPageNum, htmlToElements,
   isLeftClick, isRightClick, rotation, scale,
@@ -13,7 +13,7 @@ export class FreeformAnnotator {
   private pdfjs: any;
   private annotator: Annotator;
   private freeformViewer: FreeformViewer;
-  private storage: AnnotationStorage<Freeform>;
+  private storage: Annotations;
   private configs;
 
   private enabled = false;
@@ -173,7 +173,7 @@ export class FreeformAnnotator {
   }
 
   private _renderOnPagerendered() {
-    this.pdfjs.eventBus.on('pagerendered', ($event: any) => {
+    this.pdfjs.eventBus.on('pageannotationsloaded', ($event: any) => {
       const pageNum = $event.pageNumber;
       this._reattachCanvasEl(pageNum);
     });

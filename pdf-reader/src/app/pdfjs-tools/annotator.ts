@@ -1,4 +1,4 @@
-import { AnnotationStorage } from './annotator-storage';
+import { Annotations } from './annotations';
 import {
   WHRect, getPageEl, getBound,
   getPageNum, getSelectionRects, htmlToElements,
@@ -36,7 +36,7 @@ export class Annotator {
   private documentEl: any;
 
   private pdfjs: any;
-  private storage: AnnotationStorage<Annotation>;
+  private storage: Annotations;
   private toolbar: any;
   private configs: any;
 
@@ -369,7 +369,7 @@ export class Annotator {
   }
 
   private _renderOnPagerendered() {
-    this.pdfjs.eventBus.on('pagerendered', ($event: any) => {
+    this.pdfjs.eventBus.on('pageannotationsloaded', ($event: any) => {
       const pageNum = $event.pageNumber;
       const annotsLayerEl = this.getOrAttachLayerEl(pageNum);
       removeSelectorAll(annotsLayerEl, '.pdfjs-annotation__rect');

@@ -24,8 +24,13 @@ export class AnnotationsController {
 
   @Get(':groupId')
   @UseGuards(AuthenticatedGuard)
-  async get(@Req() req: any, @Param('groupId') groupId: string, @Query('annotators') annotators: string) {
-    const annotations = (await this.service.list({ user: req.user, groupId, annotators })).map(useId);
+  async list(
+    @Req() req: any,
+    @Param('groupId') groupId: string,
+    @Query('annotators') annotators: string,
+    @Query('pages') pages: string,
+  ) {
+    const annotations = (await this.service.list({ user: req.user, groupId, pages, annotators })).map(useId);
     const userIds = Array.from(new Set(annotations.map(a => a.user_id)));
     const users = await this.users.getUsers({ userIds });
     const usersInfo = users.reduce(($, user) => ($[user._id] = user, $), {});
@@ -54,7 +59,7 @@ export class AnnotationsController {
 
   @Patch(':groupId/:id')
   @UseGuards(AuthenticatedGuard)
-  async patch(@Req() req: any, @Param('groupId') groupId: string, @Param('id') id: string, @Body() annotation: any) {
+  async update(@Req() req: any, @Param('groupId') groupId: string, @Param('id') id: string, @Body() annotation: any) {
     await this._getOrFail({ user: req.user, groupId, id });
     return useId(await this.service.update({ user: req.user, groupId, id, annotation }));
   }

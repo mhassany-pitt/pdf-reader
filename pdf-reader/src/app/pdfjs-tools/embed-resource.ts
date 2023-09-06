@@ -1,4 +1,4 @@
-import { AnnotationStorage } from './annotator-storage';
+import { Annotations } from './annotations';
 import {
   getPageEl, uuid, getPageNum,
   htmlToElements, isRightClick, relativeToPageEl,
@@ -12,7 +12,7 @@ export class EmbedResource {
   private documentEl: any;
 
   private pdfjs: any;
-  private storage: AnnotationStorage<EmbeddedResource>;
+  private storage: Annotations;
   private annotator: Annotator;
   private embedLinkViewer: EmbeddedResourceViewer;
 

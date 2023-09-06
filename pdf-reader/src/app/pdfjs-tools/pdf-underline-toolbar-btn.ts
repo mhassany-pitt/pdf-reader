@@ -21,8 +21,8 @@ export class PdfUnderlineToolbarBtn extends PdfHighlighterToolbarBtn {
     const className = 'pdfjs-annotation-toolbar__stroke-options';
     const storkesEl = htmlToElements(
       `<div class="${className}">
-        <input type="range" min="1" max="10" step="1" value="1"  />
-        <span>1x</span>
+        <input type="range" min="1" max="4" step="0.1" value="1.0"  />
+        <span>1.0x</span>
 
         <style>
           .${className} {
@@ -45,7 +45,7 @@ export class PdfUnderlineToolbarBtn extends PdfHighlighterToolbarBtn {
     const strokeSpanEl = storkesEl.querySelector('span') as HTMLInputElement;
     strokeInputEl.addEventListener('input', ($event: any) => {
       const value = $event.target.value;
-      strokeSpanEl.innerText = `${value}x`;
+      strokeSpanEl.innerText = `${parseFloat(value).toFixed(1)}x`;
       this.stroke = `${parseInt(value) * 0.125}rem`;
       this._setStroke(this.stroke);
     });

@@ -22,7 +22,7 @@ export class PdfHighlightViewer {
   private _getStorage() { return this.registry.get('storage'); }
 
   private _renderOnPagerendered() {
-    this._getPdfJS().eventBus.on('pagerendered', ($event: any) => {
+    this._getPdfJS().eventBus.on('pageannotationsloaded', ($event: any) => {
       const pageNum = $event.pageNumber;
       const annotsLayerEl = this.registry.get('annotation-layer').getOrAttachLayerEl(pageNum);
       removeSelectorAll(annotsLayerEl, '.pdfjs-annotation__rect');

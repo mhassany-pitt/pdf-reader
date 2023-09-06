@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { PDFReaderService } from './pdf-reader.service';
 import { Annotator } from '../pdfjs-tools/annotator';
-import { Annotation, AnnotationStorage } from '../pdfjs-tools/annotator-storage';
+import { Annotations } from '../pdfjs-tools/annotations';
 import { FreeformAnnotator } from '../pdfjs-tools/freeform-annotator';
 import { EmbeddedResourceViewer } from '../pdfjs-tools/embedded-resource-viewer';
 import { FreeformViewer } from '../pdfjs-tools/freeform-viewer';
@@ -33,7 +33,7 @@ export class PDFReaderComponent implements OnInit {
   pdfDocument: any;
   configs: any;
 
-  storage: AnnotationStorage<Annotation> = null as any;
+  storage: Annotations = null as any;
   annotator: Annotator = null as any;
 
   baseHref = document.querySelector('base')?.href;
@@ -114,11 +114,12 @@ export class PDFReaderComponent implements OnInit {
     const pdfjs = this.pdfjs;
 
     // load annotations first so can be rendered on document load
-    const storage = new AnnotationStorage({
+    const storage = new Annotations({
       user: () => this.app.user,
-      api: this.configs?.annotation_api,
+      apiUrl: this.configs?.annotation_api,
       http: this.http,
       groupId: this.pdfDocumentId,
+      pdfjs: this.pdfjs,
     });
     this.storage = storage;
 
@@ -140,7 +141,6 @@ export class PDFReaderComponent implements OnInit {
       groupId: this.pdfDocumentId
     });
     await filter.loadAnnotators();
-    await filter.loadAnnotations();
 
     const freeformViewer = this.setupFreeform(iframe, pdfjs, annotator, storage);
     const embedLinkViewer = this.setupEmbedResource(iframe, pdfjs, annotator, storage);

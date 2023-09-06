@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { PDFDocumentService } from './pdf-document.service';
-import { Annotation, AnnotationStorage } from '../pdfjs-tools/annotator-storage';
+import { Annotations } from '../pdfjs-tools/annotations';
 import { Annotator } from '../pdfjs-tools/annotator';
 import { FreeformAnnotator } from '../pdfjs-tools/freeform-annotator';
 import { EmbedResource } from '../pdfjs-tools/embed-resource';
@@ -44,7 +44,7 @@ export class PDFDocumentComponent implements OnInit {
   newfile: any;
   pdfDocument: any;
 
-  storage: AnnotationStorage<Annotation> = null as any;
+  storage: Annotations = null as any;
   annotator: Annotator = null as any;
 
   textExtractionProgress: any = undefined;
@@ -113,14 +113,14 @@ export class PDFDocumentComponent implements OnInit {
     this.removeExtraElements();
 
     // load annotations first so can be rendered on document load
-    const storage = new AnnotationStorage({
+    const storage = new Annotations({
       user: () => this.app.user,
-      api: `${environment.apiUrl}/annotations`,
+      apiUrl: `${environment.apiUrl}/annotations`,
       http: this.http,
       groupId: this.pdfDocumentId,
+      pdfjs: this.pdfjs,
     });
     this.storage = storage;
-    await storage.load();
 
     try {
       await this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });
@@ -130,8 +130,7 @@ export class PDFDocumentComponent implements OnInit {
       const files = $event.source.files;
       this.newfile = files.length ? $event.source.files[0] : null;
       this.pdfDocument.file_url = null;
-
-      this.confirmOutlineExtraction();
+      setTimeout(() => this.confirmOutlineExtraction(), 1000);
     }));
 
     const registry = new PdfRegistry({ iframe: this.iframe, pdfjs: this.pdfjs });
@@ -326,7 +325,7 @@ export class PDFDocumentComponent implements OnInit {
   async fileUrlChanged($event) {
     try {
       await this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });
-      this.confirmOutlineExtraction();
+      setTimeout(() => this.confirmOutlineExtraction(), 1000);
     } catch (exp) { console.error(exp); }
   }
 

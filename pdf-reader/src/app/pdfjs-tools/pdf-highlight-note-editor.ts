@@ -58,16 +58,15 @@ export class PdfHighlightNoteEditor {
             height: ${bound.height ? bound.height + '%' : 'fit-content'};
             max-width: 50%;
             max-height: 50%;
-            border-radius: 0.125rem;
-            box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
-            pointer-events: auto;
             display: flex;
-            background-color: white;
             flex-direction: column;
+            pointer-events: auto;
             z-index: 6;
           }
 
           .pdfjs-annotation__highlight-note-editor-popup textarea {
+            box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+            background-color: white;
             border-radius: 0.125rem;
             border-color: lightgray;
             font-family: inherit;

@@ -9,6 +9,7 @@ export class Annotation {
   @Prop() group_id: string;
 
   @Prop() type: string;
+  @Prop() pages: number[];
 
   // -- highlight, ... 
   @Prop() color: string;

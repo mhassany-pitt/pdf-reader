@@ -1,4 +1,4 @@
-import { Annotation, AnnotationStorage } from './annotator-storage';
+import { Annotations } from './annotations';
 import { htmlToElements, isRightClick } from './annotator-utils';
 import { Annotator, POPUP_ROW_ITEM_UI } from './annotator';
 import { environment } from 'src/environments/environment';
@@ -9,7 +9,7 @@ export class AnnotationFilter {
   private document: any;
   private documentEl: any;
 
-  private storage: AnnotationStorage<Annotation>;
+  private storage: Annotations;
   private annotator: Annotator;
 
   private http: HttpClient;
@@ -36,19 +36,12 @@ export class AnnotationFilter {
   }
 
   async loadAnnotators() {
-    const api = `${environment.apiUrl}/annotations/${this.groupId}/annotators`;
-    const req = this.http.get(api, { withCredentials: true });
     try {
+      const api = `${environment.apiUrl}/annotations/${this.groupId}/annotators`;
+      const req = this.http.get(api, { withCredentials: true });
       this.annotators = await firstValueFrom(req) as any;
-    } catch (error) { }
-  }
-
-  async loadAnnotations() {
-    const $checkpoint = JSON.stringify(this.selecteds);
-    if (this.checkpoint != $checkpoint) {
-      this.checkpoint = $checkpoint;
-      await this.storage.load(`annotators=${this.selecteds.join(',')}`);
-      this.annotator.rerender();
+    } catch (error) {
+      console.error(error);
     }
   }
 
@@ -147,7 +140,8 @@ export class AnnotationFilter {
           addBtnEl.style.display = ['none', 'all'].indexOf(selectEl.value) >= 0 ? 'none' : 'block';
           addBtnEl.disabled = this.selecteds.length >= 10;
           this._persist();
-          this.loadAnnotations();
+          this.storage.qparams['annotators'] = this.selecteds.join(',');
+          this.storage.reload();
         }
 
         refreshContentListUI();

@@ -13,14 +13,23 @@ export class AnnotationsService {
     @InjectModel('annotations') private annotations: Model<Annotation>
   ) { }
 
-  async list({ user, groupId, annotators }) {
+  async list({ user, groupId, pages, annotators }) {
     const filter: any = { group_id: groupId };
-    if (annotators == 'all') { }
-    else if (annotators == 'none') filter.user_id = user?.id;
-    else {
-      if (user?.id) annotators += ',' + user?.id;
-      filter.user_id = { $in: annotators.split(',') };
+
+    if (pages) {
+      filter.pages = { $in: pages.split(',').map(p => parseInt(p)) };
     }
+
+    if (annotators) {
+      /**/ if (annotators == 'all') { }
+      else if (annotators == 'none') {
+        filter.user_id = user?.id;
+      } else {
+        if (user?.id) annotators += ',' + user?.id;
+        filter.user_id = { $in: annotators.split(',') };
+      }
+    }
+
     return (await this.annotations.find(filter)).map(toObject);
   }
 

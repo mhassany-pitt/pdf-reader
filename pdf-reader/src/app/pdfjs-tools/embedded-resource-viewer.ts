@@ -5,7 +5,7 @@ import {
 import {
   Annotator, GetAnnotationBound, POPUP_ROW_ITEM_UI
 } from './annotator';
-import { AnnotationStorage } from './annotator-storage';
+import { Annotations } from './annotations';
 
 export type EmbeddedResource = {
   id: string,
@@ -24,7 +24,7 @@ export class EmbeddedResourceViewer {
 
   private pdfjs: any;
   private annotator: Annotator;
-  private storage: AnnotationStorage<EmbeddedResource>;
+  private storage: Annotations;
 
   private configs: {
     resize: boolean,
@@ -111,7 +111,7 @@ export class EmbeddedResourceViewer {
   }
 
   private _renderOnPagerendered() {
-    this.pdfjs.eventBus.on('pagerendered', ($event: any) => {
+    this.pdfjs.eventBus.on('pageannotationsloaded', ($event: any) => {
       const pageNum = $event.pageNumber;
       const annotsLayerEl = this.annotator.getOrAttachLayerEl(pageNum);
       annotsLayerEl.querySelectorAll('.pdfjs-annotation__embed').forEach((el: any) => el.remove());

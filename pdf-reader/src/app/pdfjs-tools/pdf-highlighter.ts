@@ -72,7 +72,8 @@ export class PdfHighlighter {
             color: this.color,
             stroke: this.stroke,
             strokeStyle: this.strokeStyle,
-            rects
+            rects,
+            pages: Object.keys(rects).map(k => parseInt(k))
           };
           this._getStorage().create(highlight, () => {
             this._getWindow().getSelection().removeAllRanges();
