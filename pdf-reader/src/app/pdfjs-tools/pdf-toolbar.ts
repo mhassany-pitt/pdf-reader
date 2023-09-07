@@ -14,7 +14,7 @@ export class PdfToolbar {
   }
 
   private _attachToolbarUI() {
-    const container = htmlToElements(`<div class="pdf-toolbar"><div></div><div></div></div>`);
+    const container = htmlToElements(`<div class="pdf-toolbar"><div class="main"></div><div class="details"></div></div>`);
     this.registry.getDocumentEl().querySelector('#mainContainer').appendChild(container);
     this.showMainContainer(false);
     this.showDetails(null as any);
@@ -24,8 +24,8 @@ export class PdfToolbar {
     this.registry.getDocumentEl().querySelector('.pdf-toolbar').style.display = show ? 'flex' : 'none';
   }
 
-  private _getContainerEl(id: 'main' | 'details'): HTMLElement {
-    return this.registry.getDocumentEl().querySelector(`.pdf-toolbar > div:nth-child(${id == 'main' ? 1 : 2})`);
+  private _getContainerEl(className: 'main' | 'details'): HTMLElement {
+    return this.registry.getDocumentEl().querySelector(`.pdf-toolbar > div.${className}`);
   }
 
   public addItem(element: HTMLElement) {
@@ -35,7 +35,7 @@ export class PdfToolbar {
 
   public showDetails(elements: HTMLElement[]) {
     const details = this._getContainerEl('details');
-    if (elements) {
+    if (elements?.length) {
       details.innerHTML = '';
       elements.forEach(element => details.appendChild(element));
       details.style.display = 'flex';

@@ -14,6 +14,8 @@ export class PdfTextViewer extends PdfNoteViewer {
   protected override onAnnotMouseOver(): void { }
 
   protected override getRenderedEl(annot: any, rect: WHRect) {
+    const isEditorPresent = this.registry.get('text-editor');
+
     const viewerEl = htmlToElements(
       `<div data-annotation-id="${annot.id}" 
         data-analytic-id="annot-text-${annot.id}"
@@ -32,11 +34,12 @@ export class PdfTextViewer extends PdfNoteViewer {
         ${this.attachMoveElClass ? '<div class="move-icon">&#10021;</div>' : ''}
         <textarea 
           class="${this.attachMoveElClass ? 'pdf-movable-el-excluded' : ''}"
+          ${isEditorPresent ? 'placeholder="Text ..."' : ''}
           readonly="true">${annot.note}</textarea>
       </div>`);
 
     const textarea = viewerEl.querySelector('textarea') as HTMLTextAreaElement;
-    textarea.style.resize = this.registry.get('text-editor') ? 'both' : 'none';
+    textarea.style.resize = isEditorPresent ? 'both' : 'none';
 
     // exclude the textarea from movement (user need to select text) 
     // but allow user to resize the text area
@@ -70,23 +73,23 @@ export class PdfTextViewer extends PdfNoteViewer {
           position: absolute;
           top: 0.125rem;
           right: 0.125rem;
-          color: lightgray;
+          color: gray;
         }
 
         .pdfjs-annotation__text .move-icon:hover { 
-          color: gray; 
+          color: darkgray; 
         }
 
         .pdfjs-annotation__text textarea {
           width: 100% !important;
           height: 100% !important;
-          background-color: transparent;
           cursor: pointer;
           border-color: lightgray;
           outline: none;
           font-family: inherit;
           border-radius: 0.125rem;
           box-sizing: border-box;
+          padding: 0.125rem;
           padding-right: 1rem;
         }
       </style>`;

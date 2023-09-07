@@ -38,6 +38,9 @@ import { PdfNoteViewer } from '../pdfjs-tools/pdf-note-viewer';
 import { PdfTextViewer } from '../pdfjs-tools/pdf-text-viewer';
 import { PdfRemoveOnDelete } from '../pdfjs-tools/pdf-remove-on-delete';
 import { PdfShowBoundary } from '../pdfjs-tools/pdf-show-boundary';
+import { PdfFreeformToolbarBtn } from '../pdfjs-tools/pdf-freeform-toolbar-btn';
+import { PdfEmbedResourceToolbarBtn } from '../pdfjs-tools/pdf-embed-resource-toolbar-btn';
+import { PdfAddToOutlineToolbarBtn } from '../pdfjs-tools/pdf-add-to-outline-toolbar-btn';
 // import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
 
 @Component({
@@ -175,6 +178,15 @@ export class PDFDocumentComponent implements OnInit {
 
     new PdfNoteToolbarBtn({ registry });
     new PdfTextToolbarBtn({ registry });
+
+    toolbar.addItem(htmlToElements('<hr style="width: 75%; border: none; border-top: 1px solid #2a2a2e;"/>'));
+
+    new PdfFreeformToolbarBtn({ registry });
+    new PdfEmbedResourceToolbarBtn({ registry });
+
+    toolbar.addItem(htmlToElements('<hr style="width: 75%; border: none; border-top: 1px solid #2a2a2e;"/>'));
+
+    new PdfAddToOutlineToolbarBtn({ registry });
 
     // const baseHref = document.querySelector('base')?.href
     // const iframe = this.iframe;
