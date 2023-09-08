@@ -6,10 +6,6 @@ import { PdfToolbarBtn } from './pdf-toolbar-btn';
 
 export class PdfNoteToolbarBtn extends PdfToolbarBtn {
 
-  constructor({ registry }) {
-    super({ registry })
-  }
-
   private _getEditor(): PdfNoteEditor { return this.registry.get(this.getType().editor); }
 
   protected getType() {

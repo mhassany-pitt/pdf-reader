@@ -16,11 +16,11 @@ export class PdfToolbar {
   private _attachToolbarUI() {
     const container = htmlToElements(`<div class="pdf-toolbar"><div class="main"></div><div class="details"></div></div>`);
     this.registry.getDocumentEl().querySelector('#mainContainer').appendChild(container);
-    this.showMainContainer(false);
+    this.toggle(false);
     this.showDetails(null as any);
   }
 
-  private showMainContainer(show: boolean) {
+  toggle(show: boolean) {
     this.registry.getDocumentEl().querySelector('.pdf-toolbar').style.display = show ? 'flex' : 'none';
   }
 
@@ -29,7 +29,7 @@ export class PdfToolbar {
   }
 
   public addItem(element: HTMLElement) {
-    this.showMainContainer(true);
+    this.toggle(true);
     return this._getContainerEl('main').appendChild(element);
   }
 

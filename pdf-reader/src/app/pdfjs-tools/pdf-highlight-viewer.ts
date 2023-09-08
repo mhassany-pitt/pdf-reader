@@ -26,7 +26,6 @@ export class PdfHighlightViewer {
       const pageNum = $event.pageNumber;
       const annotsLayerEl = this.registry.get('annotation-layer').getOrAttachLayerEl(pageNum);
       removeSelectorAll(annotsLayerEl, '.pdfjs-annotation__rect');
-      removeSelectorAll(annotsLayerEl, '.pdfjs-annotation__bound');
 
       // current page and only annotations with rects
       const annots: Highlight[] = this._getStorage().list();

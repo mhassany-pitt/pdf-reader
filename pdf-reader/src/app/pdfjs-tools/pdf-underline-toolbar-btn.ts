@@ -3,10 +3,6 @@ import { PdfHighlighterToolbarBtn } from './pdf-highlighter-toolbar-btn';
 
 export class PdfUnderlineToolbarBtn extends PdfHighlighterToolbarBtn {
 
-  constructor({ registry }) {
-    super({ registry });
-  }
-
   protected override getType() { return { type: 'underline', label: 'Underline' }; }
   protected override getIcon() { return `<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAC/klEQVR4AezR0QmAMAyGQbcTxWGc2bpH7Aa2UImFC3zP4eeW9Tz0o75/IiBABASIgAAREAEBIiBAImKvlXi/UtvyxzftuYftSQAp0X7XBCAZe4aCdN0EIF0HZGhAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIkKe9ewDVOwrjON61jTDmmpHtZocx14w028qcbWVNafZys/UizHvxrU5u231ePuf/f771iVen37XOT0iqVDxGFST90DhIBJJaFQ/SDkmfNQ7yApL6Kh6kPyQ90zjIHUiaoHiQSZB0S+MgxyBpo+JBtkDSYY2DrIKk64oHuQVJKzQOMhGSEuiucIyeSEDSeI2DdCAJSUsUDrIMkhJoUzeIO8wjSHqNKmVff7yBpHvu8VUOshPSZikaZB6kbdU8yFBIi6BDwRht+AJpA9QO4g72GNJOKhjkNKQ9dI+vepBFyKTZPr2rci3wYZA6fIa0P5hQhDFG4TekfUG9+kHcIVcik75hdAHHGI1vyKSl7ul4MUgzPiCTfmNOgd5N/UYmvUODN4O4A89ANp1CRx5erk6cRjZNcU/Pq0FKcBXZFMFcVOXg5anGPESRTZe8va6CF743osi2t1iGHhl+b2o53iLbIuipYJCsRhmHJHJRAjexGZPQH62odFoxAJOwBbeQQC5KYnQgLnThIJvge+sFZ1Y/SAn2wNcOo0T3IPJRynEBvnUe5YG8g4qDlWE3fOkgKgJ9KZh797UZSWgtifUoCc0tbRx2DCLQVhyTQnltnvs65Qq0dAk9Q3+Pofsm32sUq/eYgRK7WBJulEYsx2cUqk9Yhga76fPfP09ZiEfIVw+xAHV29apsnEHYhvtIINMSuIetGGh34ebuN9LHYwWO4jaeIoKfTgRPcRtHsALj0WaXExsbxAYxNogNEmY2iCnmTf2+9xojfBjkNcLSKxtEnA0yHK/CMAaGKxvEBHwQkwZZt6MzH89vawAAAABJRU5ErkJggg==">`; }
 

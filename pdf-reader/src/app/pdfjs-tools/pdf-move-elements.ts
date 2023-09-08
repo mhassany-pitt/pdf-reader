@@ -7,8 +7,11 @@ export class PdfMoveElements {
 
   private registry: any;
 
-  private el: any;
+  private movingEl: any;
   private pageEl: any;
+  private pageNum: any;
+  private down: boolean = false;
+  private moving: boolean = false;
   private resizing: any;
   private startBound: any;
   private offsetBound: any;
@@ -26,39 +29,45 @@ export class PdfMoveElements {
 
   private _onMouseDown() {
     this._getDocument().addEventListener("mousedown", ($event: any) => {
-      const el = getOrParent($event, 'pdf-movable-el');
+      const movingEl = getOrParent($event, 'pdf-movable-el');
       const excluded = getOrParent($event, 'pdf-movable-el-excluded');
-      if (isLeftClick($event) && el && !excluded) {
-        this.el = el;
-        this.pageEl = getPageEl(el);
-        this.startBound = el?.getBoundingClientRect();
-        this.offsetBound = el ? {
+      if (isLeftClick($event) && movingEl && !excluded) {
+        this.movingEl = movingEl;
+        this.pageEl = getPageEl(movingEl);
+        this.pageNum = getPageNum(this.pageEl);
+        this.startBound = movingEl?.getBoundingClientRect();
+        this.offsetBound = movingEl ? {
           top: $event.clientY - this.startBound.top,
           left: $event.clientX - this.startBound.left
         } : null;
 
-        this.resizing = el
-          && (el.offsetHeight - this.offsetBound.top) <= 16
-          && (el.offsetWidth - this.offsetBound.left) <= 16;
+        this.resizing = movingEl
+          && (movingEl.offsetHeight - this.offsetBound.top) <= 16
+          && (movingEl.offsetWidth - this.offsetBound.left) <= 16;
 
-        const callback = this.registry.get(`${this.el.getAttribute('data-movable-type')}-move-elements`)
-        callback?.('moving-started', { id: this.el.getAttribute('data-annotation-id'), rect: this.lastBound });
+        this.down = true;
       }
     });
   }
 
   private _onMouseMove() {
     this._getDocument().addEventListener("mousemove", ($event: any) => {
-      const el = this.el;
-      if (isLeftClick($event) && el) {
+      const movingEl = this.movingEl;
+      if (isLeftClick($event) && movingEl) {
+        if (this.down && !this.moving) {
+          // only when mouse is down and moving, it is considered as moving
+          const callback = this.registry.get(`${this.movingEl.getAttribute('data-movable-type')}-move-elements`)
+          callback?.($event, 'moving-started', { id: this.movingEl.getAttribute('data-annotation-id'), page: this.pageNum });
+        }
+
         if (this.resizing) {
           this.lastBound = relativeToPageEl({
             top: this.startBound.top,
             left: this.startBound.left,
             right: $event.clientX,
             bottom: $event.clientY,
-            width: parseFloat((el.style.width).replace('px', '')),
-            height: parseFloat((el.style.height).replace('px', '')),
+            width: parseFloat((movingEl.style.width).replace('px', '')),
+            height: parseFloat((movingEl.style.height).replace('px', '')),
           } as any, this.pageEl);
         } else { // isMoving
           const top = $event.clientY - this.offsetBound.top;
@@ -72,25 +81,28 @@ export class PdfMoveElements {
           } as any, this.pageEl);
         }
 
-        el.style.top = `${this.lastBound.top}%`;
-        el.style.left = `${this.lastBound.left}%`;
-        el.style.right = `${this.lastBound.right}%`;
-        el.style.bottom = `${this.lastBound.bottom}%`;
+        movingEl.style.top = `${this.lastBound.top}%`;
+        movingEl.style.left = `${this.lastBound.left}%`;
+        movingEl.style.right = `${this.lastBound.right}%`;
+        movingEl.style.bottom = `${this.lastBound.bottom}%`;
 
-        const callback = this.registry.get(`${this.el.getAttribute('data-movable-type')}-move-elements`)
-        callback?.('moving', { id: this.el.getAttribute('data-annotation-id'), rect: this.lastBound });
+        const callback = this.registry.get(`${this.movingEl.getAttribute('data-movable-type')}-move-elements`)
+        callback?.($event, 'moving', { id: this.movingEl.getAttribute('data-annotation-id'), page: this.pageNum, rect: { ...this.lastBound } });
+        this.moving = true;
       }
     });
   }
 
   private _onMouseUp() {
     this._getDocument().addEventListener("mouseup", ($event: any) => {
-      if (this.el && this.lastBound) {
-        const callback = this.registry.get(`${this.el.getAttribute('data-movable-type')}-move-elements`)
-        callback?.('moving-completed', { id: this.el.getAttribute('data-annotation-id'), rect: this.lastBound });
+      if (this.movingEl && this.lastBound) {
+        const callback = this.registry.get(`${this.movingEl.getAttribute('data-movable-type')}-move-elements`)
+        callback?.($event, 'moving-completed', { id: this.movingEl.getAttribute('data-annotation-id'), page: this.pageNum, rect: { ...this.lastBound } });
       }
 
-      this.el = null;
+      this.down = false;
+      this.moving = false;
+      this.movingEl = null;
       this.pageEl = null;
       this.lastBound = null;
     });

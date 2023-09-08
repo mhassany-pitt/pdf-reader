@@ -1,4 +1,4 @@
-import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
+import { Component, NgZone, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
@@ -6,12 +6,7 @@ import { environment } from 'src/environments/environment';
 import { PDFDocumentService } from './pdf-document.service';
 import { Annotations } from '../pdfjs-tools/annotations';
 import { Annotator } from '../pdfjs-tools/annotator';
-import { FreeformAnnotator } from '../pdfjs-tools/freeform-annotator';
-import { EmbedResource } from '../pdfjs-tools/embed-resource';
-import { FreeformViewer } from '../pdfjs-tools/freeform-viewer';
-import { AddTextSelectionToOutline, Entry } from './add-textselection-to-outline';
-import { EmbeddedResourceViewer } from '../pdfjs-tools/embedded-resource-viewer';
-import { EnableElemMovement } from '../pdfjs-tools/enable-elem-movement';
+import { Entry } from './add-textselection-to-outline';
 import { TextLocator } from '../pdfjs-tools/text-locator';
 import { HttpClient } from '@angular/common/http';
 import { loadPlugin, scrollTo } from '../pdfjs-tools/pdfjs-utils';
@@ -39,8 +34,13 @@ import { PdfTextViewer } from '../pdfjs-tools/pdf-text-viewer';
 import { PdfRemoveOnDelete } from '../pdfjs-tools/pdf-remove-on-delete';
 import { PdfShowBoundary } from '../pdfjs-tools/pdf-show-boundary';
 import { PdfFreeformToolbarBtn } from '../pdfjs-tools/pdf-freeform-toolbar-btn';
-import { PdfEmbedResourceToolbarBtn } from '../pdfjs-tools/pdf-embed-resource-toolbar-btn';
+import { PdfEmbedToolbarBtn } from '../pdfjs-tools/pdf-embed-toolbar-btn';
 import { PdfAddToOutlineToolbarBtn } from '../pdfjs-tools/pdf-add-to-outline-toolbar-btn';
+import { PdfFreeformViewer } from '../pdfjs-tools/pdf-freeform-viewer';
+import { PdfFreeformEditor } from '../pdfjs-tools/pdf-freeform-editor';
+import { PdfEmbedViewer } from '../pdfjs-tools/pdf-embed-viewer';
+import { PdfEmbedEditor } from '../pdfjs-tools/pdf-embed-editor';
+import { PdfAddToOutlineEditor } from '../pdfjs-tools/pdf-add-to-outline-editor';
 // import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
 
 @Component({
@@ -155,6 +155,7 @@ export class PDFDocumentComponent implements OnInit {
 
     new PdfRemoveOnDelete({ registry });
     new PdfShowBoundary({ registry });
+    new PdfMoveElements({ registry });
 
     new PdfHighlightViewer({ registry });
     new PdfHighlighter({ registry });
@@ -168,8 +169,6 @@ export class PDFDocumentComponent implements OnInit {
 
     toolbar.addItem(htmlToElements('<hr style="width: 75%; border: none; border-top: 1px solid #2a2a2e;"/>'));
 
-    new PdfMoveElements({ registry });
-
     new PdfNoteViewer({ registry });
     new PdfTextViewer({ registry });
 
@@ -181,11 +180,19 @@ export class PDFDocumentComponent implements OnInit {
 
     toolbar.addItem(htmlToElements('<hr style="width: 75%; border: none; border-top: 1px solid #2a2a2e;"/>'));
 
+    new PdfFreeformViewer({ registry });
+    new PdfFreeformEditor({ registry });
+
+    new PdfEmbedViewer({ registry });
+    new PdfEmbedEditor({ registry });
+
     new PdfFreeformToolbarBtn({ registry });
-    new PdfEmbedResourceToolbarBtn({ registry });
+    new PdfEmbedToolbarBtn({ registry });
 
     toolbar.addItem(htmlToElements('<hr style="width: 75%; border: none; border-top: 1px solid #2a2a2e;"/>'));
 
+    registry.register('add-to-outline', ($event, payload) => this.ngZone.run(() => this.addToOutline($event, payload)))
+    new PdfAddToOutlineEditor({ registry });
     new PdfAddToOutlineToolbarBtn({ registry });
 
     // const baseHref = document.querySelector('base')?.href
@@ -263,22 +270,13 @@ export class PDFDocumentComponent implements OnInit {
     entry.level = Math.min(Math.max(0, (entry.level || 0) + change), 5);
   }
 
-  addToOutline(selection: any, $event: any) {
-    let { top, left } = selection.getRangeAt(0).getBoundingClientRect();
-    const textLayer = selection.anchorNode.parentElement.closest(`.pdfViewer .textLayer`);
-    const page = parseInt(textLayer.parentElement.getAttribute('data-page-number'));
-    const bound = textLayer.getBoundingClientRect();
-
-    // relative % to parent
-    top = (top - bound.top) / bound.height;
-    left = (left - bound.left) / bound.width;
-
+  addToOutline($event: any, { selection, rects }) {
     const title = selection.toString().trim();
-    const level = 0;
-
     if (!title) return;
 
-    this.addOutlineEntry({ level, title, page, top, left });
+    const page = Object.keys(rects).map(k => parseInt(k)).sort()[0];
+    const { top, left } = rects[page][0];
+    this.addOutlineEntry({ level: 0, title, page, top, left });
 
     selection.removeAllRanges();
     setTimeout(() => document.getElementById(`outline-title-${this.pdfDocument.outline.length - 1}`)?.focus(), 0);
@@ -353,6 +351,7 @@ export class PDFDocumentComponent implements OnInit {
   }
 
   async scrollToEntry(entry: any) {
+    // TODO: it doesn't work for add-to-outline entries
     scrollTo(this.window.document, this.pdfjs, entry);
   }
 

@@ -22,8 +22,6 @@ export class Annotation {
   @Prop({ type: Object }) freeforms: any;
 
   // -- embed
-  @Prop() page: number;
-  @Prop({ type: Object }) bound: any;
   @Prop() target: string;
   @Prop() targetSize: string;
   @Prop() resource: string;

@@ -77,7 +77,7 @@ export class PdfShowBoundary {
         .pdfjs-annotation__bound {
           position: absolute;
           pointer-events: auto;
-          border-radius: 5px;
+          border-radius: 0.125rem;
           border: 1px dashed blue;
         }
       </style>`));

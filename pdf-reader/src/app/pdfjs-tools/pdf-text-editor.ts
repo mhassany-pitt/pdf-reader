@@ -9,10 +9,6 @@ export class PdfTextEditor extends PdfNoteEditor {
   private _annot: any;
   private _editor: any;
 
-  constructor({ registry }) {
-    super({ registry });
-  }
-
   protected override getType() {
     return { type: 'text', editor: 'text-editor', viewer: 'text-viewer' };
   }

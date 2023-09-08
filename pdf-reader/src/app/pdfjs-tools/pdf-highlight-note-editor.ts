@@ -32,7 +32,7 @@ export class PdfHighlightNoteEditor {
           : annotEl.getAttribute('data-annotation-id');
         const annot = this.registry.get('storage').read(annotId);
         const bound = getAnnotElBound(pageEl.querySelector(`[data-annotation-id="${annotId}"]`));
-        this._showNoteEditorPopup(annot, getPageNum(pageEl), bound);
+        this._showEditorPopup(annot, getPageNum(pageEl), bound);
       } else if (!$event.target.closest('.pdfjs-annotation__highlight-note-editor-popup')) {
         this._removePopups($event);
       }
@@ -45,7 +45,7 @@ export class PdfHighlightNoteEditor {
     $event.target.closest('.pdfViewer')?.querySelectorAll('.pdfjs-annotation__highlight-note-editor-popup').forEach(el => el.remove());
   }
 
-  private _showNoteEditorPopup(annot: Highlight, pageNum: number, bound: WHRect) {
+  private _showEditorPopup(annot: Highlight, pageNum: number, bound: WHRect) {
     const popupEl = htmlToElements(
       `<div class="pdfjs-annotation__highlight-note-editor-popup" data-highlight-id="${annot.id}">
         <textarea rows="5" cols="35" placeholder="Note ...">${annot.note || ''}</textarea>

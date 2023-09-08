@@ -9,7 +9,7 @@ export const scrollTo = async (document, pdfjs, { page, top, left, dest }: any) 
     const pageEl = document.querySelector(`.pdfViewer .page[data-page-number="${page}"]`);
     const { width, height } = pageEl.getBoundingClientRect();
     const container = document.getElementById('viewerContainer');
-    container.scrollTop = pageEl.offsetTop + ((top - 0.075) * height);
+    container.scrollTop = pageEl.offsetTop + (top * height - 0.075);
     container.scrollLeft = pageEl.offsetLeft + (left * width);
   }
 }

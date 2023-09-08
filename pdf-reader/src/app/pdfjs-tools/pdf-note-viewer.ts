@@ -59,7 +59,7 @@ export class PdfNoteViewer {
           width: 32px;
           height: 32px;
         ">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAAAsVBMVEVHcEz/1AD/1gD/0wD/0wD83gD/1QB8bCV8bSj93gD/1wD/2wD/1gD83AB7ayb/0QD/0gDqvRH/0AD+3gD/1QA9PT0/Pz9BQUFFRUX/1gDouhP/0wBDQ0P+1wD+2gBHR0frxAn+2QCGeDNTUUY+Pj7/1wBJSUlAQEA8PDz+3ABCQkJERET+2ABGRkZISEjqvBH4zAb3zwb4ywb+3QD30Ab+2wD4zgZYVUZKSkr/1AD3zgYbzkgXAAAAD3RSTlMA8q/xHfKqv7+sJx3u7cDxp3syAAABwklEQVR4Xu3WR04DQRSE4WcDBhtD98w4Z3LOmfsfjFk0ai+YMiXXAqSuA3y/9Fq2xv7c0tLS0nabW0VRPH3vIuwlbBZ2EHYdNi13Um5YrlZvAX+vWNcv196sDDQV/rDTqAyse58Q2KgMaPxOBwQEPgoofBgQ+Dgg8HFA4OOAyP8AAYkPAhIfBCQ+Cih8GBD4OCDwcUDg44DIH4OAxAcBiQ8CEh8Hov+cjYhl99FHgejPSp/ZXfBxIPp8IPg4EH3+RMHHgXXfN8yDgMQHAYkPAhIfBRQ+DAh8HBD4OCDxcSD6D9wP7XHJdyAQ78P+VSz5MBB8PhB9GIj3Z08UfRAQvK+DAYGPAwIfBwQ+Doj8HAQkPghIfBCQ+DgQ/c9s5ffP4vDo9PR2Pr8ZDK4mk8t+/6zXO+52z3eqA9GfZiu/fxZv76Rv0YeBcJ9D2rfl+79mq75/jmjfuPf90d82NMof875Rvud9o3zP+0b5nveN8j3vG+V73jfK97xvlO953yjf875RvuN9o3zH+0b5jveN8h3vG+U73jfKd7xvlO943yjf8b7VGD/nfaszfs771moTfs77ZpuNjV/7+b79l6WlpaV9Af0vZG6wBzc2AAAAAElFTkSuQmCC" />  
+        <img class="thumb-icon" draggable="false" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAAAsVBMVEVHcEz/1AD/1gD/0wD/0wD83gD/1QB8bCV8bSj93gD/1wD/2wD/1gD83AB7ayb/0QD/0gDqvRH/0AD+3gD/1QA9PT0/Pz9BQUFFRUX/1gDouhP/0wBDQ0P+1wD+2gBHR0frxAn+2QCGeDNTUUY+Pj7/1wBJSUlAQEA8PDz+3ABCQkJERET+2ABGRkZISEjqvBH4zAb3zwb4ywb+3QD30Ab+2wD4zgZYVUZKSkr/1AD3zgYbzkgXAAAAD3RSTlMA8q/xHfKqv7+sJx3u7cDxp3syAAABwklEQVR4Xu3WR04DQRSE4WcDBhtD98w4Z3LOmfsfjFk0ai+YMiXXAqSuA3y/9Fq2xv7c0tLS0nabW0VRPH3vIuwlbBZ2EHYdNi13Um5YrlZvAX+vWNcv196sDDQV/rDTqAyse58Q2KgMaPxOBwQEPgoofBgQ+Dgg8HFA4OOAyP8AAYkPAhIfBCQ+Cih8GBD4OCDwcUDg44DIH4OAxAcBiQ8CEh8Hov+cjYhl99FHgejPSp/ZXfBxIPp8IPg4EH3+RMHHgXXfN8yDgMQHAYkPAhIfBRQ+DAh8HBD4OCDxcSD6D9wP7XHJdyAQ78P+VSz5MBB8PhB9GIj3Z08UfRAQvK+DAYGPAwIfBwQ+Doj8HAQkPghIfBCQ+DgQ/c9s5ffP4vDo9PR2Pr8ZDK4mk8t+/6zXO+52z3eqA9GfZiu/fxZv76Rv0YeBcJ9D2rfl+79mq75/jmjfuPf90d82NMof875Rvud9o3zP+0b5nveN8j3vG+V73jfK97xvlO953yjf875RvuN9o3zH+0b5jveN8h3vG+U73jfKd7xvlO943yjf8b7VGD/nfaszfs771moTfs77ZpuNjV/7+b79l6WlpaV9Af0vZG6wBzc2AAAAAElFTkSuQmCC" />  
       </div>`
     );
   }
@@ -82,13 +82,13 @@ export class PdfNoteViewer {
           const annot = this.registry.get('storage').read(annotId);
           if (annot.note && !pageEl.querySelector(`.pdfjs-annotation__note-editor-popup[data-note-id="${annotId}"]`)) {
             const bound = getAnnotElBound(pageEl.querySelector(`[data-annotation-id="${annotId}"]`));
-            this._showNoteViewerPopup(annot, getPageNum(pageEl), bound);
+            this._showViewerPopup(annot, getPageNum(pageEl), bound);
           }
         } else if (!$event.target.closest('.pdfjs-annotation__note-viewer-popup')) {
           this._removePopups($event);
         }
         timeout = null;
-      }, 300);
+      }, 600);
     });
   }
 
@@ -96,7 +96,7 @@ export class PdfNoteViewer {
     $event.target.closest('.pdfViewer')?.querySelectorAll('.pdfjs-annotation__note-viewer-popup').forEach(el => el.remove());
   }
 
-  private _showNoteViewerPopup(annot: any, pageNum: number, bound: WHRect) {
+  private _showViewerPopup(annot: any, pageNum: number, bound: WHRect) {
     const lines = (annot.note || '').split('\n');
     const rows = Math.min(5, lines.length),
       cols = Math.min(35, Math.max(...lines.map(line => line.length)));
@@ -146,11 +146,11 @@ export class PdfNoteViewer {
           cursor: pointer;
         }
 
-        .pdfjs-annotation__note img {
+        .pdfjs-annotation__note img.thumb-icon {
           width: 32px;
           height: 32px;
+          object-fit: contain;
           user-select: none;
-          pointer-events: none;
         }
       </style>`;
     this.registry.getDocumentEl().querySelector('head').appendChild(htmlToElements(styles));

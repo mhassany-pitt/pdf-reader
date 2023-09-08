@@ -53,13 +53,13 @@ export class PdfHighlightNoteViewer {
           const annot = this.registry.get('storage').read(annotId);
           if (annot.note && !pageEl.querySelector(`.pdfjs-annotation__highlight-note-editor-popup[data-highlight-id="${annotId}"]`)) {
             const bound = getAnnotElBound(pageEl.querySelector(`[data-annotation-id="${annotId}"]`));
-            this._showNoteViewerPopup(annot, getPageNum(pageEl), bound);
+            this._showViewerPopup(annot, getPageNum(pageEl), bound);
           }
         } else if (!$event.target.closest('.pdfjs-annotation__highlight-note-viewer-popup')) {
           this._removePopups($event);
         }
         timeout = null;
-      }, 300);
+      }, 600);
     });
   }
 
@@ -67,7 +67,7 @@ export class PdfHighlightNoteViewer {
     $event.target.closest('.pdfViewer')?.querySelectorAll('.pdfjs-annotation__highlight-note-viewer-popup').forEach(el => el.remove());
   }
 
-  private _showNoteViewerPopup(annot: Highlight, pageNum: number, bound: WHRect) {
+  private _showViewerPopup(annot: Highlight, pageNum: number, bound: WHRect) {
     const lines = (annot.note || '').split('\n');
     const rows = Math.min(5, lines.length),
       cols = Math.min(35, Math.max(...lines.map(line => line.length)));

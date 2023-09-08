@@ -3,10 +3,6 @@ import { PdfNoteViewer } from './pdf-note-viewer';
 
 export class PdfTextViewer extends PdfNoteViewer {
 
-  constructor({ registry }) {
-    super({ registry });
-  }
-
   protected override getType() {
     return { type: 'text', viewer: 'text-viewer' };
   }
@@ -66,14 +62,16 @@ export class PdfTextViewer extends PdfNoteViewer {
         }
 
         .pdfjs-annotation__text .move-icon {
-          border-top-right-radius: 0.125rem;
-          border-top-left-radius: 0.125rem;
-          text-align: right;
-          cursor: move;
           position: absolute;
-          top: 0.125rem;
-          right: 0.125rem;
-          color: gray;
+          top: 4px;
+          right: 3px;
+          width: 12px;
+          height: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: lightgray;
+          cursor: move;
         }
 
         .pdfjs-annotation__text .move-icon:hover { 
