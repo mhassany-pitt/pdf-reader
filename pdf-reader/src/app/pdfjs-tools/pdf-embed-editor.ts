@@ -92,8 +92,8 @@ export class PdfEmbedEditor {
 
   protected onAnnotClick() {
     this._getDocument().addEventListener('click', async ($event: any) => {
-      const isEmbed = getOrParent($event, 'pdfjs-annotation__embed'),
-        isEditBtn = getOrParent($event, 'pdfjs-annotation__embed .edit-btn');
+      const isEmbed = getOrParent($event, '.pdfjs-annotation__embed'),
+        isEditBtn = getOrParent($event, '.pdfjs-annotation__embed-edit-btn');
       if (isLeftClick($event) && isEmbed && isEditBtn) {
         const annotEl = getAnnotEl($event.target),
         /* */  pageEl = getPageEl($event.target);
@@ -180,9 +180,9 @@ export class PdfEmbedEditor {
     elems.custom.querySelector('input[type="radio"]').addEventListener('change',
       ($ev: any) => {
         if ($ev.target.checked) {
-          setTargetSize('640px,480px');
+          setTargetSize('320px,240px');
           whinputs.forEach((input: HTMLInputElement, i: number) =>
-            input.value = '640px,480px'.split(',')[i]);
+            input.value = '320px,240px'.split(',')[i]);
         }
       });
 
@@ -246,9 +246,9 @@ export class PdfEmbedEditor {
             <input id="${tmpid}-custom" type="radio" name="target-size" ${custom}/>
             <label for="${tmpid}-custom">
               <span>Custom </span>
-              <input type="text" placeholder="640px" value="${customTargetSize[0]}" ${custom ? '' : 'disabled'} />
+              <input type="text" placeholder="320px" value="${customTargetSize[0]}" ${custom ? '' : 'disabled'} />
               <span>x</span>
-              <input type="text" placeholder="480px" value="${customTargetSize[1]}" ${custom ? '' : 'disabled'} />
+              <input type="text" placeholder="240px" value="${customTargetSize[1]}" ${custom ? '' : 'disabled'} />
             </label>
           </div>
         </div>

@@ -48,7 +48,7 @@ export class PdfFreeformViewer {
         const bound = rotateRect(degree, true, annot.freeforms[pageNum]);
         const freeformEl = htmlToElements(
           `<div data-annotation-id="${annot.id}" 
-            data-analytic-id="annot-freeform-${annot.id}"
+            data-analytic-id="freeform-${annot.id}"
             class="pdfjs-annotation__freeform ${this.attachMoveElClass ? 'pdf-movable-el' : ''}" 
             ${this.attachMoveElClass ? `data-movable-type="freeform"` : ''}
             tabindex="-1" 
@@ -57,7 +57,6 @@ export class PdfFreeformViewer {
               bottom: ${bound.bottom}%;
               left: ${bound.left}%;
               right: ${bound.right}%;
-              ${/* TODO: this.configs?.resize ? 'resize: both;' : '' */''}
               overflow: hidden;
               display: flex;
               align-items: center;

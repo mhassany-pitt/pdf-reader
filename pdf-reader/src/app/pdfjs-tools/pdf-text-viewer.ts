@@ -14,7 +14,7 @@ export class PdfTextViewer extends PdfNoteViewer {
 
     const viewerEl = htmlToElements(
       `<div data-annotation-id="${annot.id}" 
-        data-analytic-id="annot-text-${annot.id}"
+        data-analytic-id="text-${annot.id}"
         class="
           pdfjs-annotation__text 
           pdfjs-show-boundary__unfocusable
@@ -27,7 +27,7 @@ export class PdfTextViewer extends PdfNoteViewer {
           right: calc(${rect.right}%);
           bottom: calc(${rect.bottom}%);
         ">
-        ${this.attachMoveElClass ? '<div class="move-icon">&#10021;</div>' : ''}
+        ${this.attachMoveElClass ? '<div class="move-icon">✥</div>' : ''}
         <textarea 
           class="${this.attachMoveElClass ? 'pdf-movable-el-excluded' : ''}"
           ${isEditorPresent ? 'placeholder="Text ..."' : ''}
@@ -75,7 +75,7 @@ export class PdfTextViewer extends PdfNoteViewer {
         }
 
         .pdfjs-annotation__text .move-icon:hover { 
-          color: darkgray; 
+          color: black; 
         }
 
         .pdfjs-annotation__text textarea {

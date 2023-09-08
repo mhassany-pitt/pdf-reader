@@ -29,8 +29,8 @@ export class PdfMoveElements {
 
   private _onMouseDown() {
     this._getDocument().addEventListener("mousedown", ($event: any) => {
-      const movingEl = getOrParent($event, 'pdf-movable-el');
-      const excluded = getOrParent($event, 'pdf-movable-el-excluded');
+      const movingEl = getOrParent($event, '.pdf-movable-el');
+      const excluded = getOrParent($event, '.pdf-movable-el-excluded');
       if (isLeftClick($event) && movingEl && !excluded) {
         this.movingEl = movingEl;
         this.pageEl = getPageEl(movingEl);

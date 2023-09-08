@@ -1,4 +1,6 @@
 import { environment } from "src/environments/environment";
+import { getCurrentBrowserFingerPrint } from '@rajesh896/broprint.js';
+import { ActivatedRoute } from "@angular/router";
 
 export const scrollTo = async (document, pdfjs, { page, top, left, dest }: any) => {
   if (dest)
@@ -9,8 +11,8 @@ export const scrollTo = async (document, pdfjs, { page, top, left, dest }: any) 
     const pageEl = document.querySelector(`.pdfViewer .page[data-page-number="${page}"]`);
     const { width, height } = pageEl.getBoundingClientRect();
     const container = document.getElementById('viewerContainer');
-    container.scrollTop = pageEl.offsetTop + (top * height - 0.075);
-    container.scrollLeft = pageEl.offsetLeft + (left * width);
+    container.scrollTop = pageEl.offsetTop + (top / 100 - 0.075) * height;
+    container.scrollLeft = pageEl.offsetLeft + (left / 100) * width;
   }
 }
 
@@ -51,3 +53,11 @@ export const assignNumbering = (outline) => {
   }
 }
 
+export const getUserId = async (route: ActivatedRoute) => {
+  const user_id = route.snapshot.queryParamMap.get('user_id');
+  return user_id || `guest:${await getCurrentBrowserFingerPrint()}`;
+}
+
+export const qparamsToString = (qparams?: any) => {
+  return qparams ? Object.keys(qparams).map(k => `${k}=${qparams[k]}`).join('&') : '';
+}

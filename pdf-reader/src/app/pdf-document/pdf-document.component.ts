@@ -9,7 +9,7 @@ import { Annotator } from '../pdfjs-tools/annotator';
 import { Entry } from './add-textselection-to-outline';
 import { TextLocator } from '../pdfjs-tools/text-locator';
 import { HttpClient } from '@angular/common/http';
-import { loadPlugin, scrollTo } from '../pdfjs-tools/pdfjs-utils';
+import { getUserId, loadPlugin, scrollTo } from '../pdfjs-tools/pdfjs-utils';
 import { AppService } from '../app.service';
 import { encode } from 'base-64';
 import { ConfirmationService } from 'primeng/api';
@@ -125,19 +125,19 @@ export class PDFDocumentComponent implements OnInit {
     this.pdfjs.preferences.set('sidebarViewOnLoad', 0);
     this.removeExtraElements();
 
-    // load annotations first so can be rendered on document load
-    const storage = new Annotations({
-      user: () => this.app.user,
+    this.storage = new Annotations({
+      userId: async () => null,
       apiUrl: `${environment.apiUrl}/annotations`,
       http: this.http,
       groupId: this.pdfDocumentId,
       pdfjs: this.pdfjs,
     });
-    this.storage = storage;
 
     try {
       await this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });
-    } catch (exp) { console.error(exp); }
+    } catch (exp) {
+      console.error(exp);
+    }
 
     this.pdfjs.eventBus.on('fileinputchange', ($event) => this.ngZone.run(() => {
       const files = $event.source.files;
@@ -148,7 +148,7 @@ export class PDFDocumentComponent implements OnInit {
 
     const registry = new PdfRegistry({ iframe: this.iframe, pdfjs: this.pdfjs });
     // registry.register('baseHref', document.querySelector('base')?.href);
-    registry.register('storage', storage);
+    registry.register('storage', this.storage);
 
     new PdfAnnotationLayer({ registry });
     const toolbar = new PdfToolbar({ registry });
@@ -284,7 +284,7 @@ export class PDFDocumentComponent implements OnInit {
 
   async confirmOutlineExtraction() {
     const outline = await this.pdfjs.pdfDocument.getOutline();
-    if (outline.length) this.confirm.confirm({
+    if (outline?.length) this.confirm.confirm({
       header: 'Sync Outline?',
       message: 'This will overwrite the outline from the PDF document!',
       acceptLabel: 'Yes, Sure!',
@@ -351,7 +351,6 @@ export class PDFDocumentComponent implements OnInit {
   }
 
   async scrollToEntry(entry: any) {
-    // TODO: it doesn't work for add-to-outline entries
     scrollTo(this.window.document, this.pdfjs, entry);
   }
 
@@ -409,3 +408,7 @@ export class PDFDocumentComponent implements OnInit {
     });
   }
 }
+
+// TODO: make share-link creation better
+// TODO: in the new annotations system respect the author-defined configuration 
+// TODO: in 403 page, add a link to the login page

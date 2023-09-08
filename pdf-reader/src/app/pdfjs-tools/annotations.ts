@@ -1,20 +1,14 @@
 import { HttpClient } from "@angular/common/http";
 import { environment } from "src/environments/environment";
-import { inSameOrigin } from "./pdfjs-utils";
+import { inSameOrigin, qparamsToString } from "./pdfjs-utils";
 import { firstValueFrom } from "rxjs";
-import { AppService } from "../app.service";
 
 export class Annotations {
 
-  // passing user id from client side is not secure
-  // but how can we send that to 3rd party api?
-  // TODO: maybe we need something similar but not user id
-  private user: () => any;
-
+  private userId: () => string;
   private apiUrl: string;
   private http: HttpClient;
   private groupId: string;
-
   private pdfjs: any;
 
   private annots: any = {};
@@ -26,8 +20,8 @@ export class Annotations {
 
   qparams: { [key: string]: string } = {};
 
-  constructor({ user, apiUrl, http, groupId, pdfjs }) {
-    this.user = user;
+  constructor({ userId, apiUrl, http, groupId, pdfjs }) {
+    this.userId = userId;
     this.apiUrl = apiUrl;
     this.http = http;
     this.groupId = groupId;
@@ -36,6 +30,12 @@ export class Annotations {
 
     this.pdfjs.eventBus.on('pagerendered', ($event: any) => this.loadPageAnnotations($event.pageNumber));
     this.pdfjs.eventBus.on('pagesdestroy', ($event: any) => delete this.annots[$event.pageNumber]);
+  }
+
+  list() { return this._annots; }
+
+  read(id: string) {
+    return this._annots.filter(a => a.id == id)[0];
   }
 
   async reload() {
@@ -49,10 +49,17 @@ export class Annotations {
     }
   }
 
+  private async getUserId() {
+    // use guest:id if user is not logged in
+    // use qparams.user_id if user_id passed through query params
+    const user_id = await this.userId();
+    return user_id ? { user_id } : {};
+  }
+
   async loadAnnotations(qparams: any) {
     try {
       let api = this.apiUrl || (environment.apiUrl + '/annotations');
-      api += `/${this.groupId}?${Object.keys(qparams).map(k => `${k}=${qparams[k]}`).join('&')}`;
+      api += `/${this.groupId}?${qparamsToString({ ...qparams, ...await this.getUserId() })}`;
       const req = this.http.get(api, { withCredentials: inSameOrigin(api) });
       return await firstValueFrom(req) as any;
     } catch (error) {
@@ -61,14 +68,9 @@ export class Annotations {
     }
   }
 
-  list() { return this._annots; }
-
-  create(annot: any, then?: () => void) {
-    const api = `${this.apiUrl}/${this.groupId}`;
-    this.http.post(api, {
-      ...annot,
-      user_id: this.user?.().id,
-    }, { withCredentials: inSameOrigin(api) }).subscribe({
+  async create(annot: any, then?: () => void) {
+    const api = `${this.apiUrl}/${this.groupId}?${qparamsToString(await this.getUserId())}`;
+    this.http.post(api, annot, { withCredentials: inSameOrigin(api) }).subscribe({
       next: (resp: any) => {
         annot.id = resp.id;
         annot.pages.forEach(page => {
@@ -81,12 +83,8 @@ export class Annotations {
     });
   }
 
-  read(id: string) {
-    return this._annots.filter(a => a.id == id)[0];
-  }
-
-  update(annot: any, then?: () => void) {
-    const api = `${this.apiUrl}/${this.groupId}/${annot.id}`;
+  async update(annot: any, then?: () => void) {
+    const api = `${this.apiUrl}/${this.groupId}/${annot.id}?${qparamsToString(await this.getUserId())}`;
     this.http.patch(api, annot, { withCredentials: inSameOrigin(api) }).subscribe({
       next: (resp: any) => {
         annot.pages
@@ -100,8 +98,8 @@ export class Annotations {
     });
   }
 
-  delete(annot: any, then?: () => void) {
-    const api = `${this.apiUrl}/${this.groupId}/${annot.id}`;
+  async delete(annot: any, then?: () => void) {
+    const api = `${this.apiUrl}/${this.groupId}/${annot.id}?${qparamsToString(await this.getUserId())}`;
     this.http.delete(api, { withCredentials: inSameOrigin(api) }).subscribe({
       next: (resp: any) => {
         annot.pages

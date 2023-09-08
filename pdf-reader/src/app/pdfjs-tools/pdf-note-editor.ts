@@ -89,9 +89,8 @@ export class PdfNoteEditor {
 
   protected onAnnotClick() {
     this._getDocument().addEventListener('click', async ($event: any) => {
-      const isThumbIcon = getOrParent($event, 'pdfjs-annotation__note img.thumb-icon'),
-        isViewer = getOrParent($event, 'pdfjs-annotation__note-viewer-popup');
-      // TODO: when editing, click on thumb-icon should not trigger re-edit (this will override the edit state)
+      const isThumbIcon = getOrParent($event, '.pdfjs-annotation__note-thumb-icon'),
+        isViewer = getOrParent($event, '.pdfjs-annotation__note-viewer-popup');
       if (isLeftClick($event) && (isThumbIcon || isViewer)) {
         const annotEl = getAnnotEl($event.target),
         /* */  pageEl = getPageEl($event.target);
@@ -152,11 +151,11 @@ export class PdfNoteEditor {
       .appendChild(popupEl);
 
     const textarea = popupEl.querySelector('textarea');
-    textarea?.focus();
-
     textarea?.addEventListener('blur', async () => {
-      annot.note = textarea.value;
-      this._getStorage().update(annot);
+      if (this._getDocumentEl().querySelector(`[data-annotation-id="${annot.id}"]`)) {
+        annot.note = textarea.value;
+        this._getStorage().update(annot);
+      }
     });
   }
 

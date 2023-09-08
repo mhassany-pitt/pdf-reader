@@ -13,7 +13,7 @@ import { HttpClient } from '@angular/common/http';
 import { EmbedResource } from '../pdfjs-tools/embed-resource';
 import { EnableElemMovement } from '../pdfjs-tools/enable-elem-movement';
 import { AppService } from '../app.service';
-import { inSameOrigin, loadPlugin, scrollTo } from '../pdfjs-tools/pdfjs-utils';
+import { getUserId, inSameOrigin, loadPlugin, scrollTo } from '../pdfjs-tools/pdfjs-utils';
 import { AnnotationFilter } from '../pdfjs-tools/annotation-filter';
 
 @Component({
@@ -114,8 +114,9 @@ export class PDFReaderComponent implements OnInit {
     const pdfjs = this.pdfjs;
 
     // load annotations first so can be rendered on document load
+    const is3rdParty = this.configs?.annotation_api;
     const storage = new Annotations({
-      user: () => this.app.user,
+      userId: async () => is3rdParty ? await getUserId(this.route) : null,
       apiUrl: this.configs?.annotation_api,
       http: this.http,
       groupId: this.pdfDocumentId,
@@ -255,7 +256,7 @@ export class PDFReaderComponent implements OnInit {
     return new Annotator({
       baseHref: this.baseHref,
       iframe, pdfjs, storage,
-      toolbar: null, // TODO: add toolbar
+      toolbar: null,
       configs: {
         onleftclick: true,
         highlight: this.configs?.highlight,
@@ -268,17 +269,19 @@ export class PDFReaderComponent implements OnInit {
     });
   }
 
-  private setupInteractionLogger(iframe, pdfjs) {
+  private async setupInteractionLogger(iframe, pdfjs) {
     if (this.configs?.log_interactions) {
       new InteractionLogger({
         iframe, pdfjs,
-        persist: (logs: any[]) => {
-          const user = this.app.user;
-          logs = logs.map(log => ({
-            ...log,
-            ...(user ? { user_id: user.id } : null),
-            pdf_doc_id: this.pdfDocumentId,
-          }));
+        persist: async (logs: any[]) => {
+          const user_id = await getUserId(this.route);
+          const is3rdParty = this.configs?.interaction_logger_api;
+
+          logs = logs.map(log => {
+            log = { ...log, pdf_doc_id: this.pdfDocumentId };
+            if (is3rdParty) log.user_id = user_id;
+            return log;
+          });
 
           if (this.configs?.interaction_logger_api) {
             const api = this.configs?.interaction_logger_api || (environment.apiUrl + '/interaction-logs');

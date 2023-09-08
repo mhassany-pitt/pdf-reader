@@ -36,8 +36,8 @@ export class EnableElemMovement {
     this.documentEl.addEventListener("mousedown", ($event: any) => {
       if (!isLeftClick($event)) return;
 
-      this.embedEl = getOrParent($event, 'pdfjs-annotation__embed');
-      this.freeformEl = getOrParent($event, 'pdfjs-annotation__freeform');
+      this.embedEl = getOrParent($event, '.pdfjs-annotation__embed');
+      this.freeformEl = getOrParent($event, '.pdfjs-annotation__freeform');
       this.annotEl = this.embedEl || this.freeformEl;
       this.annotType = this.annotEl == this.embedEl ? 'embed'
         : (this.annotEl == this.freeformEl ? 'freeform' : null);

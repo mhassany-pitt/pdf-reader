@@ -18,10 +18,11 @@ export class PdfHighlightNoteEditor {
   }
 
   private _getDocument() { return this.registry.getDocument(); }
+  private _getDocumentEl() { return this.registry.getDocumentEl(); }
 
   private _onHighlightClick() {
     this._getDocument().addEventListener('click', async ($event: any) => {
-      const isViewer = getOrParent($event, 'pdfjs-annotation__highlight-note-viewer-popup');
+      const isViewer = getOrParent($event, '.pdfjs-annotation__highlight-note-viewer-popup');
       if (isLeftClick($event) && (this.registry.get('highlight-note-viewer').isValidAnnotEl($event) || isViewer)) {
         const annotEl = getAnnotEl($event.target),
           /**/ pageEl = getPageEl($event.target);
@@ -81,11 +82,11 @@ export class PdfHighlightNoteEditor {
       .appendChild(popupEl);
 
     const textarea = popupEl.querySelector('textarea');
-    textarea?.focus();
-
     textarea?.addEventListener('blur', async () => {
-      annot.note = textarea.value;
-      this.registry.get('storage').update(annot);
+      if (this._getDocumentEl().querySelector(`[data-annotation-id="${annot.id}"]`)) {
+        annot.note = textarea.value;
+        this.registry.get('storage').update(annot);
+      }
     });
   }
 }

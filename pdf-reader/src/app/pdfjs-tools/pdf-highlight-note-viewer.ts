@@ -41,7 +41,7 @@ export class PdfHighlightNoteViewer {
     this._getDocument().addEventListener('mouseover', ($event: any) => {
       if (timeout) clearTimeout(timeout);
       timeout = setTimeout(async () => {
-        const isEditor = getOrParent($event, 'pdfjs-annotation__highlight-note-editor-popup');
+        const isEditor = getOrParent($event, '.pdfjs-annotation__highlight-note-editor-popup');
         if (this.isValidAnnotEl($event) || isEditor) {
           const annotEl = getAnnotEl($event.target),
         /* */  pageEl = getPageEl($event.target);
@@ -51,7 +51,7 @@ export class PdfHighlightNoteViewer {
             ? isEditor.getAttribute('data-highlight-id')
             : annotEl.getAttribute('data-annotation-id');
           const annot = this.registry.get('storage').read(annotId);
-          if (annot.note && !pageEl.querySelector(`.pdfjs-annotation__highlight-note-editor-popup[data-highlight-id="${annotId}"]`)) {
+          if (annot && annot.note && !pageEl.querySelector(`.pdfjs-annotation__highlight-note-editor-popup[data-highlight-id="${annotId}"]`)) {
             const bound = getAnnotElBound(pageEl.querySelector(`[data-annotation-id="${annotId}"]`));
             this._showViewerPopup(annot, getPageNum(pageEl), bound);
           }

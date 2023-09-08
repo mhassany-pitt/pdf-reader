@@ -11,8 +11,6 @@ export class PdfEmbedViewer {
 
   attachMoveElClass: boolean = false;
 
-  // TODO: in case of pagedestory, and pagerendered, remember if the popup was open (specially for fullscreen/page popup)
-
   constructor({ registry }) {
     this.registry = registry;
 
@@ -54,7 +52,7 @@ export class PdfEmbedViewer {
 
     const embedEl = htmlToElements(
       `<div data-annotation-id="${annot.id}" 
-        data-analytic-id="embedded-resource-${annot.id}"
+        data-analytic-id="embed-${annot.id}"
         class="pdfjs-annotation__embed ${this.attachMoveElClass ? 'pdf-movable-el' : ''}" 
         ${this.attachMoveElClass ? `data-movable-type="embed"` : ''}
         tabindex="-1" 
@@ -71,8 +69,8 @@ export class PdfEmbedViewer {
           justify-content: center;
         ">
         <div class="top-right">
-          ${this.attachMoveElClass ? '<div class="move-icon">&#10021;</div>' : ''}
-          ${isEditrPresent ? '<div class="edit-btn">⚙</div>' : ''}
+          ${this.attachMoveElClass && annot.target == 'inline-iframe' ? '<div class="move-icon">✥</div>' : ''}
+          ${isEditrPresent ? '<div class="pdfjs-annotation__embed-edit-btn">⚙</div>' : ''}
         </div>
         ${isEditrPresent ? '<img class="resize-icon" draggable="false" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABlBMVEVHcExmZmZEBjuPAAAAAXRSTlMAQObYZgAAABRJREFUeAFjYAICFiYOJiEmJSYXAAHyAJWhegUKAAAAAElFTkSuQmCC"/>' : ''}
       </div>`);
@@ -83,7 +81,7 @@ export class PdfEmbedViewer {
       embedEl.appendChild(iframeEl);
       this.fitIframeToParent(embedEl);
     } else if (annot.thumbnail) {
-      embedEl.appendChild(htmlToElements(`<img class="thumb-icon" draggable="false" src="${annot.thumbnail}"/>`));
+      embedEl.appendChild(htmlToElements(`<img class="pdfjs-annotation__embed-thumb-icon" draggable="false" src="${annot.thumbnail}"/>`));
     }
   }
 
@@ -108,14 +106,12 @@ export class PdfEmbedViewer {
 
   private _onAnnotClick() {
     this._getDocument().addEventListener('click', ($event: any) => {
-      const isThumbIcon = getOrParent($event, 'pdfjs-annotation__embed img.thumb-icon'),
-        isEditBtn = getOrParent($event, 'pdfjs-annotation__embed .edit-btn'),
-        isViewerPopup = getOrParent($event, 'pdfjs-annotation__embed-viewer-popup'),
-        isViewerPopupVisible = getPageEl($event.target).querySelector('.pdfjs-annotation__embed-viewer-popup');
-      // TODO: click on thumb-icon should only open popup 
-      // TODO: add move icon to top-right corner of embed
+      const isThumbIcon = getOrParent($event, '.pdfjs-annotation__embed-thumb-icon'),
+        isEditBtn = getOrParent($event, '.pdfjs-annotation__embed-edit-btn'),
+        isViewerPopup = getOrParent($event, '.pdfjs-annotation__embed-viewer-popup'),
+        isViewerPopupVisible = getPageEl($event.target)?.querySelector('.pdfjs-annotation__embed-viewer-popup');
       if (isLeftClick($event) && isThumbIcon && !isEditBtn && !isViewerPopupVisible) {
-        const annotEl = getOrParent($event, 'pdfjs-annotation__embed');
+        const annotEl = getOrParent($event, '.pdfjs-annotation__embed');
         const annotId = annotEl.getAttribute('data-annotation-id');
         const annot = this._getStorage().read(annotId);
         if (annot.target == 'new-page') {
@@ -179,16 +175,16 @@ export class PdfEmbedViewer {
           border-radius: 0.125rem;
         }
         
-        .pdfjs-annotation__embed img.thumb-icon {
-          width: 95%; 
-          height: 95%; 
+        .pdfjs-annotation__embed img.pdfjs-annotation__embed-thumb-icon {
+          max-width: 80%; 
+          max-height: 80%; 
           margin: 2.5%;
           object-fit: contain;
           user-select: none;
         }
-        .pdfjs-annotation__embed img.thumb-icon:hover {
-          width: 100%;
-          height: 100%;
+        .pdfjs-annotation__embed img.pdfjs-annotation__embed-thumb-icon:hover {
+          max-width: 90%;
+          max-height: 90%;
           margin: 0;
         }
 
@@ -217,16 +213,16 @@ export class PdfEmbedViewer {
         }
 
         .pdfjs-annotation__embed .move-icon:hover { 
-          color: darkgray; 
+          color: black; 
         }
  
-        .pdfjs-annotation__embed .edit-btn {
+        .pdfjs-annotation__embed .pdfjs-annotation__embed-edit-btn {
           font-size: 1.25rem;
           color: lightgray;
         }
 
-        .pdfjs-annotation__embed .edit-btn:hover { 
-          color: darkgray; 
+        .pdfjs-annotation__embed .pdfjs-annotation__embed-edit-btn:hover { 
+          color: black; 
         }
 
         .pdfjs-annotation__embed iframe {

@@ -15,11 +15,17 @@ export class AnnotationsController {
     private users: UsersService,
   ) { }
 
-  private async _getOrFail({ user, groupId, id }) {
-    const pdfLink = await this.service.read({ user, groupId, id });
+  private async _getOrFail({ user_id, groupId, id }) {
+    const pdfLink = await this.service.read({ user_id, groupId, id });
     if (pdfLink)
       return useId(pdfLink);
     throw new NotFoundException();
+  }
+
+  getUserId(req, user_id) {
+    if (req.user) return req.user.id;
+    if (user_id?.startsWith('guest:')) return user_id;
+    return null;
   }
 
   @Get(':groupId')
@@ -29,8 +35,12 @@ export class AnnotationsController {
     @Param('groupId') groupId: string,
     @Query('annotators') annotators: string,
     @Query('pages') pages: string,
+    @Query('user_id') user_id: string,
   ) {
-    const annotations = (await this.service.list({ user: req.user, groupId, pages, annotators })).map(useId);
+    const annotations = (await this.service.list({
+      user_id: this.getUserId(req, user_id),
+      groupId, pages, annotators
+    })).map(useId);
     const userIds = Array.from(new Set(annotations.map(a => a.user_id)));
     const users = await this.users.getUsers({ userIds });
     const usersInfo = users.reduce(($, user) => ($[user._id] = user, $), {});
@@ -43,31 +53,41 @@ export class AnnotationsController {
 
   @Post(':groupId')
   @UseGuards(AuthenticatedGuard)
-  async post(@Req() req: any, @Param('groupId') groupId: string, @Body() annotation: any) {
-    return useId(await this.service.create({ user: req.user, groupId, annotation }));
+  async post(@Req() req: any, @Param('groupId') groupId: string,
+    @Body() annotation: any, @Query('user_id') user_id: string) {
+    return useId(await this.service.create({
+      user_id: this.getUserId(req, user_id),
+      groupId, annotation
+    }));
   }
 
   @Get(':groupId/annotators')
   @UseGuards(AuthenticatedGuard)
-  async annotators(@Req() req: any, @Param('groupId') groupId: string) {
+  async annotators(@Req() req: any, @Param('groupId') groupId: string,
+    @Query('user_id') user_id: string) {
     const userIds = await this.service.getAnnotators({ groupId });
     const users = await this.users.getUsers({ userIds });
     return users.map(useId)
-      .filter(user => user.id != req.user?.id)
+      .filter(user => user.id != this.getUserId(req, user_id))
       .map(user => ({ id: user.id, fullname: user.fullname }));
   }
 
   @Patch(':groupId/:id')
   @UseGuards(AuthenticatedGuard)
-  async update(@Req() req: any, @Param('groupId') groupId: string, @Param('id') id: string, @Body() annotation: any) {
-    await this._getOrFail({ user: req.user, groupId, id });
-    return useId(await this.service.update({ user: req.user, groupId, id, annotation }));
+  async update(@Req() req: any, @Param('groupId') groupId: string,
+    @Param('id') id: string, @Body() annotation: any, @Query('user_id') user_id: string) {
+    await this._getOrFail({ user_id: this.getUserId(req, user_id), groupId, id });
+    return useId(await this.service.update({
+      user_id: this.getUserId(req, user_id),
+      groupId, id, annotation
+    }));
   }
 
   @Delete(':groupId/:id')
   @UseGuards(AuthenticatedGuard)
-  async delete(@Req() req: any, @Param('groupId') groupId: string, @Param('id') id: string) {
-    await this._getOrFail({ user: req.user, groupId, id });
-    await this.service.delete({ user: req.user, groupId, id });
+  async delete(@Req() req: any, @Param('groupId') groupId: string,
+    @Param('id') id: string, @Query('user_id') user_id: string) {
+    await this._getOrFail({ user_id: this.getUserId(req, user_id), groupId, id });
+    await this.service.delete({ user_id: this.getUserId(req, user_id), groupId, id });
   }
 }

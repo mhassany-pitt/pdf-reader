@@ -184,9 +184,8 @@ export const rotation = (pdfjs: any) => pdfjs.pdfViewer.pagesRotation;
 export const isLeftClick = ($event: any, checkType = false) => (!checkType || $event.type == 'click') && $event.button === 0;
 export const isRightClick = ($event: any, checkType = false) => (!checkType || $event.type == 'contextmenu') && $event.button === 2;
 
-export const getOrParent = ($event: any, className: string) => {
-  return $event.target.classList.contains(className)
-    ? $event.target : $event.target.closest(`.${className}`);
+export const getOrParent = ($event: any, selector: string) => {
+  return $event.target.classList.contains(selector) ? $event.target : $event.target.closest(selector);
 }
 
 export const getAnnotEl = (el: HTMLElement): HTMLElement => {

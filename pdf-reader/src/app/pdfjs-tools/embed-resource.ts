@@ -83,9 +83,9 @@ export class EmbedResource {
       if (!isRightClick($event))
         return null as any;
 
-      const embedEl = getOrParent($event, 'pdfjs-annotation__embed');
-      const rectEl = getOrParent($event, 'pdfjs-annotation__rect');
-      const freeformEl = getOrParent($event, 'pdfjs-annotation__freeform');
+      const embedEl = getOrParent($event, '.pdfjs-annotation__embed');
+      const rectEl = getOrParent($event, '.pdfjs-annotation__rect');
+      const freeformEl = getOrParent($event, '.pdfjs-annotation__freeform');
       const el = embedEl || rectEl || freeformEl;
       if (!el) return null as any;
 

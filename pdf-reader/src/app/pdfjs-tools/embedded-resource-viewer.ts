@@ -54,9 +54,9 @@ export class EmbeddedResourceViewer {
   private _registerViewItemUI() {
     let lastEvTypes: any = {};
     this.annotator.register(POPUP_ROW_ITEM_UI, ($event: any) => {
-      const rectEl = getOrParent($event, 'pdfjs-annotation__rect');
-      const embedEl = getOrParent($event, 'pdfjs-annotation__embed');
-      const freeformEl = getOrParent($event, 'pdfjs-annotation__freeform');
+      const rectEl = getOrParent($event, '.pdfjs-annotation__rect');
+      const embedEl = getOrParent($event, '.pdfjs-annotation__embed');
+      const freeformEl = getOrParent($event, '.pdfjs-annotation__freeform');
       const annotEl = embedEl || rectEl || freeformEl;
       if (!annotEl) return null as any;
 

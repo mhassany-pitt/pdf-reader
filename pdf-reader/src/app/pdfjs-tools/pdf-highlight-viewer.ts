@@ -51,7 +51,7 @@ export class PdfHighlightViewer {
           rect = rotateRect(degree, true, rect);
           const rectEl = htmlToElements(
             `<div data-annotation-id="${annot.id}" 
-              data-analytic-id="annot${annot.type ? '-' + annot.type : ''}-${annot.id}"
+              data-analytic-id="${annot.type ? '-' + annot.type : ''}-${annot.id}"
               class="pdfjs-annotation__rect ${annot.type ? 'pdfjs-annotation__' + annot.type : ''}" 
               style="
                 top: calc(${rect.top}% + 1px);
