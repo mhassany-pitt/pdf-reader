@@ -1,5 +1,6 @@
 import {
   getOrParent, getPageEl, htmlToElements, isLeftClick,
+  removeSelectorAll,
   rotateRect, rotation, scale
 } from './annotator-utils';
 import { PdfRegistry } from './pdf-registry';
@@ -9,12 +10,15 @@ export class PdfEmbedViewer {
 
   private registry: PdfRegistry;
 
-  attachMoveElClass: boolean = false;
-
   constructor({ registry }) {
     this.registry = registry;
 
     this.registry.register('embed-viewer', this);
+
+    // remove popup on delete
+    this.registry.register(`embed.deleted.${Math.random()}`,
+      (annot) => removeSelectorAll(this._getDocumentEl(),
+        `.pdfjs-annotation__embed-viewer-popup[data-embed-id="${annot.id}"]`));
 
     this._attachStylesheet();
     this._renderOnPagerendered();
@@ -46,16 +50,22 @@ export class PdfEmbedViewer {
     annotsLayerEl.querySelectorAll(`[data-annotation-id="${annot.id}"].pdfjs-annotation__embed`)
       .forEach((el: any) => el.remove());
 
-    const isEditrPresent = this.registry.get('embed-editor') != null;
+    const editor = this.registry.get('embed-editor');
+    const configs = this.registry.get(`configs.embed`);
+
     const degree = rotation(this._getPdfJS());
     const bound = rotateRect(degree, true, annot.rects[annot.pages[0]][0] as any);
 
-    const embedEl = htmlToElements(
-      `<div data-annotation-id="${annot.id}" 
+    const viewerEl = htmlToElements(
+      `<div 
+        data-annotation-id="${annot.id}" 
+        data-annotation-type="${annot.type}"
         data-analytic-id="embed-${annot.id}"
-        class="pdfjs-annotation__embed ${this.attachMoveElClass ? 'pdf-movable-el' : ''}" 
-        ${this.attachMoveElClass ? `data-movable-type="embed"` : ''}
-        tabindex="-1" 
+        tabindex="-1"
+        class="
+          pdfjs-annotation__embed 
+          ${configs?.moveable ? 'pdf-annotation--moveable' : ''}
+          ${configs?.deletable ? 'pdfjs-annotation--deletable' : ''}" 
         style="
           top: ${bound.top}%;
           left: ${bound.left}%;
@@ -69,19 +79,19 @@ export class PdfEmbedViewer {
           justify-content: center;
         ">
         <div class="top-right">
-          ${this.attachMoveElClass && annot.target == 'inline-iframe' ? '<div class="move-icon">✥</div>' : ''}
-          ${isEditrPresent ? '<div class="pdfjs-annotation__embed-edit-btn">⚙</div>' : ''}
+          ${configs?.moveable && annot.target == 'inline-iframe' ? '<div class="move-icon">✥</div>' : ''}
+          ${editor ? '<div class="pdfjs-annotation__embed-edit-btn">⚙</div>' : ''}
         </div>
-        ${isEditrPresent ? '<img class="resize-icon" draggable="false" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABlBMVEVHcExmZmZEBjuPAAAAAXRSTlMAQObYZgAAABRJREFUeAFjYAICFiYOJiEmJSYXAAHyAJWhegUKAAAAAElFTkSuQmCC"/>' : ''}
+        ${editor ? '<img class="resize-icon" draggable="false" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABlBMVEVHcExmZmZEBjuPAAAAAXRSTlMAQObYZgAAABRJREFUeAFjYAICFiYOJiEmJSYXAAHyAJWhegUKAAAAAElFTkSuQmCC"/>' : ''}
       </div>`);
-    annotsLayerEl.appendChild(embedEl);
+    annotsLayerEl.appendChild(viewerEl);
 
     if (annot.target == 'inline-iframe') {
       const iframeEl = htmlToElements(`<iframe src="${annot.resource}"></iframe>`);
-      embedEl.appendChild(iframeEl);
-      this.fitIframeToParent(embedEl);
+      viewerEl.appendChild(iframeEl);
+      this.fitIframeToParent(viewerEl);
     } else if (annot.thumbnail) {
-      embedEl.appendChild(htmlToElements(`<img class="pdfjs-annotation__embed-thumb-icon" draggable="false" src="${annot.thumbnail}"/>`));
+      viewerEl.appendChild(htmlToElements(`<img class="pdfjs-annotation__embed-thumb-icon" draggable="false" src="${annot.thumbnail}"/>`));
     }
   }
 
@@ -130,7 +140,7 @@ export class PdfEmbedViewer {
           popupEl.querySelector('.close-btn')?.addEventListener('click', $event => {
             if (annot.targetSize == 'fullscreen')
               this._getToolbar().toggle(true);
-            this._removePopups($event);
+            this.removePopups();
           });
 
           if (annot.targetSize == 'fullscreen') {
@@ -152,105 +162,108 @@ export class PdfEmbedViewer {
           }
         }
       } else if (!isThumbIcon && !isViewerPopup) {
-        this._removePopups($event);
+        this.removePopups();
       }
     });
   }
 
-  private _removePopups($event: any) {
-    $event.target.closest('.pdfViewer')?.querySelectorAll('.pdfjs-annotation__embed-viewer-popup').forEach(el => el.remove());
+  removePopups() {
+    this._getDocumentEl().querySelectorAll('.pdfjs-annotation__embed-viewer-popup').forEach(el => el.remove());
   }
 
   private _attachStylesheet() {
-    this._getDocumentEl().querySelector('head').appendChild(htmlToElements(
-      `<style>
-        .pdfjs-annotation__embed {
-          position: absolute;
-          pointer-events: auto;
-          user-select: none;
-          cursor: pointer;
-          z-index: 5;
-          border: solid 1px lightgray;
-          background-color: white;
-          border-radius: 0.125rem;
-        }
-        
-        .pdfjs-annotation__embed img.pdfjs-annotation__embed-thumb-icon {
-          max-width: 80%; 
-          max-height: 80%; 
-          margin: 2.5%;
-          object-fit: contain;
-          user-select: none;
-        }
-        .pdfjs-annotation__embed img.pdfjs-annotation__embed-thumb-icon:hover {
-          max-width: 90%;
-          max-height: 90%;
-          margin: 0;
-        }
+    this.registry
+      .getDocumentEl()
+      .querySelector('head')
+      .appendChild(htmlToElements(
+        `<style>
+          .pdfjs-annotation__embed {
+            position: absolute;
+            pointer-events: auto;
+            user-select: none;
+            cursor: pointer;
+            z-index: 5;
+            border: solid 1px lightgray;
+            background-color: white;
+            border-radius: 0.125rem;
+          }
+          
+          .pdfjs-annotation__embed img.pdfjs-annotation__embed-thumb-icon {
+            max-width: 80%; 
+            max-height: 80%; 
+            margin: 2.5%;
+            object-fit: contain;
+            user-select: none;
+          }
+          .pdfjs-annotation__embed img.pdfjs-annotation__embed-thumb-icon:hover {
+            max-width: 90%;
+            max-height: 90%;
+            margin: 0;
+          }
 
-        .pdfjs-annotation__embed img.resize-icon {
-          position: absolute;
-          bottom: 0;
-          right: 0;
-          cursor: se-resize;
-          z-index: 2;
-        }
+          .pdfjs-annotation__embed img.resize-icon {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            cursor: se-resize;
+            z-index: 2;
+          }
 
-        .pdfjs-annotation__embed .top-right {
-          position: absolute;
-          top: 2px;
-          right: 1px;
-          width: 12px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          z-index: 2;
-        }
+          .pdfjs-annotation__embed .top-right {
+            position: absolute;
+            top: 2px;
+            right: 1px;
+            width: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+          }
 
-        .pdfjs-annotation__embed .move-icon { 
-          color: lightgray;
-        }
+          .pdfjs-annotation__embed .move-icon { 
+            color: lightgray;
+          }
 
-        .pdfjs-annotation__embed .move-icon:hover { 
-          color: black; 
-        }
- 
-        .pdfjs-annotation__embed .pdfjs-annotation__embed-edit-btn {
-          font-size: 1.25rem;
-          color: lightgray;
-        }
+          .pdfjs-annotation__embed .move-icon:hover { 
+            color: black; 
+          }
+  
+          .pdfjs-annotation__embed .pdfjs-annotation__embed-edit-btn {
+            font-size: 1.25rem;
+            color: lightgray;
+          }
 
-        .pdfjs-annotation__embed .pdfjs-annotation__embed-edit-btn:hover { 
-          color: black; 
-        }
+          .pdfjs-annotation__embed .pdfjs-annotation__embed-edit-btn:hover { 
+            color: black; 
+          }
 
-        .pdfjs-annotation__embed iframe {
-          background-color: white;
-          border: none; 
-          z-index: 1;
-        }
-        
-        .pdfjs-annotation__embed-viewer-popup {
-          display: flex;
-          flex-flow: column;
-          width: 100%;
-          height: 100%;
-          box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
-          background-color: white;
-          overflow: hidden;
-          border-radius: 0.125rem;
-          padding: 0.125rem;
-          z-index: 6;
-          pointer-events: auto;
-        }
-        
-        .pdfjs-annotation__embed-viewer-popup-header {
-          display: flex;
-          align-items: center;
-          margin: 5px;
-        }      
-      </style>`
-    ));
+          .pdfjs-annotation__embed iframe {
+            background-color: white;
+            border: none; 
+            z-index: 1;
+          }
+          
+          .pdfjs-annotation__embed-viewer-popup {
+            display: flex;
+            flex-flow: column;
+            width: 100%;
+            height: 100%;
+            box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+            background-color: white;
+            overflow: hidden;
+            border-radius: 0.125rem;
+            padding: 0.125rem;
+            z-index: 6;
+            pointer-events: auto;
+          }
+          
+          .pdfjs-annotation__embed-viewer-popup-header {
+            display: flex;
+            align-items: center;
+            margin: 5px;
+          }      
+        </style>`
+      ));
   }
 }

@@ -24,7 +24,7 @@ import { PdfUnderlineToolbarBtn } from '../pdfjs-tools/pdf-underline-toolbar-btn
 import { PdfHighlightNoteEditor } from '../pdfjs-tools/pdf-highlight-note-editor';
 import { PdfHighlightNoteViewer } from '../pdfjs-tools/pdf-highlight-note-viewer';
 import { htmlToElements } from '../pdfjs-tools/annotator-utils';
-import { PdfMoveElements } from '../pdfjs-tools/pdf-move-elements';
+import { PdfMoveAnnotation } from '../pdfjs-tools/pdf-move-annotation';
 import { PdfNoteToolbarBtn } from '../pdfjs-tools/pdf-note-toolbar-btn';
 import { PdfTextToolbarBtn } from '../pdfjs-tools/pdf-text-toolbar-btn';
 import { PdfNoteEditor } from '../pdfjs-tools/pdf-note-editor';
@@ -60,6 +60,8 @@ export class PDFDocumentComponent implements OnInit {
   storage: Annotations = null as any;
   annotator: Annotator = null as any;
 
+  registry: PdfRegistry = null as any;
+
   textExtractionProgress: any = undefined;
 
   updating = false;
@@ -78,7 +80,6 @@ export class PDFDocumentComponent implements OnInit {
     private route: ActivatedRoute,
     private service: PDFDocumentService,
     private title: Title,
-    private app: AppService,
     private confirm: ConfirmationService,
   ) { }
 
@@ -125,6 +126,10 @@ export class PDFDocumentComponent implements OnInit {
     this.pdfjs.preferences.set('sidebarViewOnLoad', 0);
     this.removeExtraElements();
 
+    this.registry = new PdfRegistry({ iframe: this.iframe, pdfjs: this.pdfjs });
+    // registry.register('baseHref', document.querySelector('base')?.href);
+    const registry = this.registry;
+
     this.storage = new Annotations({
       userId: async () => null,
       apiUrl: `${environment.apiUrl}/annotations`,
@@ -132,6 +137,7 @@ export class PDFDocumentComponent implements OnInit {
       groupId: this.pdfDocumentId,
       pdfjs: this.pdfjs,
     });
+    registry.register('storage', this.storage);
 
     try {
       await this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });
@@ -146,16 +152,12 @@ export class PDFDocumentComponent implements OnInit {
       setTimeout(() => this.confirmOutlineExtraction(), 1000);
     }));
 
-    const registry = new PdfRegistry({ iframe: this.iframe, pdfjs: this.pdfjs });
-    // registry.register('baseHref', document.querySelector('base')?.href);
-    registry.register('storage', this.storage);
-
     new PdfAnnotationLayer({ registry });
     const toolbar = new PdfToolbar({ registry });
 
     new PdfRemoveOnDelete({ registry });
     new PdfShowBoundary({ registry });
-    new PdfMoveElements({ registry });
+    new PdfMoveAnnotation({ registry });
 
     new PdfHighlightViewer({ registry });
     new PdfHighlighter({ registry });
@@ -237,8 +239,9 @@ export class PDFDocumentComponent implements OnInit {
   }
 
   async locateTexts() {
-    delete this.tt['share'];
-    await this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });
+    // TODO: check why we can not restore page number after text extraction
+    this.registry.get('storage').enabled = false;
+    delete this.tt['show-share-dialog'];
     new TextLocator({ iframe: this.iframe, pdfjs: this.pdfjs })
       .extractTextBounds({
         progress: (percentage: number) => {
@@ -246,12 +249,15 @@ export class PDFDocumentComponent implements OnInit {
         },
         then: (pageTexts: any) => {
           this.ngZone.run(() => {
-            this.textExtractionProgress = `Texts (including their location) were extracted for ${this.pdfjs.pagesCount} pages.`;
+            this.registry.get('storage').enabled = true;
+            this.textExtractionProgress = `Texts were extracted for ${this.pdfjs.pagesCount} pages.`;
             setTimeout(() => this.textExtractionProgress = undefined, 3000);
+            this.service.updateTextLocations(this.pdfDocumentId, pageTexts).subscribe();
           });
-          this.service.updateTextLocations(this.pdfDocumentId, pageTexts).subscribe();
         }
       });
+
+    await this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });
   }
 
   addOutlineEntry(entry: Entry) {
@@ -409,6 +415,4 @@ export class PDFDocumentComponent implements OnInit {
   }
 }
 
-// TODO: make share-link creation better
-// TODO: in the new annotations system respect the author-defined configuration 
 // TODO: in 403 page, add a link to the login page

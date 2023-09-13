@@ -5,8 +5,6 @@ export class PdfFreeformViewer {
 
   private registry: PdfRegistry;
 
-  attachMoveElClass: boolean = false;
-
   constructor({ registry }) {
     this.registry = registry;
 
@@ -17,7 +15,6 @@ export class PdfFreeformViewer {
   }
 
   private _getPdfJS() { return this.registry.getPdfJS(); }
-  private _getDocumentEl() { return this.registry.getDocumentEl(); }
   private _getStorage() { return this.registry.get('storage'); }
   private _getAnnotLayer() { return this.registry.get('annotation-layer'); }
 
@@ -37,6 +34,8 @@ export class PdfFreeformViewer {
   }
 
   render(annot: any) {
+    const configs = this.registry.get(`configs.freeform`);
+
     Object.keys(annot.freeforms)
       .map(pageNum => parseInt(pageNum))
       .forEach(pageNum => {
@@ -46,12 +45,16 @@ export class PdfFreeformViewer {
 
         const degree = rotation(this._getPdfJS());
         const bound = rotateRect(degree, true, annot.freeforms[pageNum]);
-        const freeformEl = htmlToElements(
-          `<div data-annotation-id="${annot.id}" 
+        const viewerEl = htmlToElements(
+          `<div 
+            data-annotation-id="${annot.id}" 
+            data-annotation-type="${annot.type}"
             data-analytic-id="freeform-${annot.id}"
-            class="pdfjs-annotation__freeform ${this.attachMoveElClass ? 'pdf-movable-el' : ''}" 
-            ${this.attachMoveElClass ? `data-movable-type="freeform"` : ''}
             tabindex="-1" 
+            class="
+              pdfjs-annotation__freeform 
+              ${configs?.moveable ? 'pdf-annotation--moveable' : ''}
+              ${configs?.deletable ? 'pdfjs-annotation--deletable' : ''}" 
             style="
               top: ${bound.top}%;
               bottom: ${bound.bottom}%;
@@ -64,16 +67,16 @@ export class PdfFreeformViewer {
             ">
           </div>`);
 
-        annotsLayerEl.appendChild(freeformEl);
+        annotsLayerEl.appendChild(viewerEl);
         const image = new Image();
-        freeformEl.appendChild(image);
+        viewerEl.appendChild(image);
 
         image.src = annot.freeforms[pageNum].dataUrl;
         image.style.position = 'absolute';
         image.style.transform = `rotate(${degree}deg)`;
         image.style.pointerEvents = 'none';
 
-        this.fitImageToParent(freeformEl);
+        this.fitImageToParent(viewerEl);
       });
   }
 
@@ -89,14 +92,17 @@ export class PdfFreeformViewer {
   }
 
   private _attachStylesheet() {
-    this._getDocumentEl().querySelector('head').appendChild(htmlToElements(
-      `<style>
-        .pdfjs-annotation__freeform {
-          position: absolute;
-          pointer-events: stroke;
-          user-select: none;
-          z-index: 4;
-        }
-      </style>`));
+    this.registry
+      .getDocumentEl()
+      .querySelector('head')
+      .appendChild(htmlToElements(
+        `<style>
+          .pdfjs-annotation__freeform {
+            position: absolute;
+            pointer-events: stroke;
+            user-select: none;
+            z-index: 4;
+          }
+        </style>`));
   }
 }

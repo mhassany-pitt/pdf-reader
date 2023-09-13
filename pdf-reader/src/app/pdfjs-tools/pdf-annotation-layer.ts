@@ -24,23 +24,25 @@ export class PdfAnnotationLayer {
   }
 
   private _attachStylesheet() {
-    const styles =
-      `<style>
-        .pdfjs-annotations {
-          position: absolute;
-          left: 0;
-          top: 0;
-          right: 0;
-          bottom: 0;
-          line-height: 1;
-          overflow: hidden;
-          pointer-events: none;
-          text-size-adjust: none;
-          forced-color-adjust: none;
-          transform-origin: center center;
-          z-index: 5;
-        }
-      </style>`;
-    this.registry.getDocumentEl().querySelector('head').appendChild(htmlToElements(styles));
+    this.registry
+      .getDocumentEl()
+      .querySelector('head')
+      .appendChild(htmlToElements(
+        `<style>
+          .pdfjs-annotations {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            line-height: 1;
+            overflow: hidden;
+            pointer-events: none;
+            text-size-adjust: none;
+            forced-color-adjust: none;
+            transform-origin: center center;
+            z-index: 5;
+          }
+        </style>`));
   }
 }

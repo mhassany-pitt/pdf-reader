@@ -64,7 +64,7 @@
 
       <div class="flex items-center">
         <button pButton type="button" label="Share" icon="pi pi-share-alt"
-          class="p-button-sm p-button-text p-button-help" (click)="tt['share'] = true">
+          class="p-button-sm p-button-text p-button-help" (click)="tt['show-share-dialog'] = true">
         </button>
 
         <span class="flex-grow"></span>
@@ -80,10 +80,9 @@
 
     <div class="col-span-2 h-full relative flex flex-col gap-2">
       <div class="flex items-center gap-1">
-        <span>PDF Document:</span>
-
-        <input type="text" name="file_url" pInputText [(ngModel)]="pdfDocument.file_url" placeholder="Paste URL"
-          class="p-inputtext-sm flex-grow" style="padding: 0.125rem 0.25rem;" (change)="fileUrlChanged($event)" />
+        <input type="text" name="file_url" pInputText [(ngModel)]="pdfDocument.file_url"
+          placeholder="Paste the URL to a PDF Document" class=" p-inputtext-sm flex-grow"
+          style="padding: 0.125rem 0.25rem;" (change)="fileUrlChanged($event)" />
 
         <span>or</span>
 
@@ -125,9 +124,9 @@
   </div>
 </form>
 
-<p-dialog [header]="getShareDialogTitle(pdfDocument?.title)" [(visible)]="tt['share']" [modal]="true"
+<p-dialog [header]="getShareDialogTitle(pdfDocument?.title)" [(visible)]="tt['show-share-dialog']" [modal]="true"
   [style]="{ width: '75vw', 'max-width': '800px' }">
-  <app-pdf-document-links *ngIf="tt['share']" [pdfDocumentId]="pdfDocument.id"
+  <app-pdf-document-links *ngIf="tt['show-share-dialog']" [pdfDocumentId]="pdfDocument.id" [registry]="registry"
     (locateTexts)="locateTexts()"></app-pdf-document-links>
 </p-dialog>
 

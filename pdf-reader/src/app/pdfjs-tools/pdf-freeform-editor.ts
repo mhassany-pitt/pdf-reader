@@ -17,8 +17,6 @@ export class PdfFreeformEditor {
     this.registry = registry;
 
     this.registry.register('freeform-editor', this);
-
-    this.registry.get('freeform-viewer').attachMoveElClass = true;
     this.registry.register(`freeform-move-elements`,
       ($event, action, payload) => this._handleMoveEvents($event, action, payload));
 
@@ -49,7 +47,6 @@ export class PdfFreeformEditor {
     if (action == 'moving-completed') {
       const { top, left, right, bottom, width, height } = payload.rect;
       const annot = this._getStorage().read(payload.id);
-      console.log(annot);
       annot.freeforms[payload.page] = {
         ...annot.freeforms[payload.page],
         top, left, right, bottom, width, height
@@ -255,49 +252,52 @@ export class PdfFreeformEditor {
   }
 
   private _attachStylesheet() {
-    this._getDocumentEl().querySelector('head').appendChild(htmlToElements(
-      `<style>
-        .pdfjs-annotation-freeform-canvas {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          overflow: hidden;
-          pointer-events: auto;
-          text-size-adjust: none;
-          forced-color-adjust: none;
-          transform-origin: center center;
-          z-index: 6;
-        }
-        
-        .pdfjs-annotation-freeform__toggle-btns,
-        .pdfjs-annotation-freeform__stroke-btns,
-        .pdfjs-annotation-freeform__color-btns {
-          display: flex;
-          align-items: center;
-          justify-content: space-evenly;
-          column-gap: 0.125rem;
-          z-index: 1;
-        }
-        
-        .pdfjs-annotation-freeform__toggle-btns button,
-        .pdfjs-annotation-freeform__stroke-btns button {
-          flex-grow: 1;
-        }
-        
-        .pdfjs-annotation-freeform__toggle-btns button {
-          display: flex;
-          align-items: center;
-          column-gap: 0.25rem;
-        }
-        
-        .pdfjs-annotation-freeform__color-btns button {
-          height: 0.75rem;
-          border-width: 1px;
-          flex-grow: 1;
-        }      
-      </style>`
-    ));
+    this.registry
+      .getDocumentEl()
+      .querySelector('head')
+      .appendChild(htmlToElements(
+        `<style>
+          .pdfjs-annotation-freeform-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: auto;
+            text-size-adjust: none;
+            forced-color-adjust: none;
+            transform-origin: center center;
+            z-index: 6;
+          }
+          
+          .pdfjs-annotation-freeform__toggle-btns,
+          .pdfjs-annotation-freeform__stroke-btns,
+          .pdfjs-annotation-freeform__color-btns {
+            display: flex;
+            align-items: center;
+            justify-content: space-evenly;
+            column-gap: 0.125rem;
+            z-index: 1;
+          }
+          
+          .pdfjs-annotation-freeform__toggle-btns button,
+          .pdfjs-annotation-freeform__stroke-btns button {
+            flex-grow: 1;
+          }
+          
+          .pdfjs-annotation-freeform__toggle-btns button {
+            display: flex;
+            align-items: center;
+            column-gap: 0.25rem;
+          }
+          
+          .pdfjs-annotation-freeform__color-btns button {
+            height: 0.75rem;
+            border-width: 1px;
+            flex-grow: 1;
+          }      
+        </style>`
+      ));
   }
 }

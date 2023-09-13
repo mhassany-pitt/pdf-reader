@@ -1,6 +1,7 @@
 import {
   WHRect, getPageEl, getPageNum, htmlToElements,
-  getAnnotEl, isLeftClick, getAnnotElBound, getOrParent
+  getAnnotEl, isLeftClick, getAnnotElBound, getOrParent,
+  removeSelectorAll
 } from './annotator-utils';
 import { Highlight } from './highlight.type';
 import { PdfRegistry } from './pdf-registry';
@@ -13,8 +14,20 @@ export class PdfHighlightNoteEditor {
     this.registry = registry;
 
     this.registry.register('highlight-note-editor', this);
+    this.registry.register(`configs.default.highlight-note`, () => this._defaultConfigs());
+
+    // remove popup on delete
+    for (const type of ['underline', 'highlight', 'strikethrough'])
+      this.registry.register(`${type}.deleted.${Math.random()}`,
+        (annot) => removeSelectorAll(this._getDocumentEl(),
+          `.pdfjs-annotation__highlight-note-editor-popup[data-highlight-id="${annot.id}"]`));
 
     this._onHighlightClick();
+  }
+
+  protected _configs() { return this.registry.get(`configs.highlight-note`); }
+  protected _defaultConfigs() {
+    return true;
   }
 
   private _getDocument() { return this.registry.getDocument(); }
@@ -22,11 +35,14 @@ export class PdfHighlightNoteEditor {
 
   private _onHighlightClick() {
     this._getDocument().addEventListener('click', async ($event: any) => {
+      if (!this._configs())
+        return;
+
       const isViewer = getOrParent($event, '.pdfjs-annotation__highlight-note-viewer-popup');
       if (isLeftClick($event) && (this.registry.get('highlight-note-viewer').isValidAnnotEl($event) || isViewer)) {
         const annotEl = getAnnotEl($event.target),
           /**/ pageEl = getPageEl($event.target);
-        this._removePopups($event);
+        this.removePopups();
 
         const annotId = isViewer
           ? isViewer.getAttribute('data-highlight-id')
@@ -35,15 +51,14 @@ export class PdfHighlightNoteEditor {
         const bound = getAnnotElBound(pageEl.querySelector(`[data-annotation-id="${annotId}"]`));
         this._showEditorPopup(annot, getPageNum(pageEl), bound);
       } else if (!$event.target.closest('.pdfjs-annotation__highlight-note-editor-popup')) {
-        this._removePopups($event);
+        this.removePopups();
       }
     });
   }
 
-  private _removePopups($event: any) {
-    this.registry.get('highlight-note-viewer')._removePopups($event);
-
-    $event.target.closest('.pdfViewer')?.querySelectorAll('.pdfjs-annotation__highlight-note-editor-popup').forEach(el => el.remove());
+  removePopups() {
+    this.registry.get('highlight-note-viewer').removePopups();
+    this._getDocumentEl().querySelectorAll('.pdfjs-annotation__highlight-note-editor-popup').forEach(el => el.remove());
   }
 
   private _showEditorPopup(annot: Highlight, pageNum: number, bound: WHRect) {

@@ -1,6 +1,6 @@
 import {
   WHRect, getPageEl, getPageNum,
-  htmlToElements, getAnnotEl, getAnnotElBound, getOrParent
+  htmlToElements, getAnnotEl, getAnnotElBound, getOrParent, removeSelectorAll
 } from './annotator-utils';
 import { Highlight } from './highlight.type';
 import { PdfRegistry } from './pdf-registry';
@@ -18,6 +18,7 @@ export class PdfHighlightNoteViewer {
   }
 
   private _getDocument() { return this.registry.getDocument(); }
+  private _getDocumentEl() { return this.registry.getDocumentEl(); }
 
   isValidAnnotEl($event: any) {
     const el = $event.target;
@@ -45,7 +46,7 @@ export class PdfHighlightNoteViewer {
         if (this.isValidAnnotEl($event) || isEditor) {
           const annotEl = getAnnotEl($event.target),
         /* */  pageEl = getPageEl($event.target);
-          this._removePopups($event);
+          this.removePopups();
 
           const annotId = isEditor
             ? isEditor.getAttribute('data-highlight-id')
@@ -56,21 +57,22 @@ export class PdfHighlightNoteViewer {
             this._showViewerPopup(annot, getPageNum(pageEl), bound);
           }
         } else if (!$event.target.closest('.pdfjs-annotation__highlight-note-viewer-popup')) {
-          this._removePopups($event);
+          this.removePopups();
         }
         timeout = null;
       }, 600);
     });
   }
 
-  private _removePopups($event: any) {
-    $event.target.closest('.pdfViewer')?.querySelectorAll('.pdfjs-annotation__highlight-note-viewer-popup').forEach(el => el.remove());
+  removePopups() {
+    this._getDocumentEl().querySelectorAll('.pdfjs-annotation__highlight-note-viewer-popup').forEach(el => el.remove());
   }
 
   private _showViewerPopup(annot: Highlight, pageNum: number, bound: WHRect) {
     const lines = (annot.note || '').split('\n');
     const rows = Math.min(5, lines.length),
       cols = Math.min(35, Math.max(...lines.map(line => line.length)));
+
     const popupEl = htmlToElements(
       `<div class="pdfjs-annotation__highlight-note-viewer-popup" data-highlight-id="${annot.id}">
         <textarea rows="${rows}" cols="${cols}" placeholder="Note ..." readonly="true" resizable="false">${annot.note || ''}</textarea>

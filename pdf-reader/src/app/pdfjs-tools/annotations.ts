@@ -1,10 +1,10 @@
 import { HttpClient } from "@angular/common/http";
-import { environment } from "src/environments/environment";
 import { inSameOrigin, qparamsToString } from "./pdfjs-utils";
 import { firstValueFrom } from "rxjs";
 
 export class Annotations {
 
+  enabled = true;
   private userId: () => string;
   private apiUrl: string;
   private http: HttpClient;
@@ -43,10 +43,11 @@ export class Annotations {
   }
 
   private async loadPageAnnotations(pageNum: number) {
-    this.annots[pageNum] = await this.loadAnnotations({ ...this.qparams, pages: pageNum });
-    if (this.annots[pageNum]) {
+    if (pageNum in this.annots == false)
+      this.annots[pageNum] = await this.loadAnnotations({ ...this.qparams, pages: pageNum });
+
+    if (this.annots[pageNum])
       this.pdfjs.eventBus.dispatch('pageannotationsloaded', { pageNumber: pageNum });
-    }
   }
 
   private async getUserId() {
@@ -57,15 +58,12 @@ export class Annotations {
   }
 
   async loadAnnotations(qparams: any) {
-    try {
-      let api = this.apiUrl || (environment.apiUrl + '/annotations');
-      api += `/${this.groupId}?${qparamsToString({ ...qparams, ...await this.getUserId() })}`;
+    if (this.enabled) try {
+      const api = `${this.apiUrl}/${this.groupId}?${qparamsToString({ ...qparams, ...await this.getUserId() })}`;
       const req = this.http.get(api, { withCredentials: inSameOrigin(api) });
       return await firstValueFrom(req) as any;
-    } catch (error) {
-      console.error(error);
-      return [];
-    }
+    } catch (error) { console.error(error); }
+    return [];
   }
 
   async create(annot: any, then?: () => void) {

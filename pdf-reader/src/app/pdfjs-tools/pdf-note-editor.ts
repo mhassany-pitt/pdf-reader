@@ -2,7 +2,7 @@ import { Annotations } from "./annotations";
 import {
   WHRect, getAnnotEl, getAnnotElBound, getOrParent,
   getPageEl, getPageNum, htmlToElements,
-  isLeftClick, relativeToPageEl, uuid
+  isLeftClick, relativeToPageEl, removeSelectorAll, uuid
 } from "./annotator-utils";
 import { PdfRegistry } from "./pdf-registry";
 
@@ -17,9 +17,13 @@ export class PdfNoteEditor {
     this.registry = registry;
 
     this.registry.register(this.getType().editor, this);
-    this.registry.get(this.getType().viewer).attachMoveElClass = true;
     this.registry.register(`${this.getType().type}-move-elements`,
       ($event, action, payload) => this._handleMoveEvents($event, action, payload));
+
+    // remove popup on delete
+    this.registry.register(`note.deleted.${Math.random()}`,
+      (annot) => removeSelectorAll(this._getDocumentEl(),
+        `.pdfjs-annotation__note-editor-popup[data-note-id="${annot.id}"]`));
 
     this.onAnnotClick();
     this._manageDroppingZone();
@@ -48,9 +52,7 @@ export class PdfNoteEditor {
     }
   }
 
-  protected getType() {
-    return { type: 'note', editor: 'note-editor', viewer: 'note-viewer' };
-  }
+  protected getType() { return { type: 'note', editor: 'note-editor', viewer: 'note-viewer' }; }
 
   protected pointDropped(pageEl, $event) {
     this.onPointDrop?.();
@@ -94,7 +96,7 @@ export class PdfNoteEditor {
       if (isLeftClick($event) && (isThumbIcon || isViewer)) {
         const annotEl = getAnnotEl($event.target),
         /* */  pageEl = getPageEl($event.target);
-        this._removePopups($event);
+        this.removePopups();
 
         const annotId = isViewer
           ? isViewer.getAttribute('data-note-id')
@@ -105,13 +107,14 @@ export class PdfNoteEditor {
           this._showEditorPopup(annot, getPageNum(pageEl), bound);
         }
       } else if (!$event.target.closest('.pdfjs-annotation__note-editor-popup')) {
-        this._removePopups($event);
+        this.removePopups();
       }
     });
   }
 
-  private _removePopups($event: any) {
-    $event.target.closest('.pdfViewer')?.querySelectorAll('.pdfjs-annotation__note-editor-popup').forEach(el => el.remove());
+  removePopups() {
+    this.registry.get(this.getType().viewer).removePopups();
+    this._getDocumentEl().querySelectorAll('.pdfjs-annotation__note-editor-popup').forEach(el => el.remove());
   }
 
   private _showEditorPopup(annot: any, pageNum: number, bound: WHRect) {
@@ -160,11 +163,14 @@ export class PdfNoteEditor {
   }
 
   private _attachStylesheet() {
-    this.registry.getDocumentEl().querySelector('head').appendChild(htmlToElements(
-      `<style>
-        .pdf-${this.getType().editor}__dropping-zone .textLayer {
-          cursor: grabbing;
-        }
-      </style>`));
+    this.registry
+      .getDocumentEl()
+      .querySelector('head')
+      .appendChild(htmlToElements(
+        `<style>
+          .pdf-${this.getType().editor}__dropping-zone .textLayer {
+            cursor: grabbing;
+          }
+        </style>`));
   }
 }

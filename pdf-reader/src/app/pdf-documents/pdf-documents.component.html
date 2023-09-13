@@ -66,9 +66,9 @@
                 {{ pdfDocument.title || 'unnamed' }}
               </a>
 
-              <span [routerLink]="['/pdf-reader', pdfDocument.id]" class="ml-2 cursor-pointer">
+              <a [routerLink]="['/pdf-reader', pdfDocument.id]" target="_blank" class="ml-2 cursor-pointer">
                 <i class="pi pi-window-maximize" style="font-size: 0.75rem;"></i>
-              </span>
+              </a>
 
               <span class="flex-grow"></span>
 

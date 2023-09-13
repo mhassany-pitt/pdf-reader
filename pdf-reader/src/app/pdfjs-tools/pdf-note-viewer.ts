@@ -9,25 +9,27 @@ export class PdfNoteViewer {
 
   protected registry: PdfRegistry;
 
-  attachMoveElClass: boolean = false;
-
   constructor({ registry }) {
     this.registry = registry;
 
     this.registry.register(this.getType().viewer, this);
+
+    // remove popup on delete
+    this.registry.register(`note.deleted.${Math.random()}`,
+      (annot) => removeSelectorAll(this._getDocumentEl(),
+        `.pdfjs-annotation__note-viewer-popup[data-note-id="${annot.id}"]`));
 
     this.onAnnotMouseOver();
     this._attachStylesheet();
     this._renderOnPagerendered();
   }
 
-  protected getType() {
-    return { type: 'note', viewer: 'note-viewer' };
-  }
-
   private _getDocument() { return this.registry.getDocument(); }
+  private _getDocumentEl() { return this.registry.getDocumentEl(); }
   private _getPdfJS() { return this.registry.getPdfJS(); }
   private _getStorage() { return this.registry.get('storage'); }
+
+  protected getType() { return { type: 'note', viewer: 'note-viewer' }; }
 
   private _renderOnPagerendered() {
     this._getPdfJS().eventBus.on('pageannotationsloaded', ($event: any) => {
@@ -48,11 +50,18 @@ export class PdfNoteViewer {
   }
 
   protected getRenderedEl(annot: any, rect: WHRect) {
+    const configs = this.registry.get(`configs.note`);
+
     return htmlToElements(
-      `<div data-annotation-id="${annot.id}" 
+      `<div 
+        data-annotation-id="${annot.id}" 
+        data-annotation-type="${annot.type}"
         data-analytic-id="note-${annot.id}"
-        class="pdfjs-annotation__note ${this.attachMoveElClass ? 'pdf-movable-el' : ''}" 
-        ${this.attachMoveElClass ? `data-movable-type="note"` : ''}
+        tabindex="-1"
+        class="
+          pdfjs-annotation__note 
+          ${configs?.moveable ? 'pdf-annotation--moveable' : ''}
+          ${configs?.deletable ? 'pdfjs-annotation--deletable' : ''}" 
         style="
           top: calc(${rect.top}%);
           left: calc(${rect.left}%);
@@ -74,7 +83,7 @@ export class PdfNoteViewer {
         if (isNote || isEditor) {
           const annotEl = getAnnotEl($event.target),
         /* */  pageEl = getPageEl($event.target);
-          this._removePopups($event);
+          this.removePopups();
 
           const annotId = isEditor
             ? isEditor.getAttribute('data-note-id')
@@ -85,21 +94,22 @@ export class PdfNoteViewer {
             this._showViewerPopup(annot, getPageNum(pageEl), bound);
           }
         } else if (!$event.target.closest('.pdfjs-annotation__note-viewer-popup')) {
-          this._removePopups($event);
+          this.removePopups();
         }
         timeout = null;
       }, 600);
     });
   }
 
-  private _removePopups($event: any) {
-    $event.target.closest('.pdfViewer')?.querySelectorAll('.pdfjs-annotation__note-viewer-popup').forEach(el => el.remove());
+  removePopups() {
+    this._getDocumentEl().querySelectorAll('.pdfjs-annotation__note-viewer-popup').forEach(el => el.remove());
   }
 
   private _showViewerPopup(annot: any, pageNum: number, bound: WHRect) {
     const lines = (annot.note || '').split('\n');
     const rows = Math.min(5, lines.length),
       cols = Math.min(35, Math.max(...lines.map(line => line.length)));
+
     const popupEl = htmlToElements(
       `<div class="pdfjs-annotation__note-viewer-popup" data-note-id="${annot.id}">
         <textarea rows="${rows}" cols="${cols}" placeholder="Note ..." readonly="true" resizable="false">${annot.note || ''}</textarea>
@@ -136,23 +146,26 @@ export class PdfNoteViewer {
   }
 
   protected _attachStylesheet() {
-    const styles =
-      `<style>
-        .pdfjs-annotation__note {
-          position: absolute;
-          pointer-events: auto;
-          border-radius: 0.125rem;
-          z-index: 5;
-          cursor: pointer;
-        }
+    this.registry
+      .getDocumentEl()
+      .querySelector('head')
+      .appendChild(htmlToElements(
+        `<style>
+          .pdfjs-annotation__note {
+            position: absolute;
+            pointer-events: auto;
+            border-radius: 0.125rem;
+            z-index: 5;
+            cursor: pointer;
+          }
 
-        .pdfjs-annotation__note img.pdfjs-annotation__note-thumb-icon {
-          width: 32px;
-          height: 32px;
-          object-fit: contain;
-          user-select: none;
-        }
-      </style>`;
-    this.registry.getDocumentEl().querySelector('head').appendChild(htmlToElements(styles));
+          .pdfjs-annotation__note img.pdfjs-annotation__note-thumb-icon {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            user-select: none;
+          }
+        </style>`
+      ));
   }
 }

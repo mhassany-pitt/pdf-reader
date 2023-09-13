@@ -29,8 +29,8 @@ export class PDFDocumentLinksController {
 
   @Post()
   @UseGuards(AuthenticatedGuard)
-  async create(@Req() req: any, @Query('pdfDocId') pdfDocId: string, @Body() pdfLink: any) {
-    return useId(await this.service.create({ user: req.user, pdfDocId, pdfLink }));
+  async create(@Req() req: any, @Query('pdfDocId') pdfDocId: string, @Body() configs: any) {
+    return useId(await this.service.create({ user: req.user, pdfDocId, configs }));
   }
 
   @Get(':id')

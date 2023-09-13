@@ -1,6 +1,7 @@
 import { WHRect, relativeToPageEl } from "./annotator-utils";
 
 export class TextLocator {
+
   private document: any;
   private documentEl: any;
 

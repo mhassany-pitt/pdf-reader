@@ -58,14 +58,4 @@ bootstrap();
 // TODO: add shapes (circle, triangle, square) to freehand drawings
 // TODO: add text (which is different from notes)
 // TODO: add eraser
-
-// highlight: color, opacity (a 100% opacity is reduct)
-// underline, strikethrough: color, opacity, thickness, style (solid, dashed, dotted)
-// note: na
-// freehand: color, opacity, thickness
-// text: font, size, color
-// eraser: thickness
-// embed: link, icon, target (inline, popup, fullpage, fullscreen)
-
-// add to outline: on highlight
 // TODO: adding tags to annotations

@@ -9,9 +9,17 @@ export class PdfTextEditor extends PdfNoteEditor {
   private _annot: any;
   private _editor: any;
 
-  protected override getType() {
-    return { type: 'text', editor: 'text-editor', viewer: 'text-viewer' };
+  constructor({ registry }) {
+    super({ registry });
+
+    // remove editor on delete
+    this.registry.register(`text.deleted.${Math.random()}`, (annot) => {
+      if (annot.id == this._annot?.id)
+        this._editor = null;
+    });
   }
+
+  protected override getType() { return { type: 'text', editor: 'text-editor', viewer: 'text-viewer' }; }
 
   protected override pointDropped(pageEl, $event) {
     this.onPointDrop?.();
@@ -29,12 +37,12 @@ export class PdfTextEditor extends PdfNoteEditor {
 
   protected override onAnnotClick() {
     this._getDocument().addEventListener('click', async ($event: any) => {
-      const isText = getOrParent($event, '.pdfjs-annotation__text');
-      if (isLeftClick($event) && isText) {
+      const viewerEl = getOrParent($event, '.pdfjs-annotation__text');
+      if (isLeftClick($event) && viewerEl) {
         const annotEl = getAnnotEl($event.target);
         const annotId: any = annotEl.getAttribute('data-annotation-id');
         this._annot = this._getStorage().read(annotId);
-        this._editor = isText.querySelector('textarea');
+        this._editor = viewerEl.querySelector('textarea');
         this._editor.removeAttribute('readonly');
       } else if (this._editor) {
         this._annot.note = this._editor.value;

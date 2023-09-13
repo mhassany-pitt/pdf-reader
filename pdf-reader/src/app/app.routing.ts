@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AuthenticatedGuard } from './auth-guards/authenticated.guard';
 import { PublicGuard } from './auth-guards/public.guard';
 import { AuthenticatedAuthorGuard } from './auth-guards/authenticated-author.guard';
 import { HandshakeGuard } from './auth-guards/handshake.guard';
@@ -9,7 +8,11 @@ import { AppAdminGuard } from './auth-guards/app-admin.guard';
 const routes: Routes = [
   {
     path: 'unauthorized',
-    loadChildren: () => import('./unauthorized-page/unauthorized-page.module').then(m => m.UnauthorizedPageModule)
+    loadComponent: () => import('./unauthorized-page/unauthorized-page.component').then(m => m.UnauthorizedPageComponent)
+  },
+  {
+    path: 'not-found',
+    loadComponent: () => import('./not-found-page/not-found-page.component').then(m => m.NotFoundPageComponent)
   },
   {
     path: 'default-resource',

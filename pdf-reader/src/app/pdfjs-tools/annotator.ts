@@ -207,18 +207,17 @@ export class Annotator {
     return pageEl.querySelector('.pdfjs-annotations');
   }
 
-  showBoundary(pageNum: number, annot: Annotation, boundRect: WHRect) {
-    boundRect = rotateRect(rotation(this.pdfjs), true, boundRect);
-
+  showBoundary(pageNum: number, annot: Annotation, rect: WHRect) {
+    rect = rotateRect(rotation(this.pdfjs), true, rect);
     const boundEl = htmlToElements(
       `<div data-annotation-id="${annot.id}"
         class="pdfjs-annotation__bound" 
         tabindex="-1"
         style="
-          top: calc(${boundRect.top}% - 1px);
-          bottom: calc(${boundRect.bottom}% - 1px);
-          left: calc(${boundRect.left}% - 1px);
-          right: calc(${boundRect.right}% - 1px);
+          top: calc(${rect.top}% - 1px);
+          bottom: calc(${rect.bottom}% - 1px);
+          left: calc(${rect.left}% - 1px);
+          right: calc(${rect.right}% - 1px);
         ">
       </div>`
     );
@@ -241,7 +240,7 @@ export class Annotator {
           rect = rotateRect(degree, true, rect);
           const rectEl = htmlToElements(
             `<div data-annotation-id="${annot.id}" 
-              data-analytic-id="annot${annot.type ? '-' + annot.type : ''}-${annot.id}"
+              data-analytic-id="annot${annot.type}-${annot.id}"
               class="pdfjs-annotation__rect ${annot.type ? 'pdfjs-annotation__' + annot.type : ''}" 
               style="
                 top: calc(${rect.top}% + 1px);

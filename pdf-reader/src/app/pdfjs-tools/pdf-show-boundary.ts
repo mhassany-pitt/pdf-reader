@@ -32,37 +32,28 @@ export class PdfShowBoundary {
       const pageEl = getPageEl($event.target);
       if (!pageEl) return;
 
-      const classList = $event.target.classList;
-
-      // remove boundaries if clicked outside one
-      if (!classList.contains('pdfjs-annotation__bound')) {
+      if (!$event.target.classList.contains('pdfjs-annotation__bound'))
         removeSelectorAll(pageEl, '.pdfjs-annotation__bound');
-      }
 
       const annotEl = getAnnotEl($event.target);
       if (annotEl) {
         const annotId: any = annotEl.getAttribute('data-annotation-id');
         const annot = this._getStorage().read(annotId);
-        const boundEl = this._showBoundary(getPageNum(pageEl), annot, getAnnotBound($event));
-
-        if (!$event.target.closest('.pdfjs-show-boundary__unfocusable'))
-          boundEl.focus();
+        this._showBoundary(getPageNum(pageEl), annot, getAnnotBound($event));
       }
     });
   }
 
-  private _showBoundary(pageNum: number, annot: Highlight, boundRect: WHRect) {
-    boundRect = rotateRect(rotation(this._getPdfJS()), true, boundRect);
-
+  private _showBoundary(pageNum: number, annot: Highlight, rect: WHRect) {
+    rect = rotateRect(rotation(this._getPdfJS()), true, rect);
     const boundEl = htmlToElements(
       `<div data-annotation-id="${annot.id}"
         class="pdfjs-annotation__bound" 
-        tabindex="-1"
         style="
-          top: calc(${boundRect.top}% - 1px);
-          left: calc(${boundRect.left}% - 1px);
-          bottom: calc(${boundRect.bottom}% - 1px);
-          right: calc(${boundRect.right}% - 1px);
+          top: calc(${rect.top}% - 1px);
+          left: calc(${rect.left}% - 1px);
+          bottom: calc(${rect.bottom}% - 1px);
+          right: calc(${rect.right}% - 1px);
         ">
       </div>`
     );
@@ -72,14 +63,16 @@ export class PdfShowBoundary {
   }
 
   private _attachStylesheet() {
-    this.registry.getDocumentEl().querySelector('head').appendChild(htmlToElements(
-      `<style>
-        .pdfjs-annotation__bound {
-          position: absolute;
-          pointer-events: auto;
-          border-radius: 0.125rem;
-          border: 1px dashed blue;
-        }
-      </style>`));
+    this.registry
+      .getDocumentEl()
+      .querySelector('head')
+      .appendChild(htmlToElements(
+        `<style>
+          .pdfjs-annotation__bound {
+            position: absolute;
+            border-radius: 0.125rem;
+            border: 1px dashed blue;
+          }
+        </style>`));
   }
 }

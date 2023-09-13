@@ -1,9 +1,9 @@
 import {
   getPageEl, relativeToPageEl,
-  WHRect, isLeftClick, getOrParent, getPageNum
+  isLeftClick, getOrParent, getPageNum
 } from './annotator-utils';
 
-export class PdfMoveElements {
+export class PdfMoveAnnotation {
 
   private registry: any;
 
@@ -29,8 +29,8 @@ export class PdfMoveElements {
 
   private _onMouseDown() {
     this._getDocument().addEventListener("mousedown", ($event: any) => {
-      const movingEl = getOrParent($event, '.pdf-movable-el');
-      const excluded = getOrParent($event, '.pdf-movable-el-excluded');
+      const movingEl = getOrParent($event, '.pdf-annotation--moveable');
+      const excluded = getOrParent($event, '.pdf-annotation--moveable-excluded');
       if (isLeftClick($event) && movingEl && !excluded) {
         this.movingEl = movingEl;
         this.pageEl = getPageEl(movingEl);
@@ -42,8 +42,8 @@ export class PdfMoveElements {
         } : null;
 
         this.resizing = movingEl
-          && (movingEl.offsetHeight - this.offsetBound.top) <= 16
-          && (movingEl.offsetWidth - this.offsetBound.left) <= 16;
+          && (movingEl.offsetHeight - this.offsetBound.top) <= 10
+          && (movingEl.offsetWidth - this.offsetBound.left) <= 10;
 
         this.down = true;
       }
@@ -56,7 +56,7 @@ export class PdfMoveElements {
       if (isLeftClick($event) && movingEl) {
         if (this.down && !this.moving) {
           // only when mouse is down and moving, it is considered as moving
-          const callback = this.registry.get(`${this.movingEl.getAttribute('data-movable-type')}-move-elements`)
+          const callback = this.registry.get(`${this.movingEl.getAttribute('data-annotation-type')}-move-elements`)
           callback?.($event, 'moving-started', { id: this.movingEl.getAttribute('data-annotation-id'), page: this.pageNum });
         }
 
@@ -86,7 +86,7 @@ export class PdfMoveElements {
         movingEl.style.right = `${this.lastBound.right}%`;
         movingEl.style.bottom = `${this.lastBound.bottom}%`;
 
-        const callback = this.registry.get(`${this.movingEl.getAttribute('data-movable-type')}-move-elements`)
+        const callback = this.registry.get(`${this.movingEl.getAttribute('data-annotation-type')}-move-elements`)
         callback?.($event, 'moving', { id: this.movingEl.getAttribute('data-annotation-id'), page: this.pageNum, rect: { ...this.lastBound } });
         this.moving = true;
       }
@@ -96,7 +96,7 @@ export class PdfMoveElements {
   private _onMouseUp() {
     this._getDocument().addEventListener("mouseup", ($event: any) => {
       if (this.movingEl && this.lastBound) {
-        const callback = this.registry.get(`${this.movingEl.getAttribute('data-movable-type')}-move-elements`)
+        const callback = this.registry.get(`${this.movingEl.getAttribute('data-annotation-type')}-move-elements`)
         callback?.($event, 'moving-completed', { id: this.movingEl.getAttribute('data-annotation-id'), page: this.pageNum, rect: { ...this.lastBound } });
       }
 

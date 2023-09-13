@@ -61,3 +61,6 @@ export const getUserId = async (route: ActivatedRoute) => {
 export const qparamsToString = (qparams?: any) => {
   return qparams ? Object.keys(qparams).map(k => `${k}=${qparams[k]}`).join('&') : '';
 }
+
+export const getValue = (str: string) => str.includes(':') ? str.split(':')[0] : str;
+export const getLabel = (str: string) => str.includes(':') ? str.split(':')[1] : str;

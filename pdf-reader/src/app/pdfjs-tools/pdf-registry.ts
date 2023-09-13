@@ -30,4 +30,8 @@ export class PdfRegistry {
   get(key: string) {
     return this.internal[key];
   }
+
+  list(prefix: string) {
+    return Object.keys(this.internal).filter(key => key.startsWith(prefix));
+  }
 }

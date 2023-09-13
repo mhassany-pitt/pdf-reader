@@ -14,17 +14,17 @@ import { createReadStream, existsSync, statSync, writeFileSync } from 'fs-extra'
 export class PDFReaderController {
 
   constructor(
-    private pdfReaderService: PDFReaderService,
+    private service: PDFReaderService,
   ) { }
 
   private async _getOrFail({ user, id, req }) {
     let pdfDoc: any = null;
     if (user) { // 1. user is the author
-      pdfDoc = await this.pdfReaderService.readPDFDoc({ user: user, id });
+      pdfDoc = await this.service.readPDFDoc({ user: user, id });
       if (pdfDoc) return useId(pdfDoc);
     }
 
-    let pdfLink = await this.pdfReaderService.readPDFLink({ id });
+    let pdfLink = await this.service.readPDFLink({ id });
     if (!pdfLink) // 2. if the link does not exist
       throw new NotFoundException();
 
@@ -61,29 +61,26 @@ export class PDFReaderController {
       throw new UnauthorizedException();
 
     // 6. find the org document and return it
-    pdfDoc = await this.pdfReaderService.readPDFDoc({
+    pdfDoc = await this.service.readPDFDoc({
       user: { id: pdfLink.user_id },
       id: pdfLink.pdf_doc_id,
     });
     pdfDoc.id = id;
 
     // 7. attach the link confgurations
-    pdfDoc.configs = useId(pdfLink);
-
-    return useId(pdfDoc);
+    return useId({ ...pdfDoc, ...useId(pdfLink) });
   }
 
   @Get(':id')
   async get(@Req() req: any, @Param('id') id: string) {
     const pdfDoc = await this._getOrFail({ user: req.user, id, req });
     pdfDoc.file_hash = createHash('sha256').update(pdfDoc.file_url || pdfDoc.file_id).digest('hex');
-    delete pdfDoc.user_id;
-    delete pdfDoc.file_id;
-    delete pdfDoc.file_url;
-    if (pdfDoc.configs) {
-      delete pdfDoc.configs.user_id;
-      delete pdfDoc.configs.pdf_doc_id;
-    }
+
+    // remove unnecessary/confidential fields
+    ('tags,pdf_doc_id,created_at,modified_at,' +
+      'user_id,file_id,file_url,archived,published,' +
+      'delegated,delegated_to_url').split(',').forEach(attr => delete pdfDoc[attr]);
+
     return pdfDoc;
   }
 
@@ -92,7 +89,7 @@ export class PDFReaderController {
     const pdfDoc = await this._getOrFail({ user: req.user, id, req });
     let path: string = null;
     if (pdfDoc.file_url) {
-      path = this.pdfReaderService.getFilePath({
+      path = this.service.getFilePath({
         id: createHash('sha256').update(pdfDoc.file_url).digest('hex'),
       });
       if (!existsSync(path)) {
@@ -103,7 +100,7 @@ export class PDFReaderController {
         );
       }
     } else {
-      path = this.pdfReaderService.getFilePath({ id: pdfDoc.file_id });
+      path = this.service.getFilePath({ id: pdfDoc.file_id });
     }
 
     if (!path || !existsSync(path)) {

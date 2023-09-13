@@ -22,12 +22,15 @@ export class PDFDocumentLinksService {
     return list.map(toObject);
   }
 
-  async create({ user, pdfDocId, pdfLink }) {
+  async create({ user, pdfDocId, configs }) {
     return toObject(await this.pdfDocLinks.create({
-      ...pdfLink,
       user_id: user.id,
       pdf_doc_id: pdfDocId,
-      created_at: new Date().toISOString()
+      title: '',
+      archived: false,
+      published: false,
+      configs,
+      created_at: new Date().toISOString(),
     }));
   }
 
@@ -36,6 +39,10 @@ export class PDFDocumentLinksService {
   }
 
   async update({ user, id, pdfLink }) {
+    delete pdfLink.user_id;
+    delete pdfLink.pdf_doc_id;
+    delete pdfLink.created_at;
+
     await this.pdfDocLinks.updateOne(
       { user_id: user.id, _id: id },
       { $set: { ...pdfLink } }

@@ -59,56 +59,59 @@ export class PdfToolbar {
   }
 
   private _attachStylesheet() {
-    this.registry.getDocumentEl().querySelector('head').appendChild(htmlToElements(
-      `<style>
-        .pdf-toolbar {
-          position: absolute;
-          top: 2.25rem;
-          left: 0.25rem;
-          z-index: 9999;
-          border: none;
-          border-radius: 0.125rem;
-          display: flex;
-          align-items: start;
-          pointer-events: none;
-        }
-        .pdf-toolbar > div {
-          display: flex;
-          flex-direction: column;
-          gap: 0.125rem;
-          justify-content: start;
-          padding: 0.125rem;
-          pointer-events: auto;
-        }
-        .pdf-toolbar > div:nth-child(1) {
-          background-color: #38383d;
-          box-shadow: 0 0 0 1px #0c0c0d;
-          align-items: center;
-        }
-        .pdf-toolbar > div:nth-child(2) {
-          background-color: #4e4e51;
-          box-shadow: 0 0 0 1px #0c0c0d;
-          gap: 0.25rem;
-        }
-        .pdf-toolbar-btn {
-          line-height: 1;
-          width: 1.25rem;
-          height: 1.25rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          color: #f9f9fa;
-          border-radius: 0.125rem;
-          position: relative;
-        }
-        .pdf-toolbar-btn.selected {
-          background-color: gray;
-        }
-        .pdf-toolbar-btn img {
-          width: 0.9rem;
-          height: 0.9rem;
-        }
-      </style>`));
+    this.registry
+      .getDocumentEl()
+      .querySelector('head')
+      .appendChild(htmlToElements(
+        `<style>
+          .pdf-toolbar {
+            position: absolute;
+            top: 2.25rem;
+            left: 0.25rem;
+            z-index: 9999;
+            border: none;
+            border-radius: 0.125rem;
+            display: flex;
+            align-items: start;
+            pointer-events: none;
+          }
+          .pdf-toolbar > div {
+            display: flex;
+            flex-direction: column;
+            gap: 0.125rem;
+            justify-content: start;
+            padding: 0.125rem;
+            pointer-events: auto;
+          }
+          .pdf-toolbar > div:nth-child(1) {
+            background-color: #38383d;
+            box-shadow: 0 0 0 1px #0c0c0d;
+            align-items: center;
+          }
+          .pdf-toolbar > div:nth-child(2) {
+            background-color: #4e4e51;
+            box-shadow: 0 0 0 1px #0c0c0d;
+            gap: 0.25rem;
+          }
+          .pdf-toolbar-btn {
+            line-height: 1;
+            width: 1.25rem;
+            height: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #f9f9fa;
+            border-radius: 0.125rem;
+            position: relative;
+          }
+          .pdf-toolbar-btn.selected {
+            background-color: gray;
+          }
+          .pdf-toolbar-btn img {
+            width: 0.9rem;
+            height: 0.9rem;
+          }
+        </style>`));
   }
 }

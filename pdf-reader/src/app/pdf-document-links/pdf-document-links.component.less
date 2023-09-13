@@ -1,9 +1,5 @@
 ::ng-deep .pdf-document-link .pdf-document-link__link {
-  .title-input,
-  .delegation-url-input {
-    font-weight: bold;
-    margin: 0.5rem 0;
-  }
+
   .p-inputtext:not(.title-input):not(.delegation-url-input),
   .p-inputgroup-addon,
   .p-multiselect-label,
@@ -11,6 +7,7 @@
     padding: 0.125rem 0.25rem !important;
     font-size: 0.875rem !important;
   }
+
   .p-inputgroup-addon {
     justify-content: start;
   }
@@ -19,23 +16,37 @@
   .p-inputnumber {
     width: 100% !important;
   }
+
   .p-colorpicker-preview {
     width: 1rem;
     height: 1rem;
   }
+
   .p-checkbox,
   .p-checkbox .p-checkbox-box {
     width: 16px;
     height: 16px;
   }
+
   .p-checkbox .p-checkbox-box .p-checkbox-icon {
     font-size: 12px;
   }
+
   p-inputswitch {
     line-height: 1rem;
   }
+
   .p-colorpicker-panel {
     right: 0 !important;
     left: auto !important;
+  }
+
+  .pdf-reader__config-editor {
+    min-height: 20rem;
+    display: flex;
+
+    >div {
+      flex: 1;
+    }
   }
 }

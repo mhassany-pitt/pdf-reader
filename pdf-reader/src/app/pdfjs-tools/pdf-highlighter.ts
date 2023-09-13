@@ -21,7 +21,6 @@ export class PdfHighlighter {
 
   private _getWindow() { return this.registry.getWindow(); }
   private _getDocument() { return this.registry.getDocument(); }
-  private _getDocumentEl() { return this.registry.getDocumentEl(); }
   private _getPdfJS() { return this.registry.getPdfJS(); }
   private _getStorage() { return this.registry.get('storage'); }
 
