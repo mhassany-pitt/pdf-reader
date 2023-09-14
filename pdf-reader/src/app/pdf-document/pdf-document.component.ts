@@ -41,6 +41,7 @@ import { PdfLoadCustomPlugins } from '../pdfjs-tools/pdf-load-custom-plugins';
 import { PdfILogger } from '../pdfjs-tools/pdf-ilogger';
 import { PdfDeleteToolbarBtn } from '../pdfjs-tools/pdf-delete-toolbar-btn';
 import { PdfDelete } from '../pdfjs-tools/pdf-delete';
+import { PdfFilterToolbarBtn } from '../pdfjs-tools/pdf-filter-toolbar-btn';
 // import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
 
 @Component({
@@ -139,6 +140,9 @@ export class PDFDocumentComponent implements OnInit {
     this.registry.register('configs.embed', PdfEmbedToolbarBtn.defaultConfigs());
     this.registry.register('configs.delete', PdfDeleteToolbarBtn.defaultConfigs());
 
+    this.registry.register(`configs.default.plugins`, () => PdfLoadCustomPlugins.defaultConfigs());
+    this.registry.register(`configs.default.filter`, () => PdfFilterToolbarBtn.defaultConfigs());
+
     new PdfILogger({ registry });
     new PdfStorage({ registry });
 
@@ -189,8 +193,6 @@ export class PDFDocumentComponent implements OnInit {
     registry.register('add-to-outline', ($event, payload) => this.ngZone.run(() => this.addToOutline($event, payload)))
     new PdfAddToOutlineEditor({ registry });
     new PdfAddToOutlineToolbarBtn({ registry });
-
-    new PdfLoadCustomPlugins({ registry });
 
     try {
       await this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });

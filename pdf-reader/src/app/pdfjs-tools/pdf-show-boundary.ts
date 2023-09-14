@@ -31,8 +31,8 @@ export class PdfShowBoundary {
       const pageEl = getPageEl($event.target);
       if (!pageEl) return;
 
-      if (!$event.target.classList.contains('pdfjs-annotation__bound'))
-        removeSelectorAll(pageEl, '.pdfjs-annotation__bound');
+      if (!$event.target.classList.contains('pdf-annotation__bound'))
+        removeSelectorAll(pageEl, '.pdf-annotation__bound');
 
       const annotEl = getAnnotEl($event.target);
       if (annotEl) {
@@ -47,7 +47,7 @@ export class PdfShowBoundary {
     rect = rotateRect(rotation(this._getPdfJS()), true, rect);
     const boundEl = htmlToElements(
       `<div data-annotation-id="${annot.id}"
-        class="pdfjs-annotation__bound" 
+        class="pdf-annotation__bound" 
         style="
           top: calc(${rect.top}% - 1px);
           left: calc(${rect.left}% - 1px);
@@ -67,7 +67,7 @@ export class PdfShowBoundary {
       .querySelector('head')
       .appendChild(htmlToElements(
         `<style>
-          .pdfjs-annotation__bound {
+          .pdf-annotation__bound {
             position: absolute;
             border-radius: 0.125rem;
             border: 1px dashed blue;

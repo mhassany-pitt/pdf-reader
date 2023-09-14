@@ -1,4 +1,4 @@
-import { htmlToElements, rotateRect, rotation } from './pdf-utils';
+import { htmlToElements, removeSelectorAll, rotateRect, rotation } from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
 
 export class PdfFreeformViewer {
@@ -24,7 +24,7 @@ export class PdfFreeformViewer {
     this._getPdfJS().eventBus.on('pageannotationsloaded', ($event: any) => {
       const pageNum = $event.pageNumber;
       const annotsLayerEl = this._getAnnotLayer().getOrAttachLayerEl(pageNum);
-      annotsLayerEl.querySelectorAll('.pdfjs-annotation__freeform').forEach((el: any) => el.remove());
+      removeSelectorAll(annotsLayerEl, '.pdf-annotation__freeform');
 
       this._getStorage().list()
         .filter(annot => annot.type == 'freeform')
@@ -42,7 +42,7 @@ export class PdfFreeformViewer {
       .map(pageNum => parseInt(pageNum))
       .forEach(pageNum => {
         const annotsLayerEl = this._getAnnotLayer().getOrAttachLayerEl(pageNum);
-        annotsLayerEl.querySelectorAll(`[data-annotation-id="${annot.id}"].pdfjs-annotation__freeform`)
+        annotsLayerEl.querySelectorAll(`[data-annotation-id="${annot.id}"].pdf-annotation__freeform`)
           .forEach((el: any) => el.remove());
 
         const degree = rotation(this._getPdfJS());
@@ -54,9 +54,9 @@ export class PdfFreeformViewer {
             data-analytic-id="freeform-${annot.id}"
             tabindex="-1" 
             class="
-              pdfjs-annotation__freeform 
+              pdf-annotation__freeform 
               ${configs?.moveable ? 'pdf-annotation--moveable' : ''}
-              ${configs?.deletable ? 'pdfjs-annotation--deletable' : ''}" 
+              ${configs?.deletable ? 'pdf-annotation--deletable' : ''}" 
             style="
               top: ${bound.top}%;
               bottom: ${bound.bottom}%;
@@ -99,7 +99,7 @@ export class PdfFreeformViewer {
       .querySelector('head')
       .appendChild(htmlToElements(
         `<style>
-          .pdfjs-annotation__freeform {
+          .pdf-annotation__freeform {
             position: absolute;
             pointer-events: stroke;
             user-select: none;

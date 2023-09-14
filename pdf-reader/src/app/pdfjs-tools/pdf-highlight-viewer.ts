@@ -26,10 +26,10 @@ export class PdfHighlightViewer {
     this._getPdfJS().eventBus.on('pageannotationsloaded', ($event: any) => {
       const pageNum = $event.pageNumber;
       const annotsLayerEl = this.registry.get('annotation-layer').getOrAttachLayerEl(pageNum);
-      removeSelectorAll(annotsLayerEl, '.pdfjs-annotation__rect');
+      removeSelectorAll(annotsLayerEl, '.pdf-annotation__rect');
 
-      const annots: any[] = this._getStorage().list();
-      annots.filter(annot => ['highlight', 'underline', 'strikethrough'].includes(annot.type))
+      this._getStorage().list()
+        .filter(annot => ['highlight', 'underline', 'strikethrough'].includes(annot.type))
         .filter(annot => Object.keys(annot.rects)
           .map(pageNum => parseInt(pageNum))
           .indexOf(pageNum) > -1)
@@ -46,7 +46,7 @@ export class PdfHighlightViewer {
       .forEach(pageNum => {
         const annotsLayerEl = this.registry.get('annotation-layer').getOrAttachLayerEl(pageNum);
 
-        removeSelectorAll(annotsLayerEl, `[data-annotation-id="${annot.id}"].pdfjs-annotation__rect`);
+        removeSelectorAll(annotsLayerEl, `[data-annotation-id="${annot.id}"].pdf-annotation__rect`);
 
         const degree = rotation(this._getPdfJS());
         const rects: WHRect[] = annot.rects[pageNum];
@@ -59,9 +59,9 @@ export class PdfHighlightViewer {
               data-analytic-id="${annot.type}-${annot.id}"
               tabindex="-1"
               class="
-                pdfjs-annotation__rect 
-                ${annot.type ? 'pdfjs-annotation__' + annot.type : ''}
-                ${configs?.deletable ? 'pdfjs-annotation--deletable' : ''}"
+                pdf-annotation__rect 
+                ${annot.type ? 'pdf-annotation__' + annot.type : ''}
+                ${configs?.deletable ? 'pdf-annotation--deletable' : ''}"
               style="
                 top: calc(${rect.top}% + 1px);
                 bottom: calc(${rect.bottom}% + 1px);
@@ -83,7 +83,7 @@ export class PdfHighlightViewer {
       .querySelector('head')
       .appendChild(htmlToElements(
         `<style>
-          .pdfjs-annotation__rect {
+          .pdf-annotation__rect {
             position: absolute;
             pointer-events: auto;
             border-radius: 0.125rem;
@@ -92,47 +92,47 @@ export class PdfHighlightViewer {
           }
 
           /* highlight */
-          .pdfjs-annotation__highlight {
+          .pdf-annotation__highlight {
             background-color: var(--annotation-color);
           }
 
           /* underline */
-          .pdfjs-annotation__underline {
+          .pdf-annotation__underline {
             border-radius: 0;
           }
           
-          [data-rotation-degree="0"] .pdfjs-annotation__underline {
+          [data-rotation-degree="0"] .pdf-annotation__underline {
             border-bottom: var(--annotation-stroke) var(--annotation-stroke-style) var(--annotation-color);
           }
           
-          [data-rotation-degree="180"] .pdfjs-annotation__underline {
+          [data-rotation-degree="180"] .pdf-annotation__underline {
             border-top: var(--annotation-stroke) var(--annotation-stroke-style) var(--annotation-color);
           }
           
-          [data-rotation-degree="90"] .pdfjs-annotation__underline {
+          [data-rotation-degree="90"] .pdf-annotation__underline {
             border-left: var(--annotation-stroke) var(--annotation-stroke-style) var(--annotation-color);
           }
           
-          [data-rotation-degree="270"] .pdfjs-annotation__underline {
+          [data-rotation-degree="270"] .pdf-annotation__underline {
             border-right: var(--annotation-stroke) var(--annotation-stroke-style) var(--annotation-color);
           }
 
           /* strikethrough */
-          .pdfjs-annotation__strikethrough::before {
+          .pdf-annotation__strikethrough::before {
             content: "";
             display: block;
             position: absolute;
           }
           
-          [data-rotation-degree="0"] .pdfjs-annotation__strikethrough::before,
-          [data-rotation-degree="180"] .pdfjs-annotation__strikethrough::before {
+          [data-rotation-degree="0"] .pdf-annotation__strikethrough::before,
+          [data-rotation-degree="180"] .pdf-annotation__strikethrough::before {
             top: calc(50%);
             width: 100%;
             border-top: var(--annotation-stroke) var(--annotation-stroke-style) var(--annotation-color);
           }
           
-          [data-rotation-degree="90"] .pdfjs-annotation__strikethrough::before,
-          [data-rotation-degree="270"] .pdfjs-annotation__strikethrough::before {
+          [data-rotation-degree="90"] .pdf-annotation__strikethrough::before,
+          [data-rotation-degree="270"] .pdf-annotation__strikethrough::before {
             left: calc(50%);
             height: 100%;
             border-right: var(--annotation-stroke) var(--annotation-stroke-style) var(--annotation-color);

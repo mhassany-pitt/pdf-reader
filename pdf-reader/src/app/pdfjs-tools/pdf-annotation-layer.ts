@@ -16,9 +16,9 @@ export class PdfAnnotationLayer {
 
   getOrAttachLayerEl(pageNum: number) {
     const pageEl = getPageEl(this._getDocumentEl(), pageNum);
-    if (!pageEl.querySelector('.pdfjs-annotations'))
-      pageEl.appendChild(htmlToElements(`<div class="pdfjs-annotations"></div>`));
-    const layer = pageEl.querySelector('.pdfjs-annotations');
+    if (!pageEl.querySelector('.pdf-annotations'))
+      pageEl.appendChild(htmlToElements(`<div class="pdf-annotations"></div>`));
+    const layer = pageEl.querySelector('.pdf-annotations');
     layer.setAttribute('data-rotation-degree', rotation(this.registry.getPdfJS()));
     return layer;
   }
@@ -29,7 +29,7 @@ export class PdfAnnotationLayer {
       .querySelector('head')
       .appendChild(htmlToElements(
         `<style>
-          .pdfjs-annotations {
+          .pdf-annotations {
             position: absolute;
             left: 0;
             top: 0;

@@ -21,17 +21,17 @@ export class PdfTextViewer extends PdfNoteViewer {
         data-analytic-id="text-${annot.id}"
         tabindex="-1"
         class="
-          pdfjs-annotation__text
-          pdfjs-annotation--unfocusable
+          pdf-annotation__text
+          pdf-annotation--unfocusable
           ${configs?.moveable ? 'pdf-annotation--moveable' : ''}
-          ${configs?.deletable ? 'pdfjs-annotation--deletable' : ''}" 
+          ${configs?.deletable ? 'pdf-annotation--deletable' : ''}" 
         style="
           top: calc(${rect.top}%);
           left: calc(${rect.left}%);
           right: calc(${rect.right}%);
           bottom: calc(${rect.bottom}%);
         ">
-        ${configs?.moveable ? `<div class="pdfjs-annotation__embed-move-btn" style="font-size: calc(${scaleFactor} * 1rem);">✥</div>` : ''}
+        ${configs?.moveable ? `<div class="pdf-annotation__embed-move-btn" style="font-size: calc(${scaleFactor} * 1rem);">✥</div>` : ''}
         <textarea 
           class="${configs?.moveable ? 'pdf-annotation--moveable-excluded' : ''}"
           ${editor ? 'placeholder="Text ..."' : ''}
@@ -64,14 +64,14 @@ export class PdfTextViewer extends PdfNoteViewer {
       .querySelector('head')
       .appendChild(htmlToElements(
         `<style>
-          .pdfjs-annotation__text {
+          .pdf-annotation__text {
             position: absolute;
             pointer-events: auto;
             cursor: pointer;
             z-index: 5;
           }
 
-          .pdfjs-annotation__text .pdfjs-annotation__embed-move-btn {
+          .pdf-annotation__text .pdf-annotation__embed-move-btn {
             position: absolute;
             top: 4px;
             right: 3px;
@@ -82,11 +82,11 @@ export class PdfTextViewer extends PdfNoteViewer {
             cursor: move;
           }
 
-          .pdfjs-annotation__text .pdfjs-annotation__embed-move-btn:hover { 
+          .pdf-annotation__text .pdf-annotation__embed-move-btn:hover { 
             color: black; 
           }
 
-          .pdfjs-annotation__text textarea {
+          .pdf-annotation__text textarea {
             width: 100% !important;
             height: 100% !important;
             border-color: lightgray;

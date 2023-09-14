@@ -26,6 +26,9 @@ export class Annotation {
   @Prop() targetSize: string;
   @Prop() resource: string;
   @Prop() thumbnail: string;
+
+  // -- misc
+  @Prop({ type: Object }) misc: any;
 }
 
 export const AnnotationSchema = SchemaFactory.createForClass(Annotation);

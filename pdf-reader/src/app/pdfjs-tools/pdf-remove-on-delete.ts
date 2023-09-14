@@ -21,7 +21,7 @@ export class PdfRemoveOnDelete {
   private _getStorage() { return this.registry.get('storage'); }
 
   private _isDeleteable($event: any) {
-    return $event.target.classList.contains('pdfjs-annotation--deletable');
+    return $event.target.classList.contains('pdf-annotation--deletable');
   }
 
   private _toggleSelectOnClick() {
@@ -34,10 +34,10 @@ export class PdfRemoveOnDelete {
       }
 
       const annotEl = getAnnotEl($event.target);
-      if (annotEl && getOrParent($event, '.pdfjs-annotation--deletable')) {
+      if (annotEl && getOrParent($event, '.pdf-annotation--deletable')) {
         const annotId = annotEl.getAttribute('data-annotation-id');
         this.selected = this._getStorage().read(annotId);
-        if (!$event.target.closest('.pdfjs-annotation--unfocusable'))
+        if (!$event.target.closest('.pdf-annotation--unfocusable'))
           annotEl.focus();
       }
     });
@@ -48,7 +48,7 @@ export class PdfRemoveOnDelete {
       if (this.selected && ['Delete', 'Backspace'].includes($event.key) && this._isDeleteable($event))
         this._getStorage().delete(this.selected, () => {
           this.registry.list(`${this.selected.type}.deleted.`).forEach(k => this.registry.get(k)(this.selected));
-          removeSelectorAll(this._getDocumentEl(), `.pdfjs-annotations [data-annotation-id="${this.selected.id}"]`);
+          removeSelectorAll(this._getDocumentEl(), `.pdf-annotations [data-annotation-id="${this.selected.id}"]`);
           this.selected = null;
         });
     });

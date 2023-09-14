@@ -20,15 +20,11 @@ export class AnnotationsService {
       filter.pages = { $in: pages.split(',').map(p => parseInt(p)) };
     }
 
-    if (annotators) {
-      /**/ if (annotators == 'all') { }
-      else if (annotators == 'none') {
-        filter.user_id = user_id;
-      } else {
-        if (user_id) annotators += ',' + user_id;
-        filter.user_id = { $in: annotators.split(',') };
-      }
-    }
+    /**/ if (annotators == 'all') { }
+    else if (annotators == 'mine') filter.user_id = user_id;
+    else if (annotators == 'none') filter.user_id = `[added-to-return-empty]${Math.random()}`;
+    else if (annotators) /*     */ filter['misc.displayName'] = { $in: annotators.split(',') };
+    else /*                     */ filter.user_id = `[added-to-return-empty]${Math.random()}`;
 
     return (await this.annotations.find(filter)).map(toObject);
   }
@@ -48,15 +44,11 @@ export class AnnotationsService {
     ));
   }
 
-  async getAnnotators({ groupId }) {
-    // TODO: in term of user-privacy some may not want to be listed here
-    return await this.annotations.find({ group_id: groupId }).distinct('user_id');
-  }
-
   async update({ user_id, groupId, id, annotation }) {
+    const { user_id: $1, group_id: $2, ...allowed } = annotation;
     await this.annotations.updateOne(
       { user_id, group_id: groupId, _id: id },
-      { $set: { ...annotation } }
+      { $set: { ...allowed } }
     );
     return this.read({ user_id, groupId, id });
   }
@@ -65,5 +57,11 @@ export class AnnotationsService {
     await this.annotations.deleteOne(
       { user_id, group_id: groupId, _id: id }
     );
+  }
+
+  async getAnnotators({ groupId }) {
+    return await this.annotations.find({
+      group_id: groupId
+    }).distinct('misc.displayName');
   }
 }

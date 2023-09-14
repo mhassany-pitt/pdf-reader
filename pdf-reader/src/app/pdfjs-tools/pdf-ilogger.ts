@@ -48,7 +48,7 @@ export class PdfILogger {
   }
 
   protected _getDocument() { return this.registry.getDocument(); }
-  protected _getPdfJs() { return this.registry.getPdfJS(); }
+  protected _getPdfJS() { return this.registry.getPdfJS(); }
 
   private async _persist(logs: any[]) {
     const apiUrl = this._configs()?.apiUrl;
@@ -103,7 +103,7 @@ export class PdfILogger {
     const analyticId = $event.target.getAttribute('data-analytic-id');
     if (analyticId) log.analyticId = analyticId;
 
-    const rects = getSelectionRects(this._getDocument(), this._getPdfJs());
+    const rects = getSelectionRects(this._getDocument(), this._getPdfJS());
     if (rects) {
       Object.keys(rects).forEach(pageNum => {
         rects[pageNum].forEach((rect: any) => {
@@ -149,7 +149,7 @@ export class PdfILogger {
       this._later('scroll', () => {
         const containerRect = viewerContainer.getBoundingClientRect();
         const visiblePageRects: any = {};
-        this._getPdfJs().pdfViewer._getVisiblePages().views.forEach((page: any) => {
+        this._getPdfJS().pdfViewer._getVisiblePages().views.forEach((page: any) => {
           const pageEl = page.view.div;
           const pageNum = this._getPageNum(pageEl);
           const overlap = this._findIntersectionBound(containerRect, pageEl.getBoundingClientRect());
@@ -172,63 +172,63 @@ export class PdfILogger {
 
   private _setupOnPDFJSEvents() {
     if (this._configs()?.pdfjs_events?.includes('currentoutlineitem'))
-      this._getPdfJs().eventBus.on('currentoutlineitem', ($event) => this._handlePDFJSEvents('currentoutlineitem', $event));
+      this._getPdfJS().eventBus.on('currentoutlineitem', ($event) => this._handlePDFJSEvents('currentoutlineitem', $event));
 
     if (this._configs()?.pdfjs_events?.includes('outlineloaded'))
-      this._getPdfJs().eventBus.on('outlineloaded', ($event) => this._handlePDFJSEvents('outlineloaded', $event));
+      this._getPdfJS().eventBus.on('outlineloaded', ($event) => this._handlePDFJSEvents('outlineloaded', $event));
 
     if (this._configs()?.pdfjs_events?.includes('toggleoutlinetree'))
-      this._getPdfJs().eventBus.on('toggleoutlinetree', ($event) => this._handlePDFJSEvents('toggleoutlinetree', $event));
+      this._getPdfJS().eventBus.on('toggleoutlinetree', ($event) => this._handlePDFJSEvents('toggleoutlinetree', $event));
 
     if (this._configs()?.pdfjs_events?.includes('find'))
-      this._getPdfJs().eventBus.on('find', ($event) => this._handlePDFJSEvents('find', $event));
+      this._getPdfJS().eventBus.on('find', ($event) => this._handlePDFJSEvents('find', $event));
 
     if (this._configs()?.pdfjs_events?.includes('findbarclose'))
-      this._getPdfJs().eventBus.on('findbarclose', ($event) => this._handlePDFJSEvents('findbarclose', $event));
+      this._getPdfJS().eventBus.on('findbarclose', ($event) => this._handlePDFJSEvents('findbarclose', $event));
 
     if (this._configs()?.pdfjs_events?.includes('documentloaded'))
-      this._getPdfJs().eventBus.on('documentloaded', ($event) => this._handlePDFJSEvents('documentloaded', $event));
+      this._getPdfJS().eventBus.on('documentloaded', ($event) => this._handlePDFJSEvents('documentloaded', $event));
 
     if (this._configs()?.pdfjs_events?.includes('presentationmodechanged'))
-      this._getPdfJs().eventBus.on('presentationmodechanged', ($event) => this._handlePDFJSEvents('presentationmodechanged', $event));
+      this._getPdfJS().eventBus.on('presentationmodechanged', ($event) => this._handlePDFJSEvents('presentationmodechanged', $event));
 
     if (this._configs()?.pdfjs_events?.includes('pagenumberchanged'))
-      this._getPdfJs().eventBus.on('pagenumberchanged', ($event) => this._handlePDFJSEvents('pagenumberchanged', $event));
+      this._getPdfJS().eventBus.on('pagenumberchanged', ($event) => this._handlePDFJSEvents('pagenumberchanged', $event));
 
     if (this._configs()?.pdfjs_events?.includes('scalechanged'))
-      this._getPdfJs().eventBus.on('scalechanged', ($event) => this._handlePDFJSEvents('scalechanged', $event));
+      this._getPdfJS().eventBus.on('scalechanged', ($event) => this._handlePDFJSEvents('scalechanged', $event));
 
     if (this._configs()?.pdfjs_events?.includes('scrollmodechanged'))
-      this._getPdfJs().eventBus.on('scrollmodechanged', ($event) => this._handlePDFJSEvents('scrollmodechanged', $event));
+      this._getPdfJS().eventBus.on('scrollmodechanged', ($event) => this._handlePDFJSEvents('scrollmodechanged', $event));
 
     if (this._configs()?.pdfjs_events?.includes('sidebarviewchanged'))
-      this._getPdfJs().eventBus.on('sidebarviewchanged', ($event) => this._handlePDFJSEvents('sidebarviewchanged', $event));
+      this._getPdfJS().eventBus.on('sidebarviewchanged', ($event) => this._handlePDFJSEvents('sidebarviewchanged', $event));
 
     if (this._configs()?.pdfjs_events?.includes('spreadmodechanged'))
-      this._getPdfJs().eventBus.on('spreadmodechanged', ($event) => this._handlePDFJSEvents('spreadmodechanged', $event));
+      this._getPdfJS().eventBus.on('spreadmodechanged', ($event) => this._handlePDFJSEvents('spreadmodechanged', $event));
 
     if (this._configs()?.pdfjs_events?.includes('zoomin'))
-      this._getPdfJs().eventBus.on('zoomin', ($event) => this._handlePDFJSEvents('zoomin', $event));
+      this._getPdfJS().eventBus.on('zoomin', ($event) => this._handlePDFJSEvents('zoomin', $event));
 
     if (this._configs()?.pdfjs_events?.includes('zoomout'))
-      this._getPdfJs().eventBus.on('zoomout', ($event) => this._handlePDFJSEvents('zoomout', $event));
+      this._getPdfJS().eventBus.on('zoomout', ($event) => this._handlePDFJSEvents('zoomout', $event));
 
     if (this._configs()?.pdfjs_events?.includes('resize'))
-      this._getPdfJs().eventBus.on('resize',
+      this._getPdfJS().eventBus.on('resize',
         ($event) => this._later('resize', () =>
           this._handlePDFJSEvents('resize', {
             ...$event,
-            width: this._getPdfJs().pdfViewer.container.clientWidth,
-            height: this._getPdfJs().pdfViewer.container.clientHeight
+            width: this._getPdfJS().pdfViewer.container.clientWidth,
+            height: this._getPdfJS().pdfViewer.container.clientHeight
           }), this._configs()?.resize?.delay || 300));
 
     if (this._configs()?.pdfjs_events?.includes('rotateccw'))
-      this._getPdfJs().eventBus.on('rotateccw', ($event) => this._handlePDFJSEvents('rotateccw',
-        { ...$event, rotation: this._getPdfJs().pdfViewer.pagesRotation }));
+      this._getPdfJS().eventBus.on('rotateccw', ($event) => this._handlePDFJSEvents('rotateccw',
+        { ...$event, rotation: this._getPdfJS().pdfViewer.pagesRotation }));
 
     if (this._configs()?.pdfjs_events?.includes('rotatecw'))
-      this._getPdfJs().eventBus.on('rotatecw', ($event) => this._handlePDFJSEvents('rotatecw',
-        { ...$event, rotation: this._getPdfJs().pdfViewer.pagesRotation }));
+      this._getPdfJS().eventBus.on('rotatecw', ($event) => this._handlePDFJSEvents('rotatecw',
+        { ...$event, rotation: this._getPdfJS().pdfViewer.pagesRotation }));
   }
 
   // -- util functions

@@ -73,7 +73,6 @@ export class PdfFreeformToolbarBtn extends PdfToolbarBtn {
 
     super._addToolbarUI();
 
-    // show details on hover
     this.button.addEventListener('mouseover', () => {
       if (this._isFreeformEnabled() && !this._getToolbarEl().hasDetails()) {
         this._getToolbarEl().showDetails(this.getToolbarDetailsEl());
@@ -94,7 +93,7 @@ export class PdfFreeformToolbarBtn extends PdfToolbarBtn {
   }
 
   private _getStrokesEl() {
-    const className = 'pdfjs-annotation-toolbar__stroke-options';
+    const className = 'pdf-annotation-toolbar__stroke-options';
     const config = this.getStrokeOptions();
     const storkesEl = htmlToElements(
       `<div class="${className}">
@@ -138,7 +137,7 @@ export class PdfFreeformToolbarBtn extends PdfToolbarBtn {
   }
 
   private _getColorsEl() {
-    const className = 'pdfjs-annotation-toolbar__color-options';
+    const className = 'pdf-annotation-toolbar__color-options';
     const colorsEl = htmlToElements(
       `<div>
         <div class="${className}">

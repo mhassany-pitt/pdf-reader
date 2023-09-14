@@ -18,7 +18,7 @@ export class PdfEmbedViewer {
     // remove popup on delete
     this.registry.register(`embed.deleted.${Math.random()}`,
       (annot) => removeSelectorAll(this._getDocumentEl(),
-        `.pdfjs-annotation__embed-viewer-popup[data-embed-id="${annot.id}"]`));
+        `.pdf-annotation__embed-viewer-popup[data-embed-id="${annot.id}"]`));
 
     this._attachStylesheet();
     this._renderOnPagerendered();
@@ -38,7 +38,7 @@ export class PdfEmbedViewer {
     this._getPdfJS().eventBus.on('pageannotationsloaded', ($event: any) => {
       const pageNum = $event.pageNumber;
       const annotsLayerEl = this._getAnnotLayer().getOrAttachLayerEl(pageNum);
-      annotsLayerEl.querySelectorAll('.pdfjs-annotation__embed').forEach((el: any) => el.remove());
+      removeSelectorAll(annotsLayerEl, '.pdf-annotation__embed');
 
       this._getStorage().list()
         .filter(annot => annot.type == 'embed')
@@ -49,7 +49,7 @@ export class PdfEmbedViewer {
 
   render(annot: any) {
     const annotsLayerEl = this._getAnnotLayer().getOrAttachLayerEl(annot.pages[0]);
-    annotsLayerEl.querySelectorAll(`[data-annotation-id="${annot.id}"].pdfjs-annotation__embed`)
+    annotsLayerEl.querySelectorAll(`[data-annotation-id="${annot.id}"].pdf-annotation__embed`)
       .forEach((el: any) => el.remove());
 
     const editor = this.registry.get('embed-editor');
@@ -66,9 +66,9 @@ export class PdfEmbedViewer {
         data-analytic-id="embed-${annot.id}"
         tabindex="-1"
         class="
-          pdfjs-annotation__embed 
+          pdf-annotation__embed 
           ${configs?.moveable ? 'pdf-annotation--moveable' : ''}
-          ${configs?.deletable ? 'pdfjs-annotation--deletable' : ''}" 
+          ${configs?.deletable ? 'pdf-annotation--deletable' : ''}" 
         style="
           top: ${bound.top}%;
           left: ${bound.left}%;
@@ -82,8 +82,8 @@ export class PdfEmbedViewer {
           justify-content: center;
         ">
         <div class="top-right">
-          ${configs?.moveable && annot.target == 'inline-iframe' ? `<div class="pdfjs-annotation__embed-move-btn" style="font-size: calc(${scaleFactor} * 1rem);">✥</div>` : ''}
-          ${editor ? `<div class="pdfjs-annotation__embed-edit-btn" style="font-size: calc(${scaleFactor} * 1.25rem);">⚙</div>` : ''}
+          ${configs?.moveable && annot.target == 'inline-iframe' ? `<div class="pdf-annotation__embed-move-btn" style="font-size: calc(${scaleFactor} * 1rem);">✥</div>` : ''}
+          ${editor ? `<div class="pdf-annotation__embed-edit-btn" style="font-size: calc(${scaleFactor} * 1.25rem);">⚙</div>` : ''}
         </div>
         ${editor ? '<img class="resize-icon" draggable="false" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABlBMVEVHcExmZmZEBjuPAAAAAXRSTlMAQObYZgAAABRJREFUeAFjYAICFiYOJiEmJSYXAAHyAJWhegUKAAAAAElFTkSuQmCC"/>' : ''}
       </div>`);
@@ -94,7 +94,7 @@ export class PdfEmbedViewer {
       viewerEl.appendChild(iframeEl);
       this.fitIframeToParent(viewerEl);
     } else if (annot.thumbnail) {
-      viewerEl.appendChild(htmlToElements(`<img class="pdfjs-annotation__embed-thumb-icon" draggable="false" src="${annot.thumbnail}"/>`));
+      viewerEl.appendChild(htmlToElements(`<img class="pdf-annotation__embed-thumb-icon" draggable="false" src="${annot.thumbnail}"/>`));
     }
   }
 
@@ -119,20 +119,20 @@ export class PdfEmbedViewer {
 
   private _onAnnotClick() {
     this._getDocument().addEventListener('click', ($event: any) => {
-      const thumbIcon = getOrParent($event, '.pdfjs-annotation__embed-thumb-icon'),
-        editBtn = getOrParent($event, '.pdfjs-annotation__embed-edit-btn'),
-        viewerPopup = getOrParent($event, '.pdfjs-annotation__embed-viewer-popup'),
-        isViewerPopupVisible = getPageEl($event.target)?.querySelector('.pdfjs-annotation__embed-viewer-popup');
+      const thumbIcon = getOrParent($event, '.pdf-annotation__embed-thumb-icon'),
+        editBtn = getOrParent($event, '.pdf-annotation__embed-edit-btn'),
+        viewerPopup = getOrParent($event, '.pdf-annotation__embed-viewer-popup'),
+        isViewerPopupVisible = getPageEl($event.target)?.querySelector('.pdf-annotation__embed-viewer-popup');
       if (isLeftClick($event) && thumbIcon && !editBtn && !isViewerPopupVisible) {
-        const annotEl = getOrParent($event, '.pdfjs-annotation__embed');
+        const annotEl = getOrParent($event, '.pdf-annotation__embed');
         const annotId = annotEl.getAttribute('data-annotation-id');
         const annot = this._getStorage().read(annotId);
         if (annot.target == 'new-page') {
           window.open(annot.resource, '_blank');
         } else if (annot.target == 'popup-iframe') {
           const popupEl = htmlToElements(
-            `<div class="pdfjs-annotation__embed-viewer-popup" data-embed-id="${annotId}">
-              <div class="pdfjs-annotation__embed-viewer-popup-header">
+            `<div class="pdf-annotation__embed-viewer-popup" data-embed-id="${annotId}">
+              <div class="pdf-annotation__embed-viewer-popup-header">
                 <a href="${annot.resource}" target="_blank">open in new tab</a>
                 <span style="flex-grow: 1;"></span>
                 <button type="button" class="close-btn">close</button>
@@ -171,7 +171,7 @@ export class PdfEmbedViewer {
   }
 
   removePopups() {
-    this._getDocumentEl().querySelectorAll('.pdfjs-annotation__embed-viewer-popup').forEach(el => el.remove());
+    this._getDocumentEl().querySelectorAll('.pdf-annotation__embed-viewer-popup').forEach(el => el.remove());
   }
 
   private _attachStylesheet() {
@@ -180,7 +180,7 @@ export class PdfEmbedViewer {
       .querySelector('head')
       .appendChild(htmlToElements(
         `<style>
-          .pdfjs-annotation__embed {
+          .pdf-annotation__embed {
             position: absolute;
             pointer-events: auto;
             user-select: none;
@@ -191,20 +191,20 @@ export class PdfEmbedViewer {
             border-radius: 0.125rem;
           }
           
-          .pdfjs-annotation__embed img.pdfjs-annotation__embed-thumb-icon {
+          .pdf-annotation__embed img.pdf-annotation__embed-thumb-icon {
             max-width: 80%; 
             max-height: 80%; 
             margin: 2.5%;
             object-fit: contain;
             user-select: none;
           }
-          .pdfjs-annotation__embed img.pdfjs-annotation__embed-thumb-icon:hover {
+          .pdf-annotation__embed img.pdf-annotation__embed-thumb-icon:hover {
             max-width: 90%;
             max-height: 90%;
             margin: 0;
           }
 
-          .pdfjs-annotation__embed img.resize-icon {
+          .pdf-annotation__embed img.resize-icon {
             position: absolute;
             bottom: 0;
             right: 0;
@@ -212,7 +212,7 @@ export class PdfEmbedViewer {
             z-index: 2;
           }
 
-          .pdfjs-annotation__embed .top-right {
+          .pdf-annotation__embed .top-right {
             position: absolute;
             top: 2px;
             right: 1px;
@@ -223,29 +223,29 @@ export class PdfEmbedViewer {
             z-index: 2;
           }
 
-          .pdfjs-annotation__embed .pdfjs-annotation__embed-move-btn { 
+          .pdf-annotation__embed .pdf-annotation__embed-move-btn { 
             color: lightgray;
           }
 
-          .pdfjs-annotation__embed .pdfjs-annotation__embed-move-btn:hover { 
+          .pdf-annotation__embed .pdf-annotation__embed-move-btn:hover { 
             color: black; 
           }
   
-          .pdfjs-annotation__embed .pdfjs-annotation__embed-edit-btn {
+          .pdf-annotation__embed .pdf-annotation__embed-edit-btn {
             color: lightgray;
           }
 
-          .pdfjs-annotation__embed .pdfjs-annotation__embed-edit-btn:hover { 
+          .pdf-annotation__embed .pdf-annotation__embed-edit-btn:hover { 
             color: black; 
           }
 
-          .pdfjs-annotation__embed iframe {
+          .pdf-annotation__embed iframe {
             background-color: white;
             border: none; 
             z-index: 1;
           }
           
-          .pdfjs-annotation__embed-viewer-popup {
+          .pdf-annotation__embed-viewer-popup {
             display: flex;
             flex-flow: column;
             width: 100%;
@@ -259,7 +259,7 @@ export class PdfEmbedViewer {
             pointer-events: auto;
           }
           
-          .pdfjs-annotation__embed-viewer-popup-header {
+          .pdf-annotation__embed-viewer-popup-header {
             display: flex;
             align-items: center;
             margin: 5px;

@@ -15,12 +15,11 @@ export class PdfAddToOutlineEditor {
     this._addToOutlineOnTextSelection();
   }
 
+  private _getDocument() { return this.registry.getDocument(); }
   private _getPdfJS() { return this.registry.getPdfJS(); }
 
   isEnabled() { return this._enabled; }
   setEnabled(enabled: boolean) { this._enabled = enabled; }
-
-  private _getDocument() { return this.registry.getDocument(); }
 
   private _addToOutlineOnTextSelection() {
     this._getDocument().addEventListener('mouseup', ($event: any) => {

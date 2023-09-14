@@ -12,13 +12,14 @@ export class PdfHighlighterToolbarBtn extends PdfToolbarBtn {
   constructor({ registry }) {
     super({ registry });
 
-    this.registry.register(`configs.default.${this.getType().type}`, () => PdfHighlighterToolbarBtn.defaultConfigs());
+    this.registry.register(`configs.default.${this.getType().type}`, () => this._defaultConfigs());
 
     this._attachStylesheet();
     this._addToolbarUI();
   }
 
   protected _configs() { return this.registry.get(`configs.${this.getType().type}`); }
+  protected _defaultConfigs() { return PdfHighlighterToolbarBtn.defaultConfigs(); }
   static defaultConfigs() {
     return {
       deletable: true,
@@ -84,7 +85,6 @@ export class PdfHighlighterToolbarBtn extends PdfToolbarBtn {
 
     this._colorDotEl.style.display = 'none';
 
-    // show details on hover
     this.button.addEventListener('mouseover', () => {
       if (this._isHighlighterEnabled() && this._getHighlighterType() == this.getType().type && !this._getToolbarEl().hasDetails()) {
         this._getToolbarEl().showDetails(this.getToolbarDetailsEl());
@@ -107,7 +107,7 @@ export class PdfHighlighterToolbarBtn extends PdfToolbarBtn {
   }
 
   protected getToolbarDetailsEl() {
-    const className = 'pdfjs-annotation-toolbar__color-options';
+    const className = 'pdf-annotation-toolbar__color-options';
     const colorsEl = htmlToElements(
       `<div>
         <div class="${className}">

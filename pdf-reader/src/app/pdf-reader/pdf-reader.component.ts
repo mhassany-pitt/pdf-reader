@@ -35,6 +35,9 @@ import { PdfEmbedToolbarBtn } from '../pdfjs-tools/pdf-embed-toolbar-btn';
 import { PdfLoadCustomPlugins } from '../pdfjs-tools/pdf-load-custom-plugins';
 import { PdfDelete } from '../pdfjs-tools/pdf-delete';
 import { PdfDeleteToolbarBtn } from '../pdfjs-tools/pdf-delete-toolbar-btn';
+import { PdfFilter } from '../pdfjs-tools/pdf-filter';
+import { PdfFilterToolbarBtn } from '../pdfjs-tools/pdf-filter-toolbar-btn';
+import { AppService } from '../app.service';
 
 @Component({
   selector: 'app-pdf-reader',
@@ -73,8 +76,9 @@ export class PDFReaderComponent implements OnInit {
     private http: HttpClient,
     private route: ActivatedRoute,
     private service: PDFReaderService,
-    private title: Title,
+    private app: AppService,
     private ngZone: NgZone,
+    private title: Title,
   ) { }
 
   ngOnInit(): void {
@@ -133,6 +137,7 @@ export class PDFReaderComponent implements OnInit {
     registry.register('http', this.http);
     registry.register('pdfDocId', this.pdfDocument.id);
     registry.register('userId', await getUserId(this.route));
+    registry.register('authUser', this.app.user);
 
     const configs = this.pdfDocument.configs || {};
     for (const key of Object.keys(configs))
@@ -179,6 +184,9 @@ export class PDFReaderComponent implements OnInit {
     new PdfEmbedToolbarBtn({ registry });
 
     registry.get('toolbar').addSeparator();
+
+    new PdfFilter({ registry });
+    new PdfFilterToolbarBtn({ registry });
 
     new PdfDelete({ registry });
     new PdfDeleteToolbarBtn({ registry });

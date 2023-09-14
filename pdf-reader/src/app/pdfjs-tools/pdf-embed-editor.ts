@@ -25,7 +25,7 @@ export class PdfEmbedEditor {
     // remove popup on delete
     this.registry.register(`embed.deleted.${Math.random()}`,
       (annot) => removeSelectorAll(this._getDocumentEl(),
-        `.pdfjs-annotation__embed-editor-popup[data-embed-id="${annot.id}"]`));
+        `.pdf-annotation__embed-editor-popup[data-embed-id="${annot.id}"]`));
 
     this.onAnnotClick();
     this._manageDroppingZone();
@@ -55,7 +55,7 @@ export class PdfEmbedEditor {
       this._getViewer().fitIframeToParent(annotEl);
     } else if (action == 'moving-started') {
       this._getDocumentEl().querySelector('.pdfViewer')?.
-        querySelectorAll('.pdfjs-annotation__embed-viewer-popup').forEach(el => el.remove());
+        querySelectorAll('.pdf-annotation__embed-viewer-popup').forEach(el => el.remove());
     }
   }
 
@@ -98,8 +98,8 @@ export class PdfEmbedEditor {
 
   protected onAnnotClick() {
     this._getDocument().addEventListener('click', async ($event: any) => {
-      const embed = getOrParent($event, '.pdfjs-annotation__embed'),
-        editBtn = getOrParent($event, '.pdfjs-annotation__embed-edit-btn');
+      const embed = getOrParent($event, '.pdf-annotation__embed'),
+        editBtn = getOrParent($event, '.pdf-annotation__embed-edit-btn');
       if (isLeftClick($event) && embed && editBtn) {
         const annotEl = getAnnotEl($event.target),
         /* */  pageEl = getPageEl($event.target);
@@ -107,18 +107,18 @@ export class PdfEmbedEditor {
 
         const annotId: any = annotEl.getAttribute('data-annotation-id');
         const annot = this._getStorage().read(annotId);
-        if (!pageEl.querySelector(`.pdfjs-annotation__embed-editor-popup[data-embed-id="${annotId}"]`)) {
+        if (!pageEl.querySelector(`.pdf-annotation__embed-editor-popup[data-embed-id="${annotId}"]`)) {
           const bound = getAnnotElBound(pageEl.querySelector(`[data-annotation-id="${annotId}"]`));
           this._showEditorPopup(annot, getPageNum(pageEl), bound);
         }
-      } else if (!$event.target.closest('.pdfjs-annotation__embed-editor-popup')) {
+      } else if (!$event.target.closest('.pdf-annotation__embed-editor-popup')) {
         this.removePopups();
       }
     });
   }
 
   removePopups() {
-    this._getDocumentEl().querySelectorAll('.pdfjs-annotation__embed-editor-popup').forEach(el => el.remove());
+    this._getDocumentEl().querySelectorAll('.pdf-annotation__embed-editor-popup').forEach(el => el.remove());
   }
 
   private _showEditorPopup(annot: any, pageNum: number, bound: WHRect) {
@@ -126,10 +126,10 @@ export class PdfEmbedEditor {
       return;
 
     const popupEl = htmlToElements(
-      `<div class="pdfjs-annotation__embed-editor-popup" data-embed-id="${annot.id}">
+      `<div class="pdf-annotation__embed-editor-popup" data-embed-id="${annot.id}">
         ${this._getContainerEl(annot)}
         <style>
-          .pdfjs-annotation__embed-editor-popup {
+          .pdf-annotation__embed-editor-popup {
             position: absolute;
             top: calc(100% - ${bound.bottom}%);
             left: ${bound.left}%;
@@ -150,17 +150,17 @@ export class PdfEmbedEditor {
       .getOrAttachLayerEl(pageNum)
       .appendChild(popupEl);
 
-    const containerEl = popupEl.querySelector('.pdfjs-annotation__embed-editor-popup-controls') as HTMLElement;
+    const containerEl = popupEl.querySelector('.pdf-annotation__embed-editor-popup-controls') as HTMLElement;
     const elems = {
-      inline: containerEl.querySelector('.pdfjs-annotation__embed-editor-popup-inline-iframe-option') as any,
-      popup: containerEl.querySelector('.pdfjs-annotation__embed-editor-popup-popup-iframe-option') as any,
-      page: containerEl.querySelector('.pdfjs-annotation__embed-editor-popup-new-page-option') as any,
-      size: containerEl.querySelector('.pdfjs-annotation__embed-editor-popup-target-size-options') as any,
-      fullscreen: containerEl.querySelector('.pdfjs-annotation__embed-editor-popup-fullscreen-option') as any,
-      fullpage: containerEl.querySelector('.pdfjs-annotation__embed-editor-popup-fullpage-option') as any,
-      custom: containerEl.querySelector('.pdfjs-annotation__embed-editor-popup-custom-size-option') as any,
-      thumbnail: containerEl.querySelector('.pdfjs-annotation__embed-editor-popup-thumbnail-url') as any,
-      resource: containerEl.querySelector('.pdfjs-annotation__embed-editor-popup-resource-url') as any,
+      inline: containerEl.querySelector('.pdf-annotation__embed-editor-popup-inline-iframe-option') as any,
+      popup: containerEl.querySelector('.pdf-annotation__embed-editor-popup-popup-iframe-option') as any,
+      page: containerEl.querySelector('.pdf-annotation__embed-editor-popup-new-page-option') as any,
+      size: containerEl.querySelector('.pdf-annotation__embed-editor-popup-target-size-options') as any,
+      fullscreen: containerEl.querySelector('.pdf-annotation__embed-editor-popup-fullscreen-option') as any,
+      fullpage: containerEl.querySelector('.pdf-annotation__embed-editor-popup-fullpage-option') as any,
+      custom: containerEl.querySelector('.pdf-annotation__embed-editor-popup-custom-size-option') as any,
+      thumbnail: containerEl.querySelector('.pdf-annotation__embed-editor-popup-thumbnail-url') as any,
+      resource: containerEl.querySelector('.pdf-annotation__embed-editor-popup-resource-url') as any,
     };
 
     // update target based on radio button (new-page/inline-iframe/popup-iframe) selection 
@@ -233,35 +233,35 @@ export class PdfEmbedEditor {
     const tmpid = Math.random().toString(36).substring(2);
 
     return `
-      <div class="pdfjs-annotation__embed-editor-popup-controls"> 
-        <div class="pdfjs-annotation__embed-editor-popup-resource-url">
+      <div class="pdf-annotation__embed-editor-popup-controls"> 
+        <div class="pdf-annotation__embed-editor-popup-resource-url">
           <span>Resource:</span>
           <input type="text" placeholder="url" value="${annot.resource || configs?.resource}" autocomplete="off"/>
         </div>
         ${configs?.inline ?
-        `<div class="pdfjs-annotation__embed-editor-popup-inline-iframe-option">
-          <input id="${tmpid}-inline-iframe" type="radio" name="pdfjs-embed-resource-target" ${checked(annot.target == 'inline-iframe')}/>
+        `<div class="pdf-annotation__embed-editor-popup-inline-iframe-option">
+          <input id="${tmpid}-inline-iframe" type="radio" name="pdf-embed-resource-target" ${checked(annot.target == 'inline-iframe')}/>
           <label for="${tmpid}-inline-iframe">Embed Inline</label>
         </div>` : ''}
         ${configs?.popup ?
-        `<div class="pdfjs-annotation__embed-editor-popup-popup-iframe-option">
-          <input id="${tmpid}-popup-iframe" type="radio" name="pdfjs-embed-resource-target" ${checked(annot.target == 'popup-iframe')}/>
+        `<div class="pdf-annotation__embed-editor-popup-popup-iframe-option">
+          <input id="${tmpid}-popup-iframe" type="radio" name="pdf-embed-resource-target" ${checked(annot.target == 'popup-iframe')}/>
           <label for="${tmpid}-popup-iframe">Open in Popup</label>
         </div>
-        <div class="pdfjs-annotation__embed-editor-popup-target-size-options" 
+        <div class="pdf-annotation__embed-editor-popup-target-size-options" 
           style="${annot.target != 'popup-iframe' ? 'display: none;' : ''}">
           ${configs?.popup.fullscreen ?
-          `<div class="pdfjs-annotation__embed-editor-popup-fullscreen-option">
+          `<div class="pdf-annotation__embed-editor-popup-fullscreen-option">
             <input id="${tmpid}-fullscreen" type="radio" name="target-size" ${fullscreen}/>
             <label for="${tmpid}-fullscreen">Fullscreen</label>
           </div>`: ''}
           ${configs?.popup.fullpage ?
-          `<div class="pdfjs-annotation__embed-editor-popup-fullpage-option">
+          `<div class="pdf-annotation__embed-editor-popup-fullpage-option">
             <input id="${tmpid}-fullpage" type="radio" name="target-size" ${fullpage}/>
             <label for="${tmpid}-fullpage">Fullpage</label>
           </div>`: ''}
           ${configs?.popup.custom ?
-          `<div class="pdfjs-annotation__embed-editor-popup-custom-size-option">
+          `<div class="pdf-annotation__embed-editor-popup-custom-size-option">
             <input id="${tmpid}-custom" type="radio" name="target-size" ${custom}/>
             <label for="${tmpid}-custom">
               <span>Custom </span>
@@ -272,11 +272,11 @@ export class PdfEmbedEditor {
           </div>` : ''}
         </div>`: ''}
         ${configs?.newPage ?
-        `<div class="pdfjs-annotation__embed-editor-popup-new-page-option">
-          <input id="${tmpid}-new-page" type="radio" name="pdfjs-embed-resource-target" ${checked(annot.target == 'new-page')}/>
+        `<div class="pdf-annotation__embed-editor-popup-new-page-option">
+          <input id="${tmpid}-new-page" type="radio" name="pdf-embed-resource-target" ${checked(annot.target == 'new-page')}/>
           <label for="${tmpid}-new-page">Open in New Page</label>
         </div>` : ''}
-        <div class="pdfjs-annotation__embed-editor-popup-thumbnail-url">
+        <div class="pdf-annotation__embed-editor-popup-thumbnail-url">
           <span>Thumbnail:</span>
           <input type="text" placeholder="url" value="${annot.thumbnail || configs?.thumbnail}" autocomplete="off"/>
         </div>
@@ -293,7 +293,7 @@ export class PdfEmbedEditor {
             cursor: grabbing;
           }
           
-          .pdfjs-annotation__embed-editor-popup-embed-btns {
+          .pdf-annotation__embed-editor-popup-embed-btns {
             display: flex;
             align-items: center;
             justify-content: space-evenly;
@@ -301,22 +301,22 @@ export class PdfEmbedEditor {
             z-index: 1;
           }
           
-          .pdfjs-annotation__embed-editor-popup-embed-btns button {
+          .pdf-annotation__embed-editor-popup-embed-btns button {
             flex-grow: 1;
             display: flex;
             align-items: center;
             column-gap: 0.25rem;
           }
           
-          .pdfjs-annotation__embed:active {
+          .pdf-annotation__embed:active {
             cursor: grabbing;
           }
           
-          .pdfjs-annotation__embed-editor-popup-title {
+          .pdf-annotation__embed-editor-popup-title {
             font-weight: bold;
           }
           
-          .pdfjs-annotation__embed-editor-popup-controls {
+          .pdf-annotation__embed-editor-popup-controls {
             width: 15rem;
             display: flex;
             flex-direction: column;
@@ -326,21 +326,21 @@ export class PdfEmbedEditor {
             gap: 0.25rem;
           }
           
-          .pdfjs-annotation__embed-editor-popup-target-size-options {
+          .pdf-annotation__embed-editor-popup-target-size-options {
             margin-left: 10px;
           }
           
-          .pdfjs-annotation__embed-editor-popup-custom-size-option input[type="text"] {
+          .pdf-annotation__embed-editor-popup-custom-size-option input[type="text"] {
             width: 40px;
           }
           
-          .pdfjs-annotation__embed-editor-popup-resource-url,
-          .pdfjs-annotation__embed-editor-popup-thumbnail-url {
+          .pdf-annotation__embed-editor-popup-resource-url,
+          .pdf-annotation__embed-editor-popup-thumbnail-url {
             display: flex;
           }
           
-          .pdfjs-annotation__embed-editor-popup-resource-url input,
-          .pdfjs-annotation__embed-editor-popup-thumbnail-url input {
+          .pdf-annotation__embed-editor-popup-resource-url input,
+          .pdf-annotation__embed-editor-popup-thumbnail-url input {
             flex-grow: 1;
             margin-left: 0.125rem;
           }        

@@ -37,7 +37,7 @@ export class PdfTextEditor extends PdfNoteEditor {
 
   protected override onAnnotClick() {
     this._getDocument().addEventListener('click', async ($event: any) => {
-      const viewerEl = getOrParent($event, '.pdfjs-annotation__text');
+      const viewerEl = getOrParent($event, '.pdf-annotation__text');
       if (isLeftClick($event) && viewerEl) {
         const annotEl = getAnnotEl($event.target);
         const annotId: any = annotEl.getAttribute('data-annotation-id');

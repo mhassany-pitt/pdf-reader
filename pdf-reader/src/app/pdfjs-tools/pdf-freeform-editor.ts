@@ -1,6 +1,6 @@
 import {
   getPageEl, getPageNum, htmlToElements,
-  isLeftClick, rotation, scale, uuid
+  isLeftClick, removeSelectorAll, rotation, scale, uuid
 } from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
 
@@ -30,6 +30,7 @@ export class PdfFreeformEditor {
   private _getDocument() { return this.registry.getDocument(); }
   private _getDocumentEl() { return this.registry.getDocumentEl(); }
   private _getStorage() { return this.registry.get('storage'); }
+  private _getAnnotLayer() { return this.registry.get('annotation-layer'); }
 
   setEnabled(enabled: boolean) {
     this.enabled = enabled;
@@ -108,6 +109,9 @@ export class PdfFreeformEditor {
   private _renderOnPagerendered() {
     this._getPdfJS().eventBus.on('pageannotationsloaded', ($event: any) => {
       const pageNum = $event.pageNumber;
+      const annotsLayerEl = this._getAnnotLayer().getOrAttachLayerEl(pageNum);
+      removeSelectorAll(annotsLayerEl, '.pdf-annotation__freeform-canvas');
+
       this._reattachCanvasEl(pageNum);
     });
   }
@@ -124,14 +128,14 @@ export class PdfFreeformEditor {
   }
 
   private _getCanvasEl(pageEl: HTMLElement) {
-    return pageEl.querySelector('.pdfjs-annotation-freeform-canvas');
+    return pageEl.querySelector('.pdf-annotation__freeform-canvas');
   }
 
   private _getOrAttachCanvasEl(pageNum: number): HTMLCanvasElement {
     const pageEl = getPageEl(this._getDocumentEl(), pageNum);
-    if (!pageEl.querySelector('.pdfjs-annotation-freeform-canvas'))
-      pageEl.appendChild(htmlToElements(`<canvas class="pdfjs-annotation-freeform-canvas"></canvas>`));
-    return pageEl.querySelector('.pdfjs-annotation-freeform-canvas');
+    if (!pageEl.querySelector('.pdf-annotation__freeform-canvas'))
+      pageEl.appendChild(htmlToElements(`<canvas class="pdf-annotation__freeform-canvas"></canvas>`));
+    return pageEl.querySelector('.pdf-annotation__freeform-canvas');
   }
 
   private _rotateCanvas(canvasEl: HTMLCanvasElement, rotationAngle: number) {
@@ -257,7 +261,7 @@ export class PdfFreeformEditor {
       .querySelector('head')
       .appendChild(htmlToElements(
         `<style>
-          .pdfjs-annotation-freeform-canvas {
+          .pdf-annotation__freeform-canvas {
             position: absolute;
             top: 0;
             left: 0;
@@ -271,9 +275,9 @@ export class PdfFreeformEditor {
             z-index: 6;
           }
           
-          .pdfjs-annotation-freeform__toggle-btns,
-          .pdfjs-annotation-freeform__stroke-btns,
-          .pdfjs-annotation-freeform__color-btns {
+          .pdf-annotation-freeform__toggle-btns,
+          .pdf-annotation-freeform__stroke-btns,
+          .pdf-annotation-freeform__color-btns {
             display: flex;
             align-items: center;
             justify-content: space-evenly;
@@ -281,18 +285,18 @@ export class PdfFreeformEditor {
             z-index: 1;
           }
           
-          .pdfjs-annotation-freeform__toggle-btns button,
-          .pdfjs-annotation-freeform__stroke-btns button {
+          .pdf-annotation-freeform__toggle-btns button,
+          .pdf-annotation-freeform__stroke-btns button {
             flex-grow: 1;
           }
           
-          .pdfjs-annotation-freeform__toggle-btns button {
+          .pdf-annotation-freeform__toggle-btns button {
             display: flex;
             align-items: center;
             column-gap: 0.25rem;
           }
           
-          .pdfjs-annotation-freeform__color-btns button {
+          .pdf-annotation-freeform__color-btns button {
             height: 0.75rem;
             border-width: 1px;
             flex-grow: 1;

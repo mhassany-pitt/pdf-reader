@@ -23,7 +23,7 @@ export class PdfNoteEditor {
     // remove popup on delete
     this.registry.register(`note.deleted.${Math.random()}`,
       (annot) => removeSelectorAll(this._getDocumentEl(),
-        `.pdfjs-annotation__note-editor-popup[data-note-id="${annot.id}"]`));
+        `.pdf-annotation__note-editor-popup[data-note-id="${annot.id}"]`));
 
     this.onAnnotClick();
     this._manageDroppingZone();
@@ -49,7 +49,7 @@ export class PdfNoteEditor {
       this._getStorage().update(annot);
     } else if (action == 'moving-started') {
       this._getDocumentEl().querySelector('.pdfViewer')?.
-        querySelectorAll('.pdfjs-annotation__note-viewer-popup').forEach(el => el.remove());
+        querySelectorAll('.pdf-annotation__note-viewer-popup').forEach(el => el.remove());
     }
   }
 
@@ -92,8 +92,8 @@ export class PdfNoteEditor {
 
   protected onAnnotClick() {
     this._getDocument().addEventListener('click', async ($event: any) => {
-      const thumbIcon = getOrParent($event, '.pdfjs-annotation__note-thumb-icon'),
-        viewerPopup = getOrParent($event, '.pdfjs-annotation__note-viewer-popup');
+      const thumbIcon = getOrParent($event, '.pdf-annotation__note-thumb-icon'),
+        viewerPopup = getOrParent($event, '.pdf-annotation__note-viewer-popup');
       if (isLeftClick($event) && (thumbIcon || viewerPopup)) {
         const annotEl = getAnnotEl($event.target),
         /* */  pageEl = getPageEl($event.target);
@@ -103,11 +103,11 @@ export class PdfNoteEditor {
           ? viewerPopup.getAttribute('data-note-id')
           : annotEl.getAttribute('data-annotation-id');
         const annot = this._getStorage().read(annotId);
-        if (!pageEl.querySelector(`.pdfjs-annotation__note-editor-popup[data-note-id="${annotId}"]`)) {
+        if (!pageEl.querySelector(`.pdf-annotation__note-editor-popup[data-note-id="${annotId}"]`)) {
           const bound = getAnnotElBound(pageEl.querySelector(`[data-annotation-id="${annotId}"]`));
           this._showEditorPopup(annot, getPageNum(pageEl), bound);
         }
-      } else if (!$event.target.closest('.pdfjs-annotation__note-editor-popup')) {
+      } else if (!$event.target.closest('.pdf-annotation__note-editor-popup')) {
         this.removePopups();
       }
     });
@@ -115,19 +115,19 @@ export class PdfNoteEditor {
 
   removePopups() {
     this.registry.get(this.getType().viewer).removePopups();
-    this._getDocumentEl().querySelectorAll('.pdfjs-annotation__note-editor-popup').forEach(el => el.remove());
+    this._getDocumentEl().querySelectorAll('.pdf-annotation__note-editor-popup').forEach(el => el.remove());
   }
 
   private _showEditorPopup(annot: any, pageNum: number, bound: WHRect) {
     const popupEl = htmlToElements(
-      `<div class="pdfjs-annotation__note-editor-popup" data-note-id="${annot.id}">
+      `<div class="pdf-annotation__note-editor-popup" data-note-id="${annot.id}">
         <textarea 
           rows="5" cols="35" 
           placeholder="Note ..."
           style="font-size: ${scale(this._getPdfJS()) * 100}%;"
         >${annot.note || ''}</textarea>
         <style>
-          .pdfjs-annotation__note-editor-popup {
+          .pdf-annotation__note-editor-popup {
             position: absolute;
             top: calc(100% - ${bound.bottom}%);
             left: ${bound.left}%;
@@ -141,7 +141,7 @@ export class PdfNoteEditor {
             z-index: 6;
           }
 
-          .pdfjs-annotation__note-editor-popup textarea {
+          .pdf-annotation__note-editor-popup textarea {
             box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
             background-color: white;
             border-radius: 0.125rem;

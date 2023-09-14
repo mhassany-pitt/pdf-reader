@@ -1,9 +1,9 @@
-import { htmlToElements } from './pdf-utils';
 import { PdfHighlighterToolbarBtn } from './pdf-highlighter-toolbar-btn';
-import { getLabel, getValue } from './pdf-utils';
+import { htmlToElements, getLabel, getValue } from './pdf-utils';
 
 export class PdfUnderlineToolbarBtn extends PdfHighlighterToolbarBtn {
 
+  protected override _defaultConfigs() { return PdfUnderlineToolbarBtn.defaultConfigs(); }
   static override defaultConfigs() {
     return {
       deletable: true,
@@ -31,8 +31,7 @@ export class PdfUnderlineToolbarBtn extends PdfHighlighterToolbarBtn {
   protected getStrokeOptions() { return this._configs()?.stroke; }
 
   private _getStrokeStylesEl() {
-    PdfUnderlineToolbarBtn.defaultConfigs();
-    const className = 'pdfjs-annotation-toolbar__stroke-style-options';
+    const className = 'pdf-annotation-toolbar__stroke-style-options';
     const strokeStylesEl = htmlToElements(
       `<div>
           <div class="${className}">
@@ -79,7 +78,7 @@ export class PdfUnderlineToolbarBtn extends PdfHighlighterToolbarBtn {
   }
 
   private _getStrokesEl() {
-    const className = 'pdfjs-annotation-toolbar__stroke-options';
+    const className = 'pdf-annotation-toolbar__stroke-options';
     const config = this.getStrokeOptions();
     const storkesEl = htmlToElements(
       `<div class="${className}">

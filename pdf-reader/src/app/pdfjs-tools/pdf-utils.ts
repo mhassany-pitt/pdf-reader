@@ -203,7 +203,7 @@ export const getAnnotBound = ($event: any): WHRect => {
 export const getAnnotElBound = (el: any): WHRect => {
   if (!el) return null as any;
   const annotId = el.getAttribute('data-annotation-id');
-  const annotLayerEl = el.closest('.pdfjs-annotations');
+  const annotLayerEl = el.closest('.pdf-annotations');
   const annotEls = Array.from(annotLayerEl.querySelectorAll(`[data-annotation-id="${annotId}"]`));
   const pageEl = getPageEl(el);
   const annotElsBound = annotEls.map((el: any) => {

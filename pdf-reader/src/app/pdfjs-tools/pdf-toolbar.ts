@@ -95,6 +95,7 @@ export class PdfToolbar {
           .pdf-toolbar > div:nth-child(2) {
             background-color: #4e4e51;
             box-shadow: 0 0 0 1px #0c0c0d;
+            padding: 0.25rem;
             gap: 0.25rem;
           }
           .pdf-toolbar-btn {
