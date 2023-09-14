@@ -1,6 +1,6 @@
 import {
   WHRect, getPageEl, getPageNum,
-  htmlToElements, getAnnotEl, getAnnotElBound, getOrParent, removeSelectorAll
+  htmlToElements, getAnnotEl, getAnnotElBound, getOrParent, removeSelectorAll, scale
 } from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
 
@@ -18,6 +18,7 @@ export class PdfHighlightNoteViewer {
 
   private _getDocument() { return this.registry.getDocument(); }
   private _getDocumentEl() { return this.registry.getDocumentEl(); }
+  private _getPdfJS() { return this.registry.getPdfJS(); }
 
   isValidAnnotEl($event: any) {
     const el = $event.target;
@@ -41,14 +42,14 @@ export class PdfHighlightNoteViewer {
     this._getDocument().addEventListener('mouseover', ($event: any) => {
       if (timeout) clearTimeout(timeout);
       timeout = setTimeout(async () => {
-        const isEditor = getOrParent($event, '.pdfjs-annotation__highlight-note-editor-popup');
-        if (this.isValidAnnotEl($event) || isEditor) {
+        const editorPopup = getOrParent($event, '.pdfjs-annotation__highlight-note-editor-popup');
+        if (this.isValidAnnotEl($event) || editorPopup) {
           const annotEl = getAnnotEl($event.target),
         /* */  pageEl = getPageEl($event.target);
           this.removePopups();
 
-          const annotId = isEditor
-            ? isEditor.getAttribute('data-highlight-id')
+          const annotId = editorPopup
+            ? editorPopup.getAttribute('data-highlight-id')
             : annotEl.getAttribute('data-annotation-id');
           const annot = this.registry.get('storage').read(annotId);
           if (annot && annot.note && !pageEl.querySelector(`.pdfjs-annotation__highlight-note-editor-popup[data-highlight-id="${annotId}"]`)) {
@@ -74,7 +75,13 @@ export class PdfHighlightNoteViewer {
 
     const popupEl = htmlToElements(
       `<div class="pdfjs-annotation__highlight-note-viewer-popup" data-highlight-id="${annot.id}">
-        <textarea rows="${rows}" cols="${cols}" placeholder="Note ..." readonly="true" resizable="false">${annot.note || ''}</textarea>
+        <textarea 
+          rows="${rows}" cols="${cols}" 
+          placeholder="Note ..." 
+          readonly="true" 
+          resizable="false"
+          style="font-size: ${scale(this._getPdfJS()) * 100}%;"
+        >${annot.note || ''}</textarea>
         <style>
           .pdfjs-annotation__highlight-note-viewer-popup {
             position: absolute;

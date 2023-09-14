@@ -55,6 +55,7 @@ export class PdfEmbedViewer {
 
     const degree = rotation(this._getPdfJS());
     const bound = rotateRect(degree, true, annot.rects[annot.pages[0]][0] as any);
+    const scaleFactor = scale(this._getPdfJS());
 
     const viewerEl = htmlToElements(
       `<div 
@@ -71,16 +72,16 @@ export class PdfEmbedViewer {
           left: ${bound.left}%;
           bottom: calc(${bound.bottom + bound.top == 100 ? `${100 - bound.top}% - 32px` : `${bound.bottom}%`});
           right: calc(${bound.right + bound.left == 100 ? `${100 - bound.left}% - 32px` : `${bound.right}%`});
-          min-width: 16px;
-          min-height: 16px;
+          min-width: calc(${scaleFactor} * 16px);
+          min-height: calc(${scaleFactor} * 16px);
           border-radius: 0.125rem;
           display: flex;
           align-items: center;
           justify-content: center;
         ">
         <div class="top-right">
-          ${configs?.moveable && annot.target == 'inline-iframe' ? '<div class="move-icon">✥</div>' : ''}
-          ${editor ? '<div class="pdfjs-annotation__embed-edit-btn">⚙</div>' : ''}
+          ${configs?.moveable && annot.target == 'inline-iframe' ? `<div class="pdfjs-annotation__embed-move-btn" style="font-size: calc(${scaleFactor} * 1rem);">✥</div>` : ''}
+          ${editor ? `<div class="pdfjs-annotation__embed-edit-btn" style="font-size: calc(${scaleFactor} * 1.25rem);">⚙</div>` : ''}
         </div>
         ${editor ? '<img class="resize-icon" draggable="false" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABlBMVEVHcExmZmZEBjuPAAAAAXRSTlMAQObYZgAAABRJREFUeAFjYAICFiYOJiEmJSYXAAHyAJWhegUKAAAAAElFTkSuQmCC"/>' : ''}
       </div>`);
@@ -116,11 +117,11 @@ export class PdfEmbedViewer {
 
   private _onAnnotClick() {
     this._getDocument().addEventListener('click', ($event: any) => {
-      const isThumbIcon = getOrParent($event, '.pdfjs-annotation__embed-thumb-icon'),
-        isEditBtn = getOrParent($event, '.pdfjs-annotation__embed-edit-btn'),
-        isViewerPopup = getOrParent($event, '.pdfjs-annotation__embed-viewer-popup'),
+      const thumbIcon = getOrParent($event, '.pdfjs-annotation__embed-thumb-icon'),
+        editBtn = getOrParent($event, '.pdfjs-annotation__embed-edit-btn'),
+        viewerPopup = getOrParent($event, '.pdfjs-annotation__embed-viewer-popup'),
         isViewerPopupVisible = getPageEl($event.target)?.querySelector('.pdfjs-annotation__embed-viewer-popup');
-      if (isLeftClick($event) && isThumbIcon && !isEditBtn && !isViewerPopupVisible) {
+      if (isLeftClick($event) && thumbIcon && !editBtn && !isViewerPopupVisible) {
         const annotEl = getOrParent($event, '.pdfjs-annotation__embed');
         const annotId = annotEl.getAttribute('data-annotation-id');
         const annot = this._getStorage().read(annotId);
@@ -161,7 +162,7 @@ export class PdfEmbedViewer {
             popupEl.style.height = `${targetSize[1]}`;
           }
         }
-      } else if (!isThumbIcon && !isViewerPopup) {
+      } else if (!thumbIcon && !viewerPopup) {
         this.removePopups();
       }
     });
@@ -213,7 +214,6 @@ export class PdfEmbedViewer {
             position: absolute;
             top: 2px;
             right: 1px;
-            width: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -221,16 +221,15 @@ export class PdfEmbedViewer {
             z-index: 2;
           }
 
-          .pdfjs-annotation__embed .move-icon { 
+          .pdfjs-annotation__embed .pdfjs-annotation__embed-move-btn { 
             color: lightgray;
           }
 
-          .pdfjs-annotation__embed .move-icon:hover { 
+          .pdfjs-annotation__embed .pdfjs-annotation__embed-move-btn:hover { 
             color: black; 
           }
   
           .pdfjs-annotation__embed .pdfjs-annotation__embed-edit-btn {
-            font-size: 1.25rem;
             color: lightgray;
           }
 

@@ -1,6 +1,6 @@
 import {
   WHRect, htmlToElements,
-  rotateRect, rotation, removeSelectorAll
+  rotateRect, rotation, removeSelectorAll, scale
 } from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
 
@@ -36,9 +36,8 @@ export class PdfHighlightViewer {
   }
 
   render(annot: any) {
-    const editor = this.registry.get('highlighter');
     const configs = this.registry.get(`configs.${annot.type}`);
-    const deletable = editor && configs?.deletable;
+    const scaleFactor = scale(this._getPdfJS());
 
     Object.keys(annot.rects)
       .map(pageNum => parseInt(pageNum))
@@ -67,7 +66,7 @@ export class PdfHighlightViewer {
                 left: ${rect.left}%;
                 right: ${rect.right}%;
                 --annotation-color: ${annot.color || 'rgb(255, 212, 0)'};
-                --annotation-stroke: ${annot.stroke || '0.125rem'};
+                --annotation-stroke: calc(${scaleFactor} * ${annot.stroke || '0.125rem'});
                 --annotation-stroke-style: ${annot.strokeStyle || 'solid'};">
             </div>`);
 

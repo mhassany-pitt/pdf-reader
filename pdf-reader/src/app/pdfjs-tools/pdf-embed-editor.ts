@@ -98,9 +98,9 @@ export class PdfEmbedEditor {
 
   protected onAnnotClick() {
     this._getDocument().addEventListener('click', async ($event: any) => {
-      const isEmbed = getOrParent($event, '.pdfjs-annotation__embed'),
-        isEditBtn = getOrParent($event, '.pdfjs-annotation__embed-edit-btn');
-      if (isLeftClick($event) && isEmbed && isEditBtn) {
+      const embed = getOrParent($event, '.pdfjs-annotation__embed'),
+        editBtn = getOrParent($event, '.pdfjs-annotation__embed-edit-btn');
+      if (isLeftClick($event) && embed && editBtn) {
         const annotEl = getAnnotEl($event.target),
         /* */  pageEl = getPageEl($event.target);
         this.removePopups();

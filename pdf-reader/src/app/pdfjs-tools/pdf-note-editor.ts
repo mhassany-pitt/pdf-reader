@@ -2,7 +2,7 @@ import { PdfStorage } from "./pdf-storage";
 import {
   WHRect, getAnnotEl, getAnnotElBound, getOrParent,
   getPageEl, getPageNum, htmlToElements,
-  isLeftClick, relativeToPageEl, removeSelectorAll, uuid
+  isLeftClick, relativeToPageEl, removeSelectorAll, scale, uuid
 } from "./pdf-utils";
 import { PdfRegistry } from "./pdf-registry";
 
@@ -30,9 +30,10 @@ export class PdfNoteEditor {
     this._attachStylesheet();
   }
 
-  protected _getStorage(): PdfStorage { return this.registry.get('storage'); }
   protected _getDocument() { return this.registry.getDocument(); }
   protected _getDocumentEl() { return this.registry.getDocumentEl(); }
+  protected _getStorage(): PdfStorage { return this.registry.get('storage'); }
+  private _getPdfJS() { return this.registry.getPdfJS(); }
 
   setEnabled(enable: boolean) {
     this.enabled = enable;
@@ -91,15 +92,15 @@ export class PdfNoteEditor {
 
   protected onAnnotClick() {
     this._getDocument().addEventListener('click', async ($event: any) => {
-      const isThumbIcon = getOrParent($event, '.pdfjs-annotation__note-thumb-icon'),
-        isViewer = getOrParent($event, '.pdfjs-annotation__note-viewer-popup');
-      if (isLeftClick($event) && (isThumbIcon || isViewer)) {
+      const thumbIcon = getOrParent($event, '.pdfjs-annotation__note-thumb-icon'),
+        viewerPopup = getOrParent($event, '.pdfjs-annotation__note-viewer-popup');
+      if (isLeftClick($event) && (thumbIcon || viewerPopup)) {
         const annotEl = getAnnotEl($event.target),
         /* */  pageEl = getPageEl($event.target);
         this.removePopups();
 
-        const annotId = isViewer
-          ? isViewer.getAttribute('data-note-id')
+        const annotId = viewerPopup
+          ? viewerPopup.getAttribute('data-note-id')
           : annotEl.getAttribute('data-annotation-id');
         const annot = this._getStorage().read(annotId);
         if (!pageEl.querySelector(`.pdfjs-annotation__note-editor-popup[data-note-id="${annotId}"]`)) {
@@ -120,7 +121,11 @@ export class PdfNoteEditor {
   private _showEditorPopup(annot: any, pageNum: number, bound: WHRect) {
     const popupEl = htmlToElements(
       `<div class="pdfjs-annotation__note-editor-popup" data-note-id="${annot.id}">
-        <textarea rows="5" cols="35" placeholder="Note ...">${annot.note || ''}</textarea>
+        <textarea 
+          rows="5" cols="35" 
+          placeholder="Note ..."
+          style="font-size: ${scale(this._getPdfJS()) * 100}%;"
+        >${annot.note || ''}</textarea>
         <style>
           .pdfjs-annotation__note-editor-popup {
             position: absolute;

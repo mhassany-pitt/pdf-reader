@@ -1,4 +1,4 @@
-import { WHRect, htmlToElements } from './pdf-utils';
+import { WHRect, htmlToElements, scale } from './pdf-utils';
 import { PdfNoteViewer } from './pdf-note-viewer';
 
 export class PdfTextViewer extends PdfNoteViewer {
@@ -10,6 +10,7 @@ export class PdfTextViewer extends PdfNoteViewer {
   protected override getRenderedEl(annot: any, rect: WHRect) {
     const editor = this.registry.get('text-editor');
     const configs = this.registry.get(`configs.text`);
+    const scaleFactor = scale(this._getPdfJS());
 
     const viewerEl = htmlToElements(
       `<div 
@@ -28,11 +29,13 @@ export class PdfTextViewer extends PdfNoteViewer {
           right: calc(${rect.right}%);
           bottom: calc(${rect.bottom}%);
         ">
-        ${configs?.moveable ? '<div class="move-icon">✥</div>' : ''}
+        ${configs?.moveable ? `<div class="pdfjs-annotation__embed-move-btn" style="font-size: calc(${scaleFactor} * 1rem);">✥</div>` : ''}
         <textarea 
           class="${configs?.moveable ? 'pdf-annotation--moveable-excluded' : ''}"
           ${editor ? 'placeholder="Text ..."' : ''}
-          readonly="true">${annot.note}</textarea>
+          readonly="true"
+          style="font-size: ${scale(this._getPdfJS()) * 100}%;"
+        >${annot.note}</textarea>
       </div>`);
 
     const textarea = viewerEl.querySelector('textarea') as HTMLTextAreaElement;
@@ -65,12 +68,10 @@ export class PdfTextViewer extends PdfNoteViewer {
             z-index: 5;
           }
 
-          .pdfjs-annotation__text .move-icon {
+          .pdfjs-annotation__text .pdfjs-annotation__embed-move-btn {
             position: absolute;
             top: 4px;
             right: 3px;
-            width: 12px;
-            height: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -78,7 +79,7 @@ export class PdfTextViewer extends PdfNoteViewer {
             cursor: move;
           }
 
-          .pdfjs-annotation__text .move-icon:hover { 
+          .pdfjs-annotation__text .pdfjs-annotation__embed-move-btn:hover { 
             color: black; 
           }
 
