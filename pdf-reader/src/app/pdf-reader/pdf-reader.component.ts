@@ -33,6 +33,8 @@ import { PdfEmbedEditor } from '../pdfjs-tools/pdf-embed-editor';
 import { PdfFreeformToolbarBtn } from '../pdfjs-tools/pdf-freeform-toolbar-btn';
 import { PdfEmbedToolbarBtn } from '../pdfjs-tools/pdf-embed-toolbar-btn';
 import { PdfLoadCustomPlugins } from '../pdfjs-tools/pdf-load-custom-plugins';
+import { PdfDelete } from '../pdfjs-tools/pdf-delete';
+import { PdfDeleteToolbarBtn } from '../pdfjs-tools/pdf-delete-toolbar-btn';
 
 @Component({
   selector: 'app-pdf-reader',
@@ -175,6 +177,11 @@ export class PDFReaderComponent implements OnInit {
     new PdfEmbedViewer({ registry });
     new PdfEmbedEditor({ registry });
     new PdfEmbedToolbarBtn({ registry });
+
+    registry.get('toolbar').addSeparator();
+
+    new PdfDelete({ registry });
+    new PdfDeleteToolbarBtn({ registry });
 
     new PdfLoadCustomPlugins({ registry });
 

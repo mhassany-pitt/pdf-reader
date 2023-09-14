@@ -103,6 +103,7 @@ export class PdfFreeformViewer {
             position: absolute;
             pointer-events: stroke;
             user-select: none;
+            cursor: pointer;
             z-index: 4;
           }
         </style>`));

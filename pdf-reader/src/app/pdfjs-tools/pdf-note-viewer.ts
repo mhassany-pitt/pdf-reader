@@ -164,8 +164,8 @@ export class PdfNoteViewer {
             position: absolute;
             pointer-events: auto;
             border-radius: 0.125rem;
-            z-index: 5;
             cursor: pointer;
+            z-index: 5;
           }
 
           .pdfjs-annotation__note img.pdfjs-annotation__note-thumb-icon {

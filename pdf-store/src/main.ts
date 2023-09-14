@@ -43,19 +43,10 @@ async function bootstrap() {
 }
 bootstrap();
 
-// TODO: enable logging
 // TODO: privacy issue with sharing annotations
 // TODO: remember who is selected in showing annoations
-// TODO: an identifier can be passed to pdf-reader when wrapped in iframe
 // TODO: plugin dev environment
 // TODO: also load author's annotations
 // TODO: add custom message to unauthorized page (in pdf-reader) and possibly to login page
 // TODO: change the visibility of my annotations
-// TODO: in freehand mode, each stroke is a separate annotation (make the process more simple)
-// TODO: if freehand drawings have overlaps they are related, if not, then they are separate
-// TODO: add delete button to annotation toolbar
-// TODO: presets: color, opacity, thickness
-// TODO: add shapes (circle, triangle, square) to freehand drawings
-// TODO: add text (which is different from notes)
-// TODO: add eraser
 // TODO: adding tags to annotations

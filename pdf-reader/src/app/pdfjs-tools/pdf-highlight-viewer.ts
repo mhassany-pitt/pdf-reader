@@ -87,6 +87,7 @@ export class PdfHighlightViewer {
             position: absolute;
             pointer-events: auto;
             border-radius: 0.125rem;
+            cursor: pointer;
             z-index: 5;
           }
 

@@ -36,12 +36,6 @@ export class PDFDocumentLinksComponent implements OnInit {
   @Output() locateTexts = new EventEmitter();
 
   configUpdates = {};
-
-  // documentEvents = ['click', 'contextmenu', 'mousedown', 'mousemove', 'mouseup', 'scroll'];
-  // pdfJSEvents = ['currentoutlineitem', 'outlineloaded', 'toggleoutlinetree', 'find', 'findbarclose',
-  //   'documentloaded', 'presentationmodechanged', 'pagenumberchanged', 'scalechanged', 'scrollmodechanged',
-  //   'sidebarviewchanged', 'spreadmodechanged', 'zoomin', 'zoomout', 'resize', 'rotateccw', 'rotatecw'];
-
   pdfLinks: PDFDocumentLink[] = [];
 
   copyToast: any = null;
@@ -57,8 +51,7 @@ export class PDFDocumentLinksComponent implements OnInit {
 
   get isHttps() { return document.location.origin.startsWith('https://'); }
 
-  constructor(private http: HttpClient) {
-  }
+  constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
     this.load();
@@ -110,23 +103,12 @@ export class PDFDocumentLinksComponent implements OnInit {
   }
 
   create() {
-    // document_events: this.documentEvents,
-    // pdfjs_events: this.pdfJSEvents,
-    // mousemove_log_delay: 100,
-    // scroll_log_delay: 100,
-    // resize_log_delay: 100,
-    // annotation_colors: this.defColors.join(','),
-    // freeform_stroke_sizes: this.defStrokes.join(','),
-    // freeform_colors: this.defColors.join(','),
-    // annotation_api: `${environment.apiUrl}/annotations`,
-    // interaction_logger_api: `${environment.apiUrl}/interaction-logs`,
-    // authorized_accounts: '',
     this.http.post<PDFDocumentLink>(
       `${environment.apiUrl}/pdf-document-links?pdfDocId=${this.pdfDocumentId}`,
       this.registry.list('configs.default').reduce((acc, key) => {
         acc[key.replace('configs.default.', '')] = this.registry.get(key)?.();
         return acc;
-      }, {}),
+      }, { authorized_accounts: [] }),
       { withCredentials: true }
     ).subscribe({
       next: (link) => this.pdfLinks.unshift(link),

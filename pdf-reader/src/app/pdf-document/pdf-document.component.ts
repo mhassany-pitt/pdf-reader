@@ -1,14 +1,14 @@
+import { of } from 'rxjs';
+import { encode } from 'base-64';
 import { Component, NgZone, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { PDFDocumentService } from './pdf-document.service';
 import { PdfStorage } from '../pdfjs-tools/pdf-storage';
 import { PdfTextExtractor } from '../pdfjs-tools/pdf-text-extractor';
 import { HttpClient } from '@angular/common/http';
 import { getUserId, loadPlugin, scrollTo } from '../pdfjs-tools/pdf-utils';
-import { encode } from 'base-64';
 import { ConfirmationService } from 'primeng/api';
 import { PdfToolbar } from '../pdfjs-tools/pdf-toolbar';
 import { PdfRegistry } from '../pdfjs-tools/pdf-registry';
@@ -39,6 +39,8 @@ import { PdfEmbedEditor } from '../pdfjs-tools/pdf-embed-editor';
 import { PdfAddToOutlineEditor } from '../pdfjs-tools/pdf-add-to-outline-editor';
 import { PdfLoadCustomPlugins } from '../pdfjs-tools/pdf-load-custom-plugins';
 import { PdfILogger } from '../pdfjs-tools/pdf-ilogger';
+import { PdfDeleteToolbarBtn } from '../pdfjs-tools/pdf-delete-toolbar-btn';
+import { PdfDelete } from '../pdfjs-tools/pdf-delete';
 // import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
 
 @Component({
@@ -135,6 +137,7 @@ export class PDFDocumentComponent implements OnInit {
     this.registry.register('configs.text', PdfTextToolbarBtn.defaultConfigs());
     this.registry.register('configs.freeform', PdfFreeformToolbarBtn.defaultConfigs());
     this.registry.register('configs.embed', PdfEmbedToolbarBtn.defaultConfigs());
+    this.registry.register('configs.delete', PdfDeleteToolbarBtn.defaultConfigs());
 
     new PdfILogger({ registry });
     new PdfStorage({ registry });
@@ -180,6 +183,9 @@ export class PDFDocumentComponent implements OnInit {
 
     registry.get('toolbar').addSeparator();
 
+    new PdfDelete({ registry });
+    new PdfDeleteToolbarBtn({ registry });
+
     registry.register('add-to-outline', ($event, payload) => this.ngZone.run(() => this.addToOutline($event, payload)))
     new PdfAddToOutlineEditor({ registry });
     new PdfAddToOutlineToolbarBtn({ registry });
@@ -202,7 +208,6 @@ export class PDFDocumentComponent implements OnInit {
   }
 
   async locateTexts() {
-    // TODO: check why we can not restore page number after text extraction
     this.registry.get('storage').enabled = false;
     delete this.tt['show-share-dialog'];
     new PdfTextExtractor({ iframe: this.iframe, pdfjs: this.pdfjs })

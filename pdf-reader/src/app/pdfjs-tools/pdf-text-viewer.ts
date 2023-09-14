@@ -67,6 +67,7 @@ export class PdfTextViewer extends PdfNoteViewer {
           .pdfjs-annotation__text {
             position: absolute;
             pointer-events: auto;
+            cursor: pointer;
             z-index: 5;
           }
 
@@ -88,8 +89,8 @@ export class PdfTextViewer extends PdfNoteViewer {
           .pdfjs-annotation__text textarea {
             width: 100% !important;
             height: 100% !important;
-            cursor: pointer;
             border-color: lightgray;
+            cursor: pointer;
             outline: none;
             font-family: inherit;
             border-radius: 0.125rem;

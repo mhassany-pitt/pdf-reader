@@ -52,7 +52,7 @@ export class PDFReaderController {
       throw new NotFoundException();
 
     // 4. abort if authorized accounts is set and user is not logged in
-    const accounts = pdfLink.authorized_accounts?.split(',').map(e => e.trim()).filter(e => e);
+    const accounts = pdfLink.authorized_accounts?.map(e => e.trim()).filter(e => e);
     if (accounts?.length && !user)
       throw new ForbiddenException();
 
