@@ -1,4 +1,4 @@
-import { getSelectionRects, isLeftClick, uuid } from './annotator-utils';
+import { getSelectionRects, isLeftClick, uuid } from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
 
 export class PdfHighlighter {

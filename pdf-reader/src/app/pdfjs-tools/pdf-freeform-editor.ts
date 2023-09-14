@@ -1,7 +1,7 @@
 import {
   getPageEl, getPageNum, htmlToElements,
   isLeftClick, rotation, scale, uuid
-} from './annotator-utils';
+} from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
 
 export class PdfFreeformEditor {

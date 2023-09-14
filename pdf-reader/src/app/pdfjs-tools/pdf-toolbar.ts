@@ -1,4 +1,4 @@
-import { htmlToElements } from "./annotator-utils";
+import { htmlToElements } from "./pdf-utils";
 import { PdfRegistry } from "./pdf-registry";
 
 export class PdfToolbar {
@@ -7,10 +7,10 @@ export class PdfToolbar {
   constructor({ registry }) {
     this.registry = registry;
 
+    this.registry.register('toolbar', this);
+
     this._attachStylesheet();
     this._attachToolbarUI();
-
-    this.registry.register('toolbar', this);
   }
 
   private _attachToolbarUI() {
@@ -31,6 +31,10 @@ export class PdfToolbar {
   public addItem(element: HTMLElement) {
     this.toggle(true);
     return this._getContainerEl('main').appendChild(element);
+  }
+
+  public addSeparator() {
+    this.addItem(htmlToElements('<hr style="width: 75%; border: none; border-top: 1px solid #2a2a2e;"/>'));
   }
 
   public showDetails(elements: HTMLElement[]) {

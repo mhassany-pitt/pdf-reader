@@ -1,7 +1,7 @@
 import {
   getPageEl, relativeToPageEl,
   isLeftClick, getOrParent, getPageNum
-} from './annotator-utils';
+} from './pdf-utils';
 
 export class PdfMoveAnnotation {
 

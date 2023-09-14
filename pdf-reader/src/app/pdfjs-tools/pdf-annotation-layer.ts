@@ -1,4 +1,4 @@
-import { getPageEl, htmlToElements, rotation } from './annotator-utils';
+import { getPageEl, htmlToElements, rotation } from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
 
 export class PdfAnnotationLayer {
@@ -36,7 +36,7 @@ export class PdfAnnotationLayer {
             right: 0;
             bottom: 0;
             line-height: 1;
-            overflow: hidden;
+            /* overflow: hidden; */
             pointer-events: none;
             text-size-adjust: none;
             forced-color-adjust: none;

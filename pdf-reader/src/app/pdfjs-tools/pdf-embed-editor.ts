@@ -3,8 +3,8 @@ import {
   getOrParent, getPageEl, getPageNum,
   htmlToElements, isLeftClick,
   relativeToPageEl, removeSelectorAll, uuid
-} from './annotator-utils';
-import { Annotations } from './annotations';
+} from './pdf-utils';
+import { PdfStorage } from './pdf-storage';
 import { PdfRegistry } from './pdf-registry';
 import { PdfEmbedViewer } from './pdf-embed-viewer';
 
@@ -34,7 +34,7 @@ export class PdfEmbedEditor {
 
   protected _configs() { return this.registry.get(`configs.embed`); }
 
-  protected _getStorage(): Annotations { return this.registry.get('storage'); }
+  protected _getStorage(): PdfStorage { return this.registry.get('storage'); }
   protected _getDocument() { return this.registry.getDocument(); }
   protected _getDocumentEl() { return this.registry.getDocumentEl(); }
   private _getViewer(): PdfEmbedViewer { return this.registry.get('embed-viewer'); }

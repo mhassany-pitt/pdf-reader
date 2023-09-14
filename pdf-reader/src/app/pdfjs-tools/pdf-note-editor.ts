@@ -1,9 +1,9 @@
-import { Annotations } from "./annotations";
+import { PdfStorage } from "./pdf-storage";
 import {
   WHRect, getAnnotEl, getAnnotElBound, getOrParent,
   getPageEl, getPageNum, htmlToElements,
   isLeftClick, relativeToPageEl, removeSelectorAll, uuid
-} from "./annotator-utils";
+} from "./pdf-utils";
 import { PdfRegistry } from "./pdf-registry";
 
 export class PdfNoteEditor {
@@ -30,7 +30,7 @@ export class PdfNoteEditor {
     this._attachStylesheet();
   }
 
-  protected _getStorage(): Annotations { return this.registry.get('storage'); }
+  protected _getStorage(): PdfStorage { return this.registry.get('storage'); }
   protected _getDocument() { return this.registry.getDocument(); }
   protected _getDocumentEl() { return this.registry.getDocumentEl(); }
 

@@ -1,7 +1,7 @@
 import {
   getAnnotEl, getOrParent, getPageNum,
   isLeftClick, relativeToPageEl, uuid
-} from "./annotator-utils";
+} from "./pdf-utils";
 import { PdfNoteEditor } from "./pdf-note-editor";
 
 export class PdfTextEditor extends PdfNoteEditor {

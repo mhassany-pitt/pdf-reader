@@ -1,6 +1,6 @@
-import { htmlToElements } from './annotator-utils';
+import { htmlToElements } from './pdf-utils';
 import { PdfHighlighterToolbarBtn } from './pdf-highlighter-toolbar-btn';
-import { getLabel, getValue } from './pdfjs-utils';
+import { getLabel, getValue } from './pdf-utils';
 
 export class PdfUnderlineToolbarBtn extends PdfHighlighterToolbarBtn {
 

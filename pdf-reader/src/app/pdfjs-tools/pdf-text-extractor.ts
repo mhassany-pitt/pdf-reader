@@ -1,6 +1,6 @@
-import { WHRect, relativeToPageEl } from "./annotator-utils";
+import { WHRect, relativeToPageEl } from "./pdf-utils";
 
-export class TextLocator {
+export class PdfTextExtractor {
 
   private document: any;
   private documentEl: any;

@@ -2,7 +2,7 @@ import {
   getOrParent, getPageEl, htmlToElements, isLeftClick,
   removeSelectorAll,
   rotateRect, rotation, scale
-} from './annotator-utils';
+} from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
 import { PdfToolbar } from './pdf-toolbar';
 

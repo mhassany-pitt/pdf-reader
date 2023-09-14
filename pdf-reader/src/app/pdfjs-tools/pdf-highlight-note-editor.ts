@@ -2,8 +2,7 @@ import {
   WHRect, getPageEl, getPageNum, htmlToElements,
   getAnnotEl, isLeftClick, getAnnotElBound, getOrParent,
   removeSelectorAll
-} from './annotator-utils';
-import { Highlight } from './highlight.type';
+} from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
 
 export class PdfHighlightNoteEditor {
@@ -61,7 +60,7 @@ export class PdfHighlightNoteEditor {
     this._getDocumentEl().querySelectorAll('.pdfjs-annotation__highlight-note-editor-popup').forEach(el => el.remove());
   }
 
-  private _showEditorPopup(annot: Highlight, pageNum: number, bound: WHRect) {
+  private _showEditorPopup(annot: any, pageNum: number, bound: WHRect) {
     const popupEl = htmlToElements(
       `<div class="pdfjs-annotation__highlight-note-editor-popup" data-highlight-id="${annot.id}">
         <textarea rows="5" cols="35" placeholder="Note ...">${annot.note || ''}</textarea>

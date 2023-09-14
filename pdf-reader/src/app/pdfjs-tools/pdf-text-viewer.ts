@@ -1,4 +1,4 @@
-import { WHRect, htmlToElements } from './annotator-utils';
+import { WHRect, htmlToElements } from './pdf-utils';
 import { PdfNoteViewer } from './pdf-note-viewer';
 
 export class PdfTextViewer extends PdfNoteViewer {

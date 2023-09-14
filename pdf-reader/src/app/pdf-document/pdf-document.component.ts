@@ -4,13 +4,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { PDFDocumentService } from './pdf-document.service';
-import { Annotations } from '../pdfjs-tools/annotations';
-import { Annotator } from '../pdfjs-tools/annotator';
-import { Entry } from './add-textselection-to-outline';
-import { TextLocator } from '../pdfjs-tools/text-locator';
+import { PdfStorage } from '../pdfjs-tools/pdf-storage';
+import { PdfTextExtractor } from '../pdfjs-tools/pdf-text-extractor';
 import { HttpClient } from '@angular/common/http';
-import { getUserId, loadPlugin, scrollTo } from '../pdfjs-tools/pdfjs-utils';
-import { AppService } from '../app.service';
+import { getUserId, scrollTo } from '../pdfjs-tools/pdf-utils';
 import { encode } from 'base-64';
 import { ConfirmationService } from 'primeng/api';
 import { PdfToolbar } from '../pdfjs-tools/pdf-toolbar';
@@ -23,7 +20,6 @@ import { PdfStrikeThourghToolbarBtn } from '../pdfjs-tools/pdf-strikethrough-too
 import { PdfUnderlineToolbarBtn } from '../pdfjs-tools/pdf-underline-toolbar-btn';
 import { PdfHighlightNoteEditor } from '../pdfjs-tools/pdf-highlight-note-editor';
 import { PdfHighlightNoteViewer } from '../pdfjs-tools/pdf-highlight-note-viewer';
-import { htmlToElements } from '../pdfjs-tools/annotator-utils';
 import { PdfMoveAnnotation } from '../pdfjs-tools/pdf-move-annotation';
 import { PdfNoteToolbarBtn } from '../pdfjs-tools/pdf-note-toolbar-btn';
 import { PdfTextToolbarBtn } from '../pdfjs-tools/pdf-text-toolbar-btn';
@@ -54,24 +50,18 @@ export class PDFDocumentComponent implements OnInit {
   window: any;
   pdfjs: any;
 
-  newfile: any;
-  pdfDocument: any;
-
-  storage: Annotations = null as any;
-  annotator: Annotator = null as any;
-
   registry: PdfRegistry = null as any;
 
+  tt = {};
+  rndom = 0;
+  newfile: any;
+  updating = false;
+  outlineRefMapping = {};
   textExtractionProgress: any = undefined;
 
-  updating = false;
-
-  outlineRefMapping = {};
-  tt = {};
-
+  pdfDocument: any;
   get pdfDocumentId() { return (this.route.snapshot.params as any).id; }
 
-  rndom = 0;
 
   constructor(
     private http: HttpClient,
@@ -127,33 +117,15 @@ export class PDFDocumentComponent implements OnInit {
     this.removeExtraElements();
 
     this.registry = new PdfRegistry({ iframe: this.iframe, pdfjs: this.pdfjs });
-    // registry.register('baseHref', document.querySelector('base')?.href);
     const registry = this.registry;
+    registry.register('http', this.http);
+    registry.register('pdfDocId', this.pdfDocument.id);
+    registry.register('userId', await getUserId(this.route));
 
-    this.storage = new Annotations({
-      userId: async () => null,
-      apiUrl: `${environment.apiUrl}/annotations`,
-      http: this.http,
-      groupId: this.pdfDocumentId,
-      pdfjs: this.pdfjs,
-    });
-    registry.register('storage', this.storage);
-
-    try {
-      await this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });
-    } catch (exp) {
-      console.error(exp);
-    }
-
-    this.pdfjs.eventBus.on('fileinputchange', ($event) => this.ngZone.run(() => {
-      const files = $event.source.files;
-      this.newfile = files.length ? $event.source.files[0] : null;
-      this.pdfDocument.file_url = null;
-      setTimeout(() => this.confirmOutlineExtraction(), 1000);
-    }));
+    new PdfStorage({ registry });
 
     new PdfAnnotationLayer({ registry });
-    const toolbar = new PdfToolbar({ registry });
+    new PdfToolbar({ registry });
 
     new PdfRemoveOnDelete({ registry });
     new PdfShowBoundary({ registry });
@@ -169,7 +141,7 @@ export class PDFDocumentComponent implements OnInit {
     new PdfHighlightNoteEditor({ registry });
     new PdfHighlightNoteViewer({ registry });
 
-    toolbar.addItem(htmlToElements('<hr style="width: 75%; border: none; border-top: 1px solid #2a2a2e;"/>'));
+    registry.get('toolbar').addSeparator();
 
     new PdfNoteViewer({ registry });
     new PdfTextViewer({ registry });
@@ -180,7 +152,7 @@ export class PDFDocumentComponent implements OnInit {
     new PdfNoteToolbarBtn({ registry });
     new PdfTextToolbarBtn({ registry });
 
-    toolbar.addItem(htmlToElements('<hr style="width: 75%; border: none; border-top: 1px solid #2a2a2e;"/>'));
+    registry.get('toolbar').addSeparator();
 
     new PdfFreeformViewer({ registry });
     new PdfFreeformEditor({ registry });
@@ -191,48 +163,22 @@ export class PDFDocumentComponent implements OnInit {
     new PdfFreeformToolbarBtn({ registry });
     new PdfEmbedToolbarBtn({ registry });
 
-    toolbar.addItem(htmlToElements('<hr style="width: 75%; border: none; border-top: 1px solid #2a2a2e;"/>'));
+    registry.get('toolbar').addSeparator();
 
     registry.register('add-to-outline', ($event, payload) => this.ngZone.run(() => this.addToOutline($event, payload)))
     new PdfAddToOutlineEditor({ registry });
     new PdfAddToOutlineToolbarBtn({ registry });
 
-    // const baseHref = document.querySelector('base')?.href
-    // const iframe = this.iframe;
-    // const pdfjs = this.pdfjs;
+    try {
+      await this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });
+    } catch (exp) { console.error(exp); }
 
-    // const annotator = new Annotator({
-    //   baseHref, iframe, pdfjs, storage, toolbar, configs: {
-    //     highlight: true, underline: true, linethrough: true, redact: true, notes: true,
-    //     annotation_colors: '#ffd400,#ff6563,#5db221,#2ba8e8,#a28ae9,#e66df2,#f29823,#aaaaaa,black',
-    //   }
-    // });
-    // this.annotator = annotator;
-    // const freeformViewer = new FreeformViewer({
-    //   baseHref, iframe, pdfjs,
-    //   storage, annotator, configs: { resize: true }
-    // });
-    // new FreeformAnnotator({
-    //   baseHref, iframe, pdfjs,
-    //   storage, annotator, freeformViewer, configs: {
-    //     freeform_stroke_sizes: 'Thin-1,Normal-3,Thick-5',
-    //     freeform_colors: '#ffd400,#ff6563,#5db221,#2ba8e8,#a28ae9,#e66df2,#f29823,#aaaaaa,black',
-    //   }
-    // });
-    // const embedLinkViewer = new EmbeddedResourceViewer({
-    //   baseHref, iframe, pdfjs,
-    //   storage, annotator, configs: { resize: true }
-    // });
-    // new EmbedResource({
-    //   baseHref, iframe, pdfjs,
-    //   storage, annotator, embedLinkViewer
-    // });
-    // new EnableElemMovement({ iframe, embedLinkViewer, freeformViewer, storage });
-
-    // new AddTextSelectionToOutline({
-    //   iframe, annotator, addToOutline: (selection, $event) =>
-    //     this.ngZone.run(() => this.addToOutline(selection, $event))
-    // });
+    this.pdfjs.eventBus.on('fileinputchange', ($event) => this.ngZone.run(() => {
+      const files = $event.source.files;
+      this.newfile = files.length ? $event.source.files[0] : null;
+      this.pdfDocument.file_url = null;
+      setTimeout(() => this.confirmOutlineExtraction(), 1000);
+    }));
 
     // TODO: for development only --
     // new HelperAnnotator({ iframe, pdfjs, storage, annotator });
@@ -242,7 +188,7 @@ export class PDFDocumentComponent implements OnInit {
     // TODO: check why we can not restore page number after text extraction
     this.registry.get('storage').enabled = false;
     delete this.tt['show-share-dialog'];
-    new TextLocator({ iframe: this.iframe, pdfjs: this.pdfjs })
+    new PdfTextExtractor({ iframe: this.iframe, pdfjs: this.pdfjs })
       .extractTextBounds({
         progress: (percentage: number) => {
           this.ngZone.run(() => this.textExtractionProgress = `${(percentage * 100).toFixed(0)}%`);
@@ -260,19 +206,19 @@ export class PDFDocumentComponent implements OnInit {
     await this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });
   }
 
-  addOutlineEntry(entry: Entry) {
+  addOutlineEntry(entry: any) {
     this.pdfDocument.outline.push({
       id: Math.max(...this.pdfDocument.outline.map(e => e.id), 0) + 1,
       ...entry,
     });
   }
 
-  removeOutlineEntry(entry: Entry) {
+  removeOutlineEntry(entry: any) {
     const outline = this.pdfDocument.outline;
     outline.splice(outline.indexOf(entry), 1);
   }
 
-  updateEntryLevel(entry: Entry, change: number) {
+  updateEntryLevel(entry: any, change: number) {
     entry.level = Math.min(Math.max(0, (entry.level || 0) + change), 5);
   }
 
@@ -378,21 +324,22 @@ export class PDFDocumentComponent implements OnInit {
   }
 
   loadPlugin(el: any) {
-    loadPlugin({
-      url: el.value,
-      iframe: this.iframe,
-      pdfjs: this.pdfjs,
-      storage: this.storage,
-      annotator: this.annotator,
-      loaded: () => {
-        this.ngZone.run(() => {
-          delete this.tt['custom_plugin'];
-          this.tt['custom_plugin_msg'] = 'custom plugin loaded.';
-          setTimeout(() => delete this.tt['custom_plugin_msg'], 3000);
-        });
-      },
-      failed: () => { },
-    });
+    // // -- TODO: review
+    // loadPlugin({
+    //   url: el.value,
+    //   iframe: this.iframe,
+    //   pdfjs: this.pdfjs,
+    //   storage: this.storage,
+    //   annotator: this.annotator,
+    //   loaded: () => {
+    //     this.ngZone.run(() => {
+    //       delete this.tt['custom_plugin'];
+    //       this.tt['custom_plugin_msg'] = 'custom plugin loaded.';
+    //       setTimeout(() => delete this.tt['custom_plugin_msg'], 3000);
+    //     });
+    //   },
+    //   failed: () => { },
+    // });
   }
 
   cancel() {
@@ -416,3 +363,4 @@ export class PDFDocumentComponent implements OnInit {
 }
 
 // TODO: in 403 page, add a link to the login page
+// registry.register('baseHref', document.querySelector('base')?.href);

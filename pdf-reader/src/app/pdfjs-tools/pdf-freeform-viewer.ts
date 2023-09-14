@@ -1,4 +1,4 @@
-import { getSelectionRects, htmlToElements, isLeftClick, rotateRect, rotation, uuid } from './annotator-utils';
+import { getSelectionRects, htmlToElements, isLeftClick, rotateRect, rotation, uuid } from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
 
 export class PdfFreeformViewer {

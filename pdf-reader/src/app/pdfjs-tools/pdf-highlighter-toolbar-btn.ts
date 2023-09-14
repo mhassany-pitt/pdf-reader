@@ -1,7 +1,7 @@
-import { htmlToElements, isLeftClick } from './annotator-utils';
+import { htmlToElements, isLeftClick } from './pdf-utils';
 import { PdfHighlighter } from './pdf-highlighter';
 import { PdfToolbarBtn } from './pdf-toolbar-btn';
-import { getLabel, getValue } from './pdfjs-utils';
+import { getLabel, getValue } from './pdf-utils';
 
 export class PdfHighlighterToolbarBtn extends PdfToolbarBtn {
 

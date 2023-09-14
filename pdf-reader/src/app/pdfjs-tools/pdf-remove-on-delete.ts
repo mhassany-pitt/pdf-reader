@@ -1,4 +1,4 @@
-import { getAnnotEl, getOrParent, getPageEl, removeSelectorAll } from './annotator-utils';
+import { getAnnotEl, getOrParent, getPageEl, removeSelectorAll } from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
 
 export class PdfRemoveOnDelete {

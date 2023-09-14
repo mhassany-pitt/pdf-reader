@@ -3,18 +3,10 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { PDFReaderService } from './pdf-reader.service';
-import { Annotator } from '../pdfjs-tools/annotator';
-import { Annotations } from '../pdfjs-tools/annotations';
-import { FreeformAnnotator } from '../pdfjs-tools/freeform-annotator';
-import { EmbeddedResourceViewer } from '../pdfjs-tools/embedded-resource-viewer';
-import { FreeformViewer } from '../pdfjs-tools/freeform-viewer';
-import { InteractionLogger } from '../pdfjs-tools/interaction-logger';
+import { PdfStorage } from '../pdfjs-tools/pdf-storage';
+import { PdfILogger } from '../pdfjs-tools/pdf-ilogger';
 import { HttpClient } from '@angular/common/http';
-import { EmbedResource } from '../pdfjs-tools/embed-resource';
-import { EnableElemMovement } from '../pdfjs-tools/enable-elem-movement';
-import { AppService } from '../app.service';
-import { getUserId, inSameOrigin, loadPlugin, scrollTo } from '../pdfjs-tools/pdfjs-utils';
-import { AnnotationFilter } from '../pdfjs-tools/annotation-filter';
+import { getUserId, scrollTo } from '../pdfjs-tools/pdf-utils';
 import { PdfRegistry } from '../pdfjs-tools/pdf-registry';
 import { PdfAnnotationLayer } from '../pdfjs-tools/pdf-annotation-layer';
 import { PdfToolbar } from '../pdfjs-tools/pdf-toolbar';
@@ -28,7 +20,6 @@ import { PdfUnderlineToolbarBtn } from '../pdfjs-tools/pdf-underline-toolbar-btn
 import { PdfStrikeThourghToolbarBtn } from '../pdfjs-tools/pdf-strikethrough-toolbar-btn';
 import { PdfHighlightNoteEditor } from '../pdfjs-tools/pdf-highlight-note-editor';
 import { PdfHighlightNoteViewer } from '../pdfjs-tools/pdf-highlight-note-viewer';
-import { htmlToElements } from '../pdfjs-tools/annotator-utils';
 import { PdfNoteViewer } from '../pdfjs-tools/pdf-note-viewer';
 import { PdfTextViewer } from '../pdfjs-tools/pdf-text-viewer';
 import { PdfNoteEditor } from '../pdfjs-tools/pdf-note-editor';
@@ -56,10 +47,6 @@ export class PDFReaderComponent implements OnInit {
   pdfjs: any;
 
   entry: any;
-  pdfDocument: any;
-
-  storage: Annotations = null as any;
-  annotator: Annotator = null as any;
 
   baseHref = document.querySelector('base')?.href;
 
@@ -74,6 +61,8 @@ export class PDFReaderComponent implements OnInit {
       }, {});
     return Object.keys(qparams).length ? `?${new URLSearchParams(qparams)}` : '';
   }
+
+  pdfDocument: any;
   get pdfDocumentId() { return this.params.id; }
 
   constructor(
@@ -97,16 +86,13 @@ export class PDFReaderComponent implements OnInit {
   private reload() {
     this.service.get(`${this.pdfDocumentId}${this.sqparams}`).subscribe({
       next: async (pdfDocument: any) => {
-        if (!pdfDocument.tags)
-          pdfDocument.tags = [];
-        if (!pdfDocument.outline)
-          pdfDocument.outline = [];
+        if (!pdfDocument.tags) pdfDocument.tags = [];
+        if (!pdfDocument.outline) pdfDocument.outline = [];
 
         this.pdfDocument = pdfDocument;
-        this.title.setTitle(`Reader: ${this.pdfDocument.title || 'unnamed'}`);
-
         this.postMessage({ type: 'pdf-info-loaded', data: this.pdfDocument });
 
+        this.updateTitle();
         await this.prepare();
       },
       error: (error: any) => {
@@ -120,6 +106,10 @@ export class PDFReaderComponent implements OnInit {
           console.error(error);
       }
     });
+  }
+
+  updateTitle() {
+    this.title.setTitle(`${this.pdfDocument.title || 'unnamed'}`);
   }
 
   onDocumentLoad(iframe, $event) {
@@ -137,33 +127,19 @@ export class PDFReaderComponent implements OnInit {
     this._removeExtraElements();
 
     const registry = new PdfRegistry({ iframe: this.iframe, pdfjs: this.pdfjs });
+    registry.register('http', this.http);
+    registry.register('pdfDocId', this.pdfDocument.id);
+    registry.register('userId', await getUserId(this.route));
 
     const configs = this.pdfDocument.configs || {};
-    Object.keys(configs).forEach(key => registry.register(`configs.${key}`, configs[key]));
+    for (const key of Object.keys(configs))
+      registry.register(`configs.${key}`, configs[key]);
 
-    const annotationApiUrl = configs.annotation?.apiUrl;
-    this.storage = new Annotations({
-      userId: async () => annotationApiUrl ? await getUserId(this.route) : null,
-      apiUrl: annotationApiUrl || (environment.apiUrl + '/annotations'),
-      http: this.http,
-      groupId: this.pdfDocumentId,
-      pdfjs: this.pdfjs,
-    });
-    registry.register('storage', this.storage);
-
-    try {
-      const url = `${environment.apiUrl}/pdf-reader/${this.pdfDocument.id}/file?_hash=${this.pdfDocument.file_hash}`;
-      await this.pdfjs.open({ url, withCredentials: true });
-      this.postMessage({ type: 'pdf-document-loaded', data: { url } });
-    } catch (exp) {
-      console.error(exp);
-    }
-
-    this._bindPageOutline();
-    this._applyViewParams();
+    new PdfILogger({ registry });
+    new PdfStorage({ registry });
 
     new PdfAnnotationLayer({ registry });
-    const toolbar = new PdfToolbar({ registry });
+    new PdfToolbar({ registry });
 
     new PdfRemoveOnDelete({ registry });
     new PdfShowBoundary({ registry });
@@ -179,7 +155,7 @@ export class PDFReaderComponent implements OnInit {
     new PdfHighlightNoteEditor({ registry });
     new PdfHighlightNoteViewer({ registry });
 
-    toolbar.addItem(htmlToElements('<hr style="width: 75%; border: none; border-top: 1px solid #2a2a2e;"/>'));
+    registry.get('toolbar').addSeparator();
 
     new PdfNoteViewer({ registry });
     new PdfNoteEditor({ registry });
@@ -189,7 +165,7 @@ export class PDFReaderComponent implements OnInit {
     new PdfTextEditor({ registry });
     new PdfTextToolbarBtn({ registry });
 
-    toolbar.addItem(htmlToElements('<hr style="width: 75%; border: none; border-top: 1px solid #2a2a2e;"/>'));
+    registry.get('toolbar').addSeparator();
 
     new PdfFreeformViewer({ registry });
     new PdfFreeformEditor({ registry });
@@ -199,22 +175,14 @@ export class PDFReaderComponent implements OnInit {
     new PdfEmbedEditor({ registry });
     new PdfEmbedToolbarBtn({ registry });
 
-    // this.setupInteractionLogger(iframe, pdfjs);
-    // const annotator = this.setupAnnotator(iframe, pdfjs, storage);
-    // this.annotator = annotator;
+    try {
+      const url = `${environment.apiUrl}/pdf-reader/${this.pdfDocument.id}/file?_hash=${this.pdfDocument.file_hash}`;
+      await this.pdfjs.open({ url, withCredentials: true });
+      this.postMessage({ type: 'pdf-document-loaded', data: { url } });
+    } catch (exp) { console.error(exp); }
 
-    // const filter = new AnnotationFilter({
-    //   http: this.http, iframe,
-    //   annotator, storage,
-    //   groupId: this.pdfDocumentId
-    // });
-    // await filter.loadAnnotators();
-
-    // const freeformViewer = this.setupFreeform(iframe, pdfjs, annotator, storage);
-    // const embedLinkViewer = this.setupEmbedResource(iframe, pdfjs, annotator, storage);
-
-    // if (this.configs?.embed_resource || this.configs?.freeform)
-    //   new EnableElemMovement({ iframe, embedLinkViewer, freeformViewer, storage });
+    this._bindPageOutline();
+    this._applyViewParams();
 
     // this.loadPlugins(annotator);
 
@@ -224,6 +192,7 @@ export class PDFReaderComponent implements OnInit {
     this.postMessage({ type: 'pdf-ready', data: null });
   }
 
+  // // -- TODO: review
   // private loadPlugins(annotator: Annotator) {
   //   const plugins = this.configs.custom_plugins;
   //   if (plugins) plugins.split('\n')
@@ -285,87 +254,6 @@ export class PDFReaderComponent implements OnInit {
     };
     this.pdfjs.eventBus.on('textlayerrendered', onDocumentLoad);
   }
-
-  // private setupEmbedResource(iframe, pdfjs, annotator, storage) {
-  //   const embedLinkViewer = new EmbeddedResourceViewer({
-  //     baseHref: this.baseHref, iframe, pdfjs, annotator,
-  //     storage, configs: { resize: this.configs?.embed_resource }
-  //   });
-
-  //   if (this.configs?.embed_resource)
-  //     new EmbedResource({
-  //       baseHref: this.baseHref, iframe, pdfjs,
-  //       storage, annotator, embedLinkViewer
-  //     });
-
-  //   return embedLinkViewer;
-  // }
-
-  // private setupFreeform(iframe, pdfjs, annotator, storage) {
-  //   const freeformViewer = new FreeformViewer({
-  //     baseHref: this.baseHref, iframe, pdfjs, annotator,
-  //     storage, configs: { resize: this.configs?.freeform }
-  //   });
-
-  //   if (this.configs?.freeform)
-  //     new FreeformAnnotator({
-  //       baseHref: this.baseHref, iframe, pdfjs, annotator,
-  //       freeformViewer, storage, configs: {
-  //         freeform_stroke_sizes: this.configs?.freeform_stroke_sizes,
-  //         freeform_colors: this.configs?.freeform_colors,
-  //       }
-  //     });
-
-  //   return freeformViewer;
-  // }
-
-  // private setupAnnotator(iframe, pdfjs, storage) {
-  //   return new Annotator({
-  //     baseHref: this.baseHref,
-  //     iframe, pdfjs, storage,
-  //     toolbar: null,
-  //     configs: {
-  //       onleftclick: true,
-  //       highlight: this.configs?.highlight,
-  //       underline: this.configs?.underline,
-  //       linethrough: this.configs?.linethrough,
-  //       redact: this.configs?.redact,
-  //       notes: this.configs?.notes,
-  //       annotation_colors: this.configs?.annotation_colors,
-  //     }
-  //   });
-  // }
-
-  // private async setupInteractionLogger(iframe, pdfjs) {
-  //   if (this.configs?.log_interactions) {
-  //     new InteractionLogger({
-  //       iframe, pdfjs,
-  //       persist: async (logs: any[]) => {
-  //         const user_id = await getUserId(this.route);
-  //         const is3rdParty = this.configs?.interaction_logger_api;
-
-  //         logs = logs.map(log => {
-  //           log = { ...log, pdf_doc_id: this.pdfDocumentId };
-  //           if (is3rdParty) log.user_id = user_id;
-  //           return log;
-  //         });
-
-  //         if (this.configs?.interaction_logger_api) {
-  //           const api = this.configs?.interaction_logger_api || (environment.apiUrl + '/interaction-logs');
-  //           this.http.post(api, logs, { withCredentials: inSameOrigin(api) }).subscribe();
-  //         }
-  //       },
-  //       configs: {
-  //         document_events: this.configs?.document_events,
-  //         pdfjs_events: this.configs?.pdfjs_events,
-  //         mousemove_log_delay: this.configs?.mousemove_log_delay,
-  //         scroll_log_delay: this.configs?.scroll_log_delay,
-  //         resize_log_delay: this.configs?.resize_log_delay,
-  //         interaction_logger_api: this.configs?.interaction_logger_api,
-  //       }
-  //     });
-  //   }
-  // }
 
   private _bindPageOutline() {
     this.pdfjs.eventBus.on('pagechanging', ($event) => {

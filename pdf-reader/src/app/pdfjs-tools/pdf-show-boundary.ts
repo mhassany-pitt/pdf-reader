@@ -2,8 +2,7 @@ import {
   WHRect, getPageEl, getPageNum,
   htmlToElements, getAnnotEl, rotateRect,
   rotation, getAnnotBound, removeSelectorAll
-} from './annotator-utils';
-import { Highlight } from './highlight.type';
+} from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
 
 export class PdfShowBoundary {
@@ -44,7 +43,7 @@ export class PdfShowBoundary {
     });
   }
 
-  private _showBoundary(pageNum: number, annot: Highlight, rect: WHRect) {
+  private _showBoundary(pageNum: number, annot: any, rect: WHRect) {
     rect = rotateRect(rotation(this._getPdfJS()), true, rect);
     const boundEl = htmlToElements(
       `<div data-annotation-id="${annot.id}"

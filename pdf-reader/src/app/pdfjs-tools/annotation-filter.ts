@@ -1,5 +1,5 @@
-import { Annotations } from './annotations';
-import { htmlToElements, isRightClick } from './annotator-utils';
+import { PdfStorage } from './pdf-storage';
+import { htmlToElements, isRightClick } from './pdf-utils';
 import { Annotator, POPUP_ROW_ITEM_UI } from './annotator';
 import { environment } from 'src/environments/environment';
 import { HttpClient } from '@angular/common/http';
@@ -9,7 +9,7 @@ export class AnnotationFilter {
   private document: any;
   private documentEl: any;
 
-  private storage: Annotations;
+  private storage: PdfStorage;
   private annotator: Annotator;
 
   private http: HttpClient;

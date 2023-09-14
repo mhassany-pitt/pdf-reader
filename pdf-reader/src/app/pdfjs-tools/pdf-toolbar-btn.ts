@@ -1,4 +1,4 @@
-import { htmlToElements } from './annotator-utils';
+import { htmlToElements } from './pdf-utils';
 import { PdfNoteToolbarBtn } from './pdf-note-toolbar-btn';
 import { PdfRegistry } from './pdf-registry';
 import { PdfToolbar } from './pdf-toolbar';

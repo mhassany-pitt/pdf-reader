@@ -1,8 +1,7 @@
 import {
   WHRect, getPageEl, getPageNum,
   htmlToElements, getAnnotEl, getAnnotElBound, getOrParent, removeSelectorAll
-} from './annotator-utils';
-import { Highlight } from './highlight.type';
+} from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
 
 export class PdfHighlightNoteViewer {
@@ -68,7 +67,7 @@ export class PdfHighlightNoteViewer {
     this._getDocumentEl().querySelectorAll('.pdfjs-annotation__highlight-note-viewer-popup').forEach(el => el.remove());
   }
 
-  private _showViewerPopup(annot: Highlight, pageNum: number, bound: WHRect) {
+  private _showViewerPopup(annot: any, pageNum: number, bound: WHRect) {
     const lines = (annot.note || '').split('\n');
     const rows = Math.min(5, lines.length),
       cols = Math.min(35, Math.max(...lines.map(line => line.length)));

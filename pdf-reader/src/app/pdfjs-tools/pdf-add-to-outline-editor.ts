@@ -1,4 +1,4 @@
-import { getSelectionRects, isLeftClick } from './annotator-utils';
+import { getSelectionRects, isLeftClick } from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
 
 export class PdfAddToOutlineEditor {

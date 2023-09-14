@@ -2,7 +2,7 @@ import {
   WHRect, htmlToElements, removeSelectorAll,
   rotation, rotateRect, getOrParent, getAnnotEl,
   getPageEl, getAnnotElBound, getPageNum
-} from './annotator-utils';
+} from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
 
 export class PdfNoteViewer {

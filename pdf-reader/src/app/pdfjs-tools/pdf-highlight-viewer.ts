@@ -1,8 +1,7 @@
 import {
   WHRect, htmlToElements,
   rotateRect, rotation, removeSelectorAll
-} from './annotator-utils';
-import { Highlight } from './highlight.type';
+} from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
 
 export class PdfHighlightViewer {
@@ -27,7 +26,7 @@ export class PdfHighlightViewer {
       const annotsLayerEl = this.registry.get('annotation-layer').getOrAttachLayerEl(pageNum);
       removeSelectorAll(annotsLayerEl, '.pdfjs-annotation__rect');
 
-      const annots: Highlight[] = this._getStorage().list();
+      const annots: any[] = this._getStorage().list();
       annots.filter(annot => ['highlight', 'underline', 'strikethrough'].includes(annot.type))
         .filter(annot => Object.keys(annot.rects)
           .map(pageNum => parseInt(pageNum))
@@ -36,7 +35,7 @@ export class PdfHighlightViewer {
     });
   }
 
-  render(annot: Highlight) {
+  render(annot: any) {
     const editor = this.registry.get('highlighter');
     const configs = this.registry.get(`configs.${annot.type}`);
     const deletable = editor && configs?.deletable;
