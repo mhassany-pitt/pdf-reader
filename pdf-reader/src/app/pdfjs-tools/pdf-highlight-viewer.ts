@@ -17,6 +17,8 @@ export class PdfHighlightViewer {
     this._renderOnPagerendered();
   }
 
+  private _configs(type: string) { return this.registry.get(`configs.${type}`); }
+
   private _getPdfJS() { return this.registry.getPdfJS(); }
   private _getStorage() { return this.registry.get('storage'); }
 
@@ -36,7 +38,7 @@ export class PdfHighlightViewer {
   }
 
   render(annot: any) {
-    const configs = this.registry.get(`configs.${annot.type}`);
+    const configs = this._configs(annot.type);
     const scaleFactor = scale(this._getPdfJS());
 
     Object.keys(annot.rects)

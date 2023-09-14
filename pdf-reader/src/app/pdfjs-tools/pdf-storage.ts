@@ -1,6 +1,6 @@
 import { firstValueFrom } from "rxjs";
 import { PdfRegistry } from "./pdf-registry";
-import { inSameOrigin, qparamsToString } from "./pdf-utils";
+import { isSameOrigin, qparamsToString } from "./pdf-utils";
 import { environment } from "src/environments/environment";
 
 export class PdfStorage {
@@ -22,22 +22,22 @@ export class PdfStorage {
     this.registry = registry;
 
     this.registry.register('storage', this);
-    this.registry.register(`configs.default.storage`, () => this._defaultConfigs());
+    this.registry.register(`configs.default.storage`, () => PdfStorage.defaultConfigs());
 
     this._getPdfJS().eventBus.on('pagerendered', ($event: any) => this.loadPageAnnotations($event.pageNumber));
     this._getPdfJS().eventBus.on('pagesdestroy', ($event: any) => delete this.annots[$event.pageNumber]);
   }
 
-  protected _configs() { return this.registry.get(`configs.storage`) || this._defaultConfigs(); }
-  protected _defaultConfigs() {
+  protected _configs() { return this.registry.get(`configs.storage`); }
+  static defaultConfigs() {
     return { apiUrl: `${environment.apiUrl}/annotations` };
   }
 
   private _getPdfJS() { return this.registry.getPdfJS(); }
   private _getPdfDocId() { return this.registry.get('pdfDocId'); }
   private async getUserId() {
-    const configs = this.registry.get(`configs.storage`);
-    const user_id = configs?.apiUrl ? this.registry.get('userId') : null;
+    const apiUrl = this._configs()?.apiUrl;
+    const user_id = apiUrl && !isSameOrigin(apiUrl) ? this.registry.get('userId') : null;
     return user_id ? { user_id } : {};
   }
 
@@ -45,13 +45,14 @@ export class PdfStorage {
   read(id: string) { return this._annots.filter(a => a.id == id)[0]; }
 
   private _apiUrl() {
-    return `${this._configs().apiUrl}/${this._getPdfDocId()}`;
+    const apiUrl = this._configs()?.apiUrl || `${environment.apiUrl}/annotations`;
+    return `${apiUrl}/${this._getPdfDocId()}`;
   }
 
   async loadAnnotations(qparams: any) {
     if (this.enabled) try {
       const api = `${this._apiUrl()}?${qparamsToString({ ...qparams, ...await this.getUserId() })}`;
-      const req: any = this.registry.get('http').get(api, { withCredentials: inSameOrigin(api) });
+      const req: any = this.registry.get('http').get(api, { withCredentials: isSameOrigin(api) });
       return await firstValueFrom(req);
     } catch (error) { console.error(error); }
     return [];
@@ -73,7 +74,7 @@ export class PdfStorage {
   async create(annot: any, then?: () => void) {
     try {
       const api = `${this._apiUrl()}?${qparamsToString(await this.getUserId())}`;
-      const req = this.registry.get('http').post(api, annot, { withCredentials: inSameOrigin(api) });
+      const req = this.registry.get('http').post(api, annot, { withCredentials: isSameOrigin(api) });
       const resp: any = await firstValueFrom(req);
       annot.id = resp.id;
       annot.pages.forEach(page => {
@@ -88,7 +89,7 @@ export class PdfStorage {
   async update(annot: any, then?: () => void) {
     try {
       const api = `${this._apiUrl()}/${annot.id}?${qparamsToString(await this.getUserId())}`;
-      const req = this.registry.get('http').patch(api, annot, { withCredentials: inSameOrigin(api) });
+      const req = this.registry.get('http').patch(api, annot, { withCredentials: isSameOrigin(api) });
       await firstValueFrom(req);
       annot.pages
         .filter(page => page in this.annots)
@@ -103,7 +104,7 @@ export class PdfStorage {
   async delete(annot: any, then?: () => void) {
     try {
       const api = `${this._apiUrl()}/${annot.id}?${qparamsToString(await this.getUserId())}`;
-      const req = this.registry.get('http').delete(api, { withCredentials: inSameOrigin(api) });
+      const req = this.registry.get('http').delete(api, { withCredentials: isSameOrigin(api) });
       await firstValueFrom(req);
       annot.pages
         .filter(page => page in this.annots)

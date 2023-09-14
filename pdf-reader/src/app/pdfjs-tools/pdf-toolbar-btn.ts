@@ -1,5 +1,4 @@
 import { htmlToElements } from './pdf-utils';
-import { PdfNoteToolbarBtn } from './pdf-note-toolbar-btn';
 import { PdfRegistry } from './pdf-registry';
 import { PdfToolbar } from './pdf-toolbar';
 
@@ -10,8 +9,6 @@ export abstract class PdfToolbarBtn {
 
   constructor({ registry }) {
     this.registry = registry;
-
-    this._addToolbarUI();
   }
 
   protected _getToolbarEl(): PdfToolbar {

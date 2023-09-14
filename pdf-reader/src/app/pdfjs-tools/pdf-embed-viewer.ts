@@ -25,6 +25,8 @@ export class PdfEmbedViewer {
     this._onAnnotClick();
   }
 
+  protected _configs() { return this.registry.get(`configs.embed`); }
+
   private _getPdfJS() { return this.registry.getPdfJS(); }
   private _getToolbar(): PdfToolbar { return this.registry.get('toolbar'); }
   private _getDocument() { return this.registry.getDocument(); }
@@ -51,7 +53,7 @@ export class PdfEmbedViewer {
       .forEach((el: any) => el.remove());
 
     const editor = this.registry.get('embed-editor');
-    const configs = this.registry.get(`configs.embed`);
+    const configs = this._configs();
 
     const degree = rotation(this._getPdfJS());
     const bound = rotateRect(degree, true, annot.rects[annot.pages[0]][0] as any);

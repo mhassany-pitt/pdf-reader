@@ -1,6 +1,7 @@
 import {
   WHRect, getPageEl, getPageNum,
-  htmlToElements, getAnnotEl, getAnnotElBound, getOrParent, removeSelectorAll, scale
+  htmlToElements, getAnnotEl, getAnnotElBound,
+  getOrParent, scale
 } from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
 

@@ -12,13 +12,14 @@ export class PdfHighlighterToolbarBtn extends PdfToolbarBtn {
   constructor({ registry }) {
     super({ registry });
 
-    this._attachStylesheet();
+    this.registry.register(`configs.default.${this.getType().type}`, () => PdfHighlighterToolbarBtn.defaultConfigs());
 
-    this.registry.register(`configs.default.${this.getType().type}`, () => this._defaultConfigs());
+    this._attachStylesheet();
+    this._addToolbarUI();
   }
 
   protected _configs() { return this.registry.get(`configs.${this.getType().type}`); }
-  protected _defaultConfigs() {
+  static defaultConfigs() {
     return {
       deletable: true,
       colors: [

@@ -177,3 +177,5 @@ export class AnnotationFilter {
     }, 999 /* top in popup list */);
   }
 }
+
+// TODO: add annotation filter

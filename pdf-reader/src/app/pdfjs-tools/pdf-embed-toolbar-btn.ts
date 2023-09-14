@@ -6,11 +6,13 @@ export class PdfEmbedToolbarBtn extends PdfToolbarBtn {
   constructor({ registry }) {
     super({ registry });
 
-    this.registry.register(`configs.default.embed`, () => this._defaultConfigs());
+    this.registry.register(`configs.default.embed`, () => PdfEmbedToolbarBtn.defaultConfigs());
+
+    this._addToolbarUI();
   }
 
   protected _configs() { return this.registry.get(`configs.embed`); }
-  protected _defaultConfigs() {
+  static defaultConfigs() {
     return {
       deletable: true,
       moveable: true,

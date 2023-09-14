@@ -1,4 +1,4 @@
-import { getSelectionRects, htmlToElements, isLeftClick, rotateRect, rotation, uuid } from './pdf-utils';
+import { htmlToElements, rotateRect, rotation } from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
 
 export class PdfFreeformViewer {
@@ -13,6 +13,8 @@ export class PdfFreeformViewer {
     this._attachStylesheet();
     this._renderOnPagerendered();
   }
+
+  protected _configs() { return this.registry.get(`configs.freeform`); }
 
   private _getPdfJS() { return this.registry.getPdfJS(); }
   private _getStorage() { return this.registry.get('storage'); }
@@ -34,7 +36,7 @@ export class PdfFreeformViewer {
   }
 
   render(annot: any) {
-    const configs = this.registry.get(`configs.freeform`);
+    const configs = this._configs();
 
     Object.keys(annot.freeforms)
       .map(pageNum => parseInt(pageNum))

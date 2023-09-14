@@ -6,11 +6,13 @@ export class PdfNoteToolbarBtn extends PdfToolbarBtn {
   constructor({ registry }) {
     super({ registry });
 
-    this.registry.register(`configs.default.${this.getType().type}`, () => this._defaultConfigs());
+    this.registry.register(`configs.default.${this.getType().type}`, () => PdfNoteToolbarBtn.defaultConfigs());
+
+    this._addToolbarUI();
   }
 
   protected _configs() { return this.registry.get(`configs.${this.getType().type}`); }
-  protected _defaultConfigs() {
+  static defaultConfigs() {
     return {
       deletable: true,
       moveable: true,

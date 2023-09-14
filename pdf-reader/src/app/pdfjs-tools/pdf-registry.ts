@@ -1,6 +1,5 @@
-import { htmlToElements } from "./pdf-utils";
-
 export class PdfRegistry {
+
   private window: any;
   private document: any;
   private documentEl: any;

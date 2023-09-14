@@ -11,11 +11,13 @@ export class PdfFreeformToolbarBtn extends PdfToolbarBtn {
   constructor({ registry }) {
     super({ registry });
 
-    this.registry.register(`configs.default.freeform`, () => this._defaultConfigs());
+    this.registry.register(`configs.default.freeform`, () => PdfFreeformToolbarBtn.defaultConfigs());
+
+    this._addToolbarUI();
   }
 
   protected _configs() { return this.registry.get(`configs.freeform`); }
-  protected _defaultConfigs() {
+  static defaultConfigs() {
     return {
       deletable: true,
       moveable: true,
@@ -39,8 +41,8 @@ export class PdfFreeformToolbarBtn extends PdfToolbarBtn {
   protected override getClassName() { return 'freeform'; }
   protected override getTitle() { return 'Freeform'; }
 
-  protected getColorOptions() { return this.registry.get(`configs.freeform`)?.colors || this._defaultConfigs().colors; }
-  protected getStrokeOptions() { return this.registry.get(`configs.freeform`)?.stroke || this._defaultConfigs().stroke; }
+  protected getColorOptions() { return this._configs()?.colors; }
+  protected getStrokeOptions() { return this._configs()?.stroke; }
 
   private _getDocument() { return this.registry.getDocument(); }
   private _getEditor(): PdfFreeformEditor { return this.registry.get('freeform-editor'); }

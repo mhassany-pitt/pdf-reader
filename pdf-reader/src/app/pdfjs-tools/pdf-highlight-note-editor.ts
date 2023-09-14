@@ -1,8 +1,7 @@
 import {
   WHRect, getPageEl, getPageNum, htmlToElements,
   getAnnotEl, isLeftClick, getAnnotElBound, getOrParent,
-  removeSelectorAll,
-  scale
+  removeSelectorAll, scale
 } from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
 
@@ -14,7 +13,7 @@ export class PdfHighlightNoteEditor {
     this.registry = registry;
 
     this.registry.register('highlight-note-editor', this);
-    this.registry.register(`configs.default.highlight-note`, () => this._defaultConfigs());
+    this.registry.register(`configs.default.highlight-note`, () => PdfHighlightNoteEditor.defaultConfigs());
 
     // remove popup on delete
     for (const type of ['underline', 'highlight', 'strikethrough'])
@@ -26,7 +25,7 @@ export class PdfHighlightNoteEditor {
   }
 
   protected _configs() { return this.registry.get(`configs.highlight-note`); }
-  protected _defaultConfigs() {
+  static defaultConfigs() {
     return true;
   }
 

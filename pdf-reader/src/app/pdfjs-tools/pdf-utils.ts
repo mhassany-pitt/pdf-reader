@@ -230,20 +230,20 @@ export const scrollTo = async (document, pdfjs, { page, top, left, dest }: any) 
   }
 }
 
-export const inSameOrigin = (api: string) => {
+export const isSameOrigin = (api: string) => {
   return api.startsWith(window.location.origin) || api.startsWith(environment.apiUrl);
 }
 
-export const loadPlugin = ({ url, iframe, pdfjs, storage, annotator, loaded, failed }) => {
+export const loadPlugin = ({ url, registry, loaded, failed }) => {
   const funcName = url.split('/').reverse()[0].replace('.js', '').replaceAll('-', '_');
-  var script = iframe.contentDocument.createElement('script');
+  var script = registry.getDocument().createElement('script');
   script.src = url;
   script.onload = () => {
-    iframe.contentWindow[funcName]({ iframe, pdfjs, storage, annotator });
+    registry.getWindow()[funcName]({ registry });
     loaded?.();
-  }
+  };
   script.onerror = () => failed?.();
-  iframe.contentDocument.head.appendChild(script);
+  registry.getDocument().head.appendChild(script);
 }
 
 export const num2Base62 = (num: number, pad?: number) => {
@@ -278,4 +278,3 @@ export const qparamsToString = (qparams?: any) => {
 
 export const getValue = (str: string) => str.includes(':') ? str.split(':')[0] : str;
 export const getLabel = (str: string) => str.includes(':') ? str.split(':')[1] : str;
-

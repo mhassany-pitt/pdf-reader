@@ -32,6 +32,7 @@ import { PdfEmbedViewer } from '../pdfjs-tools/pdf-embed-viewer';
 import { PdfEmbedEditor } from '../pdfjs-tools/pdf-embed-editor';
 import { PdfFreeformToolbarBtn } from '../pdfjs-tools/pdf-freeform-toolbar-btn';
 import { PdfEmbedToolbarBtn } from '../pdfjs-tools/pdf-embed-toolbar-btn';
+import { PdfLoadCustomPlugins } from '../pdfjs-tools/pdf-load-custom-plugins';
 
 @Component({
   selector: 'app-pdf-reader',
@@ -175,6 +176,11 @@ export class PDFReaderComponent implements OnInit {
     new PdfEmbedEditor({ registry });
     new PdfEmbedToolbarBtn({ registry });
 
+    new PdfLoadCustomPlugins({ registry });
+
+    this._postPdfEventsToParent();
+    this._listenToParentMessages();
+
     try {
       const url = `${environment.apiUrl}/pdf-reader/${this.pdfDocument.id}/file?_hash=${this.pdfDocument.file_hash}`;
       await this.pdfjs.open({ url, withCredentials: true });
@@ -183,35 +189,8 @@ export class PDFReaderComponent implements OnInit {
 
     this._bindPageOutline();
     this._applyViewParams();
-
-    // this.loadPlugins(annotator);
-
-    this._postPdfEventsToParent();
-    this._listenToParentMessages();
-
     this.postMessage({ type: 'pdf-ready', data: null });
   }
-
-  // // -- TODO: review
-  // private loadPlugins(annotator: Annotator) {
-  //   const plugins = this.configs.custom_plugins;
-  //   if (plugins) plugins.split('\n')
-  //     .forEach((url: string) => {
-  //       try {
-  //         loadPlugin({
-  //           url,
-  //           iframe: this.iframe,
-  //           pdfjs: this.pdfjs,
-  //           storage: this.storage,
-  //           annotator: this.annotator,
-  //           loaded: () => { },
-  //           failed: () => { },
-  //         })
-  //       } catch (exp) {
-  //         console.error(exp);
-  //       }
-  //     });
-  // }
 
   private _applyViewParams() {
     const onDocumentLoad = ($event: any) => {

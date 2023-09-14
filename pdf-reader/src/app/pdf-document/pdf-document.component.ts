@@ -7,7 +7,7 @@ import { PDFDocumentService } from './pdf-document.service';
 import { PdfStorage } from '../pdfjs-tools/pdf-storage';
 import { PdfTextExtractor } from '../pdfjs-tools/pdf-text-extractor';
 import { HttpClient } from '@angular/common/http';
-import { getUserId, scrollTo } from '../pdfjs-tools/pdf-utils';
+import { getUserId, loadPlugin, scrollTo } from '../pdfjs-tools/pdf-utils';
 import { encode } from 'base-64';
 import { ConfirmationService } from 'primeng/api';
 import { PdfToolbar } from '../pdfjs-tools/pdf-toolbar';
@@ -37,6 +37,8 @@ import { PdfFreeformEditor } from '../pdfjs-tools/pdf-freeform-editor';
 import { PdfEmbedViewer } from '../pdfjs-tools/pdf-embed-viewer';
 import { PdfEmbedEditor } from '../pdfjs-tools/pdf-embed-editor';
 import { PdfAddToOutlineEditor } from '../pdfjs-tools/pdf-add-to-outline-editor';
+import { PdfLoadCustomPlugins } from '../pdfjs-tools/pdf-load-custom-plugins';
+import { PdfILogger } from '../pdfjs-tools/pdf-ilogger';
 // import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
 
 @Component({
@@ -122,6 +124,19 @@ export class PDFDocumentComponent implements OnInit {
     registry.register('pdfDocId', this.pdfDocument.id);
     registry.register('userId', await getUserId(this.route));
 
+    // init with default configs
+    this.registry.register('configs.ilogger', PdfILogger.defaultConfigs());
+    this.registry.register('configs.storage', PdfStorage.defaultConfigs());
+    this.registry.register('configs.highlight', PdfHighlighterToolbarBtn.defaultConfigs());
+    this.registry.register('configs.underline', PdfUnderlineToolbarBtn.defaultConfigs());
+    this.registry.register('configs.strikethrough', PdfStrikeThourghToolbarBtn.defaultConfigs());
+    this.registry.register('configs.highlight-note', PdfHighlightNoteEditor.defaultConfigs());
+    this.registry.register('configs.note', PdfNoteToolbarBtn.defaultConfigs());
+    this.registry.register('configs.text', PdfTextToolbarBtn.defaultConfigs());
+    this.registry.register('configs.freeform', PdfFreeformToolbarBtn.defaultConfigs());
+    this.registry.register('configs.embed', PdfEmbedToolbarBtn.defaultConfigs());
+
+    new PdfILogger({ registry });
     new PdfStorage({ registry });
 
     new PdfAnnotationLayer({ registry });
@@ -168,6 +183,8 @@ export class PDFDocumentComponent implements OnInit {
     registry.register('add-to-outline', ($event, payload) => this.ngZone.run(() => this.addToOutline($event, payload)))
     new PdfAddToOutlineEditor({ registry });
     new PdfAddToOutlineToolbarBtn({ registry });
+
+    new PdfLoadCustomPlugins({ registry });
 
     try {
       await this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });
@@ -324,22 +341,18 @@ export class PDFDocumentComponent implements OnInit {
   }
 
   loadPlugin(el: any) {
-    // // -- TODO: review
-    // loadPlugin({
-    //   url: el.value,
-    //   iframe: this.iframe,
-    //   pdfjs: this.pdfjs,
-    //   storage: this.storage,
-    //   annotator: this.annotator,
-    //   loaded: () => {
-    //     this.ngZone.run(() => {
-    //       delete this.tt['custom_plugin'];
-    //       this.tt['custom_plugin_msg'] = 'custom plugin loaded.';
-    //       setTimeout(() => delete this.tt['custom_plugin_msg'], 3000);
-    //     });
-    //   },
-    //   failed: () => { },
-    // });
+    const respond = (message: string) => this.ngZone.run(() => {
+      delete this.tt['custom_plugin'];
+      this.tt['custom_plugin_msg'] = message;
+      setTimeout(() => delete this.tt['custom_plugin_msg'], 3000);
+    });
+
+    loadPlugin({
+      url: el.value,
+      registry: this.registry,
+      loaded: () => respond('custom plugin loaded.'),
+      failed: () => respond('failed to load custom plugin.'),
+    });
   }
 
   cancel() {
@@ -362,5 +375,4 @@ export class PDFDocumentComponent implements OnInit {
   }
 }
 
-// TODO: in 403 page, add a link to the login page
 // registry.register('baseHref', document.querySelector('base')?.href);

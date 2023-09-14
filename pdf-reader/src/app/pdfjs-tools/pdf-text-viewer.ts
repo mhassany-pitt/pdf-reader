@@ -3,13 +3,15 @@ import { PdfNoteViewer } from './pdf-note-viewer';
 
 export class PdfTextViewer extends PdfNoteViewer {
 
+  protected override _configs() { return this.registry.get(`configs.text`); }
+
   protected override getType() { return { type: 'text', viewer: 'text-viewer' }; }
 
   protected override onAnnotMouseOver(): void { }
 
   protected override getRenderedEl(annot: any, rect: WHRect) {
     const editor = this.registry.get('text-editor');
-    const configs = this.registry.get(`configs.text`);
+    const configs = this._configs();
     const scaleFactor = scale(this._getPdfJS());
 
     const viewerEl = htmlToElements(

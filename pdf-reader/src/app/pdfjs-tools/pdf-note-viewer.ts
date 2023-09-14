@@ -24,6 +24,8 @@ export class PdfNoteViewer {
     this._renderOnPagerendered();
   }
 
+  protected _configs() { return this.registry.get(`configs.note`); }
+
   private _getDocument() { return this.registry.getDocument(); }
   private _getDocumentEl() { return this.registry.getDocumentEl(); }
   private _getStorage() { return this.registry.get('storage'); }
@@ -50,7 +52,7 @@ export class PdfNoteViewer {
   }
 
   protected getRenderedEl(annot: any, rect: WHRect) {
-    const configs = this.registry.get(`configs.note`);
+    const configs = this._configs();
     const scaleFactor = scale(this._getPdfJS());
 
     return htmlToElements(
