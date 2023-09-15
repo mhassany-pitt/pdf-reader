@@ -31,6 +31,7 @@ export class PdfFreeformEditor {
   private _getDocumentEl() { return this.registry.getDocumentEl(); }
   private _getStorage() { return this.registry.get('storage'); }
   private _getAnnotLayer() { return this.registry.get('annotation-layer'); }
+  private _getViewer() { return this.registry.get('freeform-viewer'); }
 
   setEnabled(enabled: boolean) {
     this.enabled = enabled;
@@ -75,12 +76,15 @@ export class PdfFreeformEditor {
         const { canvas, ...bound } = cropped;
         annot.freeforms[pageNum] = { ...bound, dataUrl: canvas.toDataURL() };
       }
-      canvasEl.remove();
     }
 
-    if (Object.keys(annot.freeforms).length) {
-      this._getStorage().create(annot, () => this.registry.get('freeform-viewer').render(annot));
-    }
+    if (Object.keys(annot.freeforms).length)
+      this._getStorage().create(annot, () => {
+        for (const pageNum of annot.pages)
+          canvases[pageNum].remove();
+
+        this._getViewer().render(annot);
+      });
   }
 
   private _attachCanvasOnMousedown() {

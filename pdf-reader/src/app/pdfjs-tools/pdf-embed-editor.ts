@@ -22,10 +22,12 @@ export class PdfEmbedEditor {
     this.registry.register(`embed-move-elements`,
       ($event, action, payload) => this._handleMoveEvents($event, action, payload));
 
-    // remove popup on delete
-    this.registry.register(`embed.deleted.${Math.random()}`,
-      (annot) => removeSelectorAll(this._getDocumentEl(),
-        `.pdf-annotation__embed-editor-popup[data-embed-id="${annot.id}"]`));
+    this.registry.register(`storage.deleted.${Math.random()}`, (annot) => {
+      if (annot.type == 'embed') {
+        removeSelectorAll(this._getDocumentEl(),
+          `.pdf-annotation__embed-editor-popup[data-embed-id="${annot.id}"]`);
+      }
+    });
 
     this.onAnnotClick();
     this._manageDroppingZone();

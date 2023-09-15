@@ -14,11 +14,12 @@ export class PdfEmbedViewer {
     this.registry = registry;
 
     this.registry.register('embed-viewer', this);
-
-    // remove popup on delete
-    this.registry.register(`embed.deleted.${Math.random()}`,
-      (annot) => removeSelectorAll(this._getDocumentEl(),
-        `.pdf-annotation__embed-viewer-popup[data-embed-id="${annot.id}"]`));
+    this.registry.register(`storage.deleted.${Math.random()}`, (annot) => {
+      if (annot.type == 'embed') {
+        removeSelectorAll(this._getDocumentEl(),
+          `.pdf-annotation__embed-viewer-popup[data-embed-id="${annot.id}"]`);
+      }
+    });
 
     this._attachStylesheet();
     this._renderOnPagerendered();

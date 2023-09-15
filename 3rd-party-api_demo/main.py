@@ -66,10 +66,10 @@ def annotations(pdfDocId):
     return annotations
 
 
-@app.route("/api/interaction-logs", methods=["POST"])
+@app.route("/api/ilogs", methods=["POST"])
 @cross_origin()
 def interaction_logs():
     # in your system, this api should save the interaction logs
-    print('------------  interaction-logs ------------')
+    print('------------  ilogs ------------')
     print(json.dumps(request.get_json(), indent=2))
     return {}

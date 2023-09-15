@@ -21,9 +21,12 @@ export class PdfNoteEditor {
       ($event, action, payload) => this._handleMoveEvents($event, action, payload));
 
     // remove popup on delete
-    this.registry.register(`note.deleted.${Math.random()}`,
-      (annot) => removeSelectorAll(this._getDocumentEl(),
-        `.pdf-annotation__note-editor-popup[data-note-id="${annot.id}"]`));
+    this.registry.register(`storage.deleted.${Math.random()}`, (annot) => {
+      if (annot.type == 'note') {
+        removeSelectorAll(this._getDocumentEl(),
+          `.pdf-annotation__note-editor-popup[data-note-id="${annot.id}"]`);
+      }
+    });
 
     this.onAnnotClick();
     this._manageDroppingZone();
@@ -34,6 +37,7 @@ export class PdfNoteEditor {
   protected _getDocumentEl() { return this.registry.getDocumentEl(); }
   protected _getStorage(): PdfStorage { return this.registry.get('storage'); }
   private _getPdfJS() { return this.registry.getPdfJS(); }
+  protected _getViewer() { return this.registry.get(this.getType().viewer); }
 
   setEnabled(enable: boolean) {
     this.enabled = enable;
@@ -66,7 +70,7 @@ export class PdfNoteEditor {
       pages: [page],
       note: '',
     };
-    this._getStorage().create(note, () => this.registry.get(this.getType().viewer).render(note));
+    this._getStorage().create(note, () => this._getViewer().render(note));
   }
 
   private _manageDroppingZone() {
@@ -114,7 +118,7 @@ export class PdfNoteEditor {
   }
 
   removePopups() {
-    this.registry.get(this.getType().viewer).removePopups();
+    this._getViewer().removePopups();
     this._getDocumentEl().querySelectorAll('.pdf-annotation__note-editor-popup').forEach(el => el.remove());
   }
 
@@ -160,10 +164,8 @@ export class PdfNoteEditor {
 
     const textarea = popupEl.querySelector('textarea');
     textarea?.addEventListener('blur', async () => {
-      if (this._getDocumentEl().querySelector(`[data-annotation-id="${annot.id}"]`)) {
-        annot.note = textarea.value;
-        this._getStorage().update(annot);
-      }
+      if (this._getDocumentEl().querySelector(`[data-annotation-id="${annot.id}"]`))
+        this._getStorage().update({ ...annot, note: textarea.value }, () => annot.note = textarea.value);
     });
   }
 

@@ -12,12 +12,14 @@ export class PdfTextEditor extends PdfNoteEditor {
   constructor({ registry }) {
     super({ registry });
 
-    // remove editor on delete
-    this.registry.register(`text.deleted.${Math.random()}`, (annot) => {
-      if (annot.id == this._annot?.id)
+    this.registry.register(`storage.deleted.${Math.random()}`, (annot) => {
+      if (annot.type == 'text' && annot.id == this._annot?.id) {
         this._editor = null;
+      }
     });
   }
+
+  protected override _getViewer() { return this.registry.get(this.getType().viewer); }
 
   protected override getType() { return { type: 'text', editor: 'text-editor', viewer: 'text-viewer' }; }
 
@@ -32,7 +34,7 @@ export class PdfTextEditor extends PdfNoteEditor {
       pages: [page],
       note: '',
     };
-    this._getStorage().create(note, () => this.registry.get(this.getType().viewer).render(note));
+    this._getStorage().create(note, () => this._getViewer().render(note));
   }
 
   protected override onAnnotClick() {
@@ -45,8 +47,7 @@ export class PdfTextEditor extends PdfNoteEditor {
         this._editor = viewerEl.querySelector('textarea');
         this._editor.removeAttribute('readonly');
       } else if (this._editor) {
-        this._annot.note = this._editor.value;
-        this._getStorage().update(this._annot);
+        this._getStorage().update({ ...this._annot, note: this._editor.value }, () => this._annot.note = this._editor.value);
         this._editor.setAttribute('readonly', 'true');
         this._editor = null;
         this._annot = null;

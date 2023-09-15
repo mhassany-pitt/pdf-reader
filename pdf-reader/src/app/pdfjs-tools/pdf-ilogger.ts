@@ -7,10 +7,7 @@ export class PdfILogger {
 
   private registry: PdfRegistry;
   private timeouts: { [key: string]: any } = {}
-
   private startedAt: number;
-  private delay: any;
-  private buffer: any[] = [];
 
   constructor({ registry }) {
     this.registry = registry;
@@ -32,7 +29,7 @@ export class PdfILogger {
   protected _configs() { return this.registry.get(`configs.ilogger`); }
   static defaultConfigs() {
     return {
-      apiUrl: `${environment.apiUrl}/interaction-logs`,
+      apiUrl: `${environment.apiUrl}/ilogs`,
       document_events: [
         'click', 'contextmenu', 'mousedown', 'mousemove', 'mouseup', 'scroll'
       ],
@@ -41,42 +38,34 @@ export class PdfILogger {
         'documentloaded', 'presentationmodechanged', 'pagenumberchanged', 'scalechanged', 'scrollmodechanged',
         'sidebarviewchanged', 'spreadmodechanged', 'zoomin', 'zoomout', 'resize', 'rotateccw', 'rotatecw'
       ],
-      mousemove: { delay: 300 },
-      scroll: { delay: 300 },
-      resize: { delay: 300 },
+      mousemove: { delay: 1000 },
+      scroll: { delay: 1000 },
+      resize: { delay: 1000 },
     };
   }
 
   protected _getDocument() { return this.registry.getDocument(); }
   protected _getPdfJS() { return this.registry.getPdfJS(); }
 
-  private async _persist(logs: any[]) {
-    const apiUrl = this._configs()?.apiUrl;
-    const userId = this.registry.get('userId');
-    logs = logs.map(log => {
-      log = { ...log, pdfDocId: this.registry.get('pdfDocId') };
-      if (apiUrl && !isSameOrigin(apiUrl)) log.user_id = userId;
-      return log;
-    });
-    if (apiUrl)
-      this.registry.get('http')
-        .post(apiUrl, logs, { withCredentials: isSameOrigin(apiUrl) })
-        .subscribe();
-  }
-
   private _log($event: any) {
     const now = new Date().getTime();
-    $event.elapsed = now - this.startedAt;
-    $event.datetime = now;
-    this.buffer.push($event);
+    const log = {
+      ...$event,
+      pdfDocId: this.registry.get('pdfDocId'),
+      elapsed: now - this.startedAt,
+      datetime: now,
+    };
 
-    if (this.delay)
-      clearTimeout(this.delay);
-    this.delay = setTimeout(() => {
-      const buffer = this.buffer;
-      this.buffer = [];
-      this._persist(buffer);
-    }, 1000);
+    const apiUrl = this._configs()?.apiUrl;
+    const userId = this.registry.get('userId');
+    if (apiUrl) {
+      if (!isSameOrigin(apiUrl))
+        log.user_id = userId;
+
+      this.registry.get('http')
+        .post(apiUrl, log, { withCredentials: isSameOrigin(apiUrl) })
+        .subscribe();
+    }
   }
 
   private _handleMouseEvents($event: any) {
@@ -135,7 +124,7 @@ export class PdfILogger {
   private _setupOnMouseMove() {
     if (this._configs()?.document_events?.includes('mousemove'))
       this._getDocument().addEventListener('mousemove', ($event: any) =>
-        this._later('mousemove', () => this._handleMouseEvents($event), this._configs()?.mousemove?.delay || 300), true);
+        this._later('mousemove', () => this._handleMouseEvents($event), this._configs()?.mousemove?.delay || 1000), true);
   }
 
   private _setupOnMouseUp() {
@@ -157,7 +146,7 @@ export class PdfILogger {
             visiblePageRects[pageNum] = overlap;
         });
         this._log({ type: 'scroll', visiblePageRects });
-      }, this._configs()?.scroll?.delay || 300));
+      }, this._configs()?.scroll?.delay || 1000));
   }
 
   private _handlePDFJSEvents(type: string, $event: any) {
@@ -220,7 +209,7 @@ export class PdfILogger {
             ...$event,
             width: this._getPdfJS().pdfViewer.container.clientWidth,
             height: this._getPdfJS().pdfViewer.container.clientHeight
-          }), this._configs()?.resize?.delay || 300));
+          }), this._configs()?.resize?.delay || 1000));
 
     if (this._configs()?.pdfjs_events?.includes('rotateccw'))
       this._getPdfJS().eventBus.on('rotateccw', ($event) => this._handlePDFJSEvents('rotateccw',

@@ -11,7 +11,7 @@ import { UsersModule } from './users/users.module';
 import { PDFDocumentLinksModule } from './pdf-document-links/pdf-document-links.module';
 import { PDFReaderModule } from './pdf-reader/pdf-reader.module';
 import { AnnotationsModule } from './annotations/annotations.module';
-import { InteractionLogsModule } from './interaction-logs/interaction-logs.module';
+import { ILogsModule } from './ilogs/ilogs.module';
 import { PDFDocumentTextsModule } from './pdf-document-texts/pdf-document-texts.module';
 import { UserAdminModule } from './user-admin/user-admin.module';
 import { WinstonModule } from 'nest-winston';
@@ -32,9 +32,10 @@ import * as DailyRotateFile from 'winston-daily-rotate-file';
         transports: [
           new winston.transports.Console(),
           new DailyRotateFile({
-            filename: `${config.get('STORAGE_PATH')}/logs/app-%DATE%.log`,
+            filename: `${config.get('STORAGE_PATH')}/logs/%DATE%.log`,
             datePattern: 'YYYY-MM-DD',
             zippedArchive: true,
+            maxSize: '128m',
           }),
         ],
       })
@@ -49,7 +50,7 @@ import * as DailyRotateFile from 'winston-daily-rotate-file';
     PDFDocumentLinksModule,
     PDFReaderModule,
     AnnotationsModule,
-    InteractionLogsModule,
+    ILogsModule,
     PDFDocumentTextsModule,
   ],
   controllers: [AppController],

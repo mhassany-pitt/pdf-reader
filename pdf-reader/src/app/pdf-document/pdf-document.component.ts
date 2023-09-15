@@ -204,9 +204,6 @@ export class PDFDocumentComponent implements OnInit {
       this.pdfDocument.file_url = null;
       setTimeout(() => this.confirmOutlineExtraction(), 1000);
     }));
-
-    // TODO: for development only --
-    // new HelperAnnotator({ iframe, pdfjs, storage, annotator });
   }
 
   async locateTexts() {

@@ -23,6 +23,7 @@ export class PdfHighlighter {
   private _getDocument() { return this.registry.getDocument(); }
   private _getPdfJS() { return this.registry.getPdfJS(); }
   private _getStorage() { return this.registry.get('storage'); }
+  private _getViewer() { return this.registry.get('highlight-viewer'); }
 
   private _highlightOnTextSelection() {
     let mdown = false, mdragging = false;
@@ -55,7 +56,7 @@ export class PdfHighlighter {
           };
           this._getStorage().create(highlight, () => {
             this._getWindow().getSelection().removeAllRanges();
-            this.registry.get('highlight-viewer').render(highlight);
+            this._getViewer().render(highlight);
           });
         }
       }

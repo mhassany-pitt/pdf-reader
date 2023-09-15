@@ -48,10 +48,13 @@ export class AnnotationsController {
   @Post(':groupId')
   async post(@Req() req: any, @Param('groupId') groupId: string,
     @Body() annotation: any, @Query('user_id') user_id: string) {
-    return useId(await this.service.create({
+    const annot = useId(await this.service.create({
       user_id: this.getUserId(req, user_id),
       groupId, annotation
     }));
+    delete annot.user_id;
+    delete annot.group_id;
+    return annot;
   }
 
   @Get(':groupId/annotators')
@@ -64,10 +67,13 @@ export class AnnotationsController {
   async update(@Req() req: any, @Param('groupId') groupId: string,
     @Param('id') id: string, @Body() annotation: any, @Query('user_id') user_id: string) {
     await this._getOrFail({ user_id: this.getUserId(req, user_id), groupId, id });
-    return useId(await this.service.update({
+    const annot = useId(await this.service.update({
       user_id: this.getUserId(req, user_id),
       groupId, id, annotation
     }));
+    delete annot.user_id;
+    delete annot.group_id;
+    return annot;
   }
 
   @Delete(':groupId/:id')

@@ -32,9 +32,7 @@ export class PdfDelete {
         $event.stopPropagation();
         const annotId = annotEl.getAttribute('data-annotation-id');
         const annot = await this._getStorage().read(annotId);
-        annotEl.remove();
-        await this._getStorage().delete(annot);
-        this.registry.list(`${annot.type}.deleted.`).forEach(k => this.registry.get(k)(annot));
+        await this._getStorage().delete(annot, () => annotEl.remove());
       }
     });
   }

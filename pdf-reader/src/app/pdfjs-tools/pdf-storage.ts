@@ -97,13 +97,16 @@ export class PdfStorage {
 
       const api = `${this._apiUrl()}?${qparamsToString(await this.getUserId())}`;
       const req = this.registry.get('http').post(api, annot, { withCredentials: isSameOrigin(api) });
-      const resp: any = await firstValueFrom(req);
-      annot.id = resp.id;
+      annot = await firstValueFrom(req);
       annot.pages.forEach(page => {
         if (page in this._annots == false)
           this._annots[page] = [];
         this._annots[page].push(annot);
       });
+
+      for (const key of this.registry.list('storage.created.'))
+        await this.registry.get(key)(annot);
+
       then?.();
     } catch (error) { console.error(error); }
   }
@@ -115,13 +118,17 @@ export class PdfStorage {
 
       const api = `${this._apiUrl()}/${annot.id}?${qparamsToString(await this.getUserId())}`;
       const req = this.registry.get('http').patch(api, annot, { withCredentials: isSameOrigin(api) });
-      await firstValueFrom(req);
+      const updated = await firstValueFrom(req);
       annot.pages
         .filter(page => page in this._annots)
         .forEach(page => {
           const index = this._annots[page].indexOf(annot);
-          if (index > -1) this._annots[page][index] = annot;
+          if (index > -1) this._annots[page][index] = updated;
         });
+
+      for (const key of this.registry.list('storage.updated.'))
+        await this.registry.get(key)(annot);
+
       then?.();
     } catch (error) { console.error(error); }
   }
@@ -140,9 +147,11 @@ export class PdfStorage {
           const index = this._annots[page].indexOf(annot);
           if (index > -1) this._annots[page].splice(index, 1);
         });
+
+      for (const key of this.registry.list('storage.deleted.'))
+        await this.registry.get(key)(annot);
+
       then?.();
     } catch (error) { console.error(error); }
   }
 }
-
-// TODO: can we update the annotations? 

@@ -43,8 +43,6 @@ async function bootstrap() {
 }
 bootstrap();
 
-// TODO: privacy issue with sharing annotations
-// TODO: remember who is selected in showing annoations
 // TODO: plugin dev environment
 // TODO: also load author's annotations
 // TODO: add custom message to unauthorized page (in pdf-reader) and possibly to login page

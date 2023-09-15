@@ -15,9 +15,12 @@ export class PdfNoteViewer {
     this.registry.register(this.getType().viewer, this);
 
     // remove popup on delete
-    this.registry.register(`note.deleted.${Math.random()}`,
-      (annot) => removeSelectorAll(this._getDocumentEl(),
-        `.pdf-annotation__note-viewer-popup[data-note-id="${annot.id}"]`));
+    this.registry.register(`storage.deleted.${Math.random()}`, (annot) => {
+      if (annot.type == 'note') {
+        removeSelectorAll(this._getDocumentEl(),
+          `.pdf-annotation__note-viewer-popup[data-note-id="${annot.id}"]`);
+      }
+    });
 
     this.onAnnotMouseOver();
     this._attachStylesheet();

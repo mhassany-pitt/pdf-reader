@@ -47,7 +47,6 @@ export class PdfRemoveOnDelete {
     this._getDocument().addEventListener('keydown', ($event: any) => {
       if (this.selected && ['Delete', 'Backspace'].includes($event.key) && this._isDeleteable($event))
         this._getStorage().delete(this.selected, () => {
-          this.registry.list(`${this.selected.type}.deleted.`).forEach(k => this.registry.get(k)(this.selected));
           removeSelectorAll(this._getDocumentEl(), `.pdf-annotations [data-annotation-id="${this.selected.id}"]`);
           this.selected = null;
         });

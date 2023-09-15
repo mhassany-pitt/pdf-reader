@@ -15,11 +15,13 @@ export class PdfHighlightNoteEditor {
     this.registry.register('highlight-note-editor', this);
     this.registry.register(`configs.default.highlight-note`, () => PdfHighlightNoteEditor.defaultConfigs());
 
-    // remove popup on delete
     for (const type of ['underline', 'highlight', 'strikethrough'])
-      this.registry.register(`${type}.deleted.${Math.random()}`,
-        (annot) => removeSelectorAll(this._getDocumentEl(),
-          `.pdf-annotation__highlight-note-editor-popup[data-highlight-id="${annot.id}"]`));
+      this.registry.register(`storage.deleted.${Math.random()}`, (annot) => {
+        if (annot.type == type) {
+          removeSelectorAll(this._getDocumentEl(),
+            `.pdf-annotation__highlight-note-editor-popup[data-highlight-id="${annot.id}"]`);
+        }
+      });
 
     this._onHighlightClick();
   }
@@ -32,6 +34,7 @@ export class PdfHighlightNoteEditor {
   private _getDocument() { return this.registry.getDocument(); }
   private _getDocumentEl() { return this.registry.getDocumentEl(); }
   private _getPdfJS() { return this.registry.getPdfJS(); }
+  private _getStorage() { return this.registry.get('storage'); }
 
   private _onHighlightClick() {
     this._getDocument().addEventListener('click', async ($event: any) => {
@@ -47,7 +50,7 @@ export class PdfHighlightNoteEditor {
         const annotId = viewerPopup
           ? viewerPopup.getAttribute('data-highlight-id')
           : annotEl.getAttribute('data-annotation-id');
-        const annot = this.registry.get('storage').read(annotId);
+        const annot = this._getStorage().read(annotId);
         const bound = getAnnotElBound(pageEl.querySelector(`[data-annotation-id="${annotId}"]`));
         this._showEditorPopup(annot, getPageNum(pageEl), bound);
       } else if (!$event.target.closest('.pdf-annotation__highlight-note-editor-popup')) {
@@ -102,10 +105,8 @@ export class PdfHighlightNoteEditor {
 
     const textarea = popupEl.querySelector('textarea');
     textarea?.addEventListener('blur', async () => {
-      if (this._getDocumentEl().querySelector(`[data-annotation-id="${annot.id}"]`)) {
-        annot.note = textarea.value;
-        this.registry.get('storage').update(annot);
-      }
+      if (this._getDocumentEl().querySelector(`[data-annotation-id="${annot.id}"]`))
+        this._getStorage().update({ ...annot, note: textarea.value }, () => annot.note = textarea.value);
     });
   }
 }

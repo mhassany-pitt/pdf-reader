@@ -126,7 +126,9 @@ export class PdfFilterToolbarBtn extends PdfToolbarBtn {
     const showBtnEl = containerEl.querySelector('.pdf-annotation-toolbar__annotator-options button') as HTMLButtonElement;
     const annotatorsEl = containerEl.querySelector('.pdf-annotation-toolbar__annotators') as HTMLElement;
 
-    const filtered = () => this._getSelecteds().filter(id => ['none', 'mine', 'all'].includes(id) === false);
+    const filtered = () => this._getSelecteds()
+      .filter(id => ['none', 'mine', 'all'].includes(id) === false);
+
     const updateFilterUI = async (force?: boolean) => {
       const html = filtered().map(displayName =>
         `<div class="pdf-annotation-toolbar__annotator" data-annotator-id="${displayName}">
@@ -175,6 +177,9 @@ export class PdfFilterToolbarBtn extends PdfToolbarBtn {
   }
 
   private _getDisplayNameEl() {
+    if (!this._getFilter().getDisplayName())
+      this._getFilter().setDisplayName(`user:${Date.now()}`);
+
     const containerEl = htmlToElements(
       `<form class="pdf-annotation-toolbar__display-name" autocomplete="off">
         <input placeholder="Display Name" value="${this._getFilter().getDisplayName()}" />
