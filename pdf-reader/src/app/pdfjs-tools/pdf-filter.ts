@@ -17,6 +17,8 @@ export class PdfFilter {
     this.registry.register(`storage.oncreate.${Math.random()}`, (annot: any) => {
       if (!annot.misc) annot.misc = {};
       annot.misc.displayName = this.getDisplayName();
+      if (this.getVisibility() == 'private')
+        annot.misc.visibility = 'private';
     });
   }
 
@@ -30,4 +32,6 @@ export class PdfFilter {
   setSelecteds(selecteds: string[]) { this._state.annotators = selecteds; }
   getDisplayName() { return this._state.displayName; }
   setDisplayName(displayName: string) { this._state.displayName = displayName; }
+  getVisibility() { return this._state.visibility; }
+  setVisibility(visibility: string) { this._state.visibility = visibility; }
 }

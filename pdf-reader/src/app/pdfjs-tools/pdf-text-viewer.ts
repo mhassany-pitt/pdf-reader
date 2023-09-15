@@ -23,17 +23,17 @@ export class PdfTextViewer extends PdfNoteViewer {
         class="
           pdf-annotation__text
           pdf-annotation--unfocusable
-          ${configs?.moveable ? 'pdf-annotation--moveable' : ''}
-          ${configs?.deletable ? 'pdf-annotation--deletable' : ''}" 
+          ${configs?.move ? 'pdf-annotation--moveable' : ''}
+          ${configs?.delete ? 'pdf-annotation--deletable' : ''}" 
         style="
           top: calc(${rect.top}%);
           left: calc(${rect.left}%);
           right: calc(${rect.right}%);
           bottom: calc(${rect.bottom}%);
         ">
-        ${configs?.moveable ? `<div class="pdf-annotation__embed-move-btn" style="font-size: calc(${scaleFactor} * 1rem);">✥</div>` : ''}
+        ${configs?.move ? `<div class="pdf-annotation__embed-move-btn" style="font-size: calc(${scaleFactor} * 1rem);">✥</div>` : ''}
         <textarea 
-          class="${configs?.moveable ? 'pdf-annotation--moveable-excluded' : ''}"
+          class="${configs?.move ? 'pdf-annotation--moveable-excluded' : ''}"
           ${editor ? 'placeholder="Text ..."' : ''}
           readonly="true"
           style="font-size: ${scale(this._getPdfJS()) * 100}%;"
@@ -46,7 +46,7 @@ export class PdfTextViewer extends PdfNoteViewer {
     // exclude the textarea from movement (user need to select text) 
     // but allow user to resize the text area
     textarea.addEventListener('mousemove', ($event) => {
-      if (configs?.moveable) {
+      if (configs?.move) {
         const bottomRight = textarea.offsetHeight - $event.offsetY <= 16
           && textarea.offsetWidth - $event.offsetX <= 16;
         if (bottomRight)

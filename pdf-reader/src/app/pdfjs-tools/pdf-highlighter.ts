@@ -45,7 +45,7 @@ export class PdfHighlighter {
       if (mdragging) {
         const rects = getSelectionRects(this._getDocument(), this._getPdfJS());
         if (rects && Object.keys(rects).length) {
-          const highlight = {
+          const annot = {
             id: uuid(),
             type: this.type,
             color: this.color,
@@ -54,10 +54,8 @@ export class PdfHighlighter {
             rects,
             pages: Object.keys(rects).map(k => parseInt(k))
           };
-          this._getStorage().create(highlight, () => {
-            this._getWindow().getSelection().removeAllRanges();
-            this._getViewer().render(highlight);
-          });
+          this._getWindow().getSelection().removeAllRanges();
+          this._getStorage().create(annot, () => this._getViewer().render(annot));
         }
       }
     };

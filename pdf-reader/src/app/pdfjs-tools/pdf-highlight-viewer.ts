@@ -61,7 +61,7 @@ export class PdfHighlightViewer {
               class="
                 pdf-annotation__rect 
                 ${annot.type ? 'pdf-annotation__' + annot.type : ''}
-                ${configs?.deletable ? 'pdf-annotation--deletable' : ''}"
+                ${configs?.delete ? 'pdf-annotation--deletable' : ''}"
               style="
                 top: calc(${rect.top}% + 1px);
                 bottom: calc(${rect.bottom}% + 1px);

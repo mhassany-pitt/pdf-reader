@@ -14,8 +14,8 @@ export class PdfEmbedToolbarBtn extends PdfToolbarBtn {
   protected _configs() { return this.registry.get(`configs.embed`); }
   static defaultConfigs() {
     return {
-      deletable: true,
-      moveable: true,
+      delete: true,
+      move: true,
       inline: true,
       popup: {
         fullscreen: true,

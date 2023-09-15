@@ -14,8 +14,8 @@ export class PdfNoteToolbarBtn extends PdfToolbarBtn {
   protected _configs() { return this.registry.get(`configs.${this.getType().type}`); }
   static defaultConfigs() {
     return {
-      deletable: true,
-      moveable: true,
+      delete: true,
+      move: true,
     };
   }
 

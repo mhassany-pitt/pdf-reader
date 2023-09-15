@@ -71,8 +71,8 @@ export class PdfNoteViewer {
         tabindex="-1"
         class="
           pdf-annotation__note 
-          ${configs?.moveable ? 'pdf-annotation--moveable' : ''}
-          ${configs?.deletable ? 'pdf-annotation--deletable' : ''}" 
+          ${configs?.move ? 'pdf-annotation--moveable' : ''}
+          ${configs?.delete ? 'pdf-annotation--deletable' : ''}" 
         style="
           top: calc(${rect.top}%);
           left: calc(${rect.left}%);

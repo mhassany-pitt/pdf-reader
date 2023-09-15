@@ -5,14 +5,12 @@ import {
 import { AnnotationsService } from './annotations.service';
 import { AuthenticatedGuard } from 'src/auth/authenticated.guard';
 import { useId } from 'src/utils';
-import { UsersService } from 'src/users/users.service';
 
 @Controller('annotations')
 export class AnnotationsController {
 
   constructor(
     private service: AnnotationsService,
-    private users: UsersService,
   ) { }
 
   private async _getOrFail({ user_id, groupId, id }) {

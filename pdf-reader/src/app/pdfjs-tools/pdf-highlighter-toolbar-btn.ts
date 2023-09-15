@@ -22,7 +22,7 @@ export class PdfHighlighterToolbarBtn extends PdfToolbarBtn {
   protected _defaultConfigs() { return PdfHighlighterToolbarBtn.defaultConfigs(); }
   static defaultConfigs() {
     return {
-      deletable: true,
+      delete: true,
       colors: [
         '#ffd40075:#ffd400',
         '#ff656375:#ff6563',

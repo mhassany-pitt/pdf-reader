@@ -19,8 +19,8 @@ export class PdfFreeformToolbarBtn extends PdfToolbarBtn {
   protected _configs() { return this.registry.get(`configs.freeform`); }
   static defaultConfigs() {
     return {
-      deletable: true,
-      moveable: true,
+      delete: true,
+      move: true,
       colors: [
         '#ffd400',
         '#ff6563',

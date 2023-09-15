@@ -14,17 +14,32 @@ export class AnnotationsService {
   ) { }
 
   async list({ user_id, groupId, pages, annotators }) {
-    const filter: any = { group_id: groupId };
+    const consts = [
+      { group_id: groupId },
+      pages ? { pages: { $in: pages.split(',').map(p => parseInt(p)) } } : null
+    ].filter(f => f);
 
-    if (pages) {
-      filter.pages = { $in: pages.split(',').map(p => parseInt(p)) };
+    let filter = null;
+    if (annotators == 'all') {
+      filter = {
+        $and: [
+          ...consts,
+          { $or: [{ user_id }, { 'misc.visibility': { $ne: 'private' } }] }
+        ]
+      };
+    } else if (annotators == 'mine') {
+      filter = { $and: [...consts, { user_id }] };
+    } else if (annotators == 'none' || !annotators) {
+      filter = { user_id: `[added-to-return-empty]${Math.random()}` };
+    } else {
+      filter = {
+        $and: [
+          ...consts,
+          { 'misc.displayName': { $in: annotators.split(',') } },
+          { $or: [{ user_id }, { 'misc.visibility': { $ne: 'private' } }] }
+        ]
+      };
     }
-
-    /**/ if (annotators == 'all') { }
-    else if (annotators == 'mine') filter.user_id = user_id;
-    else if (annotators == 'none') filter.user_id = `[added-to-return-empty]${Math.random()}`;
-    else if (annotators) /*     */ filter['misc.displayName'] = { $in: annotators.split(',') };
-    else /*                     */ filter.user_id = `[added-to-return-empty]${Math.random()}`;
 
     return (await this.annotations.find(filter)).map(toObject);
   }

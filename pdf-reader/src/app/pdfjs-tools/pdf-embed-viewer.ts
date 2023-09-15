@@ -68,8 +68,8 @@ export class PdfEmbedViewer {
         tabindex="-1"
         class="
           pdf-annotation__embed 
-          ${configs?.moveable ? 'pdf-annotation--moveable' : ''}
-          ${configs?.deletable ? 'pdf-annotation--deletable' : ''}" 
+          ${configs?.move ? 'pdf-annotation--moveable' : ''}
+          ${configs?.delete ? 'pdf-annotation--deletable' : ''}" 
         style="
           top: ${bound.top}%;
           left: ${bound.left}%;
@@ -83,7 +83,7 @@ export class PdfEmbedViewer {
           justify-content: center;
         ">
         <div class="top-right">
-          ${configs?.moveable && annot.target == 'inline-iframe' ? `<div class="pdf-annotation__embed-move-btn" style="font-size: calc(${scaleFactor} * 1rem);">✥</div>` : ''}
+          ${configs?.move && annot.target == 'inline-iframe' ? `<div class="pdf-annotation__embed-move-btn" style="font-size: calc(${scaleFactor} * 1rem);">✥</div>` : ''}
           ${editor ? `<div class="pdf-annotation__embed-edit-btn" style="font-size: calc(${scaleFactor} * 1.25rem);">⚙</div>` : ''}
         </div>
         ${editor ? '<img class="resize-icon" draggable="false" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABlBMVEVHcExmZmZEBjuPAAAAAXRSTlMAQObYZgAAABRJREFUeAFjYAICFiYOJiEmJSYXAAHyAJWhegUKAAAAAElFTkSuQmCC"/>' : ''}

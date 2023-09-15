@@ -63,7 +63,7 @@ export class PdfFilterToolbarBtn extends PdfToolbarBtn {
   }
 
   private getToolbarDetailsEl() {
-    return [this._getFilterEl(), this._getDisplayNameEl()];
+    return [this._getFilterEl(), this._getSeparatorEl(), this._getDisplayNameEl(), this._getVisibilityEl()];
   }
 
   private _getFilterEl() {
@@ -95,9 +95,6 @@ export class PdfFilterToolbarBtn extends PdfToolbarBtn {
           }
           .pdf-annotation-toolbar__annotator-options > select {
             flex-grow: 1;
-          }
-          .pdf-annotation-toolbar__annotator-options > span {
-            display: none;
           }
 
           .pdf-annotation-toolbar__annotators {
@@ -176,29 +173,37 @@ export class PdfFilterToolbarBtn extends PdfToolbarBtn {
     return containerEl;
   }
 
+  private _getSeparatorEl() {
+    return htmlToElements(
+      `<div class="pdf-annotation-toolbar__filter-new-annots">
+        <span>New Annotations</span>
+        <style>
+          .pdf-annotation-toolbar__filter-new-annots {
+            border-top: solid 1px lightgray; 
+            padding-top: 0.25rem; 
+            color: white; 
+            font-size: 0.85rem;
+          }
+        </style>
+      </div>`);
+  }
+
   private _getDisplayNameEl() {
     if (!this._getFilter().getDisplayName())
       this._getFilter().setDisplayName(`user:${Date.now()}`);
 
     const containerEl = htmlToElements(
       `<form class="pdf-annotation-toolbar__display-name" autocomplete="off">
-        <input placeholder="Display Name" value="${this._getFilter().getDisplayName()}" />
-        <span>it will be used to mark your annotations.</span>
+        <input placeholder="Display Name" 
+          title="Use a display name to mark your annotations" 
+          value="${this._getFilter().getDisplayName()}" />
         <style>
           .pdf-annotation-toolbar__display-name {
             display: flex;
             flex-direction: column;
-            border-top: solid 1px lightgray;
-            margin-top: 0.25rem;
-            padding-top: 0.25rem;
           }
-
           .pdf-annotation-toolbar__display-name > input {
             outline: none;
-          }
-          .pdf-annotation-toolbar__display-name > span {
-            font-size: 0.75rem;
-            color: lightgray;
           }
         </style>
       </form>`);
@@ -209,6 +214,35 @@ export class PdfFilterToolbarBtn extends PdfToolbarBtn {
     displayNameEl.addEventListener('blur', () => {
       displayNameEl.value = displayNameEl.value.replaceAll(',', '');
       this._getFilter().setDisplayName(displayNameEl.value);
+      this._getFilter().persist();
+    });
+
+    return containerEl;
+  }
+
+  private _getVisibilityEl() {
+    const containerEl = htmlToElements(
+      `<div class="pdf-annotation-toolbar__visibility">
+        <label>
+          <input type="checkbox" ${this._getFilter().getVisibility() == 'private' ? 'checked' : ''} />
+          <span>Private (others can't view)</span>  
+        </label>
+        <style>
+          .pdf-annotation-toolbar__visibility > label {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+          }
+          .pdf-annotation-toolbar__visibility span {
+            font-size: 0.85rem;
+            color: white;
+          }
+        </style>
+      </div>`);
+
+    const visibilityEl = containerEl.querySelector('input') as HTMLInputElement;
+    visibilityEl.addEventListener('click', () => {
+      this._getFilter().setVisibility(visibilityEl.checked ? 'private' : 'public');
       this._getFilter().persist();
     });
 

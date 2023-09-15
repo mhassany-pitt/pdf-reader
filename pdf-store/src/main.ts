@@ -44,7 +44,5 @@ async function bootstrap() {
 bootstrap();
 
 // TODO: plugin dev environment
-// TODO: also load author's annotations
 // TODO: add custom message to unauthorized page (in pdf-reader) and possibly to login page
-// TODO: change the visibility of my annotations
 // TODO: adding tags to annotations

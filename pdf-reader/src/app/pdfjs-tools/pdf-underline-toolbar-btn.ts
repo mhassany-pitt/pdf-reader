@@ -6,7 +6,7 @@ export class PdfUnderlineToolbarBtn extends PdfHighlighterToolbarBtn {
   protected override _defaultConfigs() { return PdfUnderlineToolbarBtn.defaultConfigs(); }
   static override defaultConfigs() {
     return {
-      deletable: true,
+      delete: true,
       colors: [
         '#ffd400',
         '#ff6563',

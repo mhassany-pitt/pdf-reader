@@ -76,15 +76,12 @@ export class PdfFreeformEditor {
         const { canvas, ...bound } = cropped;
         annot.freeforms[pageNum] = { ...bound, dataUrl: canvas.toDataURL() };
       }
+      canvases[pageNum].remove();
     }
 
-    if (Object.keys(annot.freeforms).length)
-      this._getStorage().create(annot, () => {
-        for (const pageNum of annot.pages)
-          canvases[pageNum].remove();
-
-        this._getViewer().render(annot);
-      });
+    if (Object.keys(annot.freeforms).length) {
+      this._getStorage().create(annot, () => this._getViewer().render(annot));
+    }
   }
 
   private _attachCanvasOnMousedown() {

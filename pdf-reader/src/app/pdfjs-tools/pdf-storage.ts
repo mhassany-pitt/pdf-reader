@@ -97,11 +97,12 @@ export class PdfStorage {
 
       const api = `${this._apiUrl()}?${qparamsToString(await this.getUserId())}`;
       const req = this.registry.get('http').post(api, annot, { withCredentials: isSameOrigin(api) });
-      annot = await firstValueFrom(req);
+      const resp: any = await firstValueFrom(req);
+      annot.id = resp.id;
       annot.pages.forEach(page => {
         if (page in this._annots == false)
           this._annots[page] = [];
-        this._annots[page].push(annot);
+        this._annots[page].push(resp);
       });
 
       for (const key of this.registry.list('storage.created.'))
@@ -118,12 +119,12 @@ export class PdfStorage {
 
       const api = `${this._apiUrl()}/${annot.id}?${qparamsToString(await this.getUserId())}`;
       const req = this.registry.get('http').patch(api, annot, { withCredentials: isSameOrigin(api) });
-      const updated = await firstValueFrom(req);
+      const resp: any = await firstValueFrom(req);
       annot.pages
         .filter(page => page in this._annots)
         .forEach(page => {
           const index = this._annots[page].indexOf(annot);
-          if (index > -1) this._annots[page][index] = updated;
+          if (index > -1) this._annots[page][index] = resp;
         });
 
       for (const key of this.registry.list('storage.updated.'))

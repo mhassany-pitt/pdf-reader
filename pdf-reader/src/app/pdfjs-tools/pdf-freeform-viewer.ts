@@ -55,8 +55,8 @@ export class PdfFreeformViewer {
             tabindex="-1" 
             class="
               pdf-annotation__freeform 
-              ${configs?.moveable ? 'pdf-annotation--moveable' : ''}
-              ${configs?.deletable ? 'pdf-annotation--deletable' : ''}" 
+              ${configs?.move ? 'pdf-annotation--moveable' : ''}
+              ${configs?.delete ? 'pdf-annotation--deletable' : ''}" 
             style="
               top: ${bound.top}%;
               bottom: ${bound.bottom}%;

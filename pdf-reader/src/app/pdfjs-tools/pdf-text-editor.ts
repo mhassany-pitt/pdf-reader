@@ -47,7 +47,8 @@ export class PdfTextEditor extends PdfNoteEditor {
         this._editor = viewerEl.querySelector('textarea');
         this._editor.removeAttribute('readonly');
       } else if (this._editor) {
-        this._getStorage().update({ ...this._annot, note: this._editor.value }, () => this._annot.note = this._editor.value);
+        this._annot.note = this._editor.value;
+        this._getStorage().update(this._annot);
         this._editor.setAttribute('readonly', 'true');
         this._editor = null;
         this._annot = null;
