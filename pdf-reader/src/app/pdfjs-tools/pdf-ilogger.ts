@@ -1,5 +1,5 @@
 import { environment } from "src/environments/environment";
-import { getSelectionRects } from "./pdf-utils";
+import { getSelectionRects, scale } from "./pdf-utils";
 import { PdfRegistry } from "./pdf-registry";
 import { isSameOrigin } from "./pdf-utils";
 
@@ -17,39 +17,36 @@ export class PdfILogger {
 
     this.startedAt = new Date().getTime();
 
-    this._setupOnClick();
-    this._setupOnContextMenu();
-    this._setupOnMouseDown();
-    this._setupOnMouseMove();
-    this._setupOnMouseUp();
-    this._setupOnViewScroll();
-    this._setupOnPDFJSEvents();
+    this._handleDocumentEvents();
+    this._handlePdfJSEvents();
+    this._handleAnntationEvents();
   }
 
   protected _configs() { return this.registry.get(`configs.ilogger`); }
   static defaultConfigs() {
     return {
       apiUrl: `${environment.apiUrl}/ilogs`,
-      document_events: [
-        'click', 'contextmenu', 'mousedown', 'mousemove', 'mouseup', 'scroll'
+      document: [
+        'click', 'contextmenu', 'mousedown', 'mousemove', 'mouseup', 'scroll', 'change'
       ],
-      pdfjs_events: [
+      pdfjs: [
         'currentoutlineitem', 'outlineloaded', 'toggleoutlinetree', 'find', 'findbarclose',
         'documentloaded', 'presentationmodechanged', 'pagenumberchanged', 'scalechanged', 'scrollmodechanged',
         'sidebarviewchanged', 'spreadmodechanged', 'zoomin', 'zoomout', 'resize', 'rotateccw', 'rotatecw'
       ],
-      mousemove: { delay: 1000 },
-      scroll: { delay: 1000 },
-      resize: { delay: 1000 },
+      annotation: ['created', 'updated', 'deleted'],
+      mousemove: { delay: 300 },
+      scroll: { delay: 300 },
+      resize: { delay: 300 },
     };
   }
 
   protected _getDocument() { return this.registry.getDocument(); }
   protected _getPdfJS() { return this.registry.getPdfJS(); }
 
-  private _log($event: any) {
+  log($event: { event: string, [key: string]: any }) {
     const now = new Date().getTime();
-    const log = {
+    const log: any = {
       ...$event,
       pdfDocId: this.registry.get('pdfDocId'),
       elapsed: now - this.startedAt,
@@ -57,10 +54,9 @@ export class PdfILogger {
     };
 
     const apiUrl = this._configs()?.apiUrl;
-    const userId = this.registry.get('userId');
     if (apiUrl) {
-      if (!isSameOrigin(apiUrl))
-        log.user_id = userId;
+      if (!this.registry.get('authUser'))
+        log.userId = this.registry.get('userId');
 
       this.registry.get('http')
         .post(apiUrl, log, { withCredentials: isSameOrigin(apiUrl) })
@@ -68,29 +64,67 @@ export class PdfILogger {
     }
   }
 
-  private _handleMouseEvents($event: any) {
+  private _onDocEvents($event: any) {
     const pageEl = this._getPathEl($event.target);
-    if (!pageEl)
-      return;
-
-    const log: any = {
-      type: $event.type,
+    const details: any = {
+      event: $event.type,
       button: $event.button,
-      page: this._getPageNum($event.target),
       onElem: this._relativeTopLeft($event, $event.target),
-      onPage: this._relativeTopLeft($event, pageEl),
+      ...(pageEl ? {
+        page: this._getPageNum($event.target),
+        onPage: this._relativeTopLeft($event, pageEl)
+      } : {}),
     };
 
-    if ($event.altKey) log.alt = true;
-    if ($event.ctrlKey) log.ctrl = true;
-    if ($event.metaKey) log.meta = true;
-    if ($event.shiftKey) log.shift = true;
+    if ($event.altKey) details.alt = true;
+    if ($event.ctrlKey) details.ctrl = true;
+    if ($event.metaKey) details.meta = true;
+    if ($event.shiftKey) details.shift = true;
 
-    const classes = Array.from($event.target.classList);
-    if (classes.length) log.classes = classes;
+    let elTag = $event.target.tagName;
+    if (elTag) {
+      elTag = elTag.toLowerCase(elTag);
+      const attrType = $event.target.getAttribute('type');
+      const attrName = $event.target.getAttribute('name');
+      if (elTag == 'input' && attrType) elTag += `:type-${attrType}`;
+      if (elTag == 'input' && attrName) elTag += `:name-${attrName}`;
+      const attrFor = $event.target.getAttribute('for');
+      if (elTag == 'label' && attrFor) elTag += `:for-${attrFor}`;
+      details.elTag = elTag;
+    }
+
+    const elId = $event.target.getAttribute('id');
+    if (elId) details.elId = elId;
+    else {
+      const elClosestId = $event.target.closest('[id]')?.getAttribute('id');
+      if (elClosestId) details.elClosestId = elClosestId;
+    }
+
+    const elClasses = Array.from($event.target.classList);
+    if (elClasses.length) details.elClasses = elClasses;
+    else {
+      const elClosestClasses = $event.target.closest('[class]')?.classList;
+      if (elClosestClasses) details.elClosestClasses = Array.from(elClosestClasses);
+    }
+
+    const elTitle = $event.target.getAttribute('title');
+    if (elTitle) details.elTitle = elTitle;
+
+    const elPlaceholder = $event.target.getAttribute('placeholder');
+    if (elPlaceholder) details.elPlaceholder = elPlaceholder;
+
+    const elValue = $event.target.value;
+    const elChecked = $event.target.checked;
+    if ($event.type == 'change')
+      if (elValue && elValue != 'void')
+        details.elValue = elValue;
+      else details.elValue = elChecked;
 
     const analyticId = $event.target.getAttribute('data-analytic-id');
-    if (analyticId) log.analyticId = analyticId;
+    if (analyticId) details.analyticId = analyticId;
+
+    const analytic = $event.target.getAttribute('data-analytic');
+    if (analytic) details.analytic = analytic;
 
     const rects = getSelectionRects(this._getDocument(), this._getPdfJS());
     if (rects) {
@@ -100,134 +134,104 @@ export class PdfILogger {
           delete rect['height'];
         });
       });
-      log.selectionRects = rects;
+      details.selectionRects = rects;
     }
 
-    this._log(log);
+    this.log(details);
   }
 
-  private _setupOnClick() {
-    if (this._configs()?.document_events?.includes('click'))
-      this._getDocument().addEventListener('click', ($event: any) => this._handleMouseEvents($event), true);
+  private _onDoc(event: string, handler: ($event: any) => void) {
+    if (this._configs()?.document?.includes(event))
+      this._getDocument().addEventListener(event, handler, true);
   }
 
-  private _setupOnContextMenu() {
-    if (this._configs()?.document_events?.includes('contextmenu'))
-      this._getDocument().addEventListener('contextmenu', ($event: any) => this._handleMouseEvents($event), true);
-  }
+  private _handleDocumentEvents() {
+    this._onDoc('click', ($event: any) => this._onDocEvents($event));
+    this._onDoc('contextmenu', ($event: any) => this._onDocEvents($event));
+    this._onDoc('mousedown', ($event: any) => this._onDocEvents($event));
+    this._onDoc('mousemove', ($event: any) => this._later('mousemove', () =>
+      this._onDocEvents($event), this._configs()?.mousemove?.delay || 300));
+    this._onDoc('mouseup', ($event: any) => this._onDocEvents($event));
+    this._onDoc('change', ($event: any) => this._onDocEvents($event));
 
-  private _setupOnMouseDown() {
-    if (this._configs()?.document_events?.includes('mousedown'))
-      this._getDocument().addEventListener('mousedown', ($event: any) => this._handleMouseEvents($event), true);
-  }
-
-  private _setupOnMouseMove() {
-    if (this._configs()?.document_events?.includes('mousemove'))
-      this._getDocument().addEventListener('mousemove', ($event: any) =>
-        this._later('mousemove', () => this._handleMouseEvents($event), this._configs()?.mousemove?.delay || 1000), true);
-  }
-
-  private _setupOnMouseUp() {
-    if (this._configs()?.document_events?.includes('mouseup'))
-      this._getDocument().addEventListener('mouseup', ($event: any) => this._handleMouseEvents($event), true);
-  }
-
-  private _setupOnViewScroll() {
     var viewerContainer = this._getDocument().getElementById('viewerContainer');
-    viewerContainer.addEventListener('scroll', ($event: any) =>
-      this._later('scroll', () => {
-        const containerRect = viewerContainer.getBoundingClientRect();
+    viewerContainer.addEventListener('scroll',
+      ($event: any) => this._later('scroll', () => {
         const visiblePageRects: any = {};
+        const containerRect = viewerContainer.getBoundingClientRect();
         this._getPdfJS().pdfViewer._getVisiblePages().views.forEach((page: any) => {
           const pageEl = page.view.div;
-          const pageNum = this._getPageNum(pageEl);
-          const overlap = this._findIntersectionBound(containerRect, pageEl.getBoundingClientRect());
-          if (overlap && pageNum)
-            visiblePageRects[pageNum] = overlap;
+          const pageNum = pageEl?.getAttribute('data-page-number');
+          const overlap = this._getVisiblePageRect(containerRect, pageEl.getBoundingClientRect());
+          if (overlap && pageNum) visiblePageRects[pageNum] = overlap;
         });
-        this._log({ type: 'scroll', visiblePageRects });
-      }, this._configs()?.scroll?.delay || 1000));
+        this.log({ event: 'scroll', visiblePageRects });
+      }, this._configs()?.scroll?.delay || 300));
   }
 
-  private _handlePDFJSEvents(type: string, $event: any) {
-    const event = { type };
-
+  private _onPdfJSEvents(event: string, $event: any) {
+    const payload = { event };
     for (const key in $event) // only string/number values
-      if (typeof $event[key] === 'string' || typeof $event[key] === 'number')
-        event[key] = $event[key];
+      if (['string', 'number'].includes(typeof $event[key]))
+        payload[key == 'event' ? `$${key}` : key] = $event[key];
 
-    this._log(event);
+    this.log(payload);
   }
 
-  private _setupOnPDFJSEvents() {
-    if (this._configs()?.pdfjs_events?.includes('currentoutlineitem'))
-      this._getPdfJS().eventBus.on('currentoutlineitem', ($event) => this._handlePDFJSEvents('currentoutlineitem', $event));
+  private _onPdfJS(event: string, handler: ($event: any) => void) {
+    if (this._configs()?.pdfjs?.includes(event))
+      this._getPdfJS().eventBus.on(event, handler);
+  }
 
-    if (this._configs()?.pdfjs_events?.includes('outlineloaded'))
-      this._getPdfJS().eventBus.on('outlineloaded', ($event) => this._handlePDFJSEvents('outlineloaded', $event));
+  private _handlePdfJSEvents() {
+    this._onPdfJS('currentoutlineitem', ($event) => this._onPdfJSEvents('currentoutlineitem', $event));
+    this._onPdfJS('outlineloaded', ($event) => this._onPdfJSEvents('outlineloaded', $event));
+    this._onPdfJS('toggleoutlinetree', ($event) => this._onPdfJSEvents('toggleoutlinetree', $event));
+    this._onPdfJS('find', ($event) => this._later('find', () => this._onPdfJSEvents('find', $event), 300));
+    this._onPdfJS('findbarclose', ($event) => this._onPdfJSEvents('findbarclose', $event));
+    this._onPdfJS('documentloaded', ($event) => this._onPdfJSEvents('documentloaded', $event));
+    this._onPdfJS('presentationmodechanged', ($event) => this._onPdfJSEvents('presentationmodechanged', $event));
+    this._onPdfJS('pagenumberchanged', ($event) => this._onPdfJSEvents('pagenumberchanged', $event));
+    this._onPdfJS('scalechanged', ($event) => this._onPdfJSEvents('scalechanged', $event));
+    this._onPdfJS('scrollmodechanged', ($event) => this._onPdfJSEvents('scrollmodechanged', $event));
+    this._onPdfJS('sidebarviewchanged', ($event) => this._onPdfJSEvents('sidebarviewchanged', $event));
+    this._onPdfJS('spreadmodechanged', ($event) => this._onPdfJSEvents('spreadmodechanged', $event));
+    this._onPdfJS('zoomin', ($event) => this._onPdfJSEvents('zoomin', { ...$event, scale: scale(this._getPdfJS()) }));
+    this._onPdfJS('zoomout', ($event) => this._onPdfJSEvents('zoomout', { ...$event, scale: scale(this._getPdfJS()) }));
 
-    if (this._configs()?.pdfjs_events?.includes('toggleoutlinetree'))
-      this._getPdfJS().eventBus.on('toggleoutlinetree', ($event) => this._handlePDFJSEvents('toggleoutlinetree', $event));
+    const resizeDelay = this._configs()?.resize?.delay || 300;
+    const container = this._getPdfJS().pdfViewer.container;
+    this._onPdfJS('resize', ($event) => this._later('resize', () =>
+      this._onPdfJSEvents('resize', { ...$event, width: container.clientWidth, height: container.clientHeight }),
+      resizeDelay));
 
-    if (this._configs()?.pdfjs_events?.includes('find'))
-      this._getPdfJS().eventBus.on('find', ($event) => this._handlePDFJSEvents('find', $event));
+    const rotation = () => this._getPdfJS().pdfViewer.pagesRotation;
+    this._onPdfJS('rotateccw', ($event) => this._onPdfJSEvents('rotateccw', { ...$event, rotation: rotation() }));
+    this._onPdfJS('rotatecw', ($event) => this._onPdfJSEvents('rotatecw', { ...$event, rotation: rotation() }));
+  }
 
-    if (this._configs()?.pdfjs_events?.includes('findbarclose'))
-      this._getPdfJS().eventBus.on('findbarclose', ($event) => this._handlePDFJSEvents('findbarclose', $event));
+  private _handleAnntationEvents() {
+    if (this._configs()?.annotation?.includes('created'))
+      this.registry.register(`storage.created.${Math.random()}`,
+        (annot) => this.log({ event: 'annotCreated', annot }));
 
-    if (this._configs()?.pdfjs_events?.includes('documentloaded'))
-      this._getPdfJS().eventBus.on('documentloaded', ($event) => this._handlePDFJSEvents('documentloaded', $event));
+    if (this._configs()?.annotation?.includes('updated'))
+      this.registry.register(`storage.updated.${Math.random()}`,
+        (annot) => this.log({ event: 'annotUpdated', annot }));
 
-    if (this._configs()?.pdfjs_events?.includes('presentationmodechanged'))
-      this._getPdfJS().eventBus.on('presentationmodechanged', ($event) => this._handlePDFJSEvents('presentationmodechanged', $event));
-
-    if (this._configs()?.pdfjs_events?.includes('pagenumberchanged'))
-      this._getPdfJS().eventBus.on('pagenumberchanged', ($event) => this._handlePDFJSEvents('pagenumberchanged', $event));
-
-    if (this._configs()?.pdfjs_events?.includes('scalechanged'))
-      this._getPdfJS().eventBus.on('scalechanged', ($event) => this._handlePDFJSEvents('scalechanged', $event));
-
-    if (this._configs()?.pdfjs_events?.includes('scrollmodechanged'))
-      this._getPdfJS().eventBus.on('scrollmodechanged', ($event) => this._handlePDFJSEvents('scrollmodechanged', $event));
-
-    if (this._configs()?.pdfjs_events?.includes('sidebarviewchanged'))
-      this._getPdfJS().eventBus.on('sidebarviewchanged', ($event) => this._handlePDFJSEvents('sidebarviewchanged', $event));
-
-    if (this._configs()?.pdfjs_events?.includes('spreadmodechanged'))
-      this._getPdfJS().eventBus.on('spreadmodechanged', ($event) => this._handlePDFJSEvents('spreadmodechanged', $event));
-
-    if (this._configs()?.pdfjs_events?.includes('zoomin'))
-      this._getPdfJS().eventBus.on('zoomin', ($event) => this._handlePDFJSEvents('zoomin', $event));
-
-    if (this._configs()?.pdfjs_events?.includes('zoomout'))
-      this._getPdfJS().eventBus.on('zoomout', ($event) => this._handlePDFJSEvents('zoomout', $event));
-
-    if (this._configs()?.pdfjs_events?.includes('resize'))
-      this._getPdfJS().eventBus.on('resize',
-        ($event) => this._later('resize', () =>
-          this._handlePDFJSEvents('resize', {
-            ...$event,
-            width: this._getPdfJS().pdfViewer.container.clientWidth,
-            height: this._getPdfJS().pdfViewer.container.clientHeight
-          }), this._configs()?.resize?.delay || 1000));
-
-    if (this._configs()?.pdfjs_events?.includes('rotateccw'))
-      this._getPdfJS().eventBus.on('rotateccw', ($event) => this._handlePDFJSEvents('rotateccw',
-        { ...$event, rotation: this._getPdfJS().pdfViewer.pagesRotation }));
-
-    if (this._configs()?.pdfjs_events?.includes('rotatecw'))
-      this._getPdfJS().eventBus.on('rotatecw', ($event) => this._handlePDFJSEvents('rotatecw',
-        { ...$event, rotation: this._getPdfJS().pdfViewer.pagesRotation }));
+    if (this._configs()?.annotation?.includes('deleted'))
+      this.registry.register(`storage.deleted.${Math.random()}`,
+        (annot) => this.log({ event: 'annotDeleted', annot }));
   }
 
   // -- util functions
 
-  private _later(type: string, then: () => void, after: number = 100) {
-    if (type in this.timeouts)
-      clearTimeout(this.timeouts[type]);
-    this.timeouts[type] = setTimeout(() => {
+  private _later(event: string, then: () => void, after: number = 100) {
+    if (event in this.timeouts)
+      clearTimeout(this.timeouts[event]);
+    this.timeouts[event] = setTimeout(() => {
       then();
-      delete this.timeouts[type];
+      delete this.timeouts[event];
     }, after);
   }
 
@@ -254,26 +258,22 @@ export class PdfILogger {
     }
   }
 
-  private _findIntersectionBound(container: DOMRect, element: DOMRect) {
-    const intersection = {
-      top: Math.max(container.top, element.top),
-      left: Math.max(container.left, element.left),
-      bottom: Math.min(container.top + container.height, element.top + element.height),
-      right: Math.min(container.left + container.width, element.left + element.width),
+  private _getVisiblePageRect(container: DOMRect, page: DOMRect) {
+    const union = {
+      top: Math.max(container.top, page.top),
+      left: Math.max(container.left, page.left),
+      bottom: Math.min(container.top + container.height, page.top + page.height),
+      right: Math.min(container.left + container.width, page.left + page.width),
     };
 
-    if (intersection.right - intersection.left <= 0
-      || intersection.bottom - intersection.top <= 0) {
+    if (union.right - union.left <= 0 || union.bottom - union.top <= 0)
       return null;
-    }
 
-    intersection.top = this._round((intersection.top - element.top) / element.height * 100);
-    intersection.left = this._round((intersection.left - element.left) / element.width * 100);
-    intersection.right = this._round((element.width - (intersection.right - element.left)) / element.width * 100);
-    intersection.bottom = this._round((element.height - (intersection.bottom - element.top)) / element.height * 100);
+    union.top = this._round((union.top - page.top) / page.height * 100);
+    union.left = this._round((union.left - page.left) / page.width * 100);
+    union.right = this._round((page.width - (union.right - page.left)) / page.width * 100);
+    union.bottom = this._round((page.height - (union.bottom - page.top)) / page.height * 100);
 
-    return intersection;
+    return union;
   }
 }
-
-// TODO: log annotation interactions

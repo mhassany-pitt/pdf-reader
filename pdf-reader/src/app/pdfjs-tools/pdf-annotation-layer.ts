@@ -16,6 +16,7 @@ export class PdfAnnotationLayer {
 
   getOrAttachLayerEl(pageNum: number) {
     const pageEl = getPageEl(this._getDocumentEl(), pageNum);
+    if (!pageEl) return null;
     if (!pageEl.querySelector('.pdf-annotations'))
       pageEl.appendChild(htmlToElements(`<div class="pdf-annotations"></div>`));
     const layer = pageEl.querySelector('.pdf-annotations');

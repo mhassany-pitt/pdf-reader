@@ -31,11 +31,16 @@ export class PdfUnderlineToolbarBtn extends PdfHighlighterToolbarBtn {
   protected getStrokeOptions() { return this._configs()?.stroke; }
 
   private _getStrokeStylesEl() {
-    const className = 'pdf-annotation-toolbar__stroke-style-options';
+    const className = `pdf-annotation-toolbar__${this.getType().type}-stroke-style-options`;
     const strokeStylesEl = htmlToElements(
       `<div>
           <div class="${className}">
-            ${this.getStrokeStyleOptions()?.map(style => `<span data-highlight-storke-style="${getValue(style)}" style="text-decoration-style: ${getValue(style)}">${getLabel(style)}</span>`).join('')}
+            ${this.getStrokeStyleOptions()?.map(style =>
+        `<span data-highlight-storke-style="${getValue(style)}" 
+                  style="text-decoration-style: ${getValue(style)}"
+                  class="pdf-annotation-toolbar__${this.getType().type}-stroke-style-option"
+                  data-analytic="style:${getValue(style)}"
+              >${getLabel(style)}</span>`).join('')}
           </div>
           <style>
             .${className} {
@@ -78,7 +83,7 @@ export class PdfUnderlineToolbarBtn extends PdfHighlighterToolbarBtn {
   }
 
   private _getStrokesEl() {
-    const className = 'pdf-annotation-toolbar__stroke-options';
+    const className = `pdf-annotation-toolbar__${this.getType().type}-stroke-options`;
     const config = this.getStrokeOptions();
     const storkesEl = htmlToElements(
       `<div class="${className}">
@@ -86,7 +91,8 @@ export class PdfUnderlineToolbarBtn extends PdfHighlighterToolbarBtn {
                min="${config?.min}" 
                max="${config?.max}" 
                step="${config?.step}" 
-               value="${config?.value}" />
+               value="${config?.value}"
+               class="pdf-annotation-toolbar__${this.getType().type}-stroke-option" />
         <span>${config?.value}x</span>
 
         <style>

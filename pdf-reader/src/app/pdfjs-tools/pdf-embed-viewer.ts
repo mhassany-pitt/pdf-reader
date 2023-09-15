@@ -134,11 +134,11 @@ export class PdfEmbedViewer {
           const popupEl = htmlToElements(
             `<div class="pdf-annotation__embed-viewer-popup" data-embed-id="${annotId}">
               <div class="pdf-annotation__embed-viewer-popup-header">
-                <a href="${annot.resource}" target="_blank">open in new tab</a>
+                <a href="${annot.resource}" target="_blank" class="pdf-annotation__embed-viewer-popup-openinnewtab">open in new tab</a>
                 <span style="flex-grow: 1;"></span>
-                <button type="button" class="close-btn">close</button>
+                <button type="button" class="pdf-annotation__embed-viewer-popup-close close-btn">close</button>
               </div>
-              <iframe src="${annot.resource}" style="flex-grow: 1; height: 0%;"></iframe>
+              <iframe src="${annot.resource}" class="pdf-annotation__embed-viewer-popup-iframe" style="flex-grow: 1; height: 0%;"></iframe>
             </div>`);
           this._getAnnotLayer().getOrAttachLayerEl(annot.pages[0]).appendChild(popupEl);
           popupEl.querySelector('.close-btn')?.addEventListener('click', $event => {

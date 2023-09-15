@@ -178,6 +178,10 @@ export class PdfNoteEditor {
           .pdf-${this.getType().editor}__dropping-zone .textLayer {
             cursor: grabbing;
           }
+
+          .pdf-annotation__${this.getType().type}:active {
+            cursor: grabbing;
+          }
         </style>`));
   }
 }

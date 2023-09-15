@@ -70,14 +70,14 @@ export class PdfFilterToolbarBtn extends PdfToolbarBtn {
     const containerEl = htmlToElements(
       `<div class="pdf-annotation-toolbar__filter">
         <div class="pdf-annotation-toolbar__annotator-options">
-          <select>
+          <select class="pdf-annotation-toolbar__annotators-select">
             <option value="none">Hide Annotations</option>
             <option value="mine">My Annotations</option>
             <option value="all">All Annotations</option>
             ${this._getFilter().getAnnotators().map(displayName =>
         `<option value="${displayName}">${displayName}</option>`).join('')}
           </select>
-          <button type="button">Show</button>
+          <button type="button" class="pdf-annotation-toolbar__annotator-select-btn">Show</button>
         </div>
         <div class="pdf-annotation-toolbar__annotators"></div>
         <style>
@@ -129,7 +129,7 @@ export class PdfFilterToolbarBtn extends PdfToolbarBtn {
     const updateFilterUI = async (force?: boolean) => {
       const html = filtered().map(displayName =>
         `<div class="pdf-annotation-toolbar__annotator" data-annotator-id="${displayName}">
-          <span>${displayName}</span>
+          <span class="pdf-annotation-toolbar__annotator-display-name">${displayName}</span>
           <button type="button" class="pdf-annotation-toolbar__annotator-unselect-btn">x</button>
         </div>`).join('')
 
@@ -193,16 +193,17 @@ export class PdfFilterToolbarBtn extends PdfToolbarBtn {
       this._getFilter().setDisplayName(`user:${Date.now()}`);
 
     const containerEl = htmlToElements(
-      `<form class="pdf-annotation-toolbar__display-name" autocomplete="off">
+      `<form class="pdf-annotation-toolbar__display-name-form" autocomplete="off">
         <input placeholder="Display Name" 
           title="Use a display name to mark your annotations" 
-          value="${this._getFilter().getDisplayName()}" />
+          value="${this._getFilter().getDisplayName()}" 
+          class="pdf-annotation-toolbar__display-name"/>
         <style>
-          .pdf-annotation-toolbar__display-name {
+          .pdf-annotation-toolbar__display-name-form {
             display: flex;
             flex-direction: column;
           }
-          .pdf-annotation-toolbar__display-name > input {
+          .pdf-annotation-toolbar__display-name {
             outline: none;
           }
         </style>
@@ -224,7 +225,7 @@ export class PdfFilterToolbarBtn extends PdfToolbarBtn {
     const containerEl = htmlToElements(
       `<div class="pdf-annotation-toolbar__visibility">
         <label>
-          <input type="checkbox" ${this._getFilter().getVisibility() == 'private' ? 'checked' : ''} />
+          <input type="checkbox" ${this._getFilter().getVisibility() == 'private' ? 'checked' : ''} value="void" />
           <span>Private (others can't view)</span>  
         </label>
         <style>

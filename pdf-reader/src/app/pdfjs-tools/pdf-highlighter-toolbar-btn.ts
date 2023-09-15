@@ -107,12 +107,16 @@ export class PdfHighlighterToolbarBtn extends PdfToolbarBtn {
   }
 
   protected getToolbarDetailsEl() {
-    const className = 'pdf-annotation-toolbar__color-options';
+    const className = `pdf-annotation-toolbar__${this.getType().type}-color-options`;
     const colorsEl = htmlToElements(
       `<div>
         <div class="${className}">
           ${this.getColorOptions()?.map(color =>
-        `<span data-highlight-color="${getValue(color)}" style="background-color: ${getLabel(color)}"></span>`).join('')}
+        `<span data-highlight-color="${getValue(color)}" 
+               style="background-color: ${getLabel(color)}"
+               class="pdf-annotation-toolbar__${this.getType().type}-color-option"
+               data-analytic="color:${getValue(color)}"
+         ></span>`).join('')}
         </div>
         <style>
           .${className} {

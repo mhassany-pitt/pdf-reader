@@ -93,7 +93,7 @@ export class PdfFreeformToolbarBtn extends PdfToolbarBtn {
   }
 
   private _getStrokesEl() {
-    const className = 'pdf-annotation-toolbar__stroke-options';
+    const className = `pdf-annotation-toolbar__freeform-stroke-options`;
     const config = this.getStrokeOptions();
     const storkesEl = htmlToElements(
       `<div class="${className}">
@@ -101,7 +101,9 @@ export class PdfFreeformToolbarBtn extends PdfToolbarBtn {
           min="${config.min}" 
           max="${config.max}" 
           step="${config.step}" 
-          value="${config.value}" />
+          value="${config.value}" 
+          class="pdf-annotation-toolbar__freeform-stroke-option"
+          />
         <span>${config.value}x</span>
 
         <style>
@@ -137,11 +139,16 @@ export class PdfFreeformToolbarBtn extends PdfToolbarBtn {
   }
 
   private _getColorsEl() {
-    const className = 'pdf-annotation-toolbar__color-options';
+    const className = `pdf-annotation-toolbar__freeform-color-options`;
     const colorsEl = htmlToElements(
       `<div>
         <div class="${className}">
-          ${this.getColorOptions().map(color => `<span data-freeform-color="${getValue(color)}" style="background-color: ${getLabel(color)}"></span>`).join('')}
+          ${this.getColorOptions().map(color =>
+        `<span data-freeform-color="${getValue(color)}" 
+                     style="background-color: ${getLabel(color)}"
+                     class="pdf-annotation-toolbar__freeform-color-option"
+                     data-analytic="color:${getValue(color)}"       
+              ></span>`).join('')}
         </div>
         <style>
           .${className} {

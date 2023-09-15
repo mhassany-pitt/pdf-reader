@@ -214,7 +214,7 @@ export const getAnnotElBound = (el: any): WHRect => {
 }
 
 export const removeSelectorAll = (el: HTMLElement, selector: string) =>
-  el.querySelectorAll(selector).forEach((el: any) => el.remove());
+  el?.querySelectorAll(selector).forEach((el: any) => el.remove());
 
 export const scrollTo = async (document, pdfjs, { page, top, left, dest }: any) => {
   if (dest)

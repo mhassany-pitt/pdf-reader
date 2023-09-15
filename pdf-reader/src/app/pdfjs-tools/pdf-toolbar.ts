@@ -116,6 +116,8 @@ export class PdfToolbar {
           .pdf-toolbar-btn img {
             width: 0.9rem;
             height: 0.9rem;
+            pointer-events: none;
+            user-select: none;
           }
         </style>`));
   }

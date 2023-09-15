@@ -1,4 +1,4 @@
-import { Body, Controller, Inject, Post } from '@nestjs/common';
+import { Body, Controller, Inject, Post, Req } from '@nestjs/common';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 
@@ -10,7 +10,12 @@ export class ILogsController {
   ) { }
 
   @Post()
-  createBulk(@Body() log: any) {
-    this.logger.info({ ...log, serverDatetime: Date.now() });
+  createBulk(@Req() req: any, @Body() log: any) {
+    const userIdObj = req.user?.id ? { userId: req.user?.id } : {};
+    this.logger.info({
+      ...log,
+      ...userIdObj,
+      serverDatetime: Date.now(),
+    });
   }
 }
