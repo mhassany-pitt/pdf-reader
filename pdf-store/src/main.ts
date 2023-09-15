@@ -44,5 +44,3 @@ async function bootstrap() {
 bootstrap();
 
 // TODO: plugin dev environment
-// TODO: add custom message to unauthorized page (in pdf-reader) and possibly to login page
-// TODO: adding tags to annotations

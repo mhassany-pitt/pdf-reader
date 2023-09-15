@@ -8,11 +8,13 @@ import { AppAdminGuard } from './auth-guards/app-admin.guard';
 const routes: Routes = [
   {
     path: 'unauthorized',
-    loadComponent: () => import('./unauthorized-page/unauthorized-page.component').then(m => m.UnauthorizedPageComponent)
+    loadComponent: () => import('./unauthorized-page/unauthorized-page.component').then(m => m.UnauthorizedPageComponent),
+    canActivate: [HandshakeGuard]
   },
   {
     path: 'not-found',
-    loadComponent: () => import('./not-found-page/not-found-page.component').then(m => m.NotFoundPageComponent)
+    loadComponent: () => import('./not-found-page/not-found-page.component').then(m => m.NotFoundPageComponent),
+    canActivate: [HandshakeGuard]
   },
   {
     path: 'default-resource',

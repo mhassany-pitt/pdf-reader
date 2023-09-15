@@ -11,6 +11,6 @@ export class ILogsController {
 
   @Post()
   createBulk(@Body() log: any) {
-    this.logger.info({ ...log, s_datetime: Date.now() });
+    this.logger.info({ ...log, serverDatetime: Date.now() });
   }
 }
