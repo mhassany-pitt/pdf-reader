@@ -106,9 +106,9 @@ export class PDFDocumentLinksComponent implements OnInit {
     this.http.post<PDFDocumentLink>(
       `${environment.apiUrl}/pdf-document-links?pdfDocId=${this.pdfDocumentId}`,
       this.registry.list('configs.default').reduce((acc, key) => {
-        acc[key.replace('configs.default.', '')] = this.registry.get(key)?.();
+        acc[0][key.replace('configs.default.', '')] = this.registry.get(key)?.();
         return acc;
-      }, { authorized_accounts: [] }),
+      }, [{ users: [] }]),
       { withCredentials: true }
     ).subscribe({
       next: (link) => this.pdfLinks.unshift(link),
