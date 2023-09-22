@@ -38,6 +38,7 @@ export class PdfHighlightViewer {
   }
 
   render(annot: any) {
+    const editor = this.registry.get(annot.type);
     const configs = this._configs(annot.type);
     const scaleFactor = scale(this._getPdfJS());
 
@@ -61,7 +62,7 @@ export class PdfHighlightViewer {
               class="
                 pdf-annotation__rect 
                 ${annot.type ? 'pdf-annotation__' + annot.type : ''}
-                ${configs?.delete ? 'pdf-annotation--deletable' : ''}"
+                ${editor && configs?.delete ? 'pdf-annotation--deletable' : ''}"
               style="
                 top: calc(${rect.top}% + 1px);
                 bottom: calc(${rect.bottom}% + 1px);

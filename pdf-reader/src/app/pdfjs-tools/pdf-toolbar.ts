@@ -78,6 +78,10 @@ export class PdfToolbar {
             display: flex;
             align-items: start;
             pointer-events: none;
+            transition: left 0.2s ease;
+          }
+          .sidebarOpen .pdf-toolbar {
+            left: 12.75rem;
           }
           .pdf-toolbar > div {
             display: flex;

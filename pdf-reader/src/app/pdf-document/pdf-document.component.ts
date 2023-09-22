@@ -277,15 +277,20 @@ export class PDFDocumentComponent implements OnInit {
   }
 
   async extractOutlineEntry({ title, dest, items }, level: number) {
-    dest = await this.pdfjs.pdfDocument.getDestination(dest);
-    this.addOutlineEntry({
-      level,
-      title: title,
-      page: await this.pdfjs.pdfDocument.getPageIndex(dest[0]) + 1,
-      dest,
-    } as any);
-    for (const subentry of (items || []))
-      await this.extractOutlineEntry(subentry, level + 1);
+    try {
+      let page = null;
+      if (typeof dest == 'string') {
+        dest = await this.pdfjs.pdfDocument.getDestination(dest);
+        page = await this.pdfjs.pdfDocument.getPageIndex(dest[0]) + 1;
+      } else {
+        page = await this.pdfjs.pdfDocument.getPageIndex(dest[0]) + 1;
+      }
+      this.addOutlineEntry({ level, title, page, dest } as any);
+      for (const subentry of (items || []))
+        await this.extractOutlineEntry(subentry, level + 1);
+    } catch (exp) {
+      console.error(exp);
+    }
   }
 
   manageOutlineEntry($event: any, i: number) {
@@ -310,7 +315,10 @@ export class PDFDocumentComponent implements OnInit {
   }
 
   focusEntryTitle(i: any) {
-    setTimeout(() => document.getElementById('outline-entry-' + i)?.focus(), 0);
+    setTimeout(() => {
+      document.getElementById('outline-entry-' + i)?.focus();
+      this.scrollToEntry(this.pdfDocument.outline[i]);
+    }, 0);
   }
 
   swapOutlineEntry(i, j) {
@@ -327,6 +335,7 @@ export class PDFDocumentComponent implements OnInit {
   }
 
   async scrollToEntry(entry: any) {
+    console.log(JSON.stringify(entry.dest));
     scrollTo(this.window.document, this.pdfjs, entry);
   }
 

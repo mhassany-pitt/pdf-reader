@@ -5,6 +5,7 @@ import {
 } from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
 import { PdfToolbar } from './pdf-toolbar';
+import { baseHref } from 'src/environments/environment';
 
 export class PdfEmbedViewer {
 
@@ -68,8 +69,8 @@ export class PdfEmbedViewer {
         tabindex="-1"
         class="
           pdf-annotation__embed 
-          ${configs?.move ? 'pdf-annotation--moveable' : ''}
-          ${configs?.delete ? 'pdf-annotation--deletable' : ''}" 
+          ${editor && configs?.move ? 'pdf-annotation--moveable' : ''}
+          ${editor && configs?.delete ? 'pdf-annotation--deletable' : ''}" 
         style="
           top: ${bound.top}%;
           left: ${bound.left}%;
@@ -83,10 +84,10 @@ export class PdfEmbedViewer {
           justify-content: center;
         ">
         <div class="top-right">
-          ${configs?.move && annot.target == 'inline-iframe' ? `<div class="pdf-annotation__embed-move-btn" style="font-size: calc(${scaleFactor} * 1rem);">✥</div>` : ''}
-          ${editor ? `<div class="pdf-annotation__embed-edit-btn" style="font-size: calc(${scaleFactor} * 1.25rem);">⚙</div>` : ''}
+          ${editor && configs?.move && annot.target == 'inline-iframe' ? `<div class="pdf-annotation__embed-move-btn" style="font-size: calc(${scaleFactor} * 1rem);">✥</div>` : ''}
+          ${editor && configs ? `<div class="pdf-annotation__embed-edit-btn" style="font-size: calc(${scaleFactor} * 1.25rem);">⚙</div>` : ''}
         </div>
-        ${editor ? '<img class="resize-icon" draggable="false" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABlBMVEVHcExmZmZEBjuPAAAAAXRSTlMAQObYZgAAABRJREFUeAFjYAICFiYOJiEmJSYXAAHyAJWhegUKAAAAAElFTkSuQmCC"/>' : ''}
+        ${editor && configs ? '<img class="resize-icon" draggable="false" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABlBMVEVHcExmZmZEBjuPAAAAAXRSTlMAQObYZgAAABRJREFUeAFjYAICFiYOJiEmJSYXAAHyAJWhegUKAAAAAElFTkSuQmCC"/>' : ''}
       </div>`);
     annotsLayerEl.appendChild(viewerEl);
 
@@ -95,7 +96,8 @@ export class PdfEmbedViewer {
       viewerEl.appendChild(iframeEl);
       this.fitIframeToParent(viewerEl);
     } else if (annot.thumbnail) {
-      viewerEl.appendChild(htmlToElements(`<img class="pdf-annotation__embed-thumb-icon" draggable="false" src="${annot.thumbnail}"/>`));
+      const src = (annot.thumbnail == '/assets/info.png' ? baseHref : '') + annot.thumbnail;
+      viewerEl.appendChild(htmlToElements(`<img class="pdf-annotation__embed-thumb-icon" draggable="false" src="${src}"/>`));
     }
   }
 

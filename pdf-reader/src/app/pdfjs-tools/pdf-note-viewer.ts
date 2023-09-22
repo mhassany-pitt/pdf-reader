@@ -60,6 +60,7 @@ export class PdfNoteViewer {
   }
 
   protected getRenderedEl(annot: any, rect: WHRect) {
+    const editor = this.registry.get('note-editor');
     const configs = this._configs();
     const scaleFactor = scale(this._getPdfJS());
 
@@ -71,8 +72,8 @@ export class PdfNoteViewer {
         tabindex="-1"
         class="
           pdf-annotation__note 
-          ${configs?.move ? 'pdf-annotation--moveable' : ''}
-          ${configs?.delete ? 'pdf-annotation--deletable' : ''}" 
+          ${editor && configs?.move ? 'pdf-annotation--moveable' : ''}
+          ${editor && configs?.delete ? 'pdf-annotation--deletable' : ''}" 
         style="
           top: calc(${rect.top}%);
           left: calc(${rect.left}%);

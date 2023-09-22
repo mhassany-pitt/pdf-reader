@@ -36,6 +36,7 @@ export class PdfFreeformViewer {
   }
 
   render(annot: any) {
+    const editor = this.registry.get('freeform-editor');
     const configs = this._configs();
 
     Object.keys(annot.freeforms)
@@ -55,8 +56,8 @@ export class PdfFreeformViewer {
             tabindex="-1" 
             class="
               pdf-annotation__freeform 
-              ${configs?.move ? 'pdf-annotation--moveable' : ''}
-              ${configs?.delete ? 'pdf-annotation--deletable' : ''}" 
+              ${editor && configs?.move ? 'pdf-annotation--moveable' : ''}
+              ${editor && configs?.delete ? 'pdf-annotation--deletable' : ''}" 
             style="
               top: ${bound.top}%;
               bottom: ${bound.bottom}%;

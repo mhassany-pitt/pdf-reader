@@ -104,7 +104,7 @@ export class PDFReaderComponent implements OnInit {
       },
       error: (error: any) => {
         if (error.status == 403)
-          this.router.navigate(['/login']);
+          this.router.navigate(['/login'], { queryParams: { redirect_to: this.router.url } });
         else if (error.status == 401)
           this.router.navigate(['/unauthorized']);
         else if (error.status == 404)
