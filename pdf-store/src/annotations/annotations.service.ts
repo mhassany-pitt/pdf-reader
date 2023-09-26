@@ -55,8 +55,9 @@ export class AnnotationsService {
   }
 
   async create({ user_id, groupId, annotation }) {
+    const { id, ...allowed } = annotation;
     return toObject(await this.annotations.create({
-      ...annotation,
+      ...allowed,
       user_id,
       group_id: groupId,
       created_at: new Date().toISOString()

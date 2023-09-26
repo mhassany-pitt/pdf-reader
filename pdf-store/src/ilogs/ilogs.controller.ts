@@ -10,12 +10,10 @@ export class ILogsController {
   ) { }
 
   @Post()
-  create(@Req() req: any, @Body() log: any) {
+  create(@Req() req: any, @Body() logs: any[]) {
+    const sdatetime = Date.now();
     const userIdObj = req.user?.id ? { userId: req.user?.id } : {};
-    this.logger.info({
-      ...log,
-      ...userIdObj,
-      serverDatetime: Date.now(),
-    });
+    for (const log of logs)
+      this.logger.info({ ...log, ...userIdObj, sdatetime });
   }
 }

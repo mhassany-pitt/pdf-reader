@@ -6,8 +6,10 @@ import { isSameOrigin } from "./pdf-utils";
 export class PdfILogger {
 
   private registry: PdfRegistry;
-  private timeouts: { [key: string]: any } = {}
+  private eventTimeouts: { [key: string]: any } = {}
+
   private startedAt: number;
+  private buffer: any[] = [];
 
   constructor({ registry }) {
     this.registry = registry;
@@ -26,6 +28,7 @@ export class PdfILogger {
   static defaultConfigs() {
     return {
       apiUrl: `${environment.apiUrl}/ilogs`,
+      buffer: { delay: 1000 },
       document: [
         'click', 'contextmenu', 'mousedown', 'mousemove', 'mouseup', 'scroll', 'change', 'keydown', 'keyup',
       ],
@@ -53,18 +56,27 @@ export class PdfILogger {
       datetime: now,
     };
 
-    const apiUrl = this._configs()?.apiUrl;
-    if (apiUrl) {
-      if (!this.registry.get('authUser'))
-        log.userId = this.registry.get('userId');
+    this.buffer.push(log);
+    this._later('persist-logs', () => {
+      const apiUrl = this._configs()?.apiUrl;
+      if (apiUrl) {
+        const logs = [...this.buffer];
+        if (!this.registry.get('authUser')) {
+          const userId = this.registry.get('userId');
+          logs.forEach(log => log.userId = userId);
+        }
 
-      if (!environment.production)
-        console.log('ilogger:', JSON.stringify(log))
-
-      this.registry.get('http')
-        .post(apiUrl, log, { withCredentials: isSameOrigin(apiUrl) })
-        .subscribe();
-    }
+        this.registry.get('http')
+          .post(apiUrl, logs, { withCredentials: isSameOrigin(apiUrl) })
+          .subscribe({
+            next: () => {
+              let count = logs.length;
+              while (--count >= 0)
+                this.buffer.shift();
+            }
+          })
+      }
+    }, this._configs()?.buffer?.delay || 1000);
   }
 
   private _onDocEvents($event: any) {
@@ -236,11 +248,11 @@ export class PdfILogger {
   // -- util functions
 
   private _later(event: string, then: () => void, after: number = 100) {
-    if (event in this.timeouts)
-      clearTimeout(this.timeouts[event]);
-    this.timeouts[event] = setTimeout(() => {
+    if (event in this.eventTimeouts)
+      clearTimeout(this.eventTimeouts[event]);
+    this.eventTimeouts[event] = setTimeout(() => {
       then();
-      delete this.timeouts[event];
+      delete this.eventTimeouts[event];
     }, after);
   }
 
