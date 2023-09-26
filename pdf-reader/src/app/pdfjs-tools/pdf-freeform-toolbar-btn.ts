@@ -97,13 +97,9 @@ export class PdfFreeformToolbarBtn extends PdfToolbarBtn {
     const config = this.getStrokeOptions();
     const storkesEl = htmlToElements(
       `<div class="${className}">
-        <input type="range" 
-          min="${config.min}" 
-          max="${config.max}" 
-          step="${config.step}" 
-          value="${config.value}" 
-          class="pdf-annotation-toolbar__freeform-stroke-option"
-          />
+        <input type="range" min="${config.min}" max="${config.max}" 
+          step="${config.step}" value="${config.value}" 
+          class="pdf-annotation-toolbar__freeform-stroke-option" />
         <span>${config.value}x</span>
 
         <style>

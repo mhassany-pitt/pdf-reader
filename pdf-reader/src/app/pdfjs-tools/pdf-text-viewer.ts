@@ -18,7 +18,7 @@ export class PdfTextViewer extends PdfNoteViewer {
       `<div 
         data-annotation-id="${annot.id}" 
         data-annotation-type="${annot.type}"
-        data-analytic-id="text-${annot.id}"
+        data-analytic="text:${annot.id}"
         tabindex="-1"
         class="
           pdf-annotation__text
@@ -32,10 +32,8 @@ export class PdfTextViewer extends PdfNoteViewer {
           bottom: calc(${rect.bottom}%);
         ">
         ${editor && configs?.move ? `<div class="pdf-annotation__embed-move-btn" style="font-size: calc(${scaleFactor} * 1rem);">✥</div>` : ''}
-        <textarea 
-          class="${editor && configs?.move ? 'pdf-annotation--moveable-excluded' : ''}"
-          ${editor ? 'placeholder="Text ..."' : ''}
-          readonly="true"
+        <textarea readonly="true" ${editor ? 'placeholder="Text ..."' : ''} 
+          class="pdf-annotation__text-viewer-textarea ${editor && configs?.move ? 'pdf-annotation--moveable-excluded' : ''}"
           style="font-size: ${scale(this._getPdfJS()) * 100}%;"
         >${annot.note}</textarea>
       </div>`);
@@ -86,7 +84,8 @@ export class PdfTextViewer extends PdfNoteViewer {
             color: black; 
           }
 
-          .pdf-annotation__text textarea {
+          .pdf-annotation__text-viewer-textarea,
+          .pdf-annotation__text-editor-textarea {
             width: 100% !important;
             height: 100% !important;
             border-color: lightgray;

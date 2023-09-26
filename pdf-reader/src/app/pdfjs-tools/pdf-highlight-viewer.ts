@@ -57,7 +57,7 @@ export class PdfHighlightViewer {
             `<div 
               data-annotation-id="${annot.id}"
               data-annotation-type="${annot.type}"
-              data-analytic-id="${annot.type}-${annot.id}"
+              data-analytic="${annot.type}:${annot.id}"
               tabindex="-1"
               class="
                 pdf-annotation__rect 

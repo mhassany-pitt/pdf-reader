@@ -14,7 +14,7 @@ export class PdfToolbar {
   }
 
   private _attachToolbarUI() {
-    const container = htmlToElements(`<div class="pdf-toolbar"><div class="main"></div><div class="details"></div></div>`);
+    const container = htmlToElements(`<div class="pdf-toolbar"><div class="pdf-toolbar__main"></div><div class="pdf-toolbar__details"></div></div>`);
     this.registry.getDocumentEl().querySelector('#mainContainer').appendChild(container);
     this.toggle(false);
     this.showDetails(null as any);
@@ -25,7 +25,7 @@ export class PdfToolbar {
   }
 
   private _getContainerEl(className: 'main' | 'details'): HTMLElement {
-    return this.registry.getDocumentEl().querySelector(`.pdf-toolbar > div.${className}`);
+    return this.registry.getDocumentEl().querySelector(`.pdf-toolbar > div.pdf-toolbar__${className}`);
   }
 
   public addItem(element: HTMLElement) {

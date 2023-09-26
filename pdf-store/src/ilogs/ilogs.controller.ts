@@ -10,7 +10,7 @@ export class ILogsController {
   ) { }
 
   @Post()
-  createBulk(@Req() req: any, @Body() log: any) {
+  create(@Req() req: any, @Body() log: any) {
     const userIdObj = req.user?.id ? { userId: req.user?.id } : {};
     this.logger.info({
       ...log,

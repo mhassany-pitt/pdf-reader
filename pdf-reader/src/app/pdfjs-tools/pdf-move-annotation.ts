@@ -56,8 +56,8 @@ export class PdfMoveAnnotation {
       if (isLeftClick($event) && movingEl) {
         if (this.down && !this.moving) {
           // only when mouse is down and moving, it is considered as moving
-          const callback = this.registry.get(`${this.movingEl.getAttribute('data-annotation-type')}-move-elements`)
-          callback?.($event, 'moving-started', { id: this.movingEl.getAttribute('data-annotation-id'), page: this.pageNum });
+          const listener = this.registry.get(`${this.movingEl.getAttribute('data-annotation-type')}-move-elements`)
+          listener?.($event, 'moving-started', { id: this.movingEl.getAttribute('data-annotation-id'), page: this.pageNum });
         }
 
         if (this.resizing) {
@@ -86,8 +86,8 @@ export class PdfMoveAnnotation {
         movingEl.style.right = `${this.lastBound.right}%`;
         movingEl.style.bottom = `${this.lastBound.bottom}%`;
 
-        const callback = this.registry.get(`${this.movingEl.getAttribute('data-annotation-type')}-move-elements`)
-        callback?.($event, 'moving', { id: this.movingEl.getAttribute('data-annotation-id'), page: this.pageNum, rect: { ...this.lastBound } });
+        const listener = this.registry.get(`${this.movingEl.getAttribute('data-annotation-type')}-move-elements`)
+        listener?.($event, 'moving', { id: this.movingEl.getAttribute('data-annotation-id'), page: this.pageNum, rect: { ...this.lastBound } });
         this.moving = true;
       }
     });
@@ -96,8 +96,8 @@ export class PdfMoveAnnotation {
   private _onMouseUp() {
     this._getDocument().addEventListener("mouseup", ($event: any) => {
       if (this.movingEl && this.lastBound) {
-        const callback = this.registry.get(`${this.movingEl.getAttribute('data-annotation-type')}-move-elements`)
-        callback?.($event, 'moving-completed', { id: this.movingEl.getAttribute('data-annotation-id'), page: this.pageNum, rect: { ...this.lastBound } });
+        const listener = this.registry.get(`${this.movingEl.getAttribute('data-annotation-type')}-move-elements`)
+        listener?.($event, 'moving-completed', { id: this.movingEl.getAttribute('data-annotation-id'), page: this.pageNum, rect: { ...this.lastBound } });
       }
 
       this.down = false;

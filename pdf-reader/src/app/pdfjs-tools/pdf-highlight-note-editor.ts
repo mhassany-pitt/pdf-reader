@@ -67,9 +67,8 @@ export class PdfHighlightNoteEditor {
   private _showEditorPopup(annot: any, pageNum: number, bound: WHRect) {
     const popupEl = htmlToElements(
       `<div class="pdf-annotation__highlight-note-editor-popup" data-highlight-id="${annot.id}">
-        <textarea 
-          rows="5" cols="35" 
-          placeholder="Note ..."
+        <textarea rows="5" cols="35" placeholder="Note ..."
+          class="pdf-annotation__highlight-note-editor-textarea"
           style="font-size: ${scale(this._getPdfJS()) * 100}%;"  
         >${annot.note || ''}</textarea>
         <style>
@@ -87,7 +86,7 @@ export class PdfHighlightNoteEditor {
             z-index: 6;
           }
 
-          .pdf-annotation__highlight-note-editor-popup textarea {
+          .pdf-annotation__highlight-note-editor-textarea {
             box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
             background-color: white;
             border-radius: 0.125rem;

@@ -166,8 +166,8 @@ export class PDFDocumentComponent implements OnInit {
     new PdfUnderlineToolbarBtn({ registry });
     new PdfStrikeThourghToolbarBtn({ registry });
 
-    new PdfHighlightNoteEditor({ registry });
     new PdfHighlightNoteViewer({ registry });
+    new PdfHighlightNoteEditor({ registry });
 
     registry.get('toolbar').addSeparator();
 

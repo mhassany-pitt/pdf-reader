@@ -52,7 +52,7 @@ export class PdfFreeformViewer {
           `<div 
             data-annotation-id="${annot.id}" 
             data-annotation-type="${annot.type}"
-            data-analytic-id="freeform-${annot.id}"
+            data-analytic="freeform:${annot.id}"
             tabindex="-1" 
             class="
               pdf-annotation__freeform 

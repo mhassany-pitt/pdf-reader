@@ -68,14 +68,14 @@ export class PdfEmbedViewer {
       `<div 
         data-annotation-id="${annot.id}" 
         data-annotation-type="${annot.type}"
-        data-analytic-id="embed-${annot.id}"
+        data-analytic="embed:${annot.id}"
         tabindex="-1"
         class="${[
-          'pdf-annotation__embed',
-          annot.openOn == 'hover' ? 'pdf-annotation__embed--open-on-hover' : '',
-          editor && configs?.move ? 'pdf-annotation--moveable' : '',
-          editor && configs?.delete ? 'pdf-annotation--deletable' : ''
-        ].filter(c => c).join(' ')}" 
+        'pdf-annotation__embed',
+        annot.openOn == 'hover' ? 'pdf-annotation__embed--open-on-hover' : '',
+        editor && configs?.move ? 'pdf-annotation--moveable' : '',
+        editor && configs?.delete ? 'pdf-annotation--deletable' : ''
+      ].filter(c => c).join(' ')}" 
         style="
           top: ${bound.top}%;
           left: ${bound.left}%;
@@ -89,12 +89,12 @@ export class PdfEmbedViewer {
           ${movable ? `<div class="pdf-annotation__embed-move-btn" style="font-size: calc(${scaleFactor} * 1rem);">✥</div>` : ''}
           ${editable ? `<div class="pdf-annotation__embed-edit-btn" style="font-size: calc(${scaleFactor} * 1.25rem);">⚙</div>` : ''}
         </div>
-        ${editable ? '<img class="resize-icon" draggable="false" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABlBMVEVHcExmZmZEBjuPAAAAAXRSTlMAQObYZgAAABRJREFUeAFjYAICFiYOJiEmJSYXAAHyAJWhegUKAAAAAElFTkSuQmCC"/>' : ''}
+        ${editable ? '<img class="pdf-annotation__resize-icon" draggable="false" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABlBMVEVHcExmZmZEBjuPAAAAAXRSTlMAQObYZgAAABRJREFUeAFjYAICFiYOJiEmJSYXAAHyAJWhegUKAAAAAElFTkSuQmCC"/>' : ''}
       </div>`);
     annotsLayerEl.appendChild(viewerEl);
 
     if (annot.target == 'inline-iframe') {
-      const iframeEl = htmlToElements(`<iframe src="${annot.resource}"></iframe>`);
+      const iframeEl = htmlToElements(`<iframe src="${annot.resource}" class="pdf-annotation__embed-inline-iframe"></iframe>`);
       viewerEl.appendChild(iframeEl);
       this.fitIframeToParent(viewerEl);
     } else if (annot.thumbnail) {
@@ -168,14 +168,18 @@ export class PdfEmbedViewer {
         `<div class="pdf-annotation__embed-viewer-popup" data-embed-id="${annotId}">
           ${annot.ctrls?.filter(c => ['open-in-blank', 'close'].includes(c)).length ?
           `<div class="pdf-annotation__embed-viewer-popup-header">
-            ${annot.ctrls?.includes('open-in-blank') ? `<a href="${annot.resource}" target="_blank" class="pdf-annotation__embed-viewer-popup-openinnewtab">open in new tab</a>` : ''}
+            ${annot.ctrls?.includes('open-in-blank') 
+              ? `<a href="${annot.resource}" target="_blank" class="pdf-annotation__embed-viewer-popup-open-in-blank">open in new tab</a>` 
+              : ''}
             <span style="flex-grow: 1;"></span>
-            ${annot.ctrls?.includes('close') ? `<button type="button" class="pdf-annotation__embed-viewer-popup-close close-btn">close</button>` : ''}
+            ${annot.ctrls?.includes('close') 
+              ? `<button type="button" class="pdf-annotation__embed-viewer-popup-close">close</button>` 
+              : ''}
           </div>` : ''}
-          <iframe src="${annot.resource}" class="pdf-annotation__embed-viewer-popup-iframe" style="flex-grow: 1; height: 0%;"></iframe>
+          <iframe src="${annot.resource}" class="pdf-annotation__embed-popup-iframe" style="flex-grow: 1; height: 0%;"></iframe>
         </div>`);
       this._getAnnotLayer().getOrAttachLayerEl(annot.pages[0]).appendChild(popupEl);
-      popupEl.querySelector('.close-btn')?.addEventListener('click', $event => {
+      popupEl.querySelector('.pdf-annotation__embed-viewer-popup-close')?.addEventListener('click', $event => {
         if (annot.targetSize == 'fullscreen')
           this._getToolbar().toggle(true);
         this.removePopups();
@@ -243,7 +247,7 @@ export class PdfEmbedViewer {
             max-height: 85%;
           }
 
-          .pdf-annotation__embed img.resize-icon {
+          .pdf-annotation__embed img.pdf-annotation__resize-icon {
             position: absolute;
             bottom: 0;
             right: 0;
@@ -280,7 +284,7 @@ export class PdfEmbedViewer {
           }
 
           .pdf-annotation__embed iframe,
-          .pdf-annotation__embed-viewer-popup-iframe {
+          .pdf-annotation__embed-popup-iframe {
             background-color: white;
             border: none; 
             z-index: 1;

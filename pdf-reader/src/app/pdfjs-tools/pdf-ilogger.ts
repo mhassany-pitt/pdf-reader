@@ -27,7 +27,7 @@ export class PdfILogger {
     return {
       apiUrl: `${environment.apiUrl}/ilogs`,
       document: [
-        'click', 'contextmenu', 'mousedown', 'mousemove', 'mouseup', 'scroll', 'change'
+        'click', 'contextmenu', 'mousedown', 'mousemove', 'mouseup', 'scroll', 'change', 'keydown', 'keyup',
       ],
       pdfjs: [
         'currentoutlineitem', 'outlineloaded', 'toggleoutlinetree', 'find', 'findbarclose',
@@ -58,8 +58,8 @@ export class PdfILogger {
       if (!this.registry.get('authUser'))
         log.userId = this.registry.get('userId');
 
-      // if (!environment.production)
-      //   console.log('ilogger:', JSON.stringify(log))
+      if (!environment.production)
+        console.log('ilogger:', JSON.stringify(log))
 
       this.registry.get('http')
         .post(apiUrl, log, { withCredentials: isSameOrigin(apiUrl) })
@@ -68,21 +68,28 @@ export class PdfILogger {
   }
 
   private _onDocEvents($event: any) {
+    const details: any = { event: $event.type };
+
     const pageEl = this._getPathEl($event.target);
-    const details: any = {
-      event: $event.type,
-      button: $event.button,
-      onElem: this._relativeTopLeft($event, $event.target),
-      ...(pageEl ? {
-        page: this._getPageNum($event.target),
-        onPage: this._relativeTopLeft($event, pageEl)
-      } : {}),
-    };
+    if (pageEl) {
+      details.page = this._getPageNum($event.target);
+      const onPage = this._relativeTopLeft($event, pageEl);
+      if (onPage.left && onPage.top) details.onPage = onPage;
+    }
+
+    const onElem = this._relativeTopLeft($event, $event.target);
+    if (onElem.left && onElem.top) details.onElem = onElem;
 
     if ($event.altKey) details.alt = true;
     if ($event.ctrlKey) details.ctrl = true;
     if ($event.metaKey) details.meta = true;
     if ($event.shiftKey) details.shift = true;
+
+    if ($event.button) details.button = $event.button;
+    if ($event.key) {
+      details.key = $event.key;
+      details.keyCode = $event.keyCode;
+    }
 
     let elTag = $event.target.tagName;
     if (elTag) {
@@ -123,9 +130,6 @@ export class PdfILogger {
         details.elValue = elValue;
       else details.elValue = elChecked;
 
-    const analyticId = $event.target.getAttribute('data-analytic-id');
-    if (analyticId) details.analyticId = analyticId;
-
     const analytic = $event.target.getAttribute('data-analytic');
     if (analytic) details.analytic = analytic;
 
@@ -156,6 +160,8 @@ export class PdfILogger {
       this._onDocEvents($event), this._configs()?.mousemove?.delay || 300));
     this._onDoc('mouseup', ($event: any) => this._onDocEvents($event));
     this._onDoc('change', ($event: any) => this._onDocEvents($event));
+    this._onDoc('keydown', ($event: any) => this._onDocEvents($event));
+    this._onDoc('keyup', ($event: any) => this._onDocEvents($event));
 
     var viewerContainer = this._getDocument().getElementById('viewerContainer');
     viewerContainer.addEventListener('scroll',
