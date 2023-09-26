@@ -1,7 +1,6 @@
 import {
-  getOrParent, getPageEl, htmlToElements, isLeftClick,
-  removeSelectorAll,
-  rotateRect, rotation, scale
+  getOrParent, getPageEl, htmlToElements,
+  removeSelectorAll, rotateRect, rotation, scale
 } from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
 import { PdfToolbar } from './pdf-toolbar';
@@ -10,6 +9,7 @@ import { baseHref } from 'src/environments/environment';
 export class PdfEmbedViewer {
 
   private registry: PdfRegistry;
+  private timeout: any = null;
 
   constructor({ registry }) {
     this.registry = registry;
@@ -61,16 +61,21 @@ export class PdfEmbedViewer {
     const bound = rotateRect(degree, true, annot.rects[annot.pages[0]][0] as any);
     const scaleFactor = scale(this._getPdfJS());
 
+    const editable = editor && configs;
+    const movable = editor && configs?.move && annot.target == 'inline-iframe';
+
     const viewerEl = htmlToElements(
       `<div 
         data-annotation-id="${annot.id}" 
         data-annotation-type="${annot.type}"
         data-analytic-id="embed-${annot.id}"
         tabindex="-1"
-        class="
-          pdf-annotation__embed 
-          ${editor && configs?.move ? 'pdf-annotation--moveable' : ''}
-          ${editor && configs?.delete ? 'pdf-annotation--deletable' : ''}" 
+        class="${[
+          'pdf-annotation__embed',
+          annot.openOn == 'hover' ? 'pdf-annotation__embed--open-on-hover' : '',
+          editor && configs?.move ? 'pdf-annotation--moveable' : '',
+          editor && configs?.delete ? 'pdf-annotation--deletable' : ''
+        ].filter(c => c).join(' ')}" 
         style="
           top: ${bound.top}%;
           left: ${bound.left}%;
@@ -78,16 +83,13 @@ export class PdfEmbedViewer {
           right: calc(${bound.right + bound.left == 100 ? `${100 - bound.left}% - 32px` : `${bound.right}%`});
           min-width: calc(${scaleFactor} * 16px);
           min-height: calc(${scaleFactor} * 16px);
-          border-radius: 0.125rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          ${editable && configs?.move ? 'border: solid 1px lightgray;' : ''}
         ">
         <div class="top-right">
-          ${editor && configs?.move && annot.target == 'inline-iframe' ? `<div class="pdf-annotation__embed-move-btn" style="font-size: calc(${scaleFactor} * 1rem);">✥</div>` : ''}
-          ${editor && configs ? `<div class="pdf-annotation__embed-edit-btn" style="font-size: calc(${scaleFactor} * 1.25rem);">⚙</div>` : ''}
+          ${movable ? `<div class="pdf-annotation__embed-move-btn" style="font-size: calc(${scaleFactor} * 1rem);">✥</div>` : ''}
+          ${editable ? `<div class="pdf-annotation__embed-edit-btn" style="font-size: calc(${scaleFactor} * 1.25rem);">⚙</div>` : ''}
         </div>
-        ${editor && configs ? '<img class="resize-icon" draggable="false" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABlBMVEVHcExmZmZEBjuPAAAAAXRSTlMAQObYZgAAABRJREFUeAFjYAICFiYOJiEmJSYXAAHyAJWhegUKAAAAAElFTkSuQmCC"/>' : ''}
+        ${editable ? '<img class="resize-icon" draggable="false" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABlBMVEVHcExmZmZEBjuPAAAAAXRSTlMAQObYZgAAABRJREFUeAFjYAICFiYOJiEmJSYXAAHyAJWhegUKAAAAAElFTkSuQmCC"/>' : ''}
       </div>`);
     annotsLayerEl.appendChild(viewerEl);
 
@@ -98,6 +100,27 @@ export class PdfEmbedViewer {
     } else if (annot.thumbnail) {
       const src = (annot.thumbnail == '/assets/info.png' ? baseHref : '') + annot.thumbnail;
       viewerEl.appendChild(htmlToElements(`<img class="pdf-annotation__embed-thumb-icon" draggable="false" src="${src}"/>`));
+    }
+
+    if (
+      annot.target == 'popup-iframe' &&
+      !['fullscreen', 'fullpage'].includes(annot.targetSize) &&
+      annot.openOn == 'hover'
+    ) {
+      viewerEl.addEventListener('mouseenter', $event => {
+        this.timeout = setTimeout(() => this._showAnnotInPopupOrBlank($event), 600);
+      });
+      viewerEl.addEventListener('mouseleave', $event => {
+        if (this.timeout)
+          clearTimeout(this.timeout);
+      });
+      // user needs to click close button to close popup
+    } else {
+      viewerEl.addEventListener('click', $event => {
+        if (getOrParent($event, '.pdf-annotation__embed-edit-btn'))
+          return; // ignore edit button click/hover
+        this._showAnnotInPopupOrBlank($event);
+      });
     }
   }
 
@@ -122,59 +145,72 @@ export class PdfEmbedViewer {
 
   private _onAnnotClick() {
     this._getDocument().addEventListener('click', ($event: any) => {
-      const thumbIcon = getOrParent($event, '.pdf-annotation__embed-thumb-icon'),
-        editBtn = getOrParent($event, '.pdf-annotation__embed-edit-btn'),
-        viewerPopup = getOrParent($event, '.pdf-annotation__embed-viewer-popup'),
-        isViewerPopupVisible = getPageEl($event.target)?.querySelector('.pdf-annotation__embed-viewer-popup');
-      if (isLeftClick($event) && thumbIcon && !editBtn && !isViewerPopupVisible) {
-        const annotEl = getOrParent($event, '.pdf-annotation__embed');
-        const annotId = annotEl.getAttribute('data-annotation-id');
-        const annot = this._getStorage().read(annotId);
-        if (annot.target == 'new-page') {
-          window.open(annot.resource, '_blank');
-        } else if (annot.target == 'popup-iframe') {
-          const popupEl = htmlToElements(
-            `<div class="pdf-annotation__embed-viewer-popup" data-embed-id="${annotId}">
-              <div class="pdf-annotation__embed-viewer-popup-header">
-                <a href="${annot.resource}" target="_blank" class="pdf-annotation__embed-viewer-popup-openinnewtab">open in new tab</a>
-                <span style="flex-grow: 1;"></span>
-                <button type="button" class="pdf-annotation__embed-viewer-popup-close close-btn">close</button>
-              </div>
-              <iframe src="${annot.resource}" class="pdf-annotation__embed-viewer-popup-iframe" style="flex-grow: 1; height: 0%;"></iframe>
-            </div>`);
-          this._getAnnotLayer().getOrAttachLayerEl(annot.pages[0]).appendChild(popupEl);
-          popupEl.querySelector('.close-btn')?.addEventListener('click', $event => {
-            if (annot.targetSize == 'fullscreen')
-              this._getToolbar().toggle(true);
-            this.removePopups();
-          });
-
-          if (annot.targetSize == 'fullscreen') {
-            popupEl.style.position = 'fixed';
-            popupEl.style.inset = '32px 0 0 0';
-            popupEl.style.zIndex = '100';
-            this._getToolbar().toggle(false);
-          } else if (annot.targetSize == 'fullpage') {
-            popupEl.style.position = 'absolute';
-            popupEl.style.inset = '0';
-          } else { // custom size popup
-            const style = getComputedStyle(annotEl);
-            const targetSize = annot.targetSize ? annot.targetSize.split(',') : ['320px', '240px'];
-            popupEl.style.position = 'absolute';
-            popupEl.style.top = `calc(100% - ${style.bottom} + 5px)`;
-            popupEl.style.left = `calc(${style.left} + (${style.width} / 2) - (${targetSize[0]} / 2))`;
-            popupEl.style.width = `${targetSize[0]}`;
-            popupEl.style.height = `${targetSize[1]}`;
-          }
-        }
-      } else if (!thumbIcon && !viewerPopup) {
+      const embedEl = getOrParent($event, '.pdf-annotation__embed'),
+        viewerPopup = getOrParent($event, '.pdf-annotation__embed-viewer-popup');
+      if (!embedEl && !viewerPopup)
         this.removePopups();
-      }
     });
   }
 
+  private _showAnnotInPopupOrBlank($event: any) {
+    const annotEl = getOrParent($event, '.pdf-annotation__embed');
+    const annotId = annotEl.getAttribute('data-annotation-id');
+    const annot = this._getStorage().read(annotId);
+
+    if (annot.target == 'new-page') {
+      window.open(annot.resource, '_blank');
+      return;
+    }
+
+    const popupEl = getPageEl($event.target)?.querySelector('.pdf-annotation__embed-viewer-popup');
+    if (annot.target == 'popup-iframe' && !popupEl) {
+      const popupEl = htmlToElements(
+        `<div class="pdf-annotation__embed-viewer-popup" data-embed-id="${annotId}">
+          ${annot.ctrls?.filter(c => ['open-in-blank', 'close'].includes(c)).length ?
+          `<div class="pdf-annotation__embed-viewer-popup-header">
+            ${annot.ctrls?.includes('open-in-blank') ? `<a href="${annot.resource}" target="_blank" class="pdf-annotation__embed-viewer-popup-openinnewtab">open in new tab</a>` : ''}
+            <span style="flex-grow: 1;"></span>
+            ${annot.ctrls?.includes('close') ? `<button type="button" class="pdf-annotation__embed-viewer-popup-close close-btn">close</button>` : ''}
+          </div>` : ''}
+          <iframe src="${annot.resource}" class="pdf-annotation__embed-viewer-popup-iframe" style="flex-grow: 1; height: 0%;"></iframe>
+        </div>`);
+      this._getAnnotLayer().getOrAttachLayerEl(annot.pages[0]).appendChild(popupEl);
+      popupEl.querySelector('.close-btn')?.addEventListener('click', $event => {
+        if (annot.targetSize == 'fullscreen')
+          this._getToolbar().toggle(true);
+        this.removePopups();
+      });
+
+      if (annot.targetSize == 'fullscreen') {
+        popupEl.style.position = 'fixed';
+        popupEl.style.inset = '32px 0 0 0';
+        popupEl.style.zIndex = '100';
+        this._getToolbar().toggle(false);
+      } else if (annot.targetSize == 'fullpage') {
+        popupEl.style.position = 'absolute';
+        popupEl.style.inset = '0';
+      } else { // custom size popup
+        const style = getComputedStyle(annotEl);
+        const targetSize = annot.targetSize ? annot.targetSize.split(',') : ['320px', '240px'];
+        popupEl.style.position = 'absolute';
+        popupEl.style.top = `calc(100% - ${style.bottom} + 5px)`;
+        popupEl.style.left = `calc(${style.left} + (${style.width} / 2) - (${targetSize[0]} / 2))`;
+        popupEl.style.width = `${targetSize[0]}`;
+        popupEl.style.height = `${targetSize[1]}`;
+      }
+
+      return popupEl;
+    }
+
+    return null;
+  }
+
   removePopups() {
-    this._getDocumentEl().querySelectorAll('.pdf-annotation__embed-viewer-popup').forEach(el => el.remove());
+    if (this.timeout)
+      clearTimeout(this.timeout);
+    this._getDocumentEl()
+      .querySelectorAll('.pdf-annotation__embed-viewer-popup')
+      .forEach(el => el.remove());
   }
 
   private _attachStylesheet() {
@@ -188,23 +224,23 @@ export class PdfEmbedViewer {
             pointer-events: auto;
             user-select: none;
             cursor: pointer;
-            z-index: 5;
-            border: solid 1px lightgray;
-            background-color: white;
+            /* higher than highlights and ... */
+            z-index: 6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             border-radius: 0.125rem;
           }
           
           .pdf-annotation__embed img.pdf-annotation__embed-thumb-icon {
             max-width: 80%; 
             max-height: 80%; 
-            margin: 2.5%;
             object-fit: contain;
             user-select: none;
           }
           .pdf-annotation__embed img.pdf-annotation__embed-thumb-icon:hover {
-            max-width: 90%;
-            max-height: 90%;
-            margin: 0;
+            max-width: 85%;
+            max-height: 85%;
           }
 
           .pdf-annotation__embed img.resize-icon {
@@ -227,22 +263,24 @@ export class PdfEmbedViewer {
           }
 
           .pdf-annotation__embed .pdf-annotation__embed-move-btn { 
-            color: lightgray;
+            color: gray;
+            cursor: move;
           }
-
+          
           .pdf-annotation__embed .pdf-annotation__embed-move-btn:hover { 
             color: black; 
           }
   
           .pdf-annotation__embed .pdf-annotation__embed-edit-btn {
-            color: lightgray;
+            color: gray;
           }
 
           .pdf-annotation__embed .pdf-annotation__embed-edit-btn:hover { 
             color: black; 
           }
 
-          .pdf-annotation__embed iframe {
+          .pdf-annotation__embed iframe,
+          .pdf-annotation__embed-viewer-popup-iframe {
             background-color: white;
             border: none; 
             z-index: 1;
@@ -251,13 +289,12 @@ export class PdfEmbedViewer {
           .pdf-annotation__embed-viewer-popup {
             display: flex;
             flex-flow: column;
+            gap: 0.25rem;
             width: 100%;
             height: 100%;
-            box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
             background-color: white;
-            overflow: hidden;
+            box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px 3px;
             border-radius: 0.125rem;
-            padding: 0.125rem;
             z-index: 6;
             pointer-events: auto;
           }
@@ -265,8 +302,9 @@ export class PdfEmbedViewer {
           .pdf-annotation__embed-viewer-popup-header {
             display: flex;
             align-items: center;
-            margin: 5px;
-          }      
+            border-bottom: solid 1px lightgray;
+            padding: 0.25rem;
+          }
         </style>`
       ));
   }

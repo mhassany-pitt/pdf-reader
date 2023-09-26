@@ -42,6 +42,7 @@ import { PdfILogger } from '../pdfjs-tools/pdf-ilogger';
 import { PdfDeleteToolbarBtn } from '../pdfjs-tools/pdf-delete-toolbar-btn';
 import { PdfDelete } from '../pdfjs-tools/pdf-delete';
 import { PdfFilterToolbarBtn } from '../pdfjs-tools/pdf-filter-toolbar-btn';
+import { AppService } from '../app.service';
 // import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
 
 @Component({
@@ -74,8 +75,9 @@ export class PDFDocumentComponent implements OnInit {
     private ngZone: NgZone,
     private route: ActivatedRoute,
     private service: PDFDocumentService,
-    private title: Title,
     private confirm: ConfirmationService,
+    private app: AppService,
+    private title: Title,
   ) { }
 
   ngOnInit(): void {
@@ -128,6 +130,7 @@ export class PDFDocumentComponent implements OnInit {
     const registry = this.registry;
     registry.register('http', this.http);
     registry.register('pdfDocId', this.pdfDocument.id);
+    registry.register('authUser', this.app.user);
     registry.register('userId', await getUserId(this.route));
 
     // init with default configs

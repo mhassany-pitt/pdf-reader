@@ -139,8 +139,8 @@ export class PDFReaderComponent implements OnInit {
     const registry = new PdfRegistry({ iframe: this.iframe, pdfjs: this.pdfjs });
     registry.register('http', this.http);
     registry.register('pdfDocId', this.pdfDocument.id);
-    registry.register('userId', await getUserId(this.route));
     registry.register('authUser', this.app.user);
+    registry.register('userId', await getUserId(this.route));
 
     const configs = this.pdfDocument.configs || {};
     for (const key of Object.keys(configs))

@@ -21,7 +21,9 @@ export class PdfEmbedToolbarBtn extends PdfToolbarBtn {
         fullscreen: true,
         fullpage: true,
         custom: true,
-        customSize: '320px,240px'
+        customSize: '320px,240px',
+        onHover: true,
+        ctrls: ['open-in-blank', 'close'],
       },
       newPage: true,
       resource: '/#/default-resource',

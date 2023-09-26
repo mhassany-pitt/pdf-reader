@@ -78,7 +78,7 @@ export class PdfTextViewer extends PdfNoteViewer {
             display: flex;
             align-items: center;
             justify-content: center;
-            color: lightgray;
+            color: gray;
             cursor: move;
           }
 

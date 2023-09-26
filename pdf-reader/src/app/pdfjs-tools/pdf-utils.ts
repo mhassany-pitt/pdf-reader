@@ -189,7 +189,7 @@ export const isLeftClick = ($event: any, checkType = false) => (!checkType || $e
 export const isRightClick = ($event: any, checkType = false) => (!checkType || $event.type == 'contextmenu') && $event.button === 2;
 
 export const getOrParent = ($event: any, selector: string) => {
-  return $event.target.classList.contains(selector) ? $event.target : $event.target.closest(selector);
+  return $event.target.classList?.contains(selector) ? $event.target : $event.target?.closest(selector);
 }
 
 export const getAnnotEl = (el: HTMLElement): HTMLElement => {

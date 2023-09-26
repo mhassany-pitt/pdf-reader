@@ -23,6 +23,8 @@ export class Annotation {
 
   // -- embed
   @Prop() target: string;
+  @Prop() ctrls: string[];
+  @Prop() openOn: string;
   @Prop() targetSize: string;
   @Prop() resource: string;
   @Prop() thumbnail: string;

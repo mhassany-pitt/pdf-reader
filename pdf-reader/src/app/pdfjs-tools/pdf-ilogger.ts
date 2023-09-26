@@ -58,6 +58,9 @@ export class PdfILogger {
       if (!this.registry.get('authUser'))
         log.userId = this.registry.get('userId');
 
+      // if (!environment.production)
+      //   console.log('ilogger:', JSON.stringify(log))
+
       this.registry.get('http')
         .post(apiUrl, log, { withCredentials: isSameOrigin(apiUrl) })
         .subscribe();

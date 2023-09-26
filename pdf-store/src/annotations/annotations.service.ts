@@ -20,7 +20,11 @@ export class AnnotationsService {
     ].filter(f => f);
 
     let filter = null;
-    if (annotators == 'all') {
+    if (!user_id) {
+      // client must be authenticated or provide a guest user_id
+      filter = { user_id: `[null_user_id_${Math.random()}]` };
+    } else if (annotators == 'all') {
+      // client's annotations + public annotations
       filter = {
         $and: [
           ...consts,
@@ -28,10 +32,13 @@ export class AnnotationsService {
         ]
       };
     } else if (annotators == 'mine') {
+      // client's annotations
       filter = { $and: [...consts, { user_id }] };
-    } else if (annotators == 'none' || !annotators) {
-      filter = { user_id: `[added-to-return-empty]${Math.random()}` };
-    } else {
+    } else if (annotators == 'none') {
+      // no annotations
+      filter = { user_id: `[none_user_id_${Math.random()}]` };
+    } else if (annotators) {
+      // client's annotations + specific annotators's public annotations
       filter = {
         $and: [
           ...consts,
@@ -39,6 +46,9 @@ export class AnnotationsService {
           { $or: [{ user_id }, { 'misc.visibility': { $ne: 'private' } }] }
         ]
       };
+    } else {
+      // client's annotations
+      filter = { $and: [...consts, { user_id }] };
     }
 
     return (await this.annotations.find(filter)).map(toObject);
