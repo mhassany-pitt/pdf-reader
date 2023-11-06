@@ -113,6 +113,7 @@ export class PdfToolbar {
             color: #f9f9fa;
             border-radius: 0.125rem;
             position: relative;
+            user-select: none;
           }
           .pdf-toolbar-btn.selected {
             background-color: gray;

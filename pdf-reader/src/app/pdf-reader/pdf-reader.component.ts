@@ -6,7 +6,7 @@ import { PDFReaderService } from './pdf-reader.service';
 import { PdfStorage } from '../pdfjs-tools/pdf-storage';
 import { PdfILogger } from '../pdfjs-tools/pdf-ilogger';
 import { HttpClient } from '@angular/common/http';
-import { getUserId, scrollTo } from '../pdfjs-tools/pdf-utils';
+import { getSelectionRects, getUserId, scrollTo } from '../pdfjs-tools/pdf-utils';
 import { PdfRegistry } from '../pdfjs-tools/pdf-registry';
 import { PdfAnnotationLayer } from '../pdfjs-tools/pdf-annotation-layer';
 import { PdfToolbar } from '../pdfjs-tools/pdf-toolbar';
@@ -38,6 +38,7 @@ import { PdfDeleteToolbarBtn } from '../pdfjs-tools/pdf-delete-toolbar-btn';
 import { PdfFilter } from '../pdfjs-tools/pdf-filter';
 import { PdfFilterToolbarBtn } from '../pdfjs-tools/pdf-filter-toolbar-btn';
 import { AppService } from '../app.service';
+// import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
 
 @Component({
   selector: 'app-pdf-reader',
@@ -141,6 +142,7 @@ export class PDFReaderComponent implements OnInit {
     registry.register('pdfDocId', this.pdfDocument.id);
     registry.register('authUser', this.app.user);
     registry.register('userId', await getUserId(this.route));
+    registry.register('reader', this.getReader());
 
     const configs = this.pdfDocument.configs || {};
     for (const key of Object.keys(configs))
@@ -194,6 +196,8 @@ export class PDFReaderComponent implements OnInit {
     new PdfDelete({ registry });
     new PdfDeleteToolbarBtn({ registry });
 
+    // new HelperAnnotator({ registry });
+
     new PdfLoadCustomPlugins({ registry });
 
     this._postPdfEventsToParent();
@@ -208,6 +212,13 @@ export class PDFReaderComponent implements OnInit {
     this._bindPageOutline();
     this._applyViewParams();
     this.postMessage({ type: 'pdf-ready', data: null });
+  }
+
+  private getReader() {
+    return {
+      scrollTo: scrollTo,
+      getSelectionRects: getSelectionRects,
+    };
   }
 
   private _applyViewParams() {
@@ -233,6 +244,8 @@ export class PDFReaderComponent implements OnInit {
         if (entryIndex >= 0 && entryIndex < this.pdfDocument.outline.length)
           this.scrollToEntry(this.pdfDocument.outline[entryIndex]);
       }
+
+      // TODO: search through query params
 
       const page = this.qparams.page || view.page;
       if (!section && page) {
@@ -348,6 +361,19 @@ export class PDFReaderComponent implements OnInit {
       else if (type == 'changespreadmode')/*      */viewer.spreadMode = event.data.mode;
       else if (type == 'zoomin')/*                */viewer.currentScaleValue += 0.1;
       else if (type == 'zoomout')/*               */viewer.currentScaleValue -= 0.1;
+      // TODO: enable log()
+      // TODO: show/hide outline (in the top bar)
     }, false);
   }
 }
+
+
+// TODO: provide api access to other tools, 
+// TODO: optimize reader interactions for tablet/mobile, 
+// TODO: improve ddos defense, 
+// TODO: add a consent form (since we are gathering too much information), 
+// TODO: draw rectangle around a section (as spatial annotation), 
+// TODO: share pdf-document with others, 
+// TODO: view all annotations in one place
+// TODO: hide the outline, get outline, jump to specific outline entry
+// TODO: generate perm link to the selected text

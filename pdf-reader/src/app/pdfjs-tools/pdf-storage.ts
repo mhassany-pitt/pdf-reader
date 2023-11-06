@@ -5,6 +5,8 @@ import { environment } from "src/environments/environment";
 
 export class PdfStorage {
 
+  // TODO: multiple annotation source, with one primary for create/update/delete?!
+
   private registry: PdfRegistry;
   private annotators: any;
 

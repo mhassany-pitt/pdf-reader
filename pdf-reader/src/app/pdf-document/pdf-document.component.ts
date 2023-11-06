@@ -8,7 +8,7 @@ import { PDFDocumentService } from './pdf-document.service';
 import { PdfStorage } from '../pdfjs-tools/pdf-storage';
 import { PdfTextExtractor } from '../pdfjs-tools/pdf-text-extractor';
 import { HttpClient } from '@angular/common/http';
-import { getUserId, loadPlugin, scrollTo } from '../pdfjs-tools/pdf-utils';
+import { getSelectionRects, getUserId, loadPlugin, scrollTo } from '../pdfjs-tools/pdf-utils';
 import { ConfirmationService } from 'primeng/api';
 import { PdfToolbar } from '../pdfjs-tools/pdf-toolbar';
 import { PdfRegistry } from '../pdfjs-tools/pdf-registry';
@@ -132,6 +132,7 @@ export class PDFDocumentComponent implements OnInit {
     registry.register('pdfDocId', this.pdfDocument.id);
     registry.register('authUser', this.app.user);
     registry.register('userId', await getUserId(this.route));
+    registry.register('reader', this.getReader());
 
     // init with default configs
     this.registry.register('configs.ilogger', PdfILogger.defaultConfigs());
@@ -200,6 +201,9 @@ export class PDFDocumentComponent implements OnInit {
     new PdfAddToOutlineEditor({ registry });
     new PdfAddToOutlineToolbarBtn({ registry });
 
+    // --
+    // new HelperAnnotator({ registry });
+
     try {
       await this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });
     } catch (exp) { console.error(exp); }
@@ -210,6 +214,13 @@ export class PDFDocumentComponent implements OnInit {
       this.pdfDocument.file_url = null;
       setTimeout(() => this.confirmOutlineExtraction(), 1000);
     }));
+  }
+
+  private getReader() {
+    return {
+      scrollTo: scrollTo,
+      getSelectionRects: getSelectionRects,
+    };
   }
 
   async locateTexts() {

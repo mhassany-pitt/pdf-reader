@@ -9,6 +9,9 @@ export class ILogsController {
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger
   ) { }
 
+  // TODO: but everyone can call this api and any other public api?!
+  // should avoid simple dos attacks
+
   @Post()
   create(@Req() req: any, @Body() logs: any[]) {
     const sdatetime = Date.now();

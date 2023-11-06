@@ -235,9 +235,20 @@ export const isSameOrigin = (api: string) => {
 }
 
 export const loadPlugin = ({ url, registry, loaded, failed }) => {
+  const meta = {};
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    const tmp = url.split(';', 2);
+    tmp[0].split(',').forEach(kv => {
+      const [k, v] = kv.split('=');
+      meta[k] = v;
+    });
+    url = tmp[1];
+  }
   const funcName = url.split('/').reverse()[0].replace('.js', '').replaceAll('-', '_');
   var script = registry.getDocument().createElement('script');
+  if ('type' in meta) script.type = meta['type'];
   script.src = url;
+  console.log(funcName, url);
   script.onload = () => {
     registry.getWindow()[funcName]({ registry });
     loaded?.();

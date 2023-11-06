@@ -56,7 +56,7 @@ export class AnnotationsController {
   }
 
   @Get(':groupId/annotators')
-  @UseGuards(AuthenticatedGuard)
+  @UseGuards(AuthenticatedGuard) // TODO: should it be authenticated?
   async annotators(@Param('groupId') groupId: string) {
     return await this.service.getAnnotators({ groupId });
   }
