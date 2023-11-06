@@ -20,6 +20,7 @@ import { UserAuthCtrlComponent } from '../user-auth-ctrl/user-auth-ctrl.componen
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
+import { PDFPluginsManagementComponent } from '../pdf-plugins-management/pdf-plugins-management.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,9 @@ import { ConfirmationService } from 'primeng/api';
     ButtonModule, ChipsModule, DialogModule,
     InputSwitchModule, CheckboxModule,
     ColorPickerModule, MultiSelectModule,
-    PDFDocumentLinksComponent, InputTextareaModule,
+    InputTextareaModule,
+    PDFDocumentLinksComponent,
+    PDFPluginsManagementComponent,
     ConfirmDialogModule,
     UserAuthCtrlComponent,
   ],

@@ -248,7 +248,6 @@ export const loadPlugin = ({ url, registry, loaded, failed }) => {
   var script = registry.getDocument().createElement('script');
   if ('type' in meta) script.type = meta['type'];
   script.src = url;
-  console.log(funcName, url);
   script.onload = () => {
     registry.getWindow()[funcName]({ registry });
     loaded?.();

@@ -1,0 +1,16 @@
+<form #form="ngForm" (ngSubmit)="update(form)" class="flex flex-col gap-2">
+    <span class="text-xs text-gray-400">list of custom plugin's javascript file urls</span>
+    <textarea rows="5" cols="30" pInputTextarea name="plugins" [(ngModel)]="plugins"
+        [placeholder]="'plugin jsfile url\n...'"></textarea>
+
+    <div class="flex items-center gap-2">
+        <span class="flex-grow"></span>
+
+        <button pButton type="button" label="Cancel" icon="pi pi-chevron-left"
+            class="p-button-sm p-button-text p-button-secondary" (click)="close.emit()">
+        </button>
+        <button pButton type="submit" label="Update" icon="pi pi-check" class="p-button-sm" [disabled]="form.invalid"
+            [loading]="updating">
+        </button>
+    </div>
+</form>

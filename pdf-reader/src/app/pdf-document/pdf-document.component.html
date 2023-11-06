@@ -109,9 +109,12 @@
             class="p-button-sm p-button-secondary p-button-outlined" style="padding: 0.125rem 0.5rem;"
             [disabled]="cpurl.value === ''" (click)="loadPlugin(cpurl)">
           </button>
+          <button pButton type="button" icon="pi pi-cog" class="p-button-sm p-button-help p-button-outlined"
+            style="padding: 0.125rem 0.5rem;" (click)="tt['show-plugins-dialog'] = true">
+          </button>
         </ng-container>
 
-        <span class="text-xs text-gray-400 cursor-pointer ml-1" (click)="tt['custom_plugin'] = !tt['custom_plugin']">
+        <span class="text-xs text-gray-400 cursor-pointer" (click)="tt['custom_plugin'] = !tt['custom_plugin']">
           {{ tt['custom_plugin'] ? 'close' : (tt['custom_plugin_msg'] || 'load plugin') }}
         </span>
       </div>
@@ -127,7 +130,14 @@
 <p-dialog [header]="getShareDialogTitle(pdfDocument?.title)" [(visible)]="tt['show-share-dialog']" [modal]="true"
   [style]="{ width: '75vw', 'max-width': '800px' }">
   <app-pdf-document-links *ngIf="tt['show-share-dialog']" [pdfDocumentId]="pdfDocument.id" [registry]="registry"
-    (locateTexts)="locateTexts()"></app-pdf-document-links>
+    (locateTexts)="locateTexts()">
+  </app-pdf-document-links>
+</p-dialog>
+
+<p-dialog header="Plugins" [(visible)]="tt['show-plugins-dialog']" [modal]="true"
+  [style]="{ width: '75vw', 'max-width': '800px' }">
+  <app-pdf-plugins-management *ngIf="tt['show-plugins-dialog']" (close)="tt['show-plugins-dialog'] = false">
+  </app-pdf-plugins-management>
 </p-dialog>
 
 <p-confirmDialog></p-confirmDialog>

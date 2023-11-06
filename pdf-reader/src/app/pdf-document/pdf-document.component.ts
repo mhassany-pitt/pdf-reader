@@ -128,6 +128,7 @@ export class PDFDocumentComponent implements OnInit {
 
     this.registry = new PdfRegistry({ iframe: this.iframe, pdfjs: this.pdfjs });
     const registry = this.registry;
+    registry.register('env', environment);
     registry.register('http', this.http);
     registry.register('pdfDocId', this.pdfDocument.id);
     registry.register('authUser', this.app.user);
@@ -214,6 +215,8 @@ export class PDFDocumentComponent implements OnInit {
       this.pdfDocument.file_url = null;
       setTimeout(() => this.confirmOutlineExtraction(), 1000);
     }));
+
+    this.loadCustomPlugins();
   }
 
   private getReader() {
@@ -368,6 +371,20 @@ export class PDFDocumentComponent implements OnInit {
     const documentEl = this.window.document;
     documentEl.getElementById('openFile').style.display = 'none';
     documentEl.getElementById('secondaryOpenFile').style.display = 'none';
+  }
+
+  loadCustomPlugins() {
+    this.http.get(`${environment.apiUrl}/preferences/plugins-default`, { withCredentials: true }).subscribe({
+      next: (plugins: any) => {
+        plugins = plugins.value?.split('\n') || [];
+        plugins.forEach(url => loadPlugin({
+          url, registry: this.registry,
+          loaded: () => { console.log('loaded', url); },
+          failed: () => { console.log('failed', url); }
+        }));
+      },
+      error: (error) => console.error(error)
+    });
   }
 
   loadPlugin(el: any) {

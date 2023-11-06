@@ -138,6 +138,7 @@ export class PDFReaderComponent implements OnInit {
     this._removeExtraElements();
 
     const registry = new PdfRegistry({ iframe: this.iframe, pdfjs: this.pdfjs });
+    registry.register('env', environment);
     registry.register('http', this.http);
     registry.register('pdfDocId', this.pdfDocument.id);
     registry.register('authUser', this.app.user);

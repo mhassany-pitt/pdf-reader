@@ -17,6 +17,7 @@ import { UserAdminModule } from './user-admin/user-admin.module';
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 import * as DailyRotateFile from 'winston-daily-rotate-file';
+import { PreferencesModule } from './preferences/preferences.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import * as DailyRotateFile from 'winston-daily-rotate-file';
       useFactory: (config: ConfigService) => ({ uri: config.get('MONGO_URI') }),
     }),
     AuthModule, UsersModule, UserAdminModule,
+    PreferencesModule,
     PDFDocumentsModule,
     PDFDocumentLinksModule,
     PDFReaderModule,
