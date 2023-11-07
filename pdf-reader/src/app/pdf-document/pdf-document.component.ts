@@ -78,7 +78,8 @@ export class PDFDocumentComponent implements OnInit {
     private confirm: ConfirmationService,
     private app: AppService,
     private title: Title,
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     this.service.get(this.pdfDocumentId).subscribe({
@@ -374,7 +375,10 @@ export class PDFDocumentComponent implements OnInit {
   }
 
   loadCustomPlugins() {
-    this.http.get(`${environment.apiUrl}/preferences/plugins-default`, { withCredentials: true }).subscribe({
+    this.http.get(
+      `${environment.apiUrl}/preferences/default-plugins_${this.pdfDocumentId}`,
+      { withCredentials: true }
+    ).subscribe({
       next: (plugins: any) => {
         plugins = plugins.value?.split('\n') || [];
         plugins.forEach(url => loadPlugin({

@@ -3,6 +3,9 @@
     <input type="text" pInputText [(ngModel)]="filter" placeholder="Filter ..." class="p-inputtext-sm flex-grow">
     <button pButton type="button" label="Create Link" icon="pi pi-share-alt" class="p-button-sm" (click)="create()">
     </button>
+    <button pButton type="button" icon="pi pi-cog" class="p-button-sm p-button-secondary p-button-outlined"
+      (click)="loadDefConfigs()">
+    </button>
   </div>
 
   <div class="border overflow-y-auto" style="height: 50vh">
@@ -80,7 +83,8 @@
 
           <span *ngIf="!tt['advance_mode']" class="my-1"></span>
           <json-editor *ngIf="tt['advance_mode']" [options]="getJSONEditorOpts(pdfLink)" [data]="pdfLink.configs || {}"
-            class="my-2 pdf-reader__config-editor" (change)="configUpdated(pdfLink, $event)"></json-editor>
+            class="my-2 pdf-reader__config-editor" (change)="configUpdated(pdfLink, $event)">
+          </json-editor>
 
           <div class="flex items-center gap-2">
             <button pButton type="button" [label]="pdfLink.archived ? 'Unarchive' : 'Archive'" icon="pi pi-database"
@@ -106,16 +110,41 @@
       (click)="locateTexts.emit()">
     </button>
 
-    <button pButton type="button" [label]="archived ? 'Include Archives' : 'Exclude Archives'"
-      class="p-button-sm p-button-secondary" [ngClass]="{ 'p-button-outlined': !archived }"
-      (click)="archived = !archived">
-    </button>
-
-    <span class="flex-grow"></span>
-
     <button pButton type="button" [label]="tt['advance_mode'] ? 'Advanced Mode' : 'Basic Mode'"
       class="p-button-sm p-button-secondary" [ngClass]="{ 'p-button-outlined': !tt['advance_mode'] }"
       (click)="tt['advance_mode'] = !tt['advance_mode']">
     </button>
+
+    <span class="flex-grow"></span>
+
+    <button pButton type="button" [label]="archived ? 'Include Archives' : 'Exclude Archives'"
+      class="p-button-sm p-button-secondary" [ngClass]="{ 'p-button-outlined': !archived }"
+      (click)="archived = !archived">
+    </button>
   </div>
 </div>
+
+<p-dialog header="Link's Default Configuration" [(visible)]="showDefConfigs" [modal]="true"
+  [style]="{ width: '75vw', 'max-width': '800px' }" appendTo="body">
+  <form #form="ngForm" (ngSubmit)="updateDefConfigs(form)" class="flex flex-col h-full">
+    <span class="text-xs text-gray-400">This configuration will be utilized when creating new links.</span>
+    <json-editor *ngIf="showDefConfigs" [options]="getJSONEditorOpts({id: 'default'})" [data]="defConfigs"
+      class="my-2 pdf-reader__config-editor flex-grow" (change)="configUpdated({id: 'default'}, $event)">
+    </json-editor>
+
+    <div class="flex items-center gap-2">
+      <button pButton type="button" label="Reset" icon="pi pi-refresh"
+        class="p-button-sm p-button-outlined p-button-help"
+        (click)="configUpdates['default'] = defConfigs = getPluginConfigDefaults()">
+      </button>
+
+      <span class="flex-grow"></span>
+
+      <button pButton type="button" label="Cancel" icon="pi pi-chevron-left"
+        class="p-button-sm p-button-text p-button-secondary" (click)="showDefConfigs = false">
+      </button>
+      <button pButton type="submit" label="Update" icon="pi pi-check" class="p-button-sm" [disabled]="form.invalid">
+      </button>
+    </div>
+  </form>
+</p-dialog>

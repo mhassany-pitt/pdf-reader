@@ -249,6 +249,7 @@ export const loadPlugin = ({ url, registry, loaded, failed }) => {
   if ('type' in meta) script.type = meta['type'];
   script.src = url;
   script.onload = () => {
+    // TODO: add to document window[func]({ registry });
     registry.getWindow()[funcName]({ registry });
     loaded?.();
   };

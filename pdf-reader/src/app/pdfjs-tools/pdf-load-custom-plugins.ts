@@ -19,8 +19,8 @@ export class PdfLoadCustomPlugins {
   }
 
   private _load() {
-    const plugins = this._configs()?.plugins;
-    for (const url of (plugins?.split('\n') || [])) {
+    const plugins = this._configs();
+    for (const url of plugins || []) {
       try {
         loadPlugin({
           url, registry: this.registry,

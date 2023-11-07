@@ -364,6 +364,8 @@ export class PDFReaderComponent implements OnInit {
       else if (type == 'zoomout')/*               */viewer.currentScaleValue -= 0.1;
       // TODO: enable log()
       // TODO: show/hide outline (in the top bar)
+      // TODO: get outline
+      // TODO: jump to outline entry
     }, false);
   }
 }
@@ -376,5 +378,4 @@ export class PDFReaderComponent implements OnInit {
 // TODO: draw rectangle around a section (as spatial annotation), 
 // TODO: share pdf-document with others, 
 // TODO: view all annotations in one place
-// TODO: hide the outline, get outline, jump to specific outline entry
 // TODO: generate perm link to the selected text
