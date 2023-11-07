@@ -32,7 +32,7 @@ const routes: Routes = [
   },
   {
     path: 'iframe-integration-testground',
-    loadChildren: () => import('./iframe-integration-testground/iframe-integration-testground.module').then(m => m.IframeIntegrationTestgroundModule),
+    loadComponent: () => import('./iframe-integration-testground/iframe-integration-testground.component').then(m => m.IframeIntegrationTestgroundComponent),
     canActivate: [HandshakeGuard]
   },
   {

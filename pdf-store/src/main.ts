@@ -44,3 +44,5 @@ async function bootstrap() {
 bootstrap();
 
 // TODO: plugin dev environment
+// TODO: provide api access to other tools
+// TODO: improve ddos defense, 

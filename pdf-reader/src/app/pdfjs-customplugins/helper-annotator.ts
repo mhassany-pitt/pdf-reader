@@ -561,7 +561,8 @@ export class HelperAnnotator {
       const { page: sspage } = section.sectionStart;
       const { page: sepage } = section.sectionEnd;
       if (!pageNum || sspage == pageNum || sepage == pageNum)
-        this._renderSection(section);
+        try { this._renderSection(section); }
+        catch (exp) { console.log(exp); }
     });
   }
 
@@ -720,7 +721,11 @@ export class HelperAnnotator {
       this.render();
     });
 
-    setTitle.addEventListener('click', () => this.annotation.title = text);
+    setTitle.addEventListener('click', () => {
+      this.annotation.title = text;
+      setTitle.textContent = 'Title is updated!';
+      setTimeout(() => setTitle.textContent = '+Title', 3000);
+    });
   }
 
   private _renderSection(section: any) {
@@ -909,5 +914,5 @@ export class HelperAnnotator {
 }
 
 (window as any).helper_annotator = ({ registry }) => {
-  new HelperAnnotator({ registry }).render();
+  new HelperAnnotator({ registry });
 };

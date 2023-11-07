@@ -52,10 +52,11 @@ export class PDFReaderComponent implements OnInit {
   iframe: any;
   window: any;
   pdfjs: any;
+  registry: PdfRegistry = null as any;
 
   entry: any;
-
   baseHref = document.querySelector('base')?.href;
+  showOutlineEl = true;
 
   get params() { return this.route.snapshot.params as any; }
   get qparams() { return this.route.snapshot.queryParams as any; }
@@ -137,7 +138,8 @@ export class PDFReaderComponent implements OnInit {
     await this.pdfjs.initializedPromise;
     this._removeExtraElements();
 
-    const registry = new PdfRegistry({ iframe: this.iframe, pdfjs: this.pdfjs });
+    this.registry = new PdfRegistry({ iframe: this.iframe, pdfjs: this.pdfjs });
+    const registry = this.registry;
     registry.register('env', environment);
     registry.register('http', this.http);
     registry.register('pdfDocId', this.pdfDocument.id);
@@ -226,15 +228,18 @@ export class PDFReaderComponent implements OnInit {
     const onDocumentLoad = ($event: any) => {
       this.pdfjs.eventBus.off('textlayerrendered', onDocumentLoad);
 
-      // apply configs from query params OR viewer configs
+      // apply configs from query params OR viewer (delegated) configs
       const view = this.pdfDocument.configs?.view || {};
 
+      // -- zoom
       const zoom = this.qparams.zoom || view.zoom;
       if (zoom) this.pdfjs.pdfViewer.currentScale = zoom;
 
+      // -- rotation
       const rotation = this.qparams.rotation || view.rotation;
       if (rotation) this.pdfjs.pdfViewer.pagesRotation = parseFloat(rotation);
 
+      // -- section (has priority over search and scrollto)
       const section = this.qparams.section || view.section;
       if (section) {
         const entryIndex = !isNaN(section)
@@ -246,20 +251,27 @@ export class PDFReaderComponent implements OnInit {
           this.scrollToEntry(this.pdfDocument.outline[entryIndex]);
       }
 
-      // TODO: search through query params
+      // -- search (has priority over scrollto)
+      const search = this.qparams.search || view.search;
+      if (!section && search) this.pdfjs.eventBus.dispatch('find', {
+        type: 'find', query: search,
+        caseSensitive: false, entireWord: false,
+        findPrevious: true, highlightAll: true,
+        matchDiacritics: true, phraseSearch: true,
+      });
 
-      const page = this.qparams.page || view.page;
-      if (!section && page) {
-        scrollTo(this.iframe.contentDocument, this.pdfjs, {
-          page: parseInt(page),
-          top: this.qparams.pagetop || view.pagetop || 0,
-          left: this.qparams.pageleft || view.pageleft || 0
-        });
+      // -- scrollto
+      const scrollto = this.qparams.scrollto || view.scrollto;
+      if (!section && !search && scrollto) {
+        const [page, top, left] = scrollto.split(',').map(s => parseFloat(s));
+        scrollTo(this.iframe.contentDocument, this.pdfjs, { page, top, left });
       }
 
+      // -- scroll mode
       const scrollmode = this.qparams.scrollmode || view.scrollmode;
       if (scrollmode) this.pdfjs.pdfViewer.scrollMode = parseInt(scrollmode);
 
+      // -- spread mode
       const spreadmode = this.qparams.spreadmode || view.spreadmode;
       if (spreadmode) this.pdfjs.pdfViewer.spreadMode = parseInt(spreadmode);
     };
@@ -305,8 +317,7 @@ export class PDFReaderComponent implements OnInit {
     const eb = this.pdfjs.eventBus;
     eb.on('find', ($ev) => {
       const { caseSensitive, entireWord, findPrevious,
-        highlightAll, matchDiacritics, phraseSearch,
-        query } = $ev;
+        highlightAll, matchDiacritics, phraseSearch, query } = $ev;
       $postMessage({
         type: 'find',
         caseSensitive, entireWord, findPrevious,
@@ -362,20 +373,34 @@ export class PDFReaderComponent implements OnInit {
       else if (type == 'changespreadmode')/*      */viewer.spreadMode = event.data.mode;
       else if (type == 'zoomin')/*                */viewer.currentScaleValue += 0.1;
       else if (type == 'zoomout')/*               */viewer.currentScaleValue -= 0.1;
-      // TODO: enable log()
-      // TODO: show/hide outline (in the top bar)
-      // TODO: get outline
-      // TODO: jump to outline entry
+      else if (type == 'ilog')/*                  */this.registry.get('ilogger').log(event.data.entry);
+      else if (type == 'toggleoutlineview') /*    */this.showOutlineEl = event.data.value;
+      else if (type == 'getoutline') /*           */this.postMessage({ type: 'outline', data: this.pdfDocument.outline });
+      else if (type == 'scrolltoentry') /*        */this.scrollToEntry(event.data.entry);
     }, false);
   }
 }
 
-
-// TODO: provide api access to other tools, 
-// TODO: optimize reader interactions for tablet/mobile, 
-// TODO: improve ddos defense, 
-// TODO: add a consent form (since we are gathering too much information), 
-// TODO: draw rectangle around a section (as spatial annotation), 
+// TODO: create <span>word</span> for each word in the text layer (make it easier to locate and interact with page content)
+// TODO: generate perm link to the selected text ('Copy Link to Selected Text')
 // TODO: share pdf-document with others, 
+// TODO: optimize reader interactions for tablet/mobile, 
+// TODO: draw rectangle around a section (as spatial annotation), 
 // TODO: view all annotations in one place
-// TODO: generate perm link to the selected text
+
+// $postMessage({
+//    type: 'find', query: search,
+//    caseSensitive: false, entireWord: false,
+//    findPrevious: true, highlightAll: true,
+//    matchDiacritics: true, phraseSearch: true,
+// });
+// $postMessage({ type: 'changepagenumber', value: 1 });
+// $postMessage({ type: 'changepresentationmode', state: 1 });
+// $postMessage({ type: 'rotateccw' });
+// $postMessage({ type: 'rotatecw' });
+// $postMessage({ type: 'changescale', value: '1' });
+// $postMessage({ type: 'changescrollmode', mode: 1 });
+// $postMessage({ type: 'changesidebarview', view: '1' });
+// $postMessage({ type: 'changespreadmode', mode: '1' });
+// $postMessage({ type: 'zoomin' });
+// $postMessage({ type: 'zoomout' });
