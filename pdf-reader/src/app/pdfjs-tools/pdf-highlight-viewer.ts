@@ -38,7 +38,7 @@ export class PdfHighlightViewer {
   }
 
   render(annot: any) {
-    const editor = this.registry.get(annot.type);
+    const editor = this.registry.get('highlighter');
     const configs = this._configs(annot.type);
     const scaleFactor = scale(this._getPdfJS());
 
