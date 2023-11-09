@@ -1,17 +1,3 @@
-const isLeftClick = ($event, checkType = false) =>
-  (!checkType || $event.type == "click") && $event.button === 0
-const removeSelectorAll = (el, selector) =>
-  el?.querySelectorAll(selector).forEach(el => el.remove())
-const getOrParent = ($event, selector) =>
-  $event.target.classList?.contains(selector)
-    ? $event.target
-    : $event.target?.closest(selector)
-const htmlToElements = html => {
-  const temp = document.createElement("div")
-  temp.innerHTML = html
-  return temp.firstChild
-}
-
 const topics = [
   "Caregiving: Anxiety",
   "Caregiving: Caregiver coping",
@@ -149,7 +135,6 @@ const topics = [
   "Treatment: Surgery",
   "Treatment: Targeted therapies "
 ]
-
 const keywords = [
   "Cancer and Caregiver anxiety",
   "Cancer and Caregiver coping",
@@ -308,6 +293,20 @@ const keywords = [
   "Targeted therapies, ovarian cancer"
 ]
 
+const isLeftClick = ($event, checkType = false) =>
+  (!checkType || $event.type == "click") && $event.button === 0
+const removeSelectorAll = (el, selector) =>
+  el?.querySelectorAll(selector).forEach(el => el.remove())
+const getOrParent = ($event, selector) =>
+  $event.target.classList?.contains(selector)
+    ? $event.target
+    : $event.target?.closest(selector)
+const htmlToElements = html => {
+  const temp = document.createElement("div")
+  temp.innerHTML = html
+  return temp.firstChild
+}
+
 export class HelperAnnotator {
   enabled = false
 
@@ -322,7 +321,7 @@ export class HelperAnnotator {
     knowledge_level: "",
     trajectory: "",
     typeof_document: "",
-    red_flags: [],
+    annotator: "",
     sections: []
   }
 
@@ -336,6 +335,9 @@ export class HelperAnnotator {
     this._attachStylesheet()
     this._showSectionAnnotUIOnHighlight()
     this._renderOnPagerendered()
+
+    this.toolbarBtn.click()
+    this.registry.get("toolbar").showDetails(null)
   }
 
   load() {
@@ -455,9 +457,41 @@ export class HelperAnnotator {
         display: flex; 
         gap: 0.25rem;
       }
-      .helper-annotation__keyword-options, 
-      .helper-annotation__topic-options {
-        width: 100%;
+      .helper-annotation__keyword-input, 
+      .helper-annotation__topic-input {
+        flex-grow: 1;
+      }
+      .helper-annotation__autocomplete {
+        position: absolute;
+        overflow: auto;
+        box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+        background-color: white;
+        pointer-events: auto;
+        z-index: 1;
+        width: max-content;
+        min-width: 100%;
+        max-width: 15rem;
+        max-height: 15rem;
+      }
+      .helper-annotation__autocomplete > span {
+        display: block;
+        padding: 0.125rem 0.25rem;
+        cursor: pointer;
+        font-family: Arial;
+        font-size: 0.75rem;
+      }
+      .helper-annotation__autocomplete > span:nth-of-type(odd) {
+        background-color: #f1f1f1;
+      }
+      .autocomplete-item--hovered,
+      .helper-annotation__autocomplete > span:hover {
+        background-color: lightgray !important;
+      }
+      .helper-annotation__autocomplete > span:hover {
+        font-size: 0.775rem;
+      }
+      .autocomplete-matched {
+        background-color: yellow;
       }
 
       .helper-annotation__title,
@@ -634,23 +668,22 @@ export class HelperAnnotator {
   }
 
   _renderPendingSection(text, rects) {
-    const diff = (a, b, tt, rr) => {
-      const diff = a[tt] - b[tt]
-      return diff == 0 ? a[rr] - b[rr] : diff
-    }
-
     const page = Math.min(...Object.keys(rects).map(page => parseInt(page)))
-    const blocks = rects[page].sort((a, b) =>
-      this.sectionStart
-        ? diff(a, b, "top", "left")
-        : diff(a, b, "bottom", "right")
-    )
-    const { top, left, bottom, right } = blocks[0]
+    rects = rects[page].sort((a, b) => {
+      const diff = a.top - b.top
+      return diff ? diff : a.left - b.left
+    })
+    const { top, left, bottom, right } = this.sectionStart
+      ? rects[rects.length - 1]
+      : rects[0]
 
     removeSelectorAll(this._getDocumentEl(), `.helper-annotation-pending`)
-
-    const startEl = htmlToElements(`<div class="helper-annotation helper-annotation-pending">
-      <div class="helper-annotation__drop-arrow helper-annotation__start-drop-arrow"></div>
+    const ctrls = htmlToElements(`<div class="helper-annotation helper-annotation-pending">
+      <div class="helper-annotation__drop-arrow ${
+        this.sectionStart
+          ? "helper-annotation__end-drop-arrow"
+          : "helper-annotation__start-drop-arrow"
+      }"></div>
       <div class="helper-annotation__ctrl2">
         <div style="display: flex; gap: 0.25rem;">
           <button class="helper-annotation__keyword-add-btn">+Keyword</button>
@@ -659,92 +692,133 @@ export class HelperAnnotator {
           <button class="helper-annotation__set-title-btn">+Title</button>
         </div>
         <div class="helper-annotation__options helper-annotation--hidden">
-          <select class="helper-annotation__keyword-options helper-annotation--hidden">
-            <option value="">select a keyword</option>${keywords.map(
-              t => `<option value="${t}">${t}</option>`
-            )}
-          </select>
-          <select class="helper-annotation__topic-options helper-annotation--hidden">
-            <option value="">select topic</option>${topics.map(
-              t => `<option value="${t}">${t}</option>`
-            )}
-          </select>
+          <input placeholder="select a keyword" class="helper-annotation__keyword-input helper-annotation--hidden"/>
+          <input placeholder="select a topic" class="helper-annotation__topic-input helper-annotation--hidden"/>
           <button class="helper-annotation__option-add-btn">add</button>
         </div>
       </div>
+      <div class="helper-annotation__autocomplete"></div>
+      <style>
+        .helper-annotation-pending {
+          ${
+            this.sectionStart
+              ? `top: calc(100% - ${bottom}% + 0.125rem); right: calc(${right}% - 0.5rem);`
+              : `bottom: calc(100% - ${top}% + 0.125rem); left: calc(${left}% - 0.5rem);`
+          }
+        }
+      </style>
     </div>`)
-    const startAnnotLayerEl = this.registry
+    this.registry
       .get("annotation-layer")
       .getOrAttachLayerEl(page)
-    startAnnotLayerEl.appendChild(startEl)
-    startAnnotLayerEl.appendChild(
-      htmlToElements(`<style>
-      .helper-annotation-pending {
-        bottom: calc(100% - ${top}% + 0.125rem);
-        left: calc(${left}% - 0.5rem);
-      }
-    </style>`)
-    )
+      .appendChild(ctrls)
 
-    const addKeywordBtn = startEl.querySelector(
+    const addKeywordBtn = ctrls.querySelector(
       ".helper-annotation__keyword-add-btn"
     )
-    const setStartBtn = startEl.querySelector(
-      ".helper-annotation__set-start-btn"
+    const setStartBtn = ctrls.querySelector(".helper-annotation__set-start-btn")
+    const setEndBtn = ctrls.querySelector(".helper-annotation__set-end-btn")
+    const setTitle = ctrls.querySelector(".helper-annotation__set-title-btn")
+
+    const options = ctrls.querySelector(".helper-annotation__options")
+    const topicInput = ctrls.querySelector(".helper-annotation__topic-input")
+    const keywordInput = ctrls.querySelector(
+      ".helper-annotation__keyword-input"
     )
-    const setEndBtn = startEl.querySelector(".helper-annotation__set-end-btn")
-    const setTitle = startEl.querySelector(".helper-annotation__set-title-btn")
+    const addBtn = ctrls.querySelector(".helper-annotation__option-add-btn")
 
-    const options = startEl.querySelector(".helper-annotation__options")
-    const topicOptions = startEl.querySelector(
-      ".helper-annotation__topic-options"
-    )
-    const keywordOptions = startEl.querySelector(
-      ".helper-annotation__keyword-options"
-    )
-    const addbtn = startEl.querySelector(".helper-annotation__option-add-btn")
-    let type = "keyword"
-
-    addKeywordBtn.addEventListener("click", () => {
-      topicOptions.classList.add("helper-annotation--hidden")
-      keywordOptions.classList.remove("helper-annotation--hidden")
-      options.classList.remove("helper-annotation--hidden")
-      addbtn.textContent = "add"
-      type = "keyword"
-    })
-
-    if (this.sectionStart) setStartBtn.setAttribute("disabled", "disabled")
-    setStartBtn.addEventListener("click", () => {
-      keywordOptions.classList.add("helper-annotation--hidden")
-      topicOptions.classList.remove("helper-annotation--hidden")
-      options.classList.remove("helper-annotation--hidden")
-      addbtn.textContent = "set"
-      type = "bound"
-    })
-
-    addbtn.addEventListener("click", () => {
-      if (type == "keyword") {
-        this.keywords.push(keywordOptions.value)
-        keywordOptions.value = ""
-      } else if (type == "bound") {
-        this.topic = topicOptions.value
-        topicOptions.value = ""
-        this.sectionStart = { page, top, left }
-        removeSelectorAll(this._getDocumentEl(), `.helper-annotation-pending`)
-        this._renderSection({
-          id: "pending-start",
-          sectionStart: this.sectionStart,
-          sectionEnd: this.sectionEnd,
-          topic: this.topic
-        })
+    const autocomplete = ctrls.querySelector(".helper-annotation__autocomplete")
+    const initAutocomplete = input => {
+      let index = -1,
+        filtered = []
+      const reloadAutocomplete = () => {
+        const text = input.value.toLowerCase()
+        const regex = new RegExp(text, "gi")
+        filtered = topics.filter(t => t.toLowerCase().includes(text))
+        autocomplete.innerHTML = filtered.length
+          ? filtered
+              .map(
+                (t, i) =>
+                  `<span class="autocomplete-item ${
+                    i == index ? "autocomplete-item--hovered" : ""
+                  }">
+              ${t.replace(
+                regex,
+                m => `<span class="autocomplete-matched">${m}</span>`
+              )}
+            </span>`
+              )
+              .join("")
+          : "<span>no matches found</span>"
+        autocomplete
+          .querySelector(".autocomplete-item--hovered")
+          ?.scrollIntoView({ block: "nearest" })
       }
-      options.classList.add("helper-annotation--hidden")
+      reloadAutocomplete()
+      input.addEventListener("input", $event => reloadAutocomplete())
+      input.addEventListener("focus", $event => reloadAutocomplete())
+      const close = () => {
+        autocomplete.innerHTML = ""
+        input.blur()
+        index = -1
+      }
+      input.addEventListener("keydown", $event => {
+        if ($event.key == "Enter") {
+          $event.preventDefault()
+          autocomplete
+            .querySelector(`.autocomplete-item:nth-child(${index + 1})`)
+            ?.click()
+          close()
+        } else if ($event.key == "Escape") {
+          close()
+        } else if ($event.key == "ArrowDown") {
+          $event.preventDefault()
+          index =
+            index == filtered.length - 1
+              ? 0
+              : Math.min(index + 1, filtered.length - 1)
+          reloadAutocomplete()
+        } else if ($event.key == "ArrowUp") {
+          $event.preventDefault()
+          index = index == 0 ? filtered.length - 1 : Math.max(index - 1, 0)
+          reloadAutocomplete()
+        }
+      })
+      autocomplete.addEventListener("click", $event => {
+        if ($event.target.classList.contains("autocomplete-item")) {
+          input.value = $event.target.textContent.trim()
+          autocomplete.innerHTML = ""
+        }
+      })
+    }
+
+    let type = "keyword"
+    // -- +keyword btn
+    addKeywordBtn.addEventListener("click", () => {
+      topicInput.classList.add("helper-annotation--hidden")
+      keywordInput.classList.remove("helper-annotation--hidden")
+      options.classList.remove("helper-annotation--hidden")
+      addBtn.textContent = "add keyword"
+      type = "keyword"
+      initAutocomplete(keywordInput)
+      keywordInput.focus()
     })
 
+    // [[ btn
+    setStartBtn.addEventListener("click", () => {
+      keywordInput.classList.add("helper-annotation--hidden")
+      topicInput.classList.remove("helper-annotation--hidden")
+      options.classList.remove("helper-annotation--hidden")
+      addBtn.textContent = "start section"
+      type = "bound"
+      initAutocomplete(topicInput)
+      topicInput.focus()
+    })
+
+    // ]] btn
     if (!this.sectionStart) setEndBtn.setAttribute("disabled", "disabled")
     setEndBtn.addEventListener("click", () => {
       this.sectionEnd = { page, bottom, right }
-
       this.annotation.sections.push({
         id: Math.random()
           .toString(36)
@@ -754,7 +828,6 @@ export class HelperAnnotator {
         topic: this.topic,
         keywords: this.keywords
       })
-      this.persist()
       this.topic = ""
       this.keywords = []
       this.sectionStart = null
@@ -767,10 +840,31 @@ export class HelperAnnotator {
       this.render()
     })
 
+    // -- +title btn
     setTitle.addEventListener("click", () => {
       this.annotation.title = text
       setTitle.textContent = "Title is updated!"
       setTimeout(() => (setTitle.textContent = "+Title"), 3000)
+    })
+
+    // -- start section / add keyword btn
+    addBtn.addEventListener("click", () => {
+      if (type == "keyword") {
+        this.keywords.push(keywordInput.value)
+        keywordInput.value = ""
+      } else if (type == "bound") {
+        this.topic = topicInput.value
+        topicInput.value = ""
+        this.sectionStart = { page, top, left }
+        removeSelectorAll(this._getDocumentEl(), `.helper-annotation-pending`)
+        this._renderSection({
+          id: "pending-start",
+          sectionStart: this.sectionStart,
+          sectionEnd: this.sectionEnd,
+          topic: this.topic
+        })
+      }
+      options.classList.add("helper-annotation--hidden")
     })
   }
 
@@ -786,19 +880,25 @@ export class HelperAnnotator {
           this._getDocumentEl(),
           `.helper-annotation-${section.id}`
         )
-        this.persist()
       }
     }
 
+    const scale = this._getPdfJS().pdfViewer.currentScale
     const startEl = htmlToElements(
-      `<div class="helper-annotation helper-annotation-${section.id} helper-annotation__section-start">
+      `<div class="helper-annotation helper-annotation-${
+        section.id
+      } helper-annotation__section-start">
         <div class="helper-annotation__drop-arrow helper-annotation__start-drop-arrow"></div>
         <div class="helper-annotation__section-topic">
-          <span>Section [${section.topic}]</span>
+          <span title="${section.topic?.trim()}" style="font-size: ${scale *
+        100}%">
+            Section [${section.topic?.trim()}]
+          </span>
           <span class="helper-annotation__section-remove-btn">x<span>
         </div>
         <style>
           .helper-annotation-${section.id}.helper-annotation__section-start {
+            width: max-content;
             bottom: calc(100% - ${section.sectionStart.top}% + 0.125rem);
             left: calc(${section.sectionStart.left}% - 0.5rem);
           }
@@ -811,18 +911,24 @@ export class HelperAnnotator {
     const startAnnotLayerEl = this.registry
       .get("annotation-layer")
       .getOrAttachLayerEl(section.sectionStart.page)
-    startAnnotLayerEl.appendChild(startEl)
+    startAnnotLayerEl?.appendChild(startEl)
 
     if (section.sectionEnd) {
       const endEl = htmlToElements(
-        `<div class="helper-annotation helper-annotation-${section.id} helper-annotation__section-end">
+        `<div class="helper-annotation helper-annotation-${
+          section.id
+        } helper-annotation__section-end">
           <div class="helper-annotation__drop-arrow helper-annotation__end-drop-arrow"></div>
           <div class="helper-annotation__section-topic">
-            <span>Section [${section.topic}]</span>
+            <span title="${section.topic?.trim()}" style="font-size: ${scale *
+          100}%">
+              Section [${section.topic?.trim()}]
+            </span>
             <span class="helper-annotation__section-remove-btn">x<span>
           </div>
           <style>
             .helper-annotation-${section.id}.helper-annotation__section-end {
+              width: max-content;
               top: calc(100% - ${section.sectionEnd.bottom}% + 0.125rem);
               right: calc(${section.sectionEnd.right}% - 0.5rem);
             }
@@ -835,7 +941,7 @@ export class HelperAnnotator {
       const endAnnotLayerEl = this.registry
         .get("annotation-layer")
         .getOrAttachLayerEl(section.sectionEnd.page)
-      endAnnotLayerEl.appendChild(endEl)
+      endAnnotLayerEl?.appendChild(endEl)
     }
   }
 
@@ -873,6 +979,7 @@ export class HelperAnnotator {
         <button type="button" value="patient-and-caregiver">Patient and Caregiver</button>
         <button type="button" value="health-professional">Health Professional</button>
         <button type="button" value="others">Others</button>
+        <button type="button" value="all">All</button>
       </div>
 
       <span class="helper-annotation__ctrl1-label">Knowledge Level</span>
@@ -900,12 +1007,22 @@ export class HelperAnnotator {
         <button type="button" value="narrative">Narrative</button>
         <button type="button" value="research-news">Research News</button>
         <button type="button" value="research-articles">Research Articles</button>
+        <button type="button" value="advice">Advice</button>
       </div>
 
-      <span class="helper-annotation__ctrl1-label">Red Flags</span>
-      <div class="helper-annotation__ctrl1-values helper-annotation__red-flags">
-        <button type="button" value="questionable-resource">Questionable Resource</button>
-        <button type="button" value="poor-quality">Poor Quality</button>
+      <span class="helper-annotation__ctrl1-label">Annotator</span>
+      <div class="helper-annotation__ctrl1-values helper-annotation__annotator">
+        <button type="button" value="leah">Leah</button>
+        <button type="button" value="vivian">Vivian</button>
+        <button type="button" value="student1">Student 1</button>
+        <button type="button" value="student2">Student 2</button>
+        <button type="button" value="jeong">Jeong</button>
+        <button type="button" value="youjia">Youjia</button>
+      </div>
+
+      <hr />
+      <div>
+        <button class="helper-annotation__ctrl1-save-btn">Save</button>
       </div>
     </div>`)
 
@@ -954,7 +1071,7 @@ export class HelperAnnotator {
       this.annotation.typeof_document,
       "radio"
     )
-    select(".helper-annotation__red-flags", this.annotation.red_flags, "toggle")
+    select(".helper-annotation__annotator", this.annotation.annotator, "toggle")
 
     // -- event listeners
     const radio = (elSelector, setValue) => {
@@ -973,50 +1090,39 @@ export class HelperAnnotator {
       })
     }
 
-    const toggle = (elSelector, addValue, removeValue) => {
-      const parent = containerEl.querySelector(elSelector)
-      parent.addEventListener("click", $event => {
-        const el = $event.target
-        if (el.tagName.toLowerCase() == "button") {
-          el.classList.toggle("helper-annotation__--selected")
-          const contains = el.classList.contains(
-            "helper-annotation__--selected"
-          )
-          if (contains) addValue(el.getAttribute("value"))
-          /* */ else removeValue(el.getAttribute("value"))
-        }
-      })
-    }
+    radio(
+      ".helper-annotation__cancer-type",
+      value => (this.annotation["cancer_type"] = value)
+    )
+    radio(
+      ".helper-annotation__audience-type",
+      value => (this.annotation["audience_type"] = value)
+    )
+    radio(
+      ".helper-annotation__knowledge-level",
+      value => (this.annotation["knowledge_level"] = value)
+    )
+    radio(
+      ".helper-annotation__trajectory",
+      value => (this.annotation["trajectory"] = value)
+    )
+    radio(
+      ".helper-annotation__typeof-document",
+      value => (this.annotation["typeof_document"] = value)
+    )
+    radio(
+      ".helper-annotation__annotator",
+      value => (this.annotation["annotator"] = value)
+    )
 
-    const update = (attr, value) => {
-      this.annotation[attr] = value
+    const savebtn = containerEl.querySelector(
+      ".helper-annotation__ctrl1-save-btn"
+    )
+    savebtn.addEventListener("click", () => {
       this.persist()
-    }
-
-    radio(".helper-annotation__cancer-type", value =>
-      update("cancer_type", value)
-    )
-    radio(".helper-annotation__audience-type", value =>
-      update("audience_type", value)
-    )
-    radio(".helper-annotation__knowledge-level", value =>
-      update("knowledge_level", value)
-    )
-    radio(".helper-annotation__trajectory", value =>
-      update("trajectory", value)
-    )
-    radio(".helper-annotation__typeof-document", value =>
-      update("typeof_document", value)
-    )
-    toggle(
-      ".helper-annotation__red-flags",
-      value => update("red_flags", [...this.annotation.red_flags, value]),
-      value =>
-        update(
-          "red_flags",
-          this.annotation.red_flags.filter(v => v != value)
-        )
-    )
+      savebtn.textContent = "Saved!"
+      setTimeout(() => (savebtn.textContent = "Save"), 3000)
+    })
 
     return [containerEl]
   }
@@ -1025,3 +1131,6 @@ export class HelperAnnotator {
 window.helper_annotator = ({ registry }) => {
   new HelperAnnotator({ registry })
 }
+
+// TODO: where should we add terms?
+// TODO: where should i send the annotated data?
