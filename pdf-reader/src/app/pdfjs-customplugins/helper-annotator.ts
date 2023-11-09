@@ -44,8 +44,9 @@ export class HelperAnnotator {
     this._showSectionAnnotUIOnHighlight();
     this._renderOnPagerendered();
 
-    this.toolbarBtn.click();
-    this.registry.get('toolbar').showDetails(null as any);
+    // -- dev only
+    // this.toolbarBtn.click();
+    // this.registry.get('toolbar').showDetails(null as any);
   }
 
   private load() {

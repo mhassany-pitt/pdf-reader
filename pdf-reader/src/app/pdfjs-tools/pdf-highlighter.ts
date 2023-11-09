@@ -43,6 +43,7 @@ export class PdfHighlighter {
       mdown = false;
 
       if (mdragging) {
+        const text = this._getDocument().getSelection().toString();
         const rects = getSelectionRects(this._getDocument(), this._getPdfJS());
         if (rects && Object.keys(rects).length) {
           const annot = {
@@ -52,6 +53,7 @@ export class PdfHighlighter {
             stroke: this.stroke,
             strokeStyle: this.strokeStyle,
             rects,
+            text,
             pages: Object.keys(rects).map(k => parseInt(k))
           };
           this._getWindow().getSelection().removeAllRanges();

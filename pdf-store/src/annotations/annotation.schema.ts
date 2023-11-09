@@ -16,6 +16,7 @@ export class Annotation {
   @Prop() stroke: string;
   @Prop() strokeStyle: string;
   @Prop({ type: Object }) rects: any;
+  @Prop() text: string;
   @Prop() note: string;
 
   // -- freeform

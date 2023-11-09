@@ -335,9 +335,6 @@ export class HelperAnnotator {
     this._attachStylesheet()
     this._showSectionAnnotUIOnHighlight()
     this._renderOnPagerendered()
-
-    this.toolbarBtn.click()
-    this.registry.get("toolbar").showDetails(null)
   }
 
   load() {
