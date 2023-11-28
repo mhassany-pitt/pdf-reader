@@ -44,39 +44,24 @@ export class PdfTextExtractor {
   }
 
   private _extractPageTexts(pageEl: any) {
-    const textLayer = pageEl.querySelector('.textLayer');
-    textLayer.style.opacity = 1;
-
     const textBounds: any[] = [];
-    const classIdentifier = `span${Math.random().toString(36).substring(2)}`;
-    Array.from(textLayer.querySelectorAll('span[role="presentation"]')).forEach((textElem: any) => {
-      if (textElem.textContent.trim().length < 1)
-        return;
+    Array.from(pageEl.querySelectorAll('.textLayer .pdf-text__word'))
+      .forEach((word: any) => {
+        if (word.textContent.trim().length < 1)
+          return;
 
-      const orgHtmlContent = textElem.innerHTML;;
-
-      textElem.innerHTML = textElem.textContent.split(' ')
-        .map((word: any) => `<span class="${classIdentifier}" style="position: relative">${word}</span>`)
-        .join(' ');
-
-      Array.from(textElem.querySelectorAll(`.${classIdentifier}`))
-        .map((word: any) => {
-          const bound = word.getBoundingClientRect();
-          return relativeToPageEl({
-            top: bound.top,
-            left: bound.left,
-            bottom: bound.bottom,
-            right: bound.right,
-            width: bound.width,
-            height: bound.height,
-            text: word.textContent,
-          } as any, pageEl);
-        })
-        .forEach((bound: WHRect) => textBounds.push(bound));
-
-      textElem.innerHTML = orgHtmlContent;
-    });
-
+        const bound = word.getBoundingClientRect();
+        textBounds.push(relativeToPageEl({
+          top: bound.top,
+          left: bound.left,
+          bottom: bound.bottom,
+          right: bound.right,
+          width: bound.width,
+          height: bound.height,
+          text: word.textContent,
+          word: parseInt(word.getAttribute('data-word')),
+        } as any, pageEl));
+      });
     return textBounds;
   }
 }

@@ -44,6 +44,8 @@ import { PdfDelete } from '../pdfjs-tools/pdf-delete';
 import { PdfFilterToolbarBtn } from '../pdfjs-tools/pdf-filter-toolbar-btn';
 import { AppService } from '../app.service';
 // import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
+import { sha256 } from 'js-sha256';
+import { PdfTextWord } from '../pdfjs-tools/pdf-text-word';
 
 @Component({
   selector: 'app-pdf-document',
@@ -78,8 +80,7 @@ export class PDFDocumentComponent implements OnInit {
     private confirm: ConfirmationService,
     private app: AppService,
     private title: Title,
-  ) {
-  }
+  ) { }
 
   ngOnInit(): void {
     this.service.get(this.pdfDocumentId).subscribe({
@@ -131,7 +132,10 @@ export class PDFDocumentComponent implements OnInit {
     const registry = this.registry;
     registry.register('env', environment);
     registry.register('http', this.http);
+    registry.register('sha256', (v: string) => sha256(v));
     registry.register('pdfDocId', this.pdfDocument.id);
+    registry.register('hostname', () => location.hostname);
+    registry.register('href', () => location.href);
     registry.register('authUser', this.app.user);
     registry.register('userId', await getUserId(this.route));
     registry.register('reader', this.getReader());
@@ -161,6 +165,8 @@ export class PDFDocumentComponent implements OnInit {
     new PdfRemoveOnDelete({ registry });
     new PdfShowBoundary({ registry });
     new PdfMoveAnnotation({ registry });
+
+    new PdfTextWord({ registry });
 
     new PdfHighlightViewer({ registry });
     new PdfHighlighter({ registry });
@@ -381,7 +387,7 @@ export class PDFDocumentComponent implements OnInit {
     ).subscribe({
       next: (plugins: any) => {
         plugins = plugins.value?.split('\n') || [];
-        plugins.forEach(url => loadPlugin({
+        plugins.filter(p => p).forEach(url => loadPlugin({
           url, registry: this.registry,
           loaded: () => { console.log('loaded', url); },
           failed: () => { console.log('failed', url); }
@@ -425,5 +431,3 @@ export class PDFDocumentComponent implements OnInit {
     });
   }
 }
-
-// registry.register('baseHref', document.querySelector('base')?.href);

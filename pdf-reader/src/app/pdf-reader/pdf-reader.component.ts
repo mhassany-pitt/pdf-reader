@@ -38,6 +38,8 @@ import { PdfDeleteToolbarBtn } from '../pdfjs-tools/pdf-delete-toolbar-btn';
 import { PdfFilter } from '../pdfjs-tools/pdf-filter';
 import { PdfFilterToolbarBtn } from '../pdfjs-tools/pdf-filter-toolbar-btn';
 import { AppService } from '../app.service';
+import { sha256 } from 'js-sha256';
+import { PdfTextWord } from '../pdfjs-tools/pdf-text-word';
 // import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
 
 @Component({
@@ -146,6 +148,7 @@ export class PDFReaderComponent implements OnInit {
     registry.register('authUser', this.app.user);
     registry.register('userId', await getUserId(this.route));
     registry.register('reader', this.getReader());
+    registry.register('sha256', (v: string) => sha256(v));
 
     const configs = this.pdfDocument.configs || {};
     for (const key of Object.keys(configs))
@@ -160,6 +163,8 @@ export class PDFReaderComponent implements OnInit {
     new PdfRemoveOnDelete({ registry });
     new PdfShowBoundary({ registry });
     new PdfMoveAnnotation({ registry });
+
+    new PdfTextWord({ registry });
 
     new PdfHighlightViewer({ registry });
     new PdfHighlighter({ registry });

@@ -15,13 +15,13 @@ export class HelperAnnotator {
   private registry: any;
   private toolbarBtn: any;
   private enabled = false;
+  private annotated = false;
 
   private topic: string = '';
   private keywords: string[] = [];
   private sectionStart: any;
   private sectionEnd: any;
 
-  private annotation: any = {};
   private defAnnot = {
     title: '',
     cancer_type: '',
@@ -32,13 +32,13 @@ export class HelperAnnotator {
     annotator: '',
     sections: [] as any[],
   };
+  private annotation = JSON.parse(JSON.stringify(this.defAnnot));;
 
   constructor({ registry }) {
     this.registry = registry;
 
-    this.load();
-
     this._addToolbarBtn();
+    this._checkIfAnnotated();
 
     this._attachStylesheet();
     this._showSectionAnnotUIOnHighlight();
@@ -49,11 +49,47 @@ export class HelperAnnotator {
     // this.registry.get('toolbar').showDetails(null as any);
   }
 
-  private load() {
-    this.annotation = JSON.parse(localStorage.getItem('helper-annotation-sections') || JSON.stringify(this.defAnnot));
-  }
   private persist() {
-    localStorage.setItem('helper-annotation-sections', JSON.stringify(this.annotation));
+    const {
+      title, cancer_type, audience_type,
+      knowledge_level, trajectory, typeof_document,
+      sections, annotator
+    } = this.annotation;
+
+    const rawId = this.registry.get('pdfDocId')
+      + (this.annotated ? '_' + Date.now() : '');
+
+    const annot = {
+      id: this.registry.get('sha256')(rawId),
+      searchTerm: '',
+      domain: this.registry.get('hostname')(),
+      url: this.registry.get('href')(),
+      title,
+      audienceType: audience_type,
+      cancerType: cancer_type,
+      knowledgeLevel: knowledge_level,
+      trajectory: trajectory,
+      documentType: typeof_document,
+      annotator,
+      sections: sections.map((section: any) => ({
+        topic: section.topic,
+        text: section.text,
+        keywords: section.keywords,
+      })),
+    }
+
+    this.registry.get('http')
+      .post('https://ovariancancerhelper2.tk/articles', annot)
+      .subscribe({
+        next: (res) => {
+          this.annotated = true;
+          this.annotation = JSON.parse(JSON.stringify(this.defAnnot));
+          this.toolbarBtn.style.color = 'orange';
+        },
+        error: (error) => {
+          console.log(error);
+        }
+      });
   }
 
   private _getPdfJS() { return this.registry.getPdfJS(); }
@@ -150,7 +186,6 @@ export class HelperAnnotator {
           display: flex; 
           gap: 0.25rem;
         }
-        .helper-annotation__keyword-input, 
         .helper-annotation__topic-input {
           flex-grow: 1;
         }
@@ -214,6 +249,9 @@ export class HelperAnnotator {
           color: lightblue;
           font-family: monospace;
         }
+        .helper-annotation__--annotated {
+          color: orange;
+        }
         .helper-annotation__ctrl1-values { 
           display: flex; 
           align-items: center; 
@@ -259,7 +297,7 @@ export class HelperAnnotator {
 
     // add toolbar button
     this.toolbarBtn = htmlToElements(
-      `<span class="pdf-toolbar-btn helper-annotator" title="HELPeR Annotator" style="color: yellow;">H<span>`
+      `<span class="pdf-toolbar-btn helper-annotator" title="HELPeR Annotator">H<span>`
     );
     this._getToolbarEl().addItem(this.toolbarBtn);
 
@@ -289,6 +327,24 @@ export class HelperAnnotator {
         }
       }
     });
+  }
+
+  private _checkIfAnnotated() {
+    const pdfDocId = this.registry.get('pdfDocId');
+    const pdfDocIdHash = this.registry.get('sha256')(pdfDocId);
+    this.registry.get('http')
+      .get(`https://ovariancancerhelper2.tk/articles/${pdfDocIdHash}`)
+      .subscribe({
+        next: (annot: any) => {
+          this.annotated = true;
+          this.toolbarBtn.style.color = 'orange';
+        },
+        error: (error) => {
+          if (error.status == 404) {
+            this.annotated = false;
+          } else console.log(error);
+        }
+      });
   }
 
   private _renderOnPagerendered() {
@@ -358,6 +414,7 @@ export class HelperAnnotator {
       return diff ? diff : a.left - b.left;
     });
     const { top, left, bottom, right } = this.sectionStart ? rects[rects.length - 1] : rects[0];
+    const words = this.registry.get('text-word').getSelectionWords();
 
     removeSelectorAll(this._getDocumentEl(), `.helper-annotation-pending`);
     const ctrls = htmlToElements(
@@ -367,13 +424,12 @@ export class HelperAnnotator {
         : 'helper-annotation__start-drop-arrow'}"></div>
         <div class="helper-annotation__ctrl2">
           <div style="display: flex; gap: 0.25rem;">
-            <button class="helper-annotation__keyword-add-btn">+Keyword</button>
             <button class="helper-annotation__set-start-btn">[[</button>
             <button class="helper-annotation__set-end-btn">]]</button>
+            <button class="helper-annotation__keyword-add-btn">+Keyword</button>
             <button class="helper-annotation__set-title-btn">+Title</button>
           </div>
           <div class="helper-annotation__options helper-annotation--hidden">
-            <input placeholder="select a keyword" class="helper-annotation__keyword-input helper-annotation--hidden"/>
             <input placeholder="select a topic" class="helper-annotation__topic-input helper-annotation--hidden"/>
             <button class="helper-annotation__option-add-btn">add</button>
           </div>
@@ -390,14 +446,24 @@ export class HelperAnnotator {
     );
     this.registry.get('annotation-layer').getOrAttachLayerEl(page).appendChild(ctrls);
 
+    const inSection = this.annotation.sections.find(section => {
+      const { page: sspage, word: ssword } = section.sectionStart;
+      const { page: sepage, word: seword } = section.sectionEnd;
+      return words.every(w =>
+        ((w.page == sspage && w.word >= ssword) || (w.page > sspage)) &&
+        ((w.page == sepage && w.word <= seword) || (w.page < sepage)));
+    });
+
     const addKeywordBtn = ctrls.querySelector('.helper-annotation__keyword-add-btn') as HTMLElement;
+    if (!inSection)
+      addKeywordBtn.setAttribute('disabled', 'disabled');
+
     const setStartBtn = ctrls.querySelector('.helper-annotation__set-start-btn') as HTMLElement;
     const setEndBtn = ctrls.querySelector('.helper-annotation__set-end-btn') as HTMLElement;
     const setTitle = ctrls.querySelector('.helper-annotation__set-title-btn') as HTMLElement;
 
     const options = ctrls.querySelector('.helper-annotation__options') as HTMLElement;
     const topicInput = ctrls.querySelector('.helper-annotation__topic-input') as HTMLSelectElement;
-    const keywordInput = ctrls.querySelector('.helper-annotation__keyword-input') as HTMLSelectElement;
     const addBtn = ctrls.querySelector('.helper-annotation__option-add-btn') as HTMLElement;
 
     const autocomplete = ctrls.querySelector('.helper-annotation__autocomplete') as HTMLElement;
@@ -449,25 +515,33 @@ export class HelperAnnotator {
       });
     }
 
-    let type: 'keyword' | 'bound' = 'keyword';
     // -- +keyword btn
     addKeywordBtn.addEventListener('click', () => {
-      topicInput.classList.add('helper-annotation--hidden');
-      keywordInput.classList.remove('helper-annotation--hidden');
-      options.classList.remove('helper-annotation--hidden');
-      addBtn.textContent = 'add keyword';
-      type = 'keyword';
-      initAutocomplete(keywordInput);
-      keywordInput.focus();
+      // estimate the offset of the keyword
+      const estOffset = this.registry.get('text-word')
+        .getWords(inSection.sectionStart, words[0])
+        .map(w => w.text)
+        .join(' ')
+        .length
+        - text.length // exclude the words[0]
+        - 1; // change to 0-based
+
+
+      // then find the closest occurrence index to the estimated offset
+      // this will find the actual offset from the start of the section
+      const occurrences: number[][] = [];
+      for (let index = -1; (index = inSection.text.indexOf(text, index + 1)) !== -1;)
+        occurrences.push([index, Math.abs(index - estOffset)]);
+
+      inSection.keywords.push({ offset: occurrences.sort((a, b) => a[1] - b[1])[0][0], text, value: text });
+      removeSelectorAll(this._getDocumentEl(), `.helper-annotation-pending`);
     });
 
     // [[ btn
     setStartBtn.addEventListener('click', () => {
-      keywordInput.classList.add('helper-annotation--hidden');
       topicInput.classList.remove('helper-annotation--hidden');
       options.classList.remove('helper-annotation--hidden');
       addBtn.textContent = 'start section';
-      type = 'bound';
       initAutocomplete(topicInput);
       topicInput.focus();
     });
@@ -476,13 +550,18 @@ export class HelperAnnotator {
     if (!this.sectionStart)
       setEndBtn.setAttribute('disabled', 'disabled');
     setEndBtn.addEventListener('click', () => {
-      this.sectionEnd = { page, bottom, right };
+      const l = words.length - 1;
+      this.sectionEnd = { page, word: words[l].word, text: words[l].text, bottom, right };
       this.annotation.sections.push({
         id: Math.random().toString(36).substring(2, 9),
         sectionStart: this.sectionStart,
         sectionEnd: this.sectionEnd,
         topic: this.topic,
         keywords: this.keywords,
+        text: this.registry.get('text-word')
+          .getWords(this.sectionStart, this.sectionEnd)
+          .map((w) => w.text)
+          .join(' '),
       });
       this.topic = '';
       this.keywords = [];
@@ -502,21 +581,16 @@ export class HelperAnnotator {
 
     // -- start section / add keyword btn
     addBtn.addEventListener('click', () => {
-      if (type == 'keyword') {
-        this.keywords.push(keywordInput.value);
-        keywordInput.value = '';
-      } else if (type == 'bound') {
-        this.topic = topicInput.value;
-        topicInput.value = '';
-        this.sectionStart = { page, top, left };
-        removeSelectorAll(this._getDocumentEl(), `.helper-annotation-pending`);
-        this._renderSection({
-          id: 'pending-start',
-          sectionStart: this.sectionStart,
-          sectionEnd: this.sectionEnd,
-          topic: this.topic,
-        });
-      }
+      this.topic = topicInput.value;
+      topicInput.value = '';
+      this.sectionStart = { page, word: words[0].word, text: words[0].text, top, left };
+      removeSelectorAll(this._getDocumentEl(), `.helper-annotation-pending`);
+      this._renderSection({
+        id: 'pending-start',
+        sectionStart: this.sectionStart,
+        sectionEnd: this.sectionEnd,
+        topic: this.topic,
+      });
       options.classList.add('helper-annotation--hidden');
     });
   }
@@ -582,6 +656,12 @@ export class HelperAnnotator {
   private _getToolbarDetailsEl() {
     const containerEl = htmlToElements(
       `<div class="helper-annotation__ctrls1">
+        ${this.annotated
+        ? `<span class="helper-annotation__ctrl1-label helper-annotation__--annotated">
+            This document is already annotated.
+           </span><hr />`
+        : ``}
+
         <span class="helper-annotation__ctrl1-label">Title</span>
         <div class="helper-annotation__ctrl1-values helper-annotation__title">
           <span>${this.annotation.title || 'not specified'}</span>
@@ -713,6 +793,3 @@ export class HelperAnnotator {
 (window as any).helper_annotator = ({ registry }) => {
   new HelperAnnotator({ registry });
 };
-
-// TODO: where should we add terms?
-// TODO: where should i send the annotated data?
