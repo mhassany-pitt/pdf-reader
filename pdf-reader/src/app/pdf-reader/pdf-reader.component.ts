@@ -144,11 +144,13 @@ export class PDFReaderComponent implements OnInit {
     const registry = this.registry;
     registry.register('env', environment);
     registry.register('http', this.http);
+    registry.register('sha256', (v: string) => sha256(v));
+    registry.register('hostname', () => location.hostname);
+    registry.register('href', () => location.href);
     registry.register('pdfDocId', this.pdfDocument.id);
     registry.register('authUser', this.app.user);
     registry.register('userId', await getUserId(this.route));
     registry.register('reader', this.getReader());
-    registry.register('sha256', (v: string) => sha256(v));
 
     const configs = this.pdfDocument.configs || {};
     for (const key of Object.keys(configs))

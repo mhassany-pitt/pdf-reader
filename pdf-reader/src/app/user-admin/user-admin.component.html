@@ -10,7 +10,8 @@
   </div>
 
   <div class="container mx-auto my-10 border shadow-md">
-    <p-table #table [value]="users" [(selection)]="selected" styleClass="p-datatable-striped">
+    <p-table #table [value]="users" [(selection)]="selected" [globalFilterFields]="['fullname', 'email']"
+      styleClass="p-datatable-striped">
       <ng-template pTemplate="caption">
         <div class="table-header flex items-center">
           <span class="text-2xl">

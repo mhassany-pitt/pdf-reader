@@ -1,3 +1,5 @@
+// helperid: the id of the annotation
+// helpersection: the index of the section in the annotation
 const topics = ["Caregiving: Anxiety", "Caregiving: Caregiver coping", "Caregiving: Communication", "Caregiving: General ", "Caregiving: Grief and loss", "Caregiving: Self care", "Caregiving: Stress", "Communication: General", "Communication: With children and grandchildren", "Communication: With family and friends", "Communication: With healthcare team/providers", "Complementary therapy/Integrative medicine: Acupuncture", "Complementary therapy/Integrative medicine: Aromatherapy", "Complementary therapy/Integrative medicine: Biofeedback", "Complementary therapy/Integrative medicine: General", "Complementary therapy/Integrative medicine: Herbal medicine ", "Complementary therapy/Integrative medicine: Hypnosis", "Complementary therapy/Integrative medicine: Massage therapy", "Complementary therapy/Integrative medicine: Visualization/Imagery ", "Complementary therapy/Integrative medicine: Yoga ", "Diagnosis: Signs and Symptoms", "Diagnosis: Testing", "Disease Management: Advance care planning/Advance directives", "Disease Management: Finding gynecologic oncologist ", "Disease Management: Management of recurrence", "Disease Management: Monitoring for recurrence", "Disease Management: Preparing for visit ", "Disease Management: Seeking a second opinion", "Disease Management: Supportive Care/Palliative Care", "Emotional Management: Anxiety", "Emotional Management: Coping", "Emotional Management: Depression", "Emotional Management: Fear of recurrence", "Emotional Management: General", "Emotional Management: Grief and loss", "Emotional Management: Mood swings/changes ", "End of Life: General", "End of Life: Hospice ", "End of Life: Physical changes at EOL", "End of Life: Transitioning to EOL care", "Fertility: Fertility preservation", "Fertility: General ", "Fertility: Reproductive/Fertility assistance", "General Information: Causes, Risk Factors and Prevention", "General Information: Latest research", "General Information: Overview: Borderline malignant tumors/Low malignant potential ", "General Information: Overview: Ovarian epithelial cancer, fallopian tube cancer, primary peritoneal cancer ", "General Information: Overview: Ovarian Germ Cell tumors", "General Information: Quality of Life ", "General Information: Statistics", "Genetics: Genetic counseling ", "Genetics: Germline genetic testing ", "Genetics: Hereditary breast and ovarian cancer syndrome ", "Genetics: Lynch syndrome ", "Genetics: Tumor genomic testing ", "Practical Needs: Employment ", "Practical Needs: Financial ", "Practical Needs: Insurance ", "Practical Needs: Legal ", "Practical Needs: Support services/Community resources ", "Prognosis: Stages", "Prognosis: Survival rates", "Rehabilitation: General ", "Rehabilitation: Occupational therapy ", "Rehabilitation: Pelvic floor", "Rehabilitation: Physical therapy  ", "Self-management: General ", "Self-management: Nutrition", "Self-management: Physical activity ", "Self-management: Spiritual support ", "Sexuality: General ", "Sexuality: Sexual Intimacy/Activity/Relationships ", "Sexuality: Sexual side effects ", "Sexuality: Sexual therapist/psychologist", "Symptom/Treatment related/Side Effect Management: Appearance: Hair loss", "Symptom/Treatment related/Side Effect Management: Appearance: Nail changes", "Symptom/Treatment related/Side Effect Management: Appearance: Skin care/Skin changes/scars", "Symptom/Treatment related/Side Effect Management: Bladder/Urinary: Incontinence", "Symptom/Treatment related/Side Effect Management: Bladder/Urinary: Urinary retention", "Symptom/Treatment related/Side Effect Management: Blood clots", "Symptom/Treatment related/Side Effect Management: Blood Counts: Low platelet counts", "Symptom/Treatment related/Side Effect Management: Blood Counts: Low red blood cells", "Symptom/Treatment related/Side Effect Management: Blood Counts: Low white blood cells", "Symptom/Treatment related/Side Effect Management: Early menopause", "Symptom/Treatment related/Side Effect Management: Fatigue ", "Symptom/Treatment related/Side Effect Management: General ", "Symptom/Treatment related/Side Effect Management: GI/Abdominal: Ascites", "Symptom/Treatment related/Side Effect Management: GI/Abdominal: Bloating", "Symptom/Treatment related/Side Effect Management: GI/Abdominal: Bowel: Constipation", "Symptom/Treatment related/Side Effect Management: GI/Abdominal: Bowel: Diarrhea", "Symptom/Treatment related/Side Effect Management: GI/Abdominal: Bowel: Incontinence", "Symptom/Treatment related/Side Effect Management: GI/Abdominal: Bowel: Ostomy management ", "Symptom/Treatment related/Side Effect Management: GI/Abdominal: Dehydration", "Symptom/Treatment related/Side Effect Management: GI/Abdominal: Heartburn", "Symptom/Treatment related/Side Effect Management: GI/Abdominal: Hiccups", "Symptom/Treatment related/Side Effect Management: GI/Abdominal: Loss of appetite", "Symptom/Treatment related/Side Effect Management: GI/Abdominal: Mouth and throat problems: Dry mouth", "Symptom/Treatment related/Side Effect Management: GI/Abdominal: Mouth and throat problems: Mouth sores/Mucositis", "Symptom/Treatment related/Side Effect Management: GI/Abdominal: Mouth and throat problems: Sensitivity to hot or cold foods", "Symptom/Treatment related/Side Effect Management: GI/Abdominal: Mouth and throat problems: Swallowing problems", "Symptom/Treatment related/Side Effect Management: GI/Abdominal: Mouth and throat problems: Taste/Smell changes", "Symptom/Treatment related/Side Effect Management: GI/Abdominal: Mouth and throat problems: Tooth decay", "Symptom/Treatment related/Side Effect Management: GI/Abdominal: Nausea ", "Symptom/Treatment related/Side Effect Management: GI/Abdominal: Vomiting", "Symptom/Treatment related/Side Effect Management: GI/Abdominal: Weight changes", "Symptom/Treatment related/Side Effect Management: Hypersensitivity reactions/Allergic reactions", "Symptom/Treatment related/Side Effect Management: Infections", "Symptom/Treatment related/Side Effect Management: Lymphedema ", "Symptom/Treatment related/Side Effect Management: Neuro: Balance problems and falls", "Symptom/Treatment related/Side Effect Management: Neuro: Cognitive/Memory Problems ", "Symptom/Treatment related/Side Effect Management: Neuro: Confusion/Delirium", "Symptom/Treatment related/Side Effect Management: Neuro: Hearing loss", "Symptom/Treatment related/Side Effect Management: Neuro: Neuropathy ", "Symptom/Treatment related/Side Effect Management: Neuro: Seizures", "Symptom/Treatment related/Side Effect Management: Pain", "Symptom/Treatment related/Side Effect Management: Second cancers", "Symptom/Treatment related/Side Effect Management: Shortness of breath ", "Symptom/Treatment related/Side Effect Management: Skin Problems: Dry skin", "Symptom/Treatment related/Side Effect Management: Skin Problems: Hand foot syndrome ", "Symptom/Treatment related/Side Effect Management: Skin Problems: Pressure sores", "Symptom/Treatment related/Side Effect Management: Skin Problems: Rashes", "Symptom/Treatment related/Side Effect Management: Skin Problems: Scars and wounds ", "Symptom/Treatment related/Side Effect Management: Skin Problems: Skin Itchiness", "Symptom/Treatment related/Side Effect Management: Sleep problems", "Symptom/Treatment related/Side Effect Management: Swelling/Edema ", "Treatment: Chemotherapy ", "Treatment: Clinical Trails", "Treatment: General", "Treatment: Hormone therapy ", "Treatment: Immunotherapy", "Treatment: Intraperitoneal Chemotherapy ", "Treatment: Prophylactic surgery", "Treatment: Radiation ", "Treatment: Surgery", "Treatment: Targeted therapies ",];
 const keywords = ["Cancer and Caregiver anxiety", "Cancer and Caregiver coping", "Cancer and Caregiver communication", "General caregiver information, ovarian cancer", "Cancer and Caregiver grief and loss", "Cancer and Caregiver self-care", "Cancer and Caregiver stress", "Communication, ovarian cancer", "Cancer communication, family", "Cancer communication, family", "Cancer communication, healthcare providers or clinicians", "Acupuncture and ovarian cancer", "Aromatherapy and ovarian cancer", "Biofeedback and ovarian cancer", "Complementary therapy or integrative medicine, ovarian cancer", "Herbal medicine, ovarian cancer", "Hypnosis, ovarian cancer", "Massage therapy, ovarian cancer", "Visualization/Imagery, ovarian cancer", "Yoga, ovarian cancer", "Ovarian cancer, signs or symptoms", "Ovarian cancer testing", "Cancer, Advance care planning or Advance directives", "Finding gynecologic oncologist", "Manage ovarian cancer recurrence", "Monitor ovarian cancer recurrence", "Preparing for visit, ovarian cancer", "Seeking a second opinion, cancer", "Supportive care or Palliative care for ovarian cancer", "Cancer, Anxiety management", "Cancer, Coping", "Cancer, Depression management", "Ovarian Cancer, Fear of recurrence", "Cancer emotional management", "Cancer, Grief and loss", "Cancer, Mood swings or changes", "Ovarian cancer, end of life or palliative care", "Ovarian cancer, Hospice", "Physical changes, end of life, ovarian cancer", "Transition to end of life care or palliative care", "Fertility preservation, ovarian cancer", "Fertility and ovarian cancer", "Reproductive or Fertility assistance, ovarian cancer", "Causes of ovarian cancer", "Risk factors of ovarian cancer", "Ovarian cancer prevention", "Ovarian cancer, latest research", "Borderline malignant tumors or Low malignant potential, ovarian cancer", "Ovarian epithelial cancer", "Fallopian tube cancer", "Primary peritoneal cancer", "Ovarian Germ Cell tumors", "Quality of life, ovarian cancer", "Ovarian cancer statistics", "Genetic counseling, ovarian cancer", "Germline genetic testing, ovarian cancer", "Hereditary breast and ovarian cancer syndrome", "Lynch syndrome", "Tumor genomic testing, ovarian cancer", "Employment, cancer", "Financial, cancer", "Insurance, cancer", "Legal issue, cancer", "Support services, ovarian cancer", "Community resources, ovarian cancer", "Ovarian cancer stages", "Ovarian cancer survival rates", "Ovarian cancer, rehabilitation", "Cancer, rehabilitation", "Occupational therapy, ovarian cancer", "Pelvic floor rehabilitation, ovarian cancer", "Physical therapy, ovarian cancer", "Self-management, ovarian cancer", "Nutrition, ovarian cancer", "Physical activity, ovarian cancer", "Spiritual support, cancer", "Sexuality, ovarian cancer", "Sexual intimacy, ovarian cancer", "Sexual activity, ovarian cancer", "Sexual relationships, ovarian cancer", "Sexual side effects, ovarian cancer", "Sexual therapist, gynecologic cancer", "Sexual psychologist, gynecologic cancer", "Hair loss, chemotherapy", "Nail changes, chemotherapy", "Skin care, chemotherapy", "Skin changes, chemotherapy", "Scars, chemotherapy", "Incontinence, chemotherapy", "Urinary retention, chemotherapy", "Blood clots, chemotherapy", "Low platelet counts, chemotherapy", "Low red blood cells, chemotherapy", "Low white blood cells, chemotherapy", "Early menopause, chemotherapy", "Early menopause, ovarian cancer", "Fatigue, chemotherapy", "Ovarian cancer, symptom management", "Ovarian cancer, treatment related side effects", "Ascites, chemotherapy", "Bloating, chemotherapy", "Constipation, chemotherapy", "Diarrhea, chemotherapy", "Incontinence, chemotherapy", "Ostomy management, chemotherapy", "Dehydration, chemotherapy", "Heartburn, chemotherapy", "Hiccups, chemotherapy", "Loss of appetite, chemotherapy", "Dry mouth, chemotherapy", "Mouth sores, chemotherapy", "Mucositis, chemotherapy", "Sensitivity to hot or cold foods, chemotherapy", "Swallowing problems, chemotherapy", "Taste changes, chemotherapy", "Smell changes, chemotherapy", "Tooth decay, chemotherapy", "Nausea, chemotherapy", "Vomiting, chemotherapy", "Weight changes, chemotherapy", "Hypersensitivity reactions, chemotherapy", "Allergic reactions, chemotherapy", "Infections, chemotherapy", "Lymphedema, chemotherapy", "Balance problems, chemotherapy", "Falls, chemotherapy", "Cognitive problems, chemotherapy", "Memory problems, chemotherapy", "Confusion, chemotherapy", "Delirium, chemotherapy", "Hearing loss, chemotherapy", "Neuropathy, chemotherapy", "Seizures, chemotherapy", "Pain, chemotherapy", "Second cancers, ovarian cancer", "Shortness of breath, chemotherapy", "Dry skin, chemotherapy", "Hand foot syndrome, chemotherapy", "Pressure sores, chemotherapy", "Rashes, chemotherapy", "Scars and wounds, chemotherapy", "Skin Itchiness, chemotherapy", "Sleep problems, chemotherapy", "Swelling, chemotherapy", "Edema, chemotherapy", "Chemotherapy, ovarian cancer", "Clinical trials, ovarian cancer", "Ovarian cancer treatment", "Hormone therapy, ovarian cancer", "Immunotherapy, ovarian cancer", "Intraperitoneal Chemotherapy, ovarian cancer", "Prophylactic surgery, ovarian cancer", "Radiation, ovarian cancer", "Surgery, ovarian cancer", "Targeted therapies, ovarian cancer",];
 const isLeftClick = ($event, checkType = false) => (!checkType || $event.type == 'click') && $event.button === 0;
@@ -27,21 +29,68 @@ export class HelperAnnotator {
         };
         this.annotation = JSON.parse(JSON.stringify(this.defAnnot));
         this.registry = registry;
-        this._addToolbarBtn();
-        this._checkIfAnnotated();
-        this._attachStylesheet();
-        this._showSectionAnnotUIOnHighlight();
+        const user = this.registry.get('authUser');
+        if (['moh70@pitt.edu', 'yow14@pitt.edu'].includes(user === null || user === void 0 ? void 0 : user.email)) {
+            this.mode = 'annotator';
+            this.prepareAnnotator();
+        }
+        else {
+            this.mode = 'view-annotation';
+            this.navigateToAnnotatedSection();
+        }
         this._renderOnPagerendered();
+        this._attachStylesheet();
         // -- dev only
         // this.toolbarBtn.click();
         // this.registry.get('toolbar').showDetails(null as any);
     }
+    prepareAnnotator() {
+        this._addToolbarBtn();
+        this._checkIfAnnotated();
+        this._showSectionAnnotUIOnHighlight();
+    }
+    navigateToAnnotatedSection() {
+        const href = this.registry.get('href')();
+        if (!href.includes('?'))
+            return;
+        const search = href.split('?', 2)[1];
+        const params = new URLSearchParams(search);
+        const annotId = params.get('helperid');
+        const index = parseInt(params.get('helpersection') || '0');
+        this.registry.get('http')
+            .get(`https://ovariancancerhelper2.tk/articles/${annotId}`)
+            .subscribe({
+            next: (annot) => {
+                this.annotation = annot;
+                const section = this.annotation.sections[index];
+                if (section) {
+                    let maxtry = 200, interval = setInterval(() => {
+                        const start = section.sectionStart;
+                        this.registry.getPdfJS().page = start.page;
+                        const sectionStart = this._getDocumentEl().querySelector(`.pdf-text__word[data-page="${start.page}"][data-word="${start.word}"]`);
+                        if (sectionStart) {
+                            sectionStart.scrollIntoView({ block: 'center' });
+                            clearInterval(interval);
+                        }
+                        else if (!maxtry)
+                            clearInterval(interval);
+                        maxtry--;
+                    }, 300);
+                }
+            },
+            error: (error) => {
+                if (error.status == 404) {
+                    console.log('not annotated');
+                }
+                else
+                    console.log(error);
+            }
+        });
+    }
     persist() {
         const { title, cancer_type, audience_type, knowledge_level, trajectory, typeof_document, sections, annotator } = this.annotation;
-        const rawId = this.registry.get('pdfDocId')
-            + (this.annotated ? '_' + Date.now() : '');
         const annot = {
-            id: this.registry.get('sha256')(rawId),
+            id: this.registry.get('sha256')(this.registry.get('pdfDocId')),
             searchTerm: '',
             domain: this.registry.get('hostname')(),
             url: this.registry.get('href')(),
@@ -56,11 +105,25 @@ export class HelperAnnotator {
                 topic: section.topic,
                 text: section.text,
                 keywords: section.keywords,
+                sectionStart: {
+                    page: section.sectionStart.page,
+                    word: section.sectionStart.word,
+                    top: section.sectionStart.top,
+                    left: section.sectionStart.left
+                },
+                sectionEnd: {
+                    page: section.sectionEnd.page,
+                    word: section.sectionEnd.word,
+                    bottom: section.sectionEnd.bottom,
+                    right: section.sectionEnd.right
+                },
             })),
         };
-        this.registry.get('http')
-            .post('https://ovariancancerhelper2.tk/articles', annot)
-            .subscribe({
+        const http = this.registry.get('http');
+        const method = this.annotated
+            ? http.patch(`https://ovariancancerhelper2.tk/articles/${annot.id}`, annot)
+            : http.post('https://ovariancancerhelper2.tk/articles', annot);
+        method.subscribe({
             next: (res) => {
                 this.annotated = true;
                 this.annotation = JSON.parse(JSON.stringify(this.defAnnot));
@@ -146,6 +209,7 @@ export class HelperAnnotator {
           background-color: pink;
         }
         .helper-annotation__section-remove-btn {
+          ${this.mode == 'view-annotation' ? 'display: none;' : ''}
           color: red;
           cursor: pointer;
         }
