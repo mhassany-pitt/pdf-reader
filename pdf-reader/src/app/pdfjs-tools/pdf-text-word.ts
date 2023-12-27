@@ -21,16 +21,17 @@ export class PdfTextWord {
   private _onTextLayerRendered() {
     this._getPdfJS().eventBus.on('textlayerrendered', ($event: any) => {
       const pageNum = $event.pageNumber;
-      const selector = `.pdfViewer .page[data-page-number="${pageNum}"] .textLayer`;
-      const textLayer = this._getDocumentEl().querySelector(selector);
-      let i = 0;
-      Array.from(textLayer.querySelectorAll('span[role="presentation"]')).forEach((span: any) => {
+      const pageEl = getPageEl(this._getDocumentEl(), pageNum);
+      const textLayerEl = pageEl.querySelector('.textLayer');
+      let index = 0;
+      Array.from(textLayerEl.querySelectorAll('span[role="presentation"]')).forEach((span: any) => {
         if (span.textContent.trim().length) {
           span.innerHTML = span.textContent.split(' ').map((word: any) =>
-            `<span class="pdf-text__word" data-page="${pageNum}" data-word="${i++}">${word}</span>`
+            `<span class="pdf-text__word" data-page="${pageNum}" data-word="${index++}">${word}</span>`
           ).join(' ');
         }
       });
+      pageEl.setAttribute('data-textword-extracted', 'true');
     });
   }
 
@@ -70,20 +71,48 @@ export class PdfTextWord {
     return words.sort((a, b) => a.page - b.page || a.word - b.word);
   }
 
-  getWords(start, end /* is included */) {
-    const words: any[] = [];
-    for (let i = start.page; i <= end.page; i++) {
-      const selector = `.pdfViewer .pdf-text__word[data-page="${i}"]`;
-      const pagewords: HTMLElement[] = Array.from(this._getDocumentEl().querySelectorAll(selector));
-      if (i === end.page) pagewords.splice(end.word + 1);
-      if (i === start.page) pagewords.splice(0, start.word);
-      words.push(...pagewords.map((w: any) => ({
-        page: i,
-        word: parseInt(w.getAttribute('data-word')),
-        text: w.textContent
-      })));
-    }
-    return words;
+  getWords(start, end /* is included */): Promise<{ page: number, word: number, text: string }[]> {
+    return new Promise((resolve, reject) => {
+      try {
+        const words: any[] = [];
+        let pageNum = start.page;
+        const extractPageWords = () => {
+          while (pageNum <= end.page) {
+            if (!this._getDocumentEl().querySelector(
+              `.pdfViewer .page[data-page-number="${pageNum}"][data-loaded="true"][data-textword-extracted="true"]`)) {
+              this.registry.getPdfJS().page = pageNum;
+              setTimeout(() => extractPageWords(), 100);
+              return; // wait for page to be rendered
+            }
+
+            const wordEls: HTMLElement[] = Array.from(
+              this._getDocumentEl().querySelectorAll(`.pdfViewer .pdf-text__word[data-page="${pageNum}"]`));
+            if (pageNum === end.page) wordEls.splice(end.word + 1);
+            if (pageNum === start.page) wordEls.splice(0, start.word);
+
+            const pwords = wordEls.map((w: any) => ({
+              page: pageNum,
+              word: parseInt(w.getAttribute('data-word')),
+              text: w.textContent
+            }));
+
+            // ensure words are sorted
+            pwords.sort((a, b) => a.word - b.word);
+            words.push(...pwords);
+
+            // next page or resolve
+            pageNum++;
+          }
+
+          // when all pages are processed
+          resolve(words);
+        };
+
+        extractPageWords();
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 
   private _attachStylesheet() {

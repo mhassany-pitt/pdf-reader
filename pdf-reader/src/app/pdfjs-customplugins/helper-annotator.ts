@@ -614,19 +614,18 @@ export class HelperAnnotator {
     // ]] btn
     if (!this.sectionStart)
       setEndBtn.setAttribute('disabled', 'disabled');
-    setEndBtn.addEventListener('click', () => {
+    setEndBtn.addEventListener('click', async () => {
       const l = words.length - 1;
       this.sectionEnd = { page, word: words[l].word, text: words[l].text, bottom, right };
+      const textword = this.registry.get('text-word');
+      const extracted = await textword.getWords(this.sectionStart, this.sectionEnd);
       this.annotation.sections.push({
         id: Math.random().toString(36).substring(2, 9),
         sectionStart: this.sectionStart,
         sectionEnd: this.sectionEnd,
         topic: this.topic,
         keywords: this.keywords,
-        text: this.registry.get('text-word')
-          .getWords(this.sectionStart, this.sectionEnd)
-          .map((w) => w.text)
-          .join(' '),
+        text: extracted.map((w: any) => w.text).join(' '),
       });
       this.topic = '';
       this.keywords = [];
@@ -644,7 +643,7 @@ export class HelperAnnotator {
       setTimeout(() => setTitle.textContent = '+Title', 3000);
     });
 
-    // -- start section / add keyword btn
+    // -- start section
     addBtn.addEventListener('click', () => {
       this.topic = topicInput.value;
       topicInput.value = '';

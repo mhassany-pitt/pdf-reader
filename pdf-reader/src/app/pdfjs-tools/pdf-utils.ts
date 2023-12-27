@@ -26,10 +26,10 @@ export const getPageNumAtRect = (document: Document, rect: WHRect): number => {
   }
   return null as any;
 }
-export const getPageEl = (el: any, pageNum?: number) => {
+export const getPageEl = (elOrParent: any, pageNum?: number) => {
   return pageNum
-    ? el.querySelector(`.pdfViewer .page[data-page-number="${pageNum}"]`)
-    : el.closest(`.pdfViewer .page`);
+    ? elOrParent.querySelector(`.pdfViewer .page[data-page-number="${pageNum}"]`)
+    : elOrParent.closest(`.pdfViewer .page`);
 }
 
 export const relativeToPageEl = (rect: PageRect, pageEl: any): PageRect => {
