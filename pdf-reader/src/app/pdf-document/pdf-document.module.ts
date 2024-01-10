@@ -33,7 +33,7 @@ import { PDFPluginsManagementComponent } from '../pdf-plugins-management/pdf-plu
     ButtonModule, ChipsModule, DialogModule,
     InputSwitchModule, CheckboxModule,
     ColorPickerModule, MultiSelectModule,
-    InputTextareaModule,
+    InputTextareaModule, 
     PDFDocumentLinksComponent,
     PDFPluginsManagementComponent,
     ConfirmDialogModule,

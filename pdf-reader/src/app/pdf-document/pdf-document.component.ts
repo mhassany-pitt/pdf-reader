@@ -78,7 +78,7 @@ export class PDFDocumentComponent implements OnInit {
     private route: ActivatedRoute,
     private service: PDFDocumentService,
     private confirm: ConfirmationService,
-    private app: AppService,
+    public app: AppService,
     private title: Title,
   ) { }
 

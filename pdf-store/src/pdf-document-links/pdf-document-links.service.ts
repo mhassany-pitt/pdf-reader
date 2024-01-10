@@ -35,7 +35,9 @@ export class PDFDocumentLinksService {
   }
 
   async read({ user, id }) {
-    return toObject(await this.pdfDocLinks.findOne({ user_id: user.id, _id: id }));
+    const filter: any = { _id: id };
+    if (user) filter.user_id = user.id;
+    return toObject(await this.pdfDocLinks.findOne(filter));
   }
 
   async update({ user, id, pdfLink }) {

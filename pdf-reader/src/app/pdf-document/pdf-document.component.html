@@ -21,7 +21,15 @@
 
       <hr class="my-1" />
 
-      <span class="font-bold">Outline</span>
+      <div class="flex items-center">
+        <span class="font-bold">Outline</span>
+
+        <span class="flex-grow"></span>
+
+        <button pButton type="button" icon="pi pi-users" title="Collaborate" class="p-button-text p-button-help"
+          style="padding: 0 0.125rem;" (click)="tt['show-collaborators-dialog'] = true">
+        </button>
+      </div>
 
       <div class="flex flex-col text-xs border border-gray-600 p-2 rounded-sm overflow-y-auto"
         [ngStyle]="{ 'max-height': 'calc(100vh - 425px)' }">
@@ -126,6 +134,13 @@
     </div>
   </div>
 </form>
+
+<p-dialog header="Collaborators" [(visible)]="tt['show-collaborators-dialog']" [modal]="true"
+  [style]="{ width: '75vw', 'max-width': '500px' }">
+  <p-chips *ngIf="pdfDocument" [(ngModel)]="pdfDocument.collaborator_emails" separator=","
+    placeholder="user@company.com, ..." class="w-full"></p-chips>
+  <span class="text-xs text-gray-400">Hint: use enter to add new collaborator.</span>
+</p-dialog>
 
 <p-dialog [header]="getShareDialogTitle(pdfDocument?.title)" [(visible)]="tt['show-share-dialog']" [modal]="true"
   [style]="{ width: '75vw', 'max-width': '800px' }">

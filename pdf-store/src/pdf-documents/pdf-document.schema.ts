@@ -7,6 +7,8 @@ export type PDFDocumentDocument = HydratedDocument<PDFDocument>;
 export class PDFDocument {
   @Prop() archived: boolean;
   @Prop() user_id: string;
+  @Prop() owner_email: string;
+  @Prop() collaborator_emails: [string];
   @Prop() title: string;
   @Prop() tags: [string];
   @Prop() file_id: string;

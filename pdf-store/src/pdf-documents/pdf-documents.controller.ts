@@ -68,7 +68,7 @@ export class PDFDocumentsController {
   @UseInterceptors(FileInterceptor('file'))
   async upload(@Req() req: any, @Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
     const pdfDoc = await this._getOrFail({ user: req.user, id });
-    const fileId = await this.service.upload({ user: req.user, fileId: pdfDoc.file_id, file });
+    const fileId = await this.service.upload({ user: { id: pdfDoc.user_id }, fileId: pdfDoc.file_id, file });
     await this.service.update({ user: req.user, id, pdfDoc: { ...pdfDoc, file_id: fileId } });
     return {};
   }

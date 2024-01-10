@@ -8,6 +8,13 @@
 
       <span class="flex-grow"></span>
 
+      <ng-container *ngIf="app.user?.roles?.includes('app-admin')">
+        <button pButton type="button" label="Users" icon="pi pi-users" class="p-button-sm p-button-text"
+          style="padding: 0.25rem 0.5rem;" routerLink="/user-admin">
+        </button>
+        <span class="border-r w-1 h-6"></span>
+      </ng-container>
+
       <app-user-auth-ctrl></app-user-auth-ctrl>
     </div>
   </div>
@@ -61,22 +68,25 @@
       <ng-template pTemplate="body" let-pdfDocument>
         <tr [ngClass]="{ 'line-through decoration-gray-400': pdfDocument.archived }">
           <td [ngClass]="{ 'text-gray-400': pdfDocument.archived }">
-            <div class="flex items-center">
+            <div class="flex items-center gap-2">
               <a [routerLink]="['/pdf-documents', pdfDocument.id]" class="font-bold">
                 {{ pdfDocument.title || 'unnamed' }}
               </a>
-
-              <a [routerLink]="['/pdf-reader', pdfDocument.id]" target="_blank" class="ml-2 cursor-pointer">
-                <i class="pi pi-window-maximize" style="font-size: 0.75rem;"></i>
-              </a>
-
-              <span class="flex-grow"></span>
-
               <div>
-                <span *ngFor="let tag of pdfDocument.tags" class="bg-gray-100 rounded-md mr-1 px-1">
+                <span *ngFor="let tag of pdfDocument.tags" class="bg-gray-100 rounded-md mr-1 px-1 text-xs">
                   {{ tag }}
                 </span>
               </div>
+
+              <span class="flex-grow"></span>
+
+              <span *ngIf="app.user?.email != pdfDocument.owner_email" class="bg-gray-100 rounded-md px-1 text-xs">
+                owner: {{ pdfDocument.owner_email }}
+              </span>
+              <span *ngIf="app.user?.email == pdfDocument.owner_email && pdfDocument.collaborator_emails?.length"
+                class="bg-gray-100 rounded-md px-1 text-xs">
+                collaborators: {{ pdfDocument.collaborator_emails.join(', ') }}
+              </span>
             </div>
           </td>
           <td class="w-64" [ngClass]="{ 'text-gray-400': pdfDocument.archived }">

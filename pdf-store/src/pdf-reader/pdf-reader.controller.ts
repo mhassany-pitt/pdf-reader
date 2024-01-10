@@ -18,12 +18,6 @@ export class PDFReaderController {
   ) { }
 
   private async _getOrFail({ user, id, req }) {
-    let pdfDoc: any = null;
-    if (user) { // user is the author
-      pdfDoc = await this.service.readPDFDoc({ user: user, id });
-      if (pdfDoc) return useId(pdfDoc);
-    }
-
     let pdfLink = await this.service.readPDFLink({ id });
     if (!pdfLink) throw new NotFoundException();
 
@@ -64,7 +58,7 @@ export class PDFReaderController {
     if (users?.length && !users.includes(user?.email))
       throw new UnauthorizedException();
 
-    pdfDoc = await this.service.readPDFDoc({
+    const pdfDoc = await this.service.readPDFDoc({
       user: { id: pdfLink.user_id },
       id: pdfLink.pdf_doc_id,
     });

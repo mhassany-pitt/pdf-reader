@@ -21,7 +21,7 @@ export class PDFDocumentsService {
   }
 
   async list({ user, includeArchives }) {
-    const filter: any = { user_id: user.id };
+    const filter: any = { $or: [{ user_id: user.id }, { collaborator_emails: user.email }] };
     if (includeArchives) {
       // nothing is necessary
     } else filter.archived = false;
@@ -33,6 +33,7 @@ export class PDFDocumentsService {
     return toObject(await this.pdfDocs.create({
       archived: false,
       user_id: user.id,
+      owner_email: user.email,
       file_id: '04accfd333c3ab5318808e0d', // default blank pdf
       created_at: new Date().toISOString(),
       modified_at: new Date().toISOString(),
@@ -40,11 +41,11 @@ export class PDFDocumentsService {
   }
 
   async read({ user, id }) {
-    return toObject(await this.pdfDocs.findOne({ user_id: user.id, _id: id }));
+    return toObject(await this.pdfDocs.findOne({ $or: [{ user_id: user.id }, { collaborator_emails: user.email }], _id: id }));
   }
 
   async update({ user, id, pdfDoc }) {
-    await this.pdfDocs.updateOne({ user_id: user.id, _id: id }, {
+    await this.pdfDocs.updateOne({ $or: [{ user_id: user.id }, { collaborator_emails: user.email }], _id: id }, {
       $set: { modified_at: new Date().toISOString(), ...pdfDoc }
     });
     return this.read({ user, id });

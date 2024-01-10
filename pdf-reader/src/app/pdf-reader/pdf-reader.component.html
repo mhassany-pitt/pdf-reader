@@ -1,9 +1,9 @@
 <div class="flex flex-col h-full pdf-document-reader">
   <div class="flex items-center">
     <p-dropdown *ngIf="pdfDocument && showOutlineEl" [(ngModel)]="entry" [options]="pdfDocument.outline"
-      optionLabel="title" placeholder="Document Outline" [filter]="true" filterPlaceholder="Search titles"
-      panelStyleClass="outline-dropdown" appendTo="body" emptyFilterMessage="No outline found"
-      class="w-full p-inputtext-sm" (onChange)="scrollToEntry($event.value)">
+      optionLabel="title" placeholder="Document Outline" [filter]="true" filterPlaceholder="Search ..."
+      panelStyleClass="outline-dropdown" appendTo="body" emptyMessage="Outline is empty!"
+      emptyFilterMessage="No match found!" class="w-full p-inputtext-sm" (onChange)="scrollToEntry($event.value)">
       <ng-template let-entry pTemplate="selectedItem">
         <div class="flex items-center justify-center">
           {{ entry.title }}

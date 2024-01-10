@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { PDFDocumentsService } from './pdf-documents.service';
+import { AppService } from '../app.service';
 
 @Component({
   selector: 'app-pdf-documents',
@@ -16,6 +17,7 @@ export class PDFDocumentsComponent implements OnInit {
   constructor(
     private service: PDFDocumentsService,
     private router: Router,
+    public app: AppService,
   ) { }
 
   filter(table: any, $event: any) {

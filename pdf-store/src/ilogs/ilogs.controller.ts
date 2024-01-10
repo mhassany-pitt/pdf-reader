@@ -19,4 +19,6 @@ export class ILogsController {
     for (const log of logs)
       this.logger.info({ ...log, ...userIdObj, sdatetime });
   }
+
+  // TODO: separate logs for each document
 }
