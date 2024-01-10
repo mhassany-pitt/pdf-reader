@@ -7,6 +7,7 @@ import { PDFDocument } from './pdf-document.schema';
 import { Model } from 'mongoose';
 import { PDFFile } from './pdf-file.schema';
 import { PDFDocumentText } from '../pdf-document-texts/pdf-document-text.schema';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class PDFDocumentsService {
@@ -16,8 +17,24 @@ export class PDFDocumentsService {
     @InjectModel('pdf-files') private pdfFiles: Model<PDFFile>,
     @InjectModel('pdf-documents') private pdfDocs: Model<PDFDocument>,
     @InjectModel('pdf-document-texts') private pdfTexts: Model<PDFDocumentText>,
+    private users: UsersService,
   ) {
     ensureDirSync(storageRoot(this.config, 'pdf-files'));
+    this._setMissingOwnerEmails();
+  }
+  private async _setMissingOwnerEmails() {
+    // a temporary fix to set missing owner emails
+    // TODO: remove this after next update
+    const list = await this.pdfDocs.find({
+      $or: [
+        { owner_email: { $exists: false } },
+        { owner_email: null }
+      ]
+    });
+    for (const each of list) {
+      const user = await this.users.findUserBy({ _id: each.user_id });
+      await this.pdfDocs.updateOne({ _id: each._id }, { $set: { owner_email: user.email } });
+    }
   }
 
   async list({ user, includeArchives }) {

@@ -48,6 +48,10 @@ export class UsersService {
     return toObject(await this.users.findOne({ email }));
   }
 
+  async findUserBy(filter) {
+    return toObject(await this.users.findOne(filter));
+  }
+
   async findAPIUser(apiKey: string) {
     return toObject(await this.users.findOne({ apiKey, userType: 'api' }));
   }

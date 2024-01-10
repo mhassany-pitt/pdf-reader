@@ -7,6 +7,7 @@ import { PDFDocumentSchema } from './pdf-document.schema';
 import { PDFFileSchema } from './pdf-file.schema';
 import { PDFDocumentTextSchema } from '../pdf-document-texts/pdf-document-text.schema';
 import { PDFDocumentTextsModule } from 'src/pdf-document-texts/pdf-document-texts.module';
+import { UsersModule } from 'src/users/users.module';
 
 const MongoSchemas = MongooseModule.forFeature([
   { name: 'pdf-files', schema: PDFFileSchema },
@@ -15,6 +16,7 @@ const MongoSchemas = MongooseModule.forFeature([
 
 @Module({
   imports: [
+    UsersModule,
     PDFDocumentTextsModule,
     MongoSchemas
   ],
