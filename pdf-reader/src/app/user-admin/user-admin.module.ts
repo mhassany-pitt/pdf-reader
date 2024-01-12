@@ -17,6 +17,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { RouterModule } from '@angular/router';
+import { ChipsModule } from 'primeng/chips';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,7 @@ import { RouterModule } from '@angular/router';
     InputTextModule, DialogModule,
     InputTextareaModule, SelectButtonModule,
     SplitButtonModule, MultiSelectModule,
-    ConfirmDialogModule,
+    ConfirmDialogModule, ChipsModule,
   ],
   providers: [UserAdminService, ConfirmationService]
 })

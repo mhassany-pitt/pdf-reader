@@ -59,7 +59,7 @@ export class AnnotationsController {
   @Get(':groupId/annotators')
   @UseGuards(AuthenticatedGuard)
   async annotators(@Param('groupId') groupId: string) {
-    return await this.service.getAnnotators({ groupId });
+    return (await this.service.getAnnotators({ groupId })).map(a => a?.trim()).filter(a => a);
   }
 
   @Patch(':groupId/:id')

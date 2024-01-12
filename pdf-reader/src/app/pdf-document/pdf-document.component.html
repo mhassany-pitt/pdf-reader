@@ -17,7 +17,8 @@
       <input type="text" name="title" pInputText [(ngModel)]="pdfDocument.title" (ngModelChange)="updateTitle()"
         placeholder="Title" required class="p-inputtext-lg" style="padding: 0.375rem 0.5rem;" />
 
-      <p-chips name="tags" [(ngModel)]="pdfDocument.tags" separator="," placeholder="Tags (comma separated)"></p-chips>
+      <p-chips name="tags" [(ngModel)]="pdfDocument.tags" separator="," placeholder="Tags (comma separated)"
+        class="p-chips-sm"></p-chips>
 
       <hr class="my-1" />
 
@@ -138,7 +139,7 @@
 <p-dialog header="Collaborators" [(visible)]="tt['show-collaborators-dialog']" [modal]="true"
   [style]="{ width: '75vw', 'max-width': '500px' }">
   <p-chips *ngIf="pdfDocument" [(ngModel)]="pdfDocument.collaborator_emails" separator=","
-    placeholder="user@company.com, ..." class="w-full"></p-chips>
+    placeholder="user@company.com, ..." class="p-chips-sm"></p-chips>
   <span class="text-xs text-gray-400">Hint: use enter to add new collaborator.</span>
 </p-dialog>
 

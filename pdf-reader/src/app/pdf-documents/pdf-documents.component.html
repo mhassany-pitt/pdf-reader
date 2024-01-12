@@ -20,7 +20,7 @@
   </div>
 
   <div class="container mx-auto my-10 border shadow-md">
-    <p-table #table [value]="pdfDocuments" styleClass="p-datatable-striped">
+    <p-table #table [value]="pdfDocuments" [globalFilterFields]="['title', 'tags']" styleClass="p-datatable-striped">
       <ng-template pTemplate="caption">
         <div class="table-header flex items-center gap-1">
           <span class="text-2xl">
