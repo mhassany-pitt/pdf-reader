@@ -63,7 +63,7 @@ export class PdfFilterToolbarBtn extends PdfToolbarBtn {
   }
 
   private getToolbarDetailsEl() {
-    return [this._getFilterEl(), this._getSeparatorEl(), this._getDisplayNameEl(), this._getVisibilityEl()];
+    return [this._getFilterEl()];
   }
 
   private _getFilterEl() {
@@ -168,83 +168,6 @@ export class PdfFilterToolbarBtn extends PdfToolbarBtn {
         this._getSelecteds().splice(this._getSelecteds().indexOf(annotId), 1);
         updateFilterUI(true);
       }
-    });
-
-    return containerEl;
-  }
-
-  private _getSeparatorEl() {
-    return htmlToElements(
-      `<div class="pdf-annotation-toolbar__filter-new-annots">
-        <span>New Annotations</span>
-        <style>
-          .pdf-annotation-toolbar__filter-new-annots {
-            border-top: solid 1px lightgray; 
-            padding-top: 0.25rem; 
-            color: white; 
-            font-size: 0.85rem;
-          }
-        </style>
-      </div>`);
-  }
-
-  private _getDisplayNameEl() {
-    if (!this._getFilter().getDisplayName())
-      this._getFilter().setDisplayName(`user:${Date.now()}`);
-
-    const containerEl = htmlToElements(
-      `<form class="pdf-annotation-toolbar__display-name-form" autocomplete="off">
-        <input placeholder="Display Name" 
-          title="Use a display name to mark your annotations" 
-          value="${this._getFilter().getDisplayName()}" 
-          class="pdf-annotation-toolbar__display-name"/>
-        <style>
-          .pdf-annotation-toolbar__display-name-form {
-            display: flex;
-            flex-direction: column;
-          }
-          .pdf-annotation-toolbar__display-name {
-            outline: none;
-          }
-        </style>
-      </form>`);
-
-    containerEl.onsubmit = () => false;
-
-    const displayNameEl = containerEl.querySelector('input') as HTMLInputElement;
-    displayNameEl.addEventListener('blur', () => {
-      displayNameEl.value = displayNameEl.value.replaceAll(',', '');
-      this._getFilter().setDisplayName(displayNameEl.value);
-      this._getFilter().persist();
-    });
-
-    return containerEl;
-  }
-
-  private _getVisibilityEl() {
-    const containerEl = htmlToElements(
-      `<div class="pdf-annotation-toolbar__visibility">
-        <label>
-          <input type="checkbox" ${this._getFilter().getVisibility() == 'private' ? 'checked' : ''} value="void" />
-          <span>Private (others can't view)</span>  
-        </label>
-        <style>
-          .pdf-annotation-toolbar__visibility > label {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-          }
-          .pdf-annotation-toolbar__visibility span {
-            font-size: 0.85rem;
-            color: white;
-          }
-        </style>
-      </div>`);
-
-    const visibilityEl = containerEl.querySelector('input') as HTMLInputElement;
-    visibilityEl.addEventListener('click', () => {
-      this._getFilter().setVisibility(visibilityEl.checked ? 'private' : 'public');
-      this._getFilter().persist();
     });
 
     return containerEl;

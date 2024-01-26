@@ -40,6 +40,7 @@ import { PdfFilterToolbarBtn } from '../pdfjs-tools/pdf-filter-toolbar-btn';
 import { AppService } from '../app.service';
 import { sha256 } from 'js-sha256';
 import { PdfTextWord } from '../pdfjs-tools/pdf-text-word';
+import { PdfConfigToolbarBtn } from '../pdfjs-tools/pdf-config-toolbar-btn';
 // import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
 
 @Component({
@@ -200,11 +201,14 @@ export class PDFReaderComponent implements OnInit {
 
     registry.get('toolbar').addSeparator();
 
-    new PdfFilter({ registry });
-    new PdfFilterToolbarBtn({ registry });
-
     new PdfDelete({ registry });
     new PdfDeleteToolbarBtn({ registry });
+
+    registry.get('toolbar').addSeparator();
+
+    new PdfFilter({ registry });
+    new PdfFilterToolbarBtn({ registry });
+    new PdfConfigToolbarBtn({ registry });
 
     // new HelperAnnotator({ registry });
 
@@ -232,9 +236,7 @@ export class PDFReaderComponent implements OnInit {
   }
 
   private _applyViewParams() {
-    const onDocumentLoad = ($event: any) => {
-      this.pdfjs.eventBus.off('textlayerrendered', onDocumentLoad);
-
+    const applyViewParams = () => {
       // apply configs from query params OR viewer (delegated) configs
       const view = this.pdfDocument.configs?.view || {};
 
@@ -267,7 +269,7 @@ export class PDFReaderComponent implements OnInit {
         matchDiacritics: true, phraseSearch: true,
       });
 
-      // -- scrollto
+      // -- scrollto (page,top,left)
       const scrollto = this.qparams.scrollto || view.scrollto;
       if (!section && !search && scrollto) {
         const [page, top, left] = scrollto.split(',').map(s => parseFloat(s));
@@ -281,8 +283,13 @@ export class PDFReaderComponent implements OnInit {
       // -- spread mode
       const spreadmode = this.qparams.spreadmode || view.spreadmode;
       if (spreadmode) this.pdfjs.pdfViewer.spreadMode = parseInt(spreadmode);
+    }
+
+    const onMetadataLoaded = ($event: any) => {
+      this.pdfjs.eventBus.off('metadataloaded', onMetadataLoaded);
+      setTimeout(() => applyViewParams(), 300);
     };
-    this.pdfjs.eventBus.on('textlayerrendered', onDocumentLoad);
+    this.pdfjs.eventBus.on('metadataloaded', onMetadataLoaded);
   }
 
   private _bindPageOutline() {

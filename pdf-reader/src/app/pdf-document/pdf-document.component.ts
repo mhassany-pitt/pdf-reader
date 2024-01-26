@@ -46,6 +46,7 @@ import { AppService } from '../app.service';
 // import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
 import { sha256 } from 'js-sha256';
 import { PdfTextWord } from '../pdfjs-tools/pdf-text-word';
+import { PdfConfigToolbarBtn } from '../pdfjs-tools/pdf-config-toolbar-btn';
 
 @Component({
   selector: 'app-pdf-document',
@@ -155,6 +156,7 @@ export class PDFDocumentComponent implements OnInit {
 
     this.registry.register(`configs.default.plugins`, () => PdfLoadCustomPlugins.defaultConfigs());
     this.registry.register(`configs.default.filter`, () => PdfFilterToolbarBtn.defaultConfigs());
+    this.registry.register('configs.default.config', () => PdfConfigToolbarBtn.defaultConfigs());
 
     new PdfILogger({ registry });
     new PdfStorage({ registry });
