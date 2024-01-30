@@ -69,7 +69,7 @@ export class PdfHighlightNoteEditor {
       `<div class="pdf-annotation__highlight-note-editor-popup" data-highlight-id="${annot.id}">
         <textarea rows="5" cols="35" placeholder="Note ..."
           class="pdf-annotation__highlight-note-editor-textarea"
-          style="font-size: ${scale(this._getPdfJS()) * 100}%;"  
+          style="font-size: ${scale(this._getPdfJS()) * 100 * 0.8}%;"  
         >${annot.note || ''}</textarea>
         <style>
           .pdf-annotation__highlight-note-editor-popup {
@@ -104,8 +104,12 @@ export class PdfHighlightNoteEditor {
 
     const textarea = popupEl.querySelector('textarea');
     textarea?.addEventListener('blur', async () => {
-      if (this._getDocumentEl().querySelector(`[data-annotation-id="${annot.id}"]`))
-        this._getStorage().update({ ...annot, note: textarea.value }, () => annot.note = textarea.value);
+      if (this._getDocumentEl().querySelector(`[data-annotation-id="${annot.id}"]`)) {
+        this._getStorage().update({ ...annot, note: textarea.value }, () => {
+          annot.note = textarea.value;
+          this.registry.get('highlight-viewer').render(annot);
+        });
+      }
     });
   }
 }

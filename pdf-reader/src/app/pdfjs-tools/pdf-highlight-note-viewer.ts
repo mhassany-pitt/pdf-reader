@@ -78,7 +78,7 @@ export class PdfHighlightNoteViewer {
       `<div class="pdf-annotation__highlight-note-viewer-popup" data-highlight-id="${annot.id}">
         <textarea rows="${rows}" cols="${cols}" placeholder="Note ..." readonly="true" resizable="false"
           class="pdf-annotation__highlight-note-viewer-textarea"
-          style="font-size: ${scale(this._getPdfJS()) * 100}%;"
+          style="font-size: ${scale(this._getPdfJS()) * 100 * 0.8}%;"
         >${annot.note || ''}</textarea>
         <style>
           .pdf-annotation__highlight-note-viewer-popup {
