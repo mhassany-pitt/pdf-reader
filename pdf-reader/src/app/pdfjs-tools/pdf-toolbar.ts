@@ -81,7 +81,7 @@ export class PdfToolbar {
             transition: left 0.2s ease;
           }
           .sidebarOpen .pdf-toolbar {
-            left: 12.75rem;
+            left: calc(var(--sidebar-width) + 0.25rem);
           }
           .pdf-toolbar > div {
             display: flex;

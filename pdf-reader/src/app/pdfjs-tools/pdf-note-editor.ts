@@ -184,3 +184,5 @@ export class PdfNoteEditor {
         </style>`));
   }
 }
+
+// TODO: moving a note or text after edit ignores the new edits (note or text)

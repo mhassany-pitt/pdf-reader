@@ -124,22 +124,19 @@ export class PDFReaderComponent implements OnInit {
     this.title.setTitle(`${this.pdfDocument.title || 'unnamed'}`);
   }
 
-  onDocumentLoad(iframe, $event) {
+  async onDocumentLoad(iframe, $event) {
     this.iframe = iframe;
+    this.window = this.iframe.contentWindow;
+    this.pdfjs = this.window.PDFViewerApplication;
+    // this.pdfjs.preferences.set('sidebarViewOnLoad', 0);
+    await this.pdfjs.initializedPromise; // ensure pdfjs is initialized
+    this._removeExtraElements();
     this.prepare();
   }
 
   async prepare() {
     if (!this.pdfDocument || !this.iframe)
       return;
-
-    this.window = this.iframe.contentWindow;
-    this.pdfjs = this.window.PDFViewerApplication;
-    this.pdfjs.preferences.set('sidebarViewOnLoad', 0);
-
-    // ensure pdfjs is initialized
-    await this.pdfjs.initializedPromise;
-    this._removeExtraElements();
 
     this.registry = new PdfRegistry({ iframe: this.iframe, pdfjs: this.pdfjs });
     const registry = this.registry;
@@ -285,11 +282,11 @@ export class PDFReaderComponent implements OnInit {
       if (spreadmode) this.pdfjs.pdfViewer.spreadMode = parseInt(spreadmode);
     }
 
-    const onMetadataLoaded = ($event: any) => {
-      this.pdfjs.eventBus.off('metadataloaded', onMetadataLoaded);
-      setTimeout(() => applyViewParams(), 300);
+    const callback = ($event: any) => {
+      this.pdfjs.eventBus.off('documentinit', callback);
+      applyViewParams();
     };
-    this.pdfjs.eventBus.on('metadataloaded', onMetadataLoaded);
+    this.pdfjs.eventBus.on('documentinit', callback);
   }
 
   private _bindPageOutline() {

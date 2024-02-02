@@ -105,8 +105,13 @@ export class PDFDocumentComponent implements OnInit {
     return `Share "${title || 'PDF Document'}"`;
   }
 
-  onDocumentLoad(iframe, $event) {
+  async onDocumentLoad(iframe, $event) {
     this.iframe = iframe;
+    this.window = this.iframe.contentWindow;
+    this.pdfjs = this.window.PDFViewerApplication;
+    // this.pdfjs.preferences.set('sidebarViewOnLoad', 0);
+    await this.pdfjs.initializedPromise; // ensure pdfjs is initialized
+    this.removeExtraElements();
     this.prepare();
   }
 
@@ -120,14 +125,6 @@ export class PDFDocumentComponent implements OnInit {
   async prepare() {
     if (!this.pdfDocument || !this.iframe)
       return;
-
-    this.window = this.iframe.contentWindow;
-    this.pdfjs = this.window.PDFViewerApplication;
-    this.pdfjs.preferences.set('sidebarViewOnLoad', 0);
-
-    // ensure pdfjs is initialized
-    await this.pdfjs.initializedPromise;
-    this.removeExtraElements();
 
     this.registry = new PdfRegistry({ iframe: this.iframe, pdfjs: this.pdfjs });
     const registry = this.registry;
