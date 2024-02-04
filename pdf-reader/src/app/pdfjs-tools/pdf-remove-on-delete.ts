@@ -45,7 +45,10 @@ export class PdfRemoveOnDelete {
 
   private _removeOnKeyBkSpaceOrDelete() {
     this._getDocument().addEventListener('keydown', ($event: any) => {
-      if (this.selected && ['Delete', 'Backspace'].includes($event.key) && this._isDeleteable($event))
+      if (this.selected &&
+        ['Delete', 'Backspace'].includes($event.key) &&
+        this._isDeleteable($event) &&
+        confirm('Are you sure you want to delete this annotation?'))
         this._getStorage().delete(this.selected, () => {
           removeSelectorAll(this._getDocumentEl(), `.pdf-annotations [data-annotation-id="${this.selected.id}"]`);
           this.selected = null;

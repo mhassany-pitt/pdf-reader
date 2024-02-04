@@ -27,7 +27,10 @@ export class PdfDelete {
   protected onAnnotClick() {
     this._getDocument().addEventListener('click', async ($event: any) => {
       const annotEl = getOrParent($event, '[data-annotation-id]');
-      if (this.enabled && isLeftClick($event) && annotEl && confirm('Delete this annotation?')) {
+      if (this.enabled &&
+        isLeftClick($event) &&
+        annotEl &&
+        confirm('Are you sure you want to delete this annotation?')) {
         $event.preventDefault();
         $event.stopPropagation();
         const annotId = annotEl.getAttribute('data-annotation-id');

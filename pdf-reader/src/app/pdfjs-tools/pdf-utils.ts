@@ -63,6 +63,7 @@ export const getSelectionRects = (document: Document, pdfjs: any) => {
   const rects: WHRect[] = Array.from(range.getClientRects());
 
   const merged = mergeRects(rects)
+    .sort((a, b) => a.top - b.top || a.left - b.left)
     .map(rect => ({ ...rect, page: getPageNumAtRect(document, rect) }))
     .filter(rect => rect.page && rect.width > 0 && rect.height > 0);
 
@@ -87,56 +88,69 @@ export const mergeRects = (rects: WHRect[]): WHRect[] => {
   type IgnorableRect = WHRect & { ignore?: boolean };
   let $rects = rects.map(({ top, right, bottom, left, width, height }) =>
     ({ top, right, bottom, left, width, height })) as IgnorableRect[];
+
+  // filter out zero area rects
+  $rects = $rects.filter(rect => rect.width > 0 && rect.height > 0);
+
+  // sort by area (small to large)
   $rects = $rects.sort((a, b) => (a.width * a.height) - (b.width * b.height));
+
+  const r2d /* round2digit */ = (num) => Math.round(num * 100) / 100;
 
   // merge horizontal rects
   for (var i = 1; i < $rects.length; i++)
     for (var j = 0; j < i; j++) {
-      const a = $rects[i];
-      const b = $rects[j];
+      const b = $rects[i]; // bigger
+      const s = $rects[j]; // smaller
 
-      if (!b.ignore
-        && a.top == b.top
-        && a.bottom == b.bottom
-        && b.right >= a.left
-      ) {
-        a.ignore = b.ignore = true;
-        const left = Math.min(a.left, b.left);
-        const right = Math.max(a.right, b.right);
+      if (!s.ignore &&  // save top/bottom with intersecting left/right
+        r2d(b.top) == r2d(s.top) &&
+        r2d(b.bottom) == r2d(s.bottom) &&
+        (r2d(s.right) >= r2d(b.left) /* s left of b */ ||
+          r2d(s.left) >= r2d(b.right) /* s right of b */)) {
+        b.ignore = s.ignore = true;
+        const left = Math.min(b.left, s.left);
+        const right = Math.max(b.right, s.right);
 
         $rects.push({
-          top: b.top,
-          bottom: b.bottom,
+          top: s.top,
+          bottom: s.bottom,
           left,
           right,
-          height: a.bottom - a.top,
+          height: b.bottom - b.top,
           width: right - left,
         });
       }
     }
 
-  $rects = $rects.filter(rect => !rect.ignore);
-  // merge completely-overlapping rects
-  for (let i = 1; i < $rects.length; i++)
-    for (let j = 0; j < i; j++) {
-      const a = $rects[i];
-      const b = $rects[j];
+  // sort by area (small to large)
+  $rects = $rects.filter(rect => !rect.ignore)
+    .sort((a, b) => (a.width * a.height) - (b.width * b.height));
 
-      if (!b.ignore
-        && b.left >= a.left
-        && b.top >= a.top
-        && b.right <= a.right
-        && b.bottom <= a.bottom
-      ) {
-        b.ignore = true;
-        break;
+  const t = 3 /*px*/; // tolerance for overlapping rects
+  // merge completely-overlapping rects
+  for (let i = 1; i < $rects.length; i++) {
+    for (let j = 0; j < i; j++) {
+      const b = $rects[i]; // bigger
+      const s = $rects[j]; // smaller
+
+      if (!s.ignore
+        && r2d(s.top) + t >= r2d(b.top)
+        && r2d(s.bottom) - t <= r2d(b.bottom)
+        && r2d(s.left) + t >= r2d(b.left)
+        && r2d(s.right) - t <= r2d(b.right)) {
+        s.ignore = true;
+        continue;
       }
     }
+  }
 
-  return $rects.filter(rect => !rect.ignore).map(rect => {
+  $rects = $rects.filter(rect => !rect.ignore).map(rect => {
     const { ignore, ...attrs } = rect;
     return attrs;
   });
+
+  return $rects;
 }
 
 export const groupByPageNum = (rects: PageRect[]) => {

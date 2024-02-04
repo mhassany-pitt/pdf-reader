@@ -51,32 +51,33 @@ export class PdfHighlightViewer {
 
         const degree = rotation(this._getPdfJS());
         const rects: WHRect[] = annot.rects[pageNum];
-        rects.forEach(rect => {
-          rect = rotateRect(degree, true, rect);
-          const rectEl = htmlToElements(
-            `<div 
-              data-annotation-id="${annot.id}"
-              data-annotation-type="${annot.type}"
-              data-analytic="${annot.type}:${annot.id}"
-              tabindex="-1"
-              class="
-                pdf-annotation__rect 
-                ${annot.type ? 'pdf-annotation__' + annot.type : ''}
-                ${annot.note?.length ? 'pdf-annotation--has-note' : ''}
-                ${editor && configs?.delete ? 'pdf-annotation--deletable' : ''}"
-              style="
-                top: calc(${rect.top}% + 1px);
-                bottom: calc(${rect.bottom}% + 1px);
-                left: ${rect.left}%;
-                right: ${rect.right}%;
-                --annotation-scale: ${scaleFactor};
-                --annotation-color: ${annot.color || 'rgb(255, 212, 0)'};
-                --annotation-stroke: calc(${scaleFactor} * ${annot.stroke || '0.125rem'});
-                --annotation-stroke-style: ${annot.strokeStyle || 'solid'};">
-            </div>`);
+        rects.sort((r1, r2) => r1.top - r2.top || r1.left - r2.left)
+          .forEach((rect, i) => {
+            rect = rotateRect(degree, true, rect);
+            const rectEl = htmlToElements(
+              `<div 
+                data-annotation-id="${annot.id}"
+                data-annotation-type="${annot.type}"
+                data-analytic="${annot.type}:${annot.id}"
+                tabindex="-1"
+                class="
+                  pdf-annotation__rect 
+                  ${annot.type ? 'pdf-annotation__' + annot.type : ''}
+                  ${annot.note?.length && i == 0 ? 'pdf-annotation--has-note' : ''}
+                  ${editor && configs?.delete ? 'pdf-annotation--deletable' : ''}"
+                style="
+                  top: calc(${rect.top}% + 1px);
+                  bottom: calc(${rect.bottom}% + 1px);
+                  left: ${rect.left}%;
+                  right: ${rect.right}%;
+                  --annotation-scale: ${scaleFactor};
+                  --annotation-color: ${annot.color || 'rgb(255, 212, 0)'};
+                  --annotation-stroke: calc(${scaleFactor} * ${annot.stroke || '0.125rem'});
+                  --annotation-stroke-style: ${annot.strokeStyle || 'solid'};">
+              </div>`);
 
-          annotsLayerEl.appendChild(rectEl);
-        })
+            annotsLayerEl.appendChild(rectEl);
+          })
       });
   }
 
