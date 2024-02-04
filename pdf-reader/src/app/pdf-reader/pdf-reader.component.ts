@@ -76,6 +76,8 @@ export class PDFReaderComponent implements OnInit {
   pdfDocument: any;
   get pdfDocumentId() { return this.params.id; }
 
+  qpworking = false;
+
   constructor(
     private router: Router,
     private http: HttpClient,
@@ -128,7 +130,7 @@ export class PDFReaderComponent implements OnInit {
     this.iframe = iframe;
     this.window = this.iframe.contentWindow;
     this.pdfjs = this.window.PDFViewerApplication;
-    // this.pdfjs.preferences.set('sidebarViewOnLoad', 0);
+    this.pdfjs.preferences.set('sidebarViewOnLoad', 0);
     await this.pdfjs.initializedPromise; // ensure pdfjs is initialized
     this._removeExtraElements();
     this.prepare();
@@ -213,6 +215,8 @@ export class PDFReaderComponent implements OnInit {
 
     this._postPdfEventsToParent();
     this._listenToParentMessages();
+    this._bindPageOutline();
+    this._applyViewParams();
 
     try {
       const url = `${environment.apiUrl}/pdf-reader/${this.pdfDocument.id}/file?_hash=${this.pdfDocument.file_hash}`;
@@ -220,8 +224,6 @@ export class PDFReaderComponent implements OnInit {
       this.postMessage({ type: 'pdf-document-loaded', data: { url } });
     } catch (exp) { console.error(exp); }
 
-    this._bindPageOutline();
-    this._applyViewParams();
     this.postMessage({ type: 'pdf-ready', data: null });
   }
 
@@ -284,8 +286,14 @@ export class PDFReaderComponent implements OnInit {
 
     const callback = ($event: any) => {
       this.pdfjs.eventBus.off('documentinit', callback);
-      applyViewParams();
+      setTimeout(() => {
+        try { applyViewParams(); }
+        catch (exp) { console.error(exp); }
+        finally { this.ngZone.run(() => this.qpworking = false); }
+      }, 1000);
     };
+
+    this.ngZone.run(() => this.qpworking = true);
     this.pdfjs.eventBus.on('documentinit', callback);
   }
 

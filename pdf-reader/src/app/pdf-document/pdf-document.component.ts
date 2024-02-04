@@ -109,7 +109,7 @@ export class PDFDocumentComponent implements OnInit {
     this.iframe = iframe;
     this.window = this.iframe.contentWindow;
     this.pdfjs = this.window.PDFViewerApplication;
-    // this.pdfjs.preferences.set('sidebarViewOnLoad', 0);
+    this.pdfjs.preferences.set('sidebarViewOnLoad', 0);
     await this.pdfjs.initializedPromise; // ensure pdfjs is initialized
     this.removeExtraElements();
     this.prepare();
