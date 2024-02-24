@@ -400,6 +400,8 @@ export class PDFReaderComponent implements OnInit {
   }
 }
 
+// TODO: ?section= still not working, history state is favored over query params
+// TODO: russel: sometime annotations are saved/deleted
 // TODO: create <span>word</span> for each word in the text layer (make it easier to locate and interact with page content)
 // TODO: generate perm link to the selected text ('Copy Link to Selected Text')
 // TODO: share pdf-document with others, 

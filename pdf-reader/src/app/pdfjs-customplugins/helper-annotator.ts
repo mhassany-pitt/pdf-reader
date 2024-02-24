@@ -102,7 +102,7 @@ export class HelperAnnotator {
       });
   }
 
-  private persist() {
+  private persist(then: () => void) {
     const {
       title, cancer_type, audience_type,
       knowledge_level, trajectory, typeof_document,
@@ -149,6 +149,7 @@ export class HelperAnnotator {
         this.annotated = true;
         this.annotation = JSON.parse(JSON.stringify(this.defAnnot));
         this.toolbarBtn.style.color = 'orange';
+        then?.();
       },
       error: (error) => {
         console.log(error);
@@ -845,9 +846,10 @@ export class HelperAnnotator {
 
     const savebtn = containerEl.querySelector('.helper-annotation__ctrl1-save-btn') as HTMLElement;
     savebtn.addEventListener('click', () => {
-      this.persist();
-      savebtn.textContent = 'Saved!';
-      setTimeout(() => savebtn.textContent = 'Save', 3000);
+      this.persist(() => {
+        savebtn.textContent = 'Saved!';
+        setTimeout(() => savebtn.textContent = 'Save', 3000);
+      });
     });
 
     return [containerEl];

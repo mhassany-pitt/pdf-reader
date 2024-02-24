@@ -87,7 +87,7 @@ export class HelperAnnotator {
             }
         });
     }
-    persist() {
+    persist(then) {
         const { title, cancer_type, audience_type, knowledge_level, trajectory, typeof_document, sections, annotator } = this.annotation;
         const annot = {
             id: this.registry.get('sha256')(this.registry.get('pdfDocId')),
@@ -128,6 +128,7 @@ export class HelperAnnotator {
                 this.annotated = true;
                 this.annotation = JSON.parse(JSON.stringify(this.defAnnot));
                 this.toolbarBtn.style.color = 'orange';
+                then === null || then === void 0 ? void 0 : then();
             },
             error: (error) => {
                 console.log(error);
@@ -784,9 +785,10 @@ export class HelperAnnotator {
         radio('.helper-annotation__annotator', (value) => this.annotation['annotator'] = value);
         const savebtn = containerEl.querySelector('.helper-annotation__ctrl1-save-btn');
         savebtn.addEventListener('click', () => {
-            this.persist();
-            savebtn.textContent = 'Saved!';
-            setTimeout(() => savebtn.textContent = 'Save', 3000);
+            this.persist(() => {
+                savebtn.textContent = 'Saved!';
+                setTimeout(() => savebtn.textContent = 'Save', 3000);
+            });
         });
         return [containerEl];
     }
