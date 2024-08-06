@@ -43,10 +43,11 @@ import { PdfDeleteToolbarBtn } from '../pdfjs-tools/pdf-delete-toolbar-btn';
 import { PdfDelete } from '../pdfjs-tools/pdf-delete';
 import { PdfFilterToolbarBtn } from '../pdfjs-tools/pdf-filter-toolbar-btn';
 import { AppService } from '../app.service';
-// import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
 import { sha256 } from 'js-sha256';
 import { PdfTextWord } from '../pdfjs-tools/pdf-text-word';
 import { PdfConfigToolbarBtn } from '../pdfjs-tools/pdf-config-toolbar-btn';
+// import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
+// import { CourseAuthoringContents } from '../pdfjs-customplugins/course-authoring-contents';
 
 @Component({
   selector: 'app-pdf-document',
@@ -210,6 +211,7 @@ export class PDFDocumentComponent implements OnInit {
 
     // --
     // new HelperAnnotator({ registry });
+    // new CourseAuthoringContents({ registry });
 
     try {
       await this.pdfjs.open({ url: this.getFileURL(), withCredentials: true });

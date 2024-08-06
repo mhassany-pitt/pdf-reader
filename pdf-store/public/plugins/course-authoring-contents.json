@@ -1,0 +1,1927 @@
+[
+  {
+    "group": "3:Tracing Problems",
+    "title": "simple arithmetic",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_arithmetic1&act=q_py_topic_variables&sub=q_py_arithmetic1",
+    "page": 24,
+    "section": "Section 2.8"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "arithmetic",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_arithmetic2&act=q_py_topic_variables&sub=q_py_arithmetic2",
+    "page": 22,
+    "section": "Section 2.5"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "swap",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_swap1&act=q_py_topic_variables&sub=q_py_swap1",
+    "page": 22,
+    "section": "Section 2.5"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "if-elif",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_if_elif1&act=q_py_topic_if_statement&sub=q_py_if_elif1",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "nested if-elif",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_nested_if_elif1&act=q_py_topic_if_statement&sub=q_py_nested_if_elif1",
+    "page": 34,
+    "section": "Section 3.5"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "comparison",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_comparison_logic1&act=q_py_topic_logical_operators&sub=q_py_comparison_logic1",
+    "page": 31,
+    "section": "Section 3.1"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "account management",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_account_logic1&act=q_py_topic_logical_operators&sub=q_py_account_logic1",
+    "page": 38,
+    "section": "Section 3.8"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "for loop",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_for_loop1&act=q_py_topic_loops&sub=q_py_for_loop1",
+    "page": 64,
+    "section": "Section 5.8"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "while loop",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_while_loop1&act=q_py_topic_loops&sub=q_py_while_loop1",
+    "page": 57,
+    "section": "Section 5.2"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "nested while",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_nested_while1&act=q_py_topic_loops&sub=q_py_nested_while1",
+    "page": 57,
+    "section": "Section 5.2"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "simple format",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_output1&act=q_py_topic_output_formatting&sub=q_py_output1",
+    "page": 45,
+    "section": "Section 4.4"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "format with one argument",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_output2&act=q_py_topic_output_formatting&sub=q_py_output2",
+    "page": 74,
+    "section": "Section 6.11"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "format with two arguments",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_output3&act=q_py_topic_output_formatting&sub=q_py_output3",
+    "page": 74,
+    "section": "Section 6.11"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "format with three arguments",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_output4&act=q_py_topic_output_formatting&sub=q_py_output4",
+    "page": 74,
+    "section": "Section 6.11"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "one simple function",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_fun_car1&act=q_py_topic_functions&sub=q_py_fun_car1",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "two simple functions",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_fun_car2&act=q_py_topic_functions&sub=q_py_fun_car2",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "modify a list",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_list_access1&act=q_py_topic_lists&sub=q_py_list_access1",
+    "page": 102,
+    "section": "Section 8.14"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "modify a list in a loop",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_list_access2&act=q_py_topic_lists&sub=q_py_list_access2",
+    "page": 64,
+    "section": "Section 5.8"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "append to a list",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_list_append1&act=q_py_topic_lists&sub=q_py_list_append1",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "combine two lists",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_add_two_lists1&act=q_py_topic_lists&sub=q_py_add_two_lists1",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "remove from a list",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_list_remove1&act=q_py_topic_lists&sub=q_py_list_remove1",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "concatenate strings",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_concat_strings1&act=q_py_topic_strings&sub=q_py_concat_strings1",
+    "page": 75,
+    "section": "Section 6.12"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "substring",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_substring1&act=q_py_topic_strings&sub=q_py_substring1",
+    "page": 69,
+    "section": "Section 6.4"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "access a dictionary",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_dict_access1&act=q_py_topic_dictionary&sub=q_py_dict_access1",
+    "page": 114,
+    "section": "Section 9.5"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "access and mofify a dictionary",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_dict_access2&act=q_py_topic_dictionary&sub=q_py_dict_access2",
+    "page": 114,
+    "section": "Section 9.5"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "one car object",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_obj_car1&act=q_topic_classes_objects&sub=q_py_obj_car1",
+    "page": 182,
+    "section": "Section 14.11"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "two car objects",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_obj_car2&act=q_topic_classes_objects&sub=q_py_obj_car2",
+    "page": 182,
+    "section": "Section 14.11"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "int reference",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_int_ref1&act=q_py_topic_references&sub=q_py_int_ref1",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "list reference (int)",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_list_int_ref1&act=q_py_topic_references&sub=q_py_list_int_ref1",
+    "page": 47,
+    "section": "Section 4.6"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "string reference",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_str_ref1&act=q_py_topic_references&sub=q_py_str_ref1",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "list reference (string)",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_list_str_ref1&act=q_py_topic_references&sub=q_py_list_str_ref1",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "value error",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_value_except1&act=q_py_topic_exceptions&sub=q_py_value_except1",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "index error",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_list_except1&act=q_py_topic_exceptions&sub=q_py_list_except1",
+    "page": 76,
+    "section": "Section 6.12"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "read and write file (string)",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_rw_file1&act=q_py_topic_file&sub=q_py_rw_file1",
+    "page": 47,
+    "section": "Section 4.6"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "read and write file",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_rw_file2&act=q_py_topic_file&sub=q_py_rw_file2",
+    "page": 69,
+    "section": "Section 6.4"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "exchange variables",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_exchange1&act=q_py_topic_variables&sub=q_py_exchange1",
+    "page": 22,
+    "section": "Section 2.5"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "exchange variables 2",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_exchange2&act=q_py_topic_variables&sub=q_py_exchange2",
+    "page": 22,
+    "section": "Section 2.5"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "nested if",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_nested_if1&sub=q_py_nested_if1&act=q_py_topic_if_statement",
+    "page": 74,
+    "section": "Section 6.11"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "if-else (interest)",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_interest_if_else1&sub=q_py_interest_if_else1&act=q_py_topic_if_statement",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "if-elif? (interest)",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_interest_if_elif1&sub=q_py_interest_if_elif1&act=q_py_topic_if_statement",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "nested if-elif",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_nested_if_elif2&sub=q_py_nested_if_elif2&act=q_py_topic_if_statement",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "while loop with summation",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_while_loop2&sub=q_py_while_loop2&act=q_py_topic_loops",
+    "page": 57,
+    "section": "Section 5.2"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "account objects",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_obj_account1&sub=q_py_obj_account1&act=q_topic_classes_objects",
+    "page": 182,
+    "section": "Section 14.11"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "point object",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_obj_point1&sub=q_py_obj_point1&act=q_topic_classes_objects",
+    "page": 182,
+    "section": "Section 14.11"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "bus objects",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_obj_bus1&sub=q_py_obj_bus1&act=q_topic_classes_objects",
+    "page": 182,
+    "section": "Section 14.11"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "student objects",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_obj_student1&sub=q_py_obj_student1&act=q_topic_classes_objects",
+    "page": 182,
+    "section": "Section 14.11"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "animal inheritance",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_inheritance_animal1&sub=q_py_inheritance_animal1&act=q_topic_classes_objects",
+    "page": 182,
+    "section": "Section 14.11"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "q_py_demoquestion",
+    "url": "http://pawscomp2.sis.pitt.edu/quizjet/displayQuiz.jsp?rdfID=q_py_demoquestion",
+    "page": 19,
+    "section": "Section 2.1"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "q_py_demoquestion1",
+    "url": "http://pawscomp2.sis.pitt.edu/quizjet/displayQuiz.jsp?rdfID=q_py_demoquestion1",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "q_py_demoquestion2",
+    "url": "http://pawscomp2.sis.pitt.edu/quizjet/displayQuiz.jsp?rdfID=q_py_demoquestion2",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "q_py_demoquestion2_v1",
+    "url": "http://pawscomp2.sis.pitt.edu/quizjet/displayQuiz.jsp?rdfID=q_py_demoquestion2_v1",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "q_py_demoquestion2_v2",
+    "url": "http://pawscomp2.sis.pitt.edu/quizjet/displayQuiz.jsp?rdfID=q_py_demoquestion2_v2",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "q_py_demoquestion2_v3",
+    "url": "http://pawscomp2.sis.pitt.edu/quizjet/displayQuiz.jsp?rdfID=q_py_demoquestion2_v3",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "q_py_if_elif1_v1",
+    "url": "http://pawscomp2.sis.pitt.edu/quizjet/displayQuiz.jsp?rdfID=q_py_if_elif1_v1",
+    "page": 34,
+    "section": "Section 3.5"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "File Processing 1",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_file1&act=q_py_topic_file_processing&sub=q_py_file1",
+    "page": 89,
+    "section": "Section 7.10"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "String Formatting",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_q_py_string_formatting&sub=q_py_q_py_string_formatting&act=q_py_topic_strings",
+    "page": 74,
+    "section": "Section 6.11"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "String Formatting 2",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_q_py_string_formatting2&sub=q_py_q_py_string_formatting2&act=q_py_topic_strings",
+    "page": 74,
+    "section": "Section 6.11"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "Data Type 1",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_q_py_datatype1&sub=q_py_q_py_datatype1&act=q_py__type_data_types",
+    "page": 22,
+    "section": "Section 2.5"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "String Formatting 1",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_q_py_string_formatting1&sub=q_py_q_py_string_formatting1&act=q_py_topic_strings",
+    "page": 74,
+    "section": "Section 6.11"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "Data Types 2",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_data_types2&sub=q_py_data_types2&act=q_py__type_data_types",
+    "page": 22,
+    "section": "Section 2.5"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "Data Types Functions",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_data_types_functions&sub=q_py_data_types_functions&act=q_py__type_data_types",
+    "page": 47,
+    "section": "Section 4.6"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "Data Types Module",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_data_types_module&sub=q_py_data_types_module&act=q_py__type_data_types",
+    "page": 45,
+    "section": "Section 4.4"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "Reference List 1",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_reference_list1&sub=q_py_reference_list1&act=q_py_values_and_references",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "Reference Reverse",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_reference_reverse&sub=q_py_reference_reverse&act=q_py_values_and_references",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "Aliasing 1",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_aliasing1&sub=q_py_aliasing1&act=q_py_Aliasing",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "Aliasing 2",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_aliasing2&sub=q_py_aliasing2&act=q_py_Aliasing",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "Aliasing 3",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_aliasing3&sub=q_py_aliasing3&act=q_py_Aliasing",
+    "page": 20,
+    "section": "Section 2.2"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "String Formatting V1",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_q_py_string_formatting_v1&sub=q_py_q_py_string_formatting_v1&act=q_py_topic_strings",
+    "page": 74,
+    "section": "Section 6.11"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "Exceptions addarr",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_exceptions_addarr&sub=q_py_exceptions_addarr&act=q_py_topic_exceptions",
+    "page": 36,
+    "section": "Section 3.7"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "Exceptions asE",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_exception_asE&sub=q_py_exception_asE&act=q_py_topic_exceptions",
+    "page": 36,
+    "section": "Section 3.7"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "Exceptions Assertion",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_exception_assertion&sub=q_py_exception_assertion&act=q_py_topic_exceptions",
+    "page": 36,
+    "section": "Section 3.7"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "f-string formatting 1",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_fstring_format_1&sub=q_py_fstring_format_1&act=q_py_topic_output_formatting",
+    "page": 74,
+    "section": "Section 6.11"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "f-string formatting 2",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_fstring_format_2&sub=q_py_fstring_format_2&act=q_py_topic_output_formatting",
+    "page": 74,
+    "section": "Section 6.11"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "f-string formatting 3",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_fstring_format_3&sub=q_py_fstring_format_3&act=q_py_topic_output_formatting",
+    "page": 74,
+    "section": "Section 6.11"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "f-string formatting 4",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_fstring_format_4&sub=q_py_fstring_format_4&act=q_py_topic_output_formatting",
+    "page": 74,
+    "section": "Section 6.11"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "Nested For and While Loop",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_nested_for_while&sub=q_py_nested_for_while&act=q_py_topic_loops",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "Nested for loop",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_nested_for_loop&sub=q_py_nested_for_loop&act=q_py_topic_loops",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "Bubble sort 1",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_bubble_sort_1&sub=q_py_bubble_sort_1&act=q_py_sorting",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "Bubble sort 2",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_bubble_sort_2&sub=q_py_bubble_sort_2&act=q_py_sorting",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "Max index search",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_max_index_search&sub=q_py_max_index_search&act=q_py_search",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "Tuple",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_tuple&sub=q_py_tuple&act=q_py_values_and_references",
+    "page": 74,
+    "section": "Section 6.11"
+  },
+  {
+    "group": "3:Tracing Problems",
+    "title": "Functions pass",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_function_pass&sub=q_py_function_pass&act=q_py_topic_functions",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "BMI Calculator",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_bmi_calculator&ch=py_bmi_calculator2",
+    "page": 25,
+    "section": "Section 2.10"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Unit Converter",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_f_to_c_conversion&ch=py_fahrenheit_to_celsius",
+    "page": 25,
+    "section": "Section 2.10"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Pass-Fail Rule (Case 2)",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_fail_course&ch=py_fail_course2",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Pass-Fail Rule (Case 3)",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_fail_course&ch=py_fail_course3",
+    "page": -1,
+    "section": ""
+  },
+  {
+    "group": "2:Challenges",
+    "title": "The Grade Letter",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_if_else_grade&ch=py_ifelseif_grade2",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "The Sign of a Number",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_if_else_num&ch=py_ifelse_odd_even",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "The Wage of an Employee",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_if_else_wage&ch=py_if_else_wage2",
+    "page": 34,
+    "section": "Section 3.5"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Buying a New Phone",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_phone_age&ch=py_phone_age2",
+    "page": 34,
+    "section": "Section 3.5"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Pythagorean Theorem",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_pythagorean_theorem&ch=py_pythagorean_theorem2",
+    "page": 25,
+    "section": "Section 2.10"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Renting a Car (Case 2)",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_rent_car&ch=py_rent_car2",
+    "page": 34,
+    "section": "Section 3.5"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Renting a Car (Case 3)",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_rent_car&ch=py_rent_car3",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Time Converter",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_time_conversion&ch=py_display_time2",
+    "page": 25,
+    "section": "Section 2.10"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Vending Machine",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_vending_machine&ch=py_vending_machine2",
+    "page": 25,
+    "section": "Section 2.10"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Comparing Adjacent Numbers in a Sequence",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_check_adjacent&ch=py_adjacent_consecutive",
+    "page": 57,
+    "section": "Section 5.2"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Comparing Adjacent Numbers in a Sequence",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_check_adjacent&ch=py_adjacent_greater",
+    "page": 57,
+    "section": "Section 5.2"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Processing the Digits of an Integer (Cas",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_digits&ch=py_reverse_number",
+    "page": 57,
+    "section": "Section 5.2"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Finding Smallest/Largest Divisor of a Po",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_divisor&ch=py_largest_divisor",
+    "page": -1,
+    "section": ""
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Calculating the Average of the Input Num",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_find_average&ch=py_average_even_nums",
+    "page": -1,
+    "section": ""
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Calculating the Average of the Input Num",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_find_average&ch=py_average_float",
+    "page": -1,
+    "section": ""
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Hot-Dry Weather (Case 2)",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_hot_dry&ch=py_boolean_dry_hot2",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Hot-Dry Weather (Case 3)",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_hot_dry&ch=py_boolean_dry_hot3",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Hot-Dry Weather (Case 4)",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_hot_dry&ch=py_boolean_dry_hot4",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Receiving Input Integers Until a Certain",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_input&ch=py_input2",
+    "page": 57,
+    "section": "Section 5.2"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Receiving Input Integers Until a Certain",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_input&ch=py_input3",
+    "page": 57,
+    "section": "Section 5.2"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Receiving Input Integers Until a Certain",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_input&ch=py_input4",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "The Min/Max of Three Integers",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_nested_if_min_max&ch=py_nested_if_max_of_three",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Warning about the Changes in the Weather",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_nested_if_temperature&ch=py_nested_if_temperature2",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Printing Consecutive Numbers Starting fr",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_range_one&ch=py_range1_2",
+    "page": 27,
+    "section": "Section 2.12"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Printing Sequence of Numbers with a Gap",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_range_three&ch=py_range3_2",
+    "page": 27,
+    "section": "Section 2.12"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Printing Consecutive Numbers Within a Sp",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_range_two&ch=py_range2_2",
+    "page": 27,
+    "section": "Section 2.12"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Printing the Squares of Numbers Within a",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_squares&ch=py_write_squares_odd",
+    "page": 27,
+    "section": "Section 2.12"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Printing the Squares of Numbers Within a",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_squares&ch=py_write_squares_range",
+    "page": 27,
+    "section": "Section 2.12"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Three Booleans (Case 2)",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_three_booleans&ch=py_three_boolean2",
+    "page": 33,
+    "section": "Section 3.4"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Three Booleans (Case 3)",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_three_booleans&ch=py_three_boolean3",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Calculating the Winning Percentage of a",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_win_percentage&ch=py_win_percentage_input",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Calculating the Winning Percentage of a",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_win_percentage&ch=py_win_percentage_won_equal",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Printing A Sequence of Repeated Numbers",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_repeated_sequence&ch=py_repeated_sequence2",
+    "page": 27,
+    "section": "Section 2.12"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Printing A Right Triangle Star Pattern",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_star_patterns&ch=py_stars_2",
+    "page": 27,
+    "section": "Section 2.12"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Updating an Element in a List (Case 2)",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_list_basic&ch=py_list_basic2",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Updating an Element in a List (Case 3)",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_list_basic&ch=py_list_basic3",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Modifying a List",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_list_change&ch=py_list_swap_adjacent_elements",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Adding Values to an Empty List",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_list_fill&ch=py_list_fill_user_input",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Finding the Min/Max Value in a List",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_list_min_max&ch=py_list_min",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Calculating Sum/Average of the List Valu",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_list_process_elements&ch=py_average_list_elements",
+    "page": -1,
+    "section": ""
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Rotating the List Values (Case 2)",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_list_rotate&ch=py_list_rotate_left_twice",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Rotating the List Values (Case 3)",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_list_rotate&ch=py_list_rotate_right",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Rotating the List Values (Case 4)",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_list_rotate&ch=py_list_rotate_right_twice",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Processing a List of Temperature Values",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_temperature&ch=py_temperature_list_days_above_threshold",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Concatenating Characters of Two Strings",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_concat_char_two_str&ch=py_concat_char_two_str2",
+    "page": 69,
+    "section": "Section 6.4"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Concatenating Strings and Numbers (Case",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_concat_str_num&ch=py_concat_str_num2",
+    "page": 22,
+    "section": "Section 2.5"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Concatenating Strings and Numbers (Case",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_concat_str_num&ch=py_concat_string_num3",
+    "page": 22,
+    "section": "Section 2.5"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Counting the Occurrences of One String i",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_str_count&ch=py_str_count2",
+    "page": 70,
+    "section": "Section 6.6"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Repeating Characters of a String",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_str_repeat_chars&ch=py_str_repeat2",
+    "page": 70,
+    "section": "Section 6.6"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Determining Whether One is a Teenager",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_check_age&ch=py_check_age2",
+    "page": 52,
+    "section": "Section 4.12"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Counting the Number of Valid and Banned",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_check_product_code&ch=py_check_product_code2",
+    "page": 36,
+    "section": "Section 3.7"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Reporting the Total Hours Each Employee",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_work_hours&ch=py_work_hours2",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Printing Table of Medal Counts with Row/",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_print_medals&ch=py_print_medals_row_column_total",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Processing the Results of a Soda Survey",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_soda_survey&ch=py_soda_survey_soda_avg",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Processing the Results of a Soda Survey",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_soda_survey&ch=py_soda_survey_soda_respondent_avg",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "2:Challenges",
+    "title": "Processing the Digits of an Integer (Cas",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_digits&ch=py_sum_digits",
+    "page": 57,
+    "section": "Section 5.2"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Hello",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_hello",
+    "page": 19,
+    "section": "Section 2.1"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Simple Function",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_simple_function",
+    "page": 47,
+    "section": "Section 4.6"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Simple Params",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_simple_params",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Return Bigger or None",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_return_bigger_or_none",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Addition",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_addition",
+    "page": 22,
+    "section": "Section 2.5"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Iteration with Addition",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_iteration_addition",
+    "page": 57,
+    "section": "Section 5.2"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Iteration with Multiplication",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_iteration_multiplication",
+    "page": 57,
+    "section": "Section 5.2"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Calculate Function",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_calculate_function",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Nested Calls",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_nested_calls",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Recursive Factorial",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_recursive_factorial",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Clss Person",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_class_person",
+    "page": -1,
+    "section": ""
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Modulo is Even",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_modulo_is_even",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "List Iteration Zoo",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_list_iteration_zoo",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Nested List Indexing",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_nested_lists_indexing",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "String Indexing",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_string_indexing",
+    "page": 69,
+    "section": "Section 6.4"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "List to Dictionary",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_list_to_dict",
+    "page": 74,
+    "section": "Section 6.11"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Bigger Than",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_bigger_than",
+    "page": 31,
+    "section": "Section 3.1"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Conditionals Temperature",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_conditionals_temperature",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Swap",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_swap",
+    "page": 20,
+    "section": "Section 2.2"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Nested ifs",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_nested_ifs",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Comparisons",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_comparisons",
+    "page": 31,
+    "section": "Section 3.1"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Try Except",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_try_except",
+    "page": 36,
+    "section": "Section 3.7"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Printing file contents",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_printing_file_contents",
+    "page": 57,
+    "section": "Section 5.2"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Odd or Even",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_for_odd_or_even",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "XOR",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_xor",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "String join",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_string_join",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Try adding",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_try_adding",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Class Point",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_class_point",
+    "page": -1,
+    "section": ""
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Nested Loops",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_nested_loops",
+    "page": 57,
+    "section": "Section 5.2"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Two-dimensional List",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_2d_list",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Construct a program that creates unique",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_3digit_combinations",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Construct a program that creates unique",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_3digit_combinations2",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Construct a program with multiple if-eli",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_divsible_by1",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Construct a program with multiple if-eli",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_divisible_by2",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Construct a program with multiple if-eli",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_divisible_by3",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Letter frequency",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_freq_of_char1",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Letter frequency",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_freq_of_char2",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Creating a function that checks if the s",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_palindrome1",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Creating a function that checks if the s",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_palindrome2",
+    "page": 45,
+    "section": "Section 4.4"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Creating a function that checks if the s",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_palindrome3",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Construct a function which determines wh",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_palindrome4",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Construct a function that returns a list",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_list_of_remainders1",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Construct a function that returns a list",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_list_of_remainders2",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Reverse the list",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_list_reverse1",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Reverse the list",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_list_reverse2",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Reverse the list",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_list_reverse3",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Reverse the list",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_list_reverse4",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Reverse the list",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_list_reverse5",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Reverse the list",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_list_reverse6",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Reverse the list",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_list_reverse7",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Reverse the list",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_list_reverse8",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Checks whether the sum of two integers a",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_sum_of_two1",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Checks whether the sum of two integers a",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_sum_of_two2",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Updating  elements to the new list",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_find_and_square1",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Updating required elements to the new li",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_find_and_square2",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Updating the elements to the new list",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_find_and_square3",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Updating the elements to the new list",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_find_and_square4",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Updating required elements to the new li",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_find_and_square5",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Updating required elements to the new li",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_find_and_square6",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Power calculation",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_easy_power1",
+    "page": 22,
+    "section": "Section 2.5"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Power calculation",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_easy_power2",
+    "page": 22,
+    "section": "Section 2.5"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Calculating power",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_fast_power1",
+    "page": 57,
+    "section": "Section 5.2"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Calculating power",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_fast_power2",
+    "page": 57,
+    "section": "Section 5.2"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Calculating power",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_power_with_loops1",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Calculating power",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_power_with_loops2",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Remove dublicates from the list",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_remove_dublicates",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Remove dublicates from the list",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_remove_dublicates2",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Reorganize the list",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_even_first1",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Reorganize the list",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_even_first2",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Reorganize the list",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_even_first3",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Reorganize the list",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_even_first4",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Practicing using math library and check",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_math_library",
+    "page": 45,
+    "section": "Section 4.4"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Practicing manipulating variables and ch",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_data_type",
+    "page": 74,
+    "section": "Section 6.11"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Practicing nested while loops",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_nested_whiles",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Practicing using nested while and for lo",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_nested_loop_2",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "List values and references.",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_add_to_list_2",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Practicing searching the index of the mi",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_search_min_index",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Practicing searching the index of the mi",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_search_min_max_index",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Construct a program that creates a Stack",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_stack",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Construct a function that checks the siz",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_linked_list_size",
+    "page": 57,
+    "section": "Section 5.2"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Construct a function that sorts a numeri",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_merge_sort",
+    "page": 69,
+    "section": "Section 6.4"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Practicing quick sort algorithm",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_quick_sorting",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Construct an inorder traversal function",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_tree_inorder_traversal",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "4:Construction Problems",
+    "title": "Construct a preorder traversal function",
+    "url": "https://acos.cs.vt.edu/html/jsparsons/jsparsons-python/ps_python_tree_preorder_traversal",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "1:Examples",
+    "title": "BMI Calculator",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_bmi_calculator",
+    "page": 25,
+    "section": "Section 2.10"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Unit Converter",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_f_to_c_conversion",
+    "page": 25,
+    "section": "Section 2.10"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Pass-Fail Rule",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_fail_course",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "1:Examples",
+    "title": "The Grade Letter",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_if_else_grade",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "1:Examples",
+    "title": "The Sign of a Number",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_if_else_num",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "1:Examples",
+    "title": "The Wage of an Employee",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_if_else_wage",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Buying a New Phone",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_phone_age",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Pythagorean Theorem",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_pythagorean_theorem",
+    "page": 25,
+    "section": "Section 2.10"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Renting a Car",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_rent_car",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Time Converter",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_time_conversion",
+    "page": 25,
+    "section": "Section 2.10"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Vending Machine",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_vending_machine",
+    "page": 25,
+    "section": "Section 2.10"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Comparing Adjacent Numbers in a Sequence",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_check_adjacent",
+    "page": 57,
+    "section": "Section 5.2"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Processing the Digits of an Integer",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_digits",
+    "page": 57,
+    "section": "Section 5.2"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Finding Smallest/Largest Divisor of a Po",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_divisor",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Calculating the Average of the Input Num",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_find_average",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Hot-Dry Weather",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_hot_dry",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Receiving Input Integers Until a Certain",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_input",
+    "page": 57,
+    "section": "Section 5.2"
+  },
+  {
+    "group": "1:Examples",
+    "title": "The Min/Max of Three Integers",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_nested_if_min_max",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Warning about the Changes in the Weather",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_nested_if_temperature",
+    "page": 32,
+    "section": "Section 3.3"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Printing Consecutive Numbers Starting fr",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_range_one",
+    "page": 27,
+    "section": "Section 2.12"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Printing Sequence of Numbers with a Gap",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_range_three",
+    "page": 27,
+    "section": "Section 2.12"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Printing Consecutive Numbers Within a Sp",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_range_two",
+    "page": 27,
+    "section": "Section 2.12"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Printing the Squares of Numbers Within a",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_squares",
+    "page": 27,
+    "section": "Section 2.12"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Three Booleans",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_three_booleans",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Calculating the Winning Percentage of a",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_win_percentage",
+    "page": 61,
+    "section": "Section 5.6"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Printing A Sequence of Repeated Numbers",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_repeated_sequence",
+    "page": 27,
+    "section": "Section 2.12"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Printing A Right Triangle Star Pattern",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_star_patterns",
+    "page": 27,
+    "section": "Section 2.12"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Updating an Element in a List",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_list_basic",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Modifying a List",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_list_change",
+    "page": 92,
+    "section": "Section 8.2"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Adding Values to an Empty List",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_list_fill",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Finding the Min/Max Value in a List",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_list_min_max",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Calculating Sum/Average of the List Valu",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_list_process_elements",
+    "page": -1,
+    "section": ""
+  },
+  {
+    "group": "1:Examples",
+    "title": "Rotating the List Values",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_list_rotate",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Searching Values of a List in Another Li",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_search_list",
+    "page": 71,
+    "section": "Section 6.7"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Processing a List of Temperature Values",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_temperature",
+    "page": -1,
+    "section": ""
+  },
+  {
+    "group": "1:Examples",
+    "title": "Concatenating Characters of Two Strings",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_concat_char_two_str",
+    "page": 69,
+    "section": "Section 6.4"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Concatenating Strings and Numbers",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_concat_str_num",
+    "page": 22,
+    "section": "Section 2.5"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Counting the Occurrences of One String i",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_str_count",
+    "page": 75,
+    "section": "Section 6.12"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Repeating Characters of a String",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_str_repeat_chars",
+    "page": 75,
+    "section": "Section 6.12"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Determining Whether One is a Teenager",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_check_age",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Updating Two-Dimensional List",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_list2d_basic",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Printing Table of Medal Counts with Row/",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_print_medals",
+    "page": 64,
+    "section": "Section 5.8"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Processing the Results of a Soda Survey",
+    "url": "http://pawscomp2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_soda_survey",
+    "page": 46,
+    "section": "Section 4.5"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Input Manipulation",
+    "url": "http://adapt2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_datatype_input_manipulation",
+    "page": 45,
+    "section": "Section 4.4"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Person and Employee Inheritance",
+    "url": "http://adapt2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_classes_inheritance",
+    "page": -1,
+    "section": ""
+  },
+  {
+    "group": "1:Examples",
+    "title": "Multiple Parameters",
+    "url": "http://adapt2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_functions_multiple_parameters",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Greatest Common Factor",
+    "url": "http://adapt2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_recursion_gcf",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Recursive Binary Search",
+    "url": "http://adapt2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_search_binary_recursive",
+    "page": 51,
+    "section": "Section 4.10"
+  },
+  {
+    "group": "1:Examples",
+    "title": "Selection sort",
+    "url": "http://adapt2.sis.pitt.edu/pcex/index.html?lang=PYTHON&set=py_sorting_selection_sort",
+    "page": 74,
+    "section": "Section 6.11"
+  }
+]

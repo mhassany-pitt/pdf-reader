@@ -42,6 +42,8 @@ import { sha256 } from 'js-sha256';
 import { PdfTextWord } from '../pdfjs-tools/pdf-text-word';
 import { PdfConfigToolbarBtn } from '../pdfjs-tools/pdf-config-toolbar-btn';
 // import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
+// import { CourseAuthoringContents } from '../pdfjs-customplugins/course-authoring-contents';
+// import { CourseAuthoringContentsAllocation } from '../pdfjs-customplugins/course-authoring-contents-allocation';
 
 @Component({
   selector: 'app-pdf-reader',
@@ -148,6 +150,7 @@ export class PDFReaderComponent implements OnInit {
     registry.register('hostname', () => location.hostname);
     registry.register('href', () => location.href);
     registry.register('pdfDocId', this.pdfDocument.id);
+    registry.register('pdfDoc', this.pdfDocument);
     registry.register('authUser', this.app.user);
     registry.register('userId', await getUserId(this.route));
     registry.register('reader', this.getReader());
@@ -210,6 +213,8 @@ export class PDFReaderComponent implements OnInit {
     new PdfConfigToolbarBtn({ registry });
 
     // new HelperAnnotator({ registry });
+    // new CourseAuthoringContents({ registry });
+    // new CourseAuthoringContentsAllocation({ registry });
 
     new PdfLoadCustomPlugins({ registry });
 
@@ -230,6 +235,7 @@ export class PDFReaderComponent implements OnInit {
   private getReader() {
     return {
       scrollTo: scrollTo,
+      scrollToEntry: this.scrollToEntry.bind(this),
       getSelectionRects: getSelectionRects,
     };
   }

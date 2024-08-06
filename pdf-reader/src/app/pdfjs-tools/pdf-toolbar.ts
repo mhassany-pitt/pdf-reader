@@ -79,6 +79,7 @@ export class PdfToolbar {
             align-items: start;
             pointer-events: none;
             transition: left 0.2s ease;
+            gap: 0.25rem;
           }
           .sidebarOpen .pdf-toolbar {
             left: calc(var(--sidebar-width) + 0.25rem);
