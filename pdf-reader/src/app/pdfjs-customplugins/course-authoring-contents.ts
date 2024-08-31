@@ -204,8 +204,10 @@ export class CourseAuthoringContents {
     const pageNum = parseInt(target.getAttribute('data-page') as string);
     const group = target.getAttribute('data-group');
     const contents = this.contents.filter(c => c.page === pageNum && c.group === group);
+    const userEmail = this.registry.get('authUser')?.email;
     const innerHTML = contents.map((c: any) => {
-      return `<li><a href="${c.url}" target="_blank" class="course-authoring-contents__group-content">${c.title}</a></li>`;
+      const url = c.url.replace('${user.email}', userEmail || '${user.email}');
+      return `<li><a href="${url}" target="_blank" class="course-authoring-contents__group-content">${c.title}</a></li>`;
     }).join('');
     target.after(htmlToElements(`<ul class="course-authoring-contents__group-contents">${innerHTML}</ul>`));
   }

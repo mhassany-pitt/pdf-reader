@@ -174,7 +174,7 @@ export class CourseAuthoringContents {
         });
     }
     _loadGroupContents($event, target) {
-        var _a;
+        var _a, _b;
         const parent = target.closest('.course-authoring-contents');
         parent.querySelectorAll('.course-authoring-contents__group').forEach((el) => el.classList.remove('active'));
         target.classList.add('active');
@@ -182,8 +182,10 @@ export class CourseAuthoringContents {
         const pageNum = parseInt(target.getAttribute('data-page'));
         const group = target.getAttribute('data-group');
         const contents = this.contents.filter(c => c.page === pageNum && c.group === group);
+        const userEmail = (_b = this.registry.get('authUser')) === null || _b === void 0 ? void 0 : _b.email;
         const innerHTML = contents.map((c) => {
-            return `<li><a href="${c.url}" target="_blank" class="course-authoring-contents__group-content">${c.title}</a></li>`;
+            const url = c.url.replace('${user.email}', userEmail || '${user.email}');
+            return `<li><a href="${url}" target="_blank" class="course-authoring-contents__group-content">${c.title}</a></li>`;
         }).join('');
         target.after(htmlToElements(`<ul class="course-authoring-contents__group-contents">${innerHTML}</ul>`));
     }

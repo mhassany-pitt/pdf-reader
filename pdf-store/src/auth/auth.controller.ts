@@ -13,9 +13,12 @@ export class AuthController {
 
   @Get('handshake')
   handshake(@Req() req: any) {
-    return {
-      user: req.user
-    };
+    if (req.user) {
+      const { id, email, fullname, roles } = req.user;
+      return { user: { id, email, fullname, roles } };
+    } else {
+      return {};
+    }
   }
 
   @Post('login')

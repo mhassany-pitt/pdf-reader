@@ -68,25 +68,21 @@
       <ng-template pTemplate="body" let-pdfDocument>
         <tr [ngClass]="{ 'line-through decoration-gray-400': pdfDocument.archived }">
           <td [ngClass]="{ 'text-gray-400': pdfDocument.archived }">
-            <div class="flex items-center gap-2">
-              <a [routerLink]="['/pdf-documents', pdfDocument.id]" class="font-bold">
+            <div class="flex flex-col items-start gap-1">
+              <a [routerLink]="['/pdf-documents', pdfDocument.id]" class="font-bold leading-tight">
                 {{ pdfDocument.title || 'unnamed' }}
               </a>
-              <div>
-                <span *ngFor="let tag of pdfDocument.tags" class="bg-gray-100 rounded-md mr-1 px-1 text-xs">
-                  {{ tag }}
-                </span>
-              </div>
-
-              <span class="flex-grow"></span>
-
-              <span *ngIf="app.user?.email != pdfDocument.owner_email" class="bg-gray-100 rounded-md px-1 text-xs">
+              <div *ngIf="app.user?.email != pdfDocument.owner_email"
+                class="bg-gray-100 rounded-md px-0.5 text-xs inline-block">
                 owner: {{ pdfDocument.owner_email }}
-              </span>
-              <span *ngIf="app.user?.email == pdfDocument.owner_email && pdfDocument.collaborator_emails?.length"
-                class="bg-gray-100 rounded-md px-1 text-xs">
+              </div>
+              <div *ngIf="app.user?.email == pdfDocument.owner_email && pdfDocument.collaborator_emails?.length"
+                class="bg-gray-100 rounded-md px-0.5 text-xs inline-block">
                 collaborators: {{ pdfDocument.collaborator_emails.join(', ') }}
-              </span>
+              </div>
+              <div *ngIf="pdfDocument.tags?.length" class="bg-gray-100 rounded-md px-0.5 text-xs inline-block">
+                tags: {{ pdfDocument.tags.join(', ') }}
+              </div>
             </div>
           </td>
           <td class="w-64" [ngClass]="{ 'text-gray-400': pdfDocument.archived }">

@@ -9,7 +9,7 @@
   {
     "group": "3:Tracing Problems",
     "title": "arithmetic",
-    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?rdfID=q_py_arithmetic2&act=q_py_topic_variables&sub=q_py_arithmetic2",
+    "url": "http://adapt2.sis.pitt.edu/quizpet/displayQuiz.jsp?user=${user.email}&rdfID=q_py_arithmetic2&act=q_py_topic_variables&sub=q_py_arithmetic2",
     "page": 22,
     "section": "Section 2.5"
   },
