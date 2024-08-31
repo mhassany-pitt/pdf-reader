@@ -1,4 +1,4 @@
-import { Controller, ForbiddenException, Get, Param, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Req, UnauthorizedException } from '@nestjs/common';
 import { PDFDocumentTextsService } from './pdf-document-texts.service';
 import { useId } from 'src/utils';
 import { ConfigService } from '@nestjs/config';

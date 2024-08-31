@@ -1,5 +1,5 @@
 import { PdfStorage } from "./pdf-storage";
-import { getOrParent, isLeftClick } from "./pdf-utils";
+import { getOrParent, isLeftClick, removeSelectorAll } from "./pdf-utils";
 import { PdfRegistry } from "./pdf-registry";
 
 export class PdfDelete {
@@ -35,7 +35,8 @@ export class PdfDelete {
         $event.stopPropagation();
         const annotId = annotEl.getAttribute('data-annotation-id');
         const annot = await this._getStorage().read(annotId);
-        await this._getStorage().delete(annot, () => annotEl.remove());
+        await this._getStorage().delete(annot, () => removeSelectorAll(
+          this._getDocumentEl(), `.pdf-annotations [data-annotation-id="${annotId}"]`));
       }
     });
   }
