@@ -192,25 +192,30 @@ export class CourseAuthoringContents {
     _loadGroupContent($event, target) {
         var _a, _b;
         $event.preventDefault();
-        const url = target.getAttribute('href');
-        const title = target.textContent.trim();
+        const nohttp = (url) => url.replace(/^https?:\/\//, '');
         const page = target.closest('.page');
         (_a = page.querySelector('.course-authoring-contents__group-content-iframe-modal')) === null || _a === void 0 ? void 0 : _a.remove();
-        page.appendChild(htmlToElements(`<div class="course-authoring-contents__group-content-iframe-modal">
-        <div class="course-authoring-contents__group-content-iframe-modal-overlay"></div>
-        <div class="course-authoring-contents__group-content-iframe-modal-content">
-          <div class="course-authoring-contents__group-content-iframe-title">
-            <span>${title}</span>
-            <button class="course-authoring-contents__group-content-iframe-open-in-newtab">
-              <a href="${url}" target="_blank">open in new tab</a>
-            </button>
-            <button class="course-authoring-contents__group-content-iframe-close">close</button>
+        const url = target.getAttribute('href');
+        if (nohttp(url).split('/')[0] == nohttp(location.href).split('/')[0]) {
+            page.appendChild(htmlToElements(`<div class="course-authoring-contents__group-content-iframe-modal">
+          <div class="course-authoring-contents__group-content-iframe-modal-overlay"></div>
+          <div class="course-authoring-contents__group-content-iframe-modal-content">
+            <div class="course-authoring-contents__group-content-iframe-title">
+              <span>${target.textContent.trim()}</span>
+              <button class="course-authoring-contents__group-content-iframe-open-in-newtab">
+                <a href="${url}" target="_blank">open in new tab</a>
+              </button>
+              <button class="course-authoring-contents__group-content-iframe-close">close</button>
+            </div>
+            <iframe src="${url}" class="course-authoring-contents__group-content-iframe"></iframe>
           </div>
-          <iframe src="${url}" class="course-authoring-contents__group-content-iframe"></iframe>
-        </div>
-       </div>
-      `));
-        (_b = page.querySelector('.course-authoring-contents__group-content-iframe-modal')) === null || _b === void 0 ? void 0 : _b.scrollIntoView();
+         </div>
+        `));
+            (_b = page.querySelector('.course-authoring-contents__group-content-iframe-modal')) === null || _b === void 0 ? void 0 : _b.scrollIntoView();
+        }
+        else {
+            window.open(url, '_blank');
+        }
     }
 }
 window.course_authoring_contents = ({ registry }) => {
