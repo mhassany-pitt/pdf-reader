@@ -138,9 +138,11 @@
 
 <p-dialog header="Collaborators" [(visible)]="tt['show-collaborators-dialog']" [modal]="true"
   [style]="{ width: '75vw', 'max-width': '500px' }">
-  <p-chips *ngIf="pdfDocument" [(ngModel)]="pdfDocument.collaborator_emails" separator=","
-    placeholder="user@company.com, ..." class="p-chips-sm"></p-chips>
-  <span class="text-xs text-gray-400">Hint: use enter to add new collaborator.</span>
+  <div *ngIf="pdfDocument" class="flex flex-col gap-2">
+    <p-chips [(ngModel)]="pdfDocument.collaborator_emails" separator="," placeholder="user@company.com, ..."
+      class="p-chips-sm"></p-chips>
+    <span class="text-xs text-gray-400">Type collaborator's email and press enter to add.</span>
+  </div>
 </p-dialog>
 
 <p-dialog [header]="getShareDialogTitle(pdfDocument?.title)" [(visible)]="tt['show-share-dialog']" [modal]="true"
