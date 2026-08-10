@@ -98,7 +98,7 @@ export class PdfEmbedViewer {
     const scaleFactor = scale(this._getPdfJS());
 
     const editable = editor && configs && annotIsMine(annot);
-    const movable = editable && configs?.move && annot.target == 'inline-iframe';
+    const movable = editable && configs?.move;
     const isInline = annot.target == 'inline-iframe';
     const openHint = annot.target == 'new-page'
       ? 'Open in new tab'
