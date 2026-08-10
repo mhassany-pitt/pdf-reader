@@ -26,9 +26,14 @@ export class PDFReaderController {
         throw new NotFoundException();
 
       try { // fetch delegated config
-        let url = `${pdfLink.delegated_to_url}/${id}?user_id=${user?.id}`;
-        const qparams = req.url.split('?').reverse()[0];
-        if (qparams) url += `&${qparams.split('&').filter(q => !q.startsWith('user_id=')).join('&')}`;
+        let url = `${pdfLink.delegated_to_url}/${id}?user_id=${user?.id || ''}`;
+        if (req.url && req.url.includes('?')) {
+          const qparams = req.url.split('?')[1];
+          if (qparams) {
+            const filtered = qparams.split('&').filter(q => q && !q.startsWith('user_id=')).join('&');
+            if (filtered) url += `&${filtered}`;
+          }
+        }
 
         const resp = await axios.get(url);
         const { _id, user_id, pdf_doc_id, created_at } = pdfLink;

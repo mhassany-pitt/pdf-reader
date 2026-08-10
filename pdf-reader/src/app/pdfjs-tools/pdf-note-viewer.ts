@@ -1,9 +1,11 @@
 import {
   WHRect, htmlToElements, removeSelectorAll,
   rotation, rotateRect, getOrParent, getAnnotEl,
-  getPageEl, getAnnotElBound, getPageNum, scale
+  getPageEl, getAnnotElBound, getPageNum, scale,
+  annotTitleAttr, annotAuthorHtml, getAnnotDisplayName, escapeHtml, annotIsMine
 } from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
+import { noteTheme, ANNOTATION_POPUP_FONT, ensureAnnotationFonts } from './pdf-annotation-colors';
 
 export class PdfNoteViewer {
 
@@ -63,24 +65,30 @@ export class PdfNoteViewer {
     const editor = this.registry.get('note-editor');
     const configs = this._configs();
     const scaleFactor = scale(this._getPdfJS());
+    const color = noteTheme(annot.color).color;
 
     return htmlToElements(
       `<div 
         data-annotation-id="${annot.id}" 
         data-annotation-type="${annot.type}"
         data-analytic="note:${annot.id}"
+        ${getAnnotDisplayName(annot) ? `data-annotator="${escapeHtml(getAnnotDisplayName(annot))}"` : ''}
         tabindex="-1"
+        title="${annotTitleAttr(annot, annotIsMine(annot)
+          ? (annot.note?.length ? 'Click to edit note' : 'Click to write a note')
+          : (annot.note?.length ? 'View note' : 'Annotation'))}"
         class="
           pdf-annotation__note 
-          ${editor && configs?.move ? 'pdf-annotation--moveable' : ''}
-          ${editor && configs?.delete ? 'pdf-annotation--deletable' : ''}" 
+          ${editor && configs?.move && annotIsMine(annot) ? 'pdf-annotation--moveable' : ''}
+          ${editor && configs?.delete && annotIsMine(annot) ? 'pdf-annotation--deletable' : ''}" 
         style="
           top: calc(${rect.top}%);
           left: calc(${rect.left}%);
           width: calc(${scaleFactor} * 32px);
           height: calc(${scaleFactor} * 32px);
+          --note-color: ${color};
         ">
-        <img class="pdf-annotation__note-thumb-icon" draggable="false" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAAAsVBMVEVHcEz/1AD/1gD/0wD/0wD83gD/1QB8bCV8bSj93gD/1wD/2wD/1gD83AB7ayb/0QD/0gDqvRH/0AD+3gD/1QA9PT0/Pz9BQUFFRUX/1gDouhP/0wBDQ0P+1wD+2gBHR0frxAn+2QCGeDNTUUY+Pj7/1wBJSUlAQEA8PDz+3ABCQkJERET+2ABGRkZISEjqvBH4zAb3zwb4ywb+3QD30Ab+2wD4zgZYVUZKSkr/1AD3zgYbzkgXAAAAD3RSTlMA8q/xHfKqv7+sJx3u7cDxp3syAAABwklEQVR4Xu3WR04DQRSE4WcDBhtD98w4Z3LOmfsfjFk0ai+YMiXXAqSuA3y/9Fq2xv7c0tLS0nabW0VRPH3vIuwlbBZ2EHYdNi13Um5YrlZvAX+vWNcv196sDDQV/rDTqAyse58Q2KgMaPxOBwQEPgoofBgQ+Dgg8HFA4OOAyP8AAYkPAhIfBCQ+Cih8GBD4OCDwcUDg44DIH4OAxAcBiQ8CEh8Hov+cjYhl99FHgejPSp/ZXfBxIPp8IPg4EH3+RMHHgXXfN8yDgMQHAYkPAhIfBRQ+DAh8HBD4OCDxcSD6D9wP7XHJdyAQ78P+VSz5MBB8PhB9GIj3Z08UfRAQvK+DAYGPAwIfBwQ+Doj8HAQkPghIfBCQ+DgQ/c9s5ffP4vDo9PR2Pr8ZDK4mk8t+/6zXO+52z3eqA9GfZiu/fxZv76Rv0YeBcJ9D2rfl+79mq75/jmjfuPf90d82NMof875Rvud9o3zP+0b5nveN8j3vG+V73jfK97xvlO953yjf875RvuN9o3zH+0b5jveN8h3vG+U73jfKd7xvlO943yjf8b7VGD/nfaszfs771moTfs77ZpuNjV/7+b79l6WlpaV9Af0vZG6wBzc2AAAAAElFTkSuQmCC" />  
+        <span class="pdf-annotation__note-sheet"></span>
       </div>`
     );
   }
@@ -121,12 +129,17 @@ export class PdfNoteViewer {
     const lines = (annot.note || '').split('\n');
     const rows = Math.min(5, lines.length),
       cols = Math.min(35, Math.max(...lines.map(line => line.length)));
+    const theme = noteTheme(annot.color);
 
     const popupEl = htmlToElements(
-      `<div class="pdf-annotation__note-viewer-popup" data-note-id="${annot.id}">
-        <textarea rows="${rows}" cols="${cols}" placeholder="Note ..." readonly="true" resizable="false"
+      `<div class="pdf-annotation__note-viewer-popup" data-note-id="${annot.id}"
+            style="--note-color: ${theme.color}; --note-header-bg: ${theme.header}; --note-body-bg: ${theme.body}; --note-ink: ${theme.ink}; --note-border: ${theme.border}; --note-muted: ${theme.muted};">
+        <div class="pdf-annotation__note-viewer-header">
+          <span class="pdf-annotation__note-viewer-title">Note</span>
+          ${annotAuthorHtml(annot)}
+        </div>
+        <textarea rows="${rows}" cols="${cols}" placeholder="Note" readonly="true" resizable="false"
           class="pdf-annotation__note-viewer-textarea"
-          style="font-size: ${scale(this._getPdfJS()) * 100}%;"
         >${annot.note || ''}</textarea>
         <style>
           .pdf-annotation__note-viewer-popup {
@@ -135,21 +148,45 @@ export class PdfNoteViewer {
             left: ${bound.left}%;
             width: ${bound.width ? bound.width + '%' : 'fit-content'};
             height: ${bound.height ? bound.height + '%' : 'fit-content'};
-            max-width: 50%;
+            max-width: min(50%, 22rem);
             max-height: 50%;
             display: flex;
             flex-direction: column;
             pointer-events: auto;
             z-index: 6;
+            border-radius: 0.85rem;
+            overflow: hidden;
+            box-shadow:
+              0 18px 40px rgba(16, 24, 40, 0.16),
+              0 2px 6px rgba(16, 24, 40, 0.06),
+              0 0 0 1px var(--note-border);
+            font-family: ${ANNOTATION_POPUP_FONT};
+            letter-spacing: -0.011em;
+            min-width: 12rem;
+          }
+
+          .pdf-annotation__note-viewer-header {
+            background: var(--note-header-bg);
+            padding: 0.7rem 0.85rem 0.55rem;
+          }
+
+          .pdf-annotation__note-viewer-title {
+            font-size: 0.8125rem;
+            font-weight: 650;
+            color: var(--note-ink);
+            letter-spacing: -0.02em;
           }
 
           .pdf-annotation__note-viewer-textarea {
-            box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
-            background-color: white;
-            border-radius: 0.125rem;
-            border-color: lightgray;
+            background-color: var(--note-body-bg);
+            color: var(--note-ink);
+            border: none;
+            outline: none;
             font-family: inherit;
-            padding: 0.125rem;
+            font-size: 0.875rem;
+            font-weight: 450;
+            line-height: 1.55;
+            padding: 0.75rem 0.85rem;
             resize: none;
           }
         </style>
@@ -161,6 +198,7 @@ export class PdfNoteViewer {
   }
 
   protected _attachStylesheet() {
+    ensureAnnotationFonts(this._getDocumentEl());
     this.registry
       .getDocumentEl()
       .querySelector('head')
@@ -169,15 +207,20 @@ export class PdfNoteViewer {
           .pdf-annotation__note {
             position: absolute;
             pointer-events: auto;
-            border-radius: 0.125rem;
+            border-radius: 0.2rem;
             cursor: pointer;
             z-index: 5;
           }
 
-          .pdf-annotation__note img.pdf-annotation__note-thumb-icon {
+          .pdf-annotation__note-sheet {
+            display: block;
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            background:
+              linear-gradient(135deg, transparent 55%, rgba(0,0,0,0.12) 55.5%, rgba(0,0,0,0.12) 100%) top right / 34% 34% no-repeat,
+              linear-gradient(160deg, color-mix(in srgb, var(--note-color, #e8d48a) 78%, white), var(--note-color, #e8d48a));
+            border-radius: 0.15rem 0.15rem 0.2rem 0.15rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22), inset 0 0 0 1px rgba(0, 0, 0, 0.06);
             user-select: none;
           }
         </style>`

@@ -10,7 +10,9 @@ export class PdfFilter {
     this.registry = registry;
 
     this.load();
-    this._getStorage().qparams['annotators'] = this.getSelecteds().join(',');
+    const selected = this.getSelecteds() || [];
+    // Match backend: empty filter params mean "mine", so send that explicitly.
+    this._getStorage().qparams['annotators'] = selected.length ? selected.join(',') : 'mine';
     this._getStorage().reload(true);
 
     this.registry.register('filter', this);

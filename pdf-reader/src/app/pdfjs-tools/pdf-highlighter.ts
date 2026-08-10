@@ -25,6 +25,41 @@ export class PdfHighlighter {
   private _getStorage() { return this.registry.get('storage'); }
   private _getViewer() { return this.registry.get('highlight-viewer'); }
 
+  /** Create a mark from an existing selection (or provided rects/text). */
+  createMark(opts: {
+    type?: string;
+    color?: string;
+    stroke?: string;
+    strokeStyle?: string;
+    text?: string;
+    rects?: any;
+    clearSelection?: boolean;
+  } = {}): boolean {
+    const selection = this._getDocument().getSelection();
+    const text = opts.text ?? selection?.toString() ?? '';
+    const rects = opts.rects ?? getSelectionRects(this._getDocument(), this._getPdfJS());
+    if (!rects || !Object.keys(rects).length) return false;
+
+    const annot = {
+      id: uuid(),
+      type: opts.type || this.type,
+      color: opts.color ?? this.color,
+      stroke: opts.stroke ?? this.stroke,
+      strokeStyle: opts.strokeStyle ?? this.strokeStyle,
+      rects,
+      text,
+      pages: Object.keys(rects).map(k => parseInt(k, 10)),
+    };
+
+    if (opts.clearSelection !== false) {
+      try { this._getWindow().getSelection()?.removeAllRanges(); }
+      catch { selection?.removeAllRanges(); }
+    }
+
+    this._getStorage().create(annot, () => this._getViewer().render(annot));
+    return true;
+  }
+
   private _highlightOnTextSelection() {
     let mdown = false, mdragging = false;
     this._getDocument().addEventListener('mousedown', ($event: any) => {
@@ -43,22 +78,7 @@ export class PdfHighlighter {
       mdown = false;
 
       if (mdragging) {
-        const text = this._getDocument().getSelection().toString();
-        const rects = getSelectionRects(this._getDocument(), this._getPdfJS());
-        if (rects && Object.keys(rects).length) {
-          const annot = {
-            id: uuid(),
-            type: this.type,
-            color: this.color,
-            stroke: this.stroke,
-            strokeStyle: this.strokeStyle,
-            rects,
-            text,
-            pages: Object.keys(rects).map(k => parseInt(k))
-          };
-          this._getWindow().getSelection().removeAllRanges();
-          this._getStorage().create(annot, () => this._getViewer().render(annot));
-        }
+        this.createMark();
       }
     };
 

@@ -1,17 +1,21 @@
 import {
-  Body, Controller, Delete,
+  Body,
+  Controller,
+  Delete,
   Get,
-  NotFoundException, Param, Patch, Post, Req
+  Param,
+  Patch,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { PreferencesService } from './preferences.service';
 import { useId } from 'src/utils';
+import { AuthenticatedGuard } from 'src/auth/authenticated.guard';
 
 @Controller('preferences')
+@UseGuards(AuthenticatedGuard)
 export class PreferencesController {
-
-  constructor(
-    private service: PreferencesService,
-  ) { }
+  constructor(private service: PreferencesService) {}
 
   private async _getOrFail({ user_id, key }) {
     const annot = await this.service.read({ user_id, key });
@@ -28,7 +32,8 @@ export class PreferencesController {
   @Patch()
   async update(@Req() req: any, @Body() { key, value }: any) {
     const pref = await this._getOrFail({ user_id: req.user.id, key });
-    return pref ? useId(await this.service.update({ user_id: req.user.id, key, value }))
+    return pref
+      ? useId(await this.service.update({ user_id: req.user.id, key, value }))
       : useId(await this.service.create({ user_id: req.user.id, key, value }));
   }
 

@@ -34,7 +34,8 @@ export class PdfDelete {
         $event.preventDefault();
         $event.stopPropagation();
         const annotId = annotEl.getAttribute('data-annotation-id');
-        const annot = await this._getStorage().read(annotId);
+        const annot = this._getStorage().read(annotId);
+        if (!annot || !this._getStorage().isMine(annot)) return;
         await this._getStorage().delete(annot, () => removeSelectorAll(
           this._getDocumentEl(), `.pdf-annotations [data-annotation-id="${annotId}"]`));
       }

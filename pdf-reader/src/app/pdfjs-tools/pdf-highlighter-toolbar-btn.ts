@@ -65,6 +65,7 @@ export class PdfHighlighterToolbarBtn extends PdfToolbarBtn {
     this._setHighlighterEnable(true);
     this._setHighlighterType(this.getType().type);
     this._setHighlighterColor(getValue(this.getColorOptions()?.[0]));
+    this._getToolbarEl().setActiveMode(this.getType().type);
     this._getToolbarEl().showDetails(this.getToolbarDetailsEl());
   }
 
@@ -74,6 +75,7 @@ export class PdfHighlighterToolbarBtn extends PdfToolbarBtn {
     this._setHighlighterColor('transparent');
     this._setHighlighterStroke('0.125rem');
     this._setHighlighterStrokeStyle('solid');
+    this._getToolbarEl().setActiveMode(null);
     this._getToolbarEl().showDetails(null as any);
   }
 
@@ -108,34 +110,24 @@ export class PdfHighlighterToolbarBtn extends PdfToolbarBtn {
 
   protected getToolbarDetailsEl() {
     const className = `pdf-annotation-toolbar__${this.getType().type}-color-options`;
+    const actionHint = this.getType().type === 'highlight'
+      ? 'Drag across text to highlight, or select text first and use the mark menu. Click a mark to add a note.'
+      : `Drag across text to apply ${this.getType().label.toLowerCase()}, or select text first and use the mark menu.`;
     const colorsEl = htmlToElements(
-      `<div>
-        <div class="${className}">
-          ${this.getColorOptions()?.map(color =>
+      `<div class="pdf-annotation-panel">
+        <div class="pdf-annotation-panel__header">${this.getType().label}</div>
+        <div class="pdf-annotation-panel__hint">${actionHint}</div>
+        <div class="pdf-annotation-panel__section">
+          <div class="pdf-annotation-swatches ${className}">
+            ${this.getColorOptions()?.map(color =>
         `<span data-highlight-color="${getValue(color)}" 
                style="background-color: ${getLabel(color)}"
                class="pdf-annotation-toolbar__${this.getType().type}-color-option"
+               title="${getLabel(color)}"
                data-analytic="color:${getValue(color)}"
          ></span>`).join('')}
+          </div>
         </div>
-        <style>
-          .${className} {
-            display: flex; 
-            align-items: center; 
-            gap: 0.125rem;
-          }
-          .${className} > span {
-            user-select: none;
-            cursor: pointer; 
-            width: 1rem; 
-            height: 0.975rem;
-            border: dashed 0.125rem transparent;
-          }
-          .${className} > span.selected {
-            border-style: dashed;
-            border-color: white;
-          }
-        </style>
       </div>`);
 
     colorsEl.querySelector(`.${className}`)?.addEventListener('click', ($event: any) => {
@@ -162,15 +154,15 @@ export class PdfHighlighterToolbarBtn extends PdfToolbarBtn {
       .querySelector('head')
       .appendChild(htmlToElements(
         `<style>
-          .pdf-toolbar__${this.getType().type}-btn.selected .color-dot {
-            background-color: transparent;
+          .pdf-toolbar__${this.getType().type}-btn .color-dot {
             position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 0.25rem;
-            height: 0.25rem;
-            border: 1px solid white;
-            border-radius: 0.125rem;
+            bottom: 0.12rem;
+            right: 0.12rem;
+            width: 0.35rem;
+            height: 0.35rem;
+            border: 1.5px solid #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
           }
         </style>`));
   }

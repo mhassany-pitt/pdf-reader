@@ -1,9 +1,10 @@
 import {
   WHRect, getPageEl, getPageNum,
   htmlToElements, getAnnotEl, getAnnotElBound,
-  getOrParent, scale
+  getOrParent, annotAuthorHtml
 } from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
+import { ANNOTATION_POPUP_FONT, ensureAnnotationFonts } from './pdf-annotation-colors';
 
 export class PdfHighlightNoteViewer {
 
@@ -14,7 +15,7 @@ export class PdfHighlightNoteViewer {
 
     this.registry.register('highlight-note-viewer', this);
 
-    this._onHighlightClick();
+    this._onHighlightHover();
   }
 
   private _getDocument() { return this.registry.getDocument(); }
@@ -38,7 +39,7 @@ export class PdfHighlightNoteViewer {
     return false;
   }
 
-  private _onHighlightClick() {
+  private _onHighlightHover() {
     let timeout: any = null;
     this._getDocument().addEventListener('mouseover', ($event: any) => {
       if (timeout) clearTimeout(timeout);
@@ -70,38 +71,72 @@ export class PdfHighlightNoteViewer {
   }
 
   private _showViewerPopup(annot: any, pageNum: number, bound: WHRect) {
+    ensureAnnotationFonts(this._getDocumentEl());
     const lines = (annot.note || '').split('\n');
     const rows = Math.min(5, lines.length),
       cols = Math.min(35, Math.max(...lines.map(line => line.length)));
 
     const popupEl = htmlToElements(
       `<div class="pdf-annotation__highlight-note-viewer-popup" data-highlight-id="${annot.id}">
-        <textarea rows="${rows}" cols="${cols}" placeholder="Note ..." readonly="true" resizable="false"
+        <div class="pdf-annotation__highlight-note-viewer-header">
+          <span class="pdf-annotation__highlight-note-viewer-title">Note</span>
+          ${annotAuthorHtml(annot)}
+        </div>
+        <textarea rows="${rows}" cols="${cols}" placeholder="Note" readonly="true" resizable="false"
           class="pdf-annotation__highlight-note-viewer-textarea"
-          style="font-size: ${scale(this._getPdfJS()) * 100 * 0.8}%;"
         >${annot.note || ''}</textarea>
         <style>
           .pdf-annotation__highlight-note-viewer-popup {
+            --popup-ink: #171a21;
+            --popup-muted: #6b7280;
+            --popup-line: rgba(23, 26, 33, 0.08);
             position: absolute;
             top: calc(100% - ${bound.bottom}%);
             left: ${bound.left}%;
             width: ${bound.width ? bound.width + '%' : 'fit-content'};
             height: ${bound.height ? bound.height + '%' : 'fit-content'};
-            max-width: 50%;
+            max-width: min(50%, 22rem);
             max-height: 50%;
             display: flex;
             flex-direction: column;
             pointer-events: auto;
             z-index: 6;
+            border-radius: 0.85rem;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow:
+              0 18px 40px rgba(16, 24, 40, 0.16),
+              0 2px 6px rgba(16, 24, 40, 0.06),
+              0 0 0 1px var(--popup-line);
+            font-family: ${ANNOTATION_POPUP_FONT};
+            letter-spacing: -0.011em;
+            min-width: 12rem;
+          }
+
+          .pdf-annotation__highlight-note-viewer-header {
+            padding: 0.7rem 0.85rem 0.55rem;
+            background: #ffffff;
+            border-bottom: 1px solid var(--popup-line);
+          }
+
+          .pdf-annotation__highlight-note-viewer-title {
+            display: block;
+            font-size: 0.8125rem;
+            font-weight: 650;
+            color: var(--popup-ink);
+            letter-spacing: -0.02em;
           }
 
           .pdf-annotation__highlight-note-viewer-textarea {
-            box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
-            background-color: white;
-            border-radius: 0.125rem;
-            border-color: lightgray;
+            background: #ffffff;
+            color: var(--popup-ink);
+            border: none;
+            outline: none;
             font-family: inherit;
-            padding: 0.125rem;
+            font-size: 0.875rem;
+            font-weight: 450;
+            line-height: 1.55;
+            padding: 0.75rem 0.85rem;
             resize: none;
           }
         </style>

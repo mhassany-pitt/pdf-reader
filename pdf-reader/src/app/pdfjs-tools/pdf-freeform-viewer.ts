@@ -1,4 +1,4 @@
-import { htmlToElements, removeSelectorAll, rotateRect, rotation } from './pdf-utils';
+import { htmlToElements, removeSelectorAll, rotateRect, rotation, annotTitleAttr, getAnnotDisplayName, escapeHtml, annotIsMine } from './pdf-utils';
 import { PdfRegistry } from './pdf-registry';
 
 export class PdfFreeformViewer {
@@ -53,11 +53,13 @@ export class PdfFreeformViewer {
             data-annotation-id="${annot.id}" 
             data-annotation-type="${annot.type}"
             data-analytic="freeform:${annot.id}"
-            tabindex="-1" 
+            ${getAnnotDisplayName(annot) ? `data-annotator="${escapeHtml(getAnnotDisplayName(annot))}"` : ''}
+            tabindex="-1"
+            title="${annotTitleAttr(annot, 'Drawing')}"
             class="
               pdf-annotation__freeform 
-              ${editor && configs?.move ? 'pdf-annotation--moveable' : ''}
-              ${editor && configs?.delete ? 'pdf-annotation--deletable' : ''}" 
+              ${editor && configs?.move && annotIsMine(annot) ? 'pdf-annotation--moveable' : ''}
+              ${editor && configs?.delete && annotIsMine(annot) ? 'pdf-annotation--deletable' : ''}" 
             style="
               top: ${bound.top}%;
               bottom: ${bound.bottom}%;
@@ -102,10 +104,30 @@ export class PdfFreeformViewer {
         `<style>
           .pdf-annotation__freeform {
             position: absolute;
-            pointer-events: stroke;
+            pointer-events: auto;
             user-select: none;
-            cursor: pointer;
+            cursor: grab;
             z-index: 4;
+          }
+          .pdf-annotation__freeform:active {
+            cursor: grabbing;
+          }
+          .pdf-annotation__freeform::after {
+            content: "";
+            position: absolute;
+            right: 2px;
+            bottom: 2px;
+            width: 8px;
+            height: 8px;
+            border-right: 2px solid rgba(61, 109, 240, 0.55);
+            border-bottom: 2px solid rgba(61, 109, 240, 0.55);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.12s ease;
+          }
+          .pdf-annotation__freeform:hover::after,
+          .pdf-annotation__freeform.pdf-annotation--selected::after {
+            opacity: 1;
           }
         </style>`));
   }

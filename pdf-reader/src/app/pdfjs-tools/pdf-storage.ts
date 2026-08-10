@@ -12,11 +12,18 @@ export class PdfStorage {
 
   enabled = true;
 
-  private _annots: any = {};
+  private _annots: { [page: number]: any[] } = {};
   private get annots() {
-    return Object.values(this._annots)
-      .reduce((arr: any[], annot: any) =>
-        arr.concat(annot), []);
+    const seen = new Set<string>();
+    const out: any[] = [];
+    for (const pageAnnots of Object.values(this._annots)) {
+      for (const annot of pageAnnots) {
+        if (!annot?.id || seen.has(annot.id)) continue;
+        seen.add(annot.id);
+        out.push(annot);
+      }
+    }
+    return out;
   }
 
   qparams: { [key: string]: string } = {};
@@ -30,7 +37,8 @@ export class PdfStorage {
     this.loadAnnotators();
 
     this._getPdfJS().eventBus.on('pagerendered', ($event: any) => this.loadPageAnnotations($event.pageNumber));
-    this._getPdfJS().eventBus.on('pagesdestroy', ($event: any) => delete this._annots[$event.pageNumber]);
+    // PDF.js pagesdestroy has no pageNumber — clear the whole cache on document teardown.
+    this._getPdfJS().eventBus.on('pagesdestroy', () => { this._annots = {}; });
   }
 
   protected _configs() { return this.registry.get(`configs.storage`); }
@@ -49,7 +57,54 @@ export class PdfStorage {
   getAnnotators() { return this.annotators; }
 
   list() { return this.annots; }
-  read(id: string) { return this.annots.filter(a => a.id == id)[0]; }
+  read(id: string) { return this.annots.find(a => a.id == id); }
+
+  /** Current user owns this annotation (API `isMine`). */
+  isMine(annot: any) {
+    const cached = annot?.id ? this.read(annot.id) : null;
+    return (cached || annot)?.isMine === true;
+  }
+
+  /** Reuse one object per annotation id across pages so updates stay consistent. */
+  private _canonical(annot: any) {
+    if (!annot?.id) return annot;
+    const existing = this.read(annot.id);
+    if (existing && existing !== annot) {
+      Object.assign(existing, annot);
+      return existing;
+    }
+    return annot;
+  }
+
+  private _findIndexById(pageAnnots: any[], id: string) {
+    return pageAnnots.findIndex(a => a?.id == id);
+  }
+
+  private _pagesOf(annot: any): number[] {
+    const pages = annot?.pages;
+    if (!Array.isArray(pages)) return [];
+    return pages.map((p: any) => parseInt(p, 10)).filter((p: number) => !Number.isNaN(p));
+  }
+
+  private _upsertInCache(annot: any) {
+    const canonical = this._canonical(annot);
+    for (const page of this._pagesOf(canonical)) {
+      if (!(page in this._annots)) this._annots[page] = [];
+      const index = this._findIndexById(this._annots[page], canonical.id);
+      if (index > -1) this._annots[page][index] = canonical;
+      else this._annots[page].push(canonical);
+    }
+    return canonical;
+  }
+
+  private _removeFromCache(annot: any) {
+    const id = annot?.id;
+    if (!id) return;
+    for (const page of Object.keys(this._annots).map(p => parseInt(p, 10))) {
+      const index = this._findIndexById(this._annots[page], id);
+      if (index > -1) this._annots[page].splice(index, 1);
+    }
+  }
 
   private _apiUrl() {
     const apiUrl = this._configs()?.apiUrl || `${environment.apiUrl}/annotations`;
@@ -68,18 +123,20 @@ export class PdfStorage {
     return this.annotators;
   }
 
-  async loadAnnotations(qparams: any) {
+  async loadAnnotations(qparams: any): Promise<any[]> {
     if (this.enabled) try {
       const api = `${this._apiUrl()}?${qparamsToString({ ...qparams, ...await this.getUserId() })}`;
       const req: any = this.registry.get('http').get(api, { withCredentials: isSameOrigin(api) });
-      return await firstValueFrom(req);
+      return (await firstValueFrom(req)) as any[];
     } catch (error) { console.error(error); }
     return [];
   }
 
   private async loadPageAnnotations(pageNum: number) {
-    if (pageNum in this._annots == false)
-      this._annots[pageNum] = await this.loadAnnotations({ ...this.qparams, pages: pageNum });
+    if (pageNum in this._annots == false) {
+      const loaded = await this.loadAnnotations({ ...this.qparams, pages: pageNum });
+      this._annots[pageNum] = loaded.map((a: any) => this._canonical(a));
+    }
 
     if (this._annots[pageNum])
       this._getPdfJS().eventBus.dispatch('pageannotationsloaded', { pageNumber: pageNum });
@@ -100,12 +157,10 @@ export class PdfStorage {
       const api = `${this._apiUrl()}?${qparamsToString(await this.getUserId())}`;
       const req = this.registry.get('http').post(api, annot, { withCredentials: isSameOrigin(api) });
       const resp: any = await firstValueFrom(req);
-      annot.id = resp.id;
-      annot.pages.forEach(page => {
-        if (page in this._annots == false)
-          this._annots[page] = [];
-        this._annots[page].push(resp);
-      });
+      // Keep the caller's object as the canonical cache entry (UI holds this ref).
+      Object.assign(annot, resp);
+      if (annot.isMine !== false) annot.isMine = true;
+      this._upsertInCache(annot);
 
       for (const key of this.registry.list('storage.created.'))
         await this.registry.get(key)(annot);
@@ -116,21 +171,23 @@ export class PdfStorage {
 
   async update(annot: any, then?: () => void) {
     try {
+      if (!annot?.id) return;
+      if (!this.isMine(annot)) return;
+
       for (const key of this.registry.list('storage.onupdate.'))
         await this.registry.get(key)(annot);
 
       const api = `${this._apiUrl()}/${annot.id}?${qparamsToString(await this.getUserId())}`;
       const req = this.registry.get('http').patch(api, annot, { withCredentials: isSameOrigin(api) });
       const resp: any = await firstValueFrom(req);
-      annot.pages
-        .filter(page => page in this._annots)
-        .forEach(page => {
-          const index = this._annots[page].indexOf(annot);
-          if (index > -1) this._annots[page][index] = resp;
-        });
+      // Merge into the existing cached object (and the caller's object) by id.
+      const cached = this.read(annot.id) || annot;
+      Object.assign(cached, annot, resp);
+      if (annot !== cached) Object.assign(annot, cached);
+      this._upsertInCache(cached);
 
       for (const key of this.registry.list('storage.updated.'))
-        await this.registry.get(key)(annot);
+        await this.registry.get(key)(cached);
 
       then?.();
     } catch (error) { console.error(error); }
@@ -138,18 +195,16 @@ export class PdfStorage {
 
   async delete(annot: any, then?: () => void) {
     try {
+      if (!annot?.id) return;
+      if (!this.isMine(annot)) return;
+
       for (const key of this.registry.list('storage.ondelete.'))
         await this.registry.get(key)(annot);
 
       const api = `${this._apiUrl()}/${annot.id}?${qparamsToString(await this.getUserId())}`;
       const req = this.registry.get('http').delete(api, { withCredentials: isSameOrigin(api) });
       await firstValueFrom(req);
-      annot.pages
-        .filter(page => page in this._annots)
-        .forEach(page => {
-          const index = this._annots[page].indexOf(annot);
-          if (index > -1) this._annots[page].splice(index, 1);
-        });
+      this._removeFromCache(annot);
 
       for (const key of this.registry.list('storage.deleted.'))
         await this.registry.get(key)(annot);

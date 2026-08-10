@@ -49,6 +49,7 @@ export class PdfFreeformEditor {
     if (action == 'moving-completed') {
       const { top, left, right, bottom, width, height } = payload.rect;
       const annot = this._getStorage().read(payload.id);
+      if (!annot || !this._getStorage().isMine(annot)) return;
       annot.freeforms[payload.page] = {
         ...annot.freeforms[payload.page],
         top, left, right, bottom, width, height
@@ -236,6 +237,9 @@ export class PdfFreeformEditor {
         bottom = Math.max(y, bottom);
       }
     }
+    // No ink drawn — skip empty freeform saves.
+    if (right < left || bottom < top) return null;
+
     const width = right - left + 1;
     const height = bottom - top + 1;
 

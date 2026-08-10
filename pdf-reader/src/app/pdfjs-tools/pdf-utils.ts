@@ -298,8 +298,48 @@ export const getUserId = async (route: ActivatedRoute) => {
 }
 
 export const qparamsToString = (qparams?: any) => {
-  return qparams ? Object.keys(qparams).map(k => `${k}=${qparams[k]}`).join('&') : '';
+  if (!qparams) return '';
+  return Object.keys(qparams)
+    .filter(k => qparams[k] !== undefined && qparams[k] !== null)
+    .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(String(qparams[k]))}`)
+    .join('&');
 }
 
 export const getValue = (str: string) => str.includes(':') ? str.split(':')[0] : str;
 export const getLabel = (str: string) => str.includes(':') ? str.split(':')[1] : str;
+
+export const escapeHtml = (value: string) =>
+  String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+/** Author display name stored on create (`misc.displayName`). */
+export const getAnnotDisplayName = (annot: any): string => {
+  const name = annot?.misc?.displayName;
+  return typeof name === 'string' ? name.trim() : '';
+};
+
+/** True when the current user owns this annotation (from API `isMine`). */
+export const annotIsMine = (annot: any): boolean => annot?.isMine === true;
+
+/**
+ * Native `title` tooltip: optional action hint + author.
+ * Keeps authorship discoverable without on-page chrome.
+ */
+export const annotTitleAttr = (annot: any, actionHint?: string): string => {
+  const name = getAnnotDisplayName(annot);
+  const parts = [actionHint?.trim(), name ? `By ${name}` : ''].filter(Boolean);
+  return escapeHtml(parts.join(' · '));
+};
+
+/** Muted author line for popups; empty when unknown. */
+export const annotAuthorHtml = (
+  annot: any,
+  className = 'pdf-annotation__author',
+): string => {
+  const name = getAnnotDisplayName(annot);
+  if (!name) return '';
+  return `<span class="${className}" title="Author">${escapeHtml(name)}</span>`;
+};

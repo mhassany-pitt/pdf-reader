@@ -32,37 +32,18 @@ export class PdfUnderlineToolbarBtn extends PdfHighlighterToolbarBtn {
 
   private _getStrokeStylesEl() {
     const className = `pdf-annotation-toolbar__${this.getType().type}-stroke-style-options`;
+    const deco = this.getType().type == 'strikethrough' ? 'line-through' : this.getType().type;
     const strokeStylesEl = htmlToElements(
-      `<div>
-          <div class="${className}">
+      `<div class="pdf-annotation-panel__section">
+          <div class="pdf-annotation-panel__section-label">Line Style</div>
+          <div class="pdf-annotation-segments ${className}">
             ${this.getStrokeStyleOptions()?.map(style =>
         `<span data-highlight-storke-style="${getValue(style)}" 
-                  style="text-decoration-style: ${getValue(style)}"
+                  style="text-decoration: ${deco}; text-decoration-style: ${getValue(style)}; text-decoration-thickness: from-font;"
                   class="pdf-annotation-toolbar__${this.getType().type}-stroke-style-option"
                   data-analytic="style:${getValue(style)}"
               >${getLabel(style)}</span>`).join('')}
           </div>
-          <style>
-            .${className} {
-              display: flex; 
-              gap: 0.125rem;
-            }
-            .${className} > span {
-              user-select: none;
-              cursor: pointer; 
-              background-color: #38383d;
-              color: white;
-              text-decoration: ${this.getType().type == 'strikethrough' ? 'line-through' : this.getType().type};
-              text-decoration-thickness: from-font;
-              padding: 0 0.25rem;
-              flex-grow: 1;
-              text-align: center;
-            }
-            .${className} > span.selected {
-              background-color: white;
-              color: #38383d;
-            }
-          </style>
         </div>`);
 
     strokeStylesEl.querySelector(`.${className}`)?.addEventListener('click', ($event: any) => {
@@ -86,48 +67,38 @@ export class PdfUnderlineToolbarBtn extends PdfHighlighterToolbarBtn {
     const className = `pdf-annotation-toolbar__${this.getType().type}-stroke-options`;
     const config = this.getStrokeOptions();
     const storkesEl = htmlToElements(
-      `<div class="${className}">
-        <input type="range" 
-               min="${config?.min}" 
-               max="${config?.max}" 
-               step="${config?.step}" 
-               value="${config?.value}"
-               class="pdf-annotation-toolbar__${this.getType().type}-stroke-option" />
-        <span>${config?.value}x</span>
-
-        <style>
-          .${className} {
-            display: flex;
-            gap: 0.125rem;
-            align-items: center;
-          }
-
-          .${className} > input {
-            flex-grow: 1;
-          }
-
-          .${className} > span {
-            color: white;
-          }
-        </style>
+      `<div class="pdf-annotation-panel__section">
+        <div class="pdf-annotation-panel__section-label">Thickness</div>
+        <div class="pdf-annotation-range ${className}">
+          <input type="range" 
+                 min="${config?.min}" 
+                 max="${config?.max}" 
+                 step="${config?.step}" 
+                 value="${config?.value}"
+                 class="pdf-annotation-toolbar__${this.getType().type}-stroke-option" />
+          <span class="pdf-annotation-range__value">${config?.value}×</span>
+        </div>
        </div>`);
 
     const strokeInputEl = storkesEl.querySelector('input') as HTMLInputElement;
-    const strokeSpanEl = storkesEl.querySelector('span') as HTMLInputElement;
+    const strokeSpanEl = storkesEl.querySelector('.pdf-annotation-range__value') as HTMLElement;
     strokeInputEl.addEventListener('input', ($event: any) => {
       const value = $event.target.value;
-      strokeSpanEl.innerText = `${parseFloat(value).toFixed(1)}x`;
+      strokeSpanEl.innerText = `${parseFloat(value).toFixed(1)}×`;
       this.stroke = `${parseInt(value) * 0.125}rem`;
       this._setHighlighterStroke(this.stroke);
     });
 
     strokeInputEl.value = `${parseFloat(this._getHighlighterStroke().replace('rem', '')) / 0.125}`;
-    strokeSpanEl.innerText = `${strokeInputEl.value}x`;
+    strokeSpanEl.innerText = `${parseFloat(strokeInputEl.value).toFixed(1)}×`;
 
     return storkesEl;
   }
 
   protected override getToolbarDetailsEl() {
-    return [...super.getToolbarDetailsEl(), this._getStrokeStylesEl(), this._getStrokesEl()];
+    const [panel] = super.getToolbarDetailsEl();
+    panel.appendChild(this._getStrokeStylesEl());
+    panel.appendChild(this._getStrokesEl());
+    return [panel];
   }
 }

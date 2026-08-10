@@ -15,10 +15,12 @@ export class AuthenticatedAuthorGuard implements CanActivate {
     return this.app.handshake().pipe(map((resp: any) => {
       if (!resp.user) {
         this.router.navigate(['/login']);
+        return false;
       } else if (!resp.user.roles?.includes('author')) {
         this.router.navigate(['/unauthorized']);
+        return false;
       }
-      return !!resp.user;
+      return true;
     }));
   }
 }

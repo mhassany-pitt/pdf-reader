@@ -85,9 +85,17 @@ export class AnnotationsService {
     );
   }
 
-  async getAnnotators({ groupId }) {
-    return await this.annotations.find({
-      group_id: groupId
-    }).distinct('misc.displayName');
+  async getAnnotators({ groupId, user_id }: { groupId: string; user_id?: string }) {
+    const filter: any = {
+      group_id: groupId,
+      'misc.displayName': { $exists: true, $nin: [null, ''] },
+    };
+    // Guests/readers only see public authors (+ their own). Authenticated same rule.
+    if (user_id) {
+      filter.$or = [{ user_id }, { 'misc.visibility': { $ne: 'private' } }];
+    } else {
+      filter['misc.visibility'] = { $ne: 'private' };
+    }
+    return await this.annotations.find(filter).distinct('misc.displayName');
   }
 }

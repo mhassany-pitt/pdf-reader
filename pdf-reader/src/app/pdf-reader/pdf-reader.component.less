@@ -2,6 +2,7 @@
   .pdf-document-reader {
     .p-dropdown.p-component {
       width: 100%;
+      border: none;
     }
 
     .p-dropdown-label.p-placeholder {
@@ -10,44 +11,83 @@
 
     .p-dropdown-label,
     .p-dropdown-trigger {
-      background-color: rgba(56, 56, 61, 1);
-      color: white !important;
+      background-color: var(--toolbar-bg-color, rgba(249, 249, 250, 1));
+      color: var(--toolbar-icon-color, rgba(90, 90, 90, 1)) !important;
       border-radius: 0;
+      border-bottom: 1px solid var(--toolbar-border-color, rgba(204, 204, 204, 1));
     }
   }
 
   .outline-dropdown {
-    background-color: rgba(56, 56, 61, 1);
+    background-color: var(--toolbar-bg-color, rgba(249, 249, 250, 1));
 
     .p-dropdown-item {
       padding: 0.25rem 0 !important;
-      color: white !important;
+      color: var(--toolbar-icon-color, rgba(90, 90, 90, 1)) !important;
     }
 
     .p-dropdown-item:not(.p-highlight):not(.p-disabled):hover {
-      background-color: rgba(0, 0, 0, 0.125) !important;
+      background-color: rgba(0, 0, 0, 0.08) !important;
     }
 
     .p-dropdown-item.p-highlight {
-      background-color: rgba(0, 0, 0, 0.25) !important;
+      background-color: rgba(0, 0, 0, 0.15) !important;
     }
 
     .p-dropdown-header {
       padding: 0.25rem !important;
-      background-color: rgba(56, 56, 61, 1);
-      border-bottom-color: rgba(56, 56, 61, 1);
+      background-color: var(--toolbar-bg-color, rgba(249, 249, 250, 1));
+      border-bottom-color: var(--toolbar-border-color, rgba(204, 204, 204, 1));
     }
 
     .p-dropdown-filter {
       padding-top: 0.25rem !important;
       padding-left: 0.25rem !important;
       padding-bottom: 0.25rem !important;
-      background-color: rgba(56, 56, 61, 1);
-      color: white !important;
+      background-color: var(--toolbar-bg-color, rgba(249, 249, 250, 1));
+      color: var(--toolbar-icon-color, rgba(90, 90, 90, 1)) !important;
     }
 
     .p-dropdown-empty-message {
-      color: white !important;
+      color: var(--toolbar-icon-color, rgba(90, 90, 90, 1)) !important;
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .pdf-document-reader {
+      .p-dropdown-label,
+      .p-dropdown-trigger {
+        background-color: rgba(56, 56, 61, 1);
+        color: white !important;
+        border-bottom-color: rgba(12, 12, 13, 1);
+      }
+    }
+
+    .outline-dropdown {
+      background-color: rgba(56, 56, 61, 1);
+
+      .p-dropdown-item {
+        color: white !important;
+      }
+
+      .p-dropdown-item:not(.p-highlight):not(.p-disabled):hover {
+        background-color: rgba(0, 0, 0, 0.25) !important;
+      }
+
+      .p-dropdown-item.p-highlight {
+        background-color: rgba(0, 0, 0, 0.4) !important;
+      }
+
+      .p-dropdown-header,
+      .p-dropdown-filter {
+        background-color: rgba(56, 56, 61, 1);
+        color: white !important;
+        border-bottom-color: rgba(56, 56, 61, 1);
+      }
+
+      .p-dropdown-empty-message {
+        color: white !important;
+      }
     }
   }
 }

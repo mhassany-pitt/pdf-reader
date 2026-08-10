@@ -18,6 +18,7 @@ import { PdfHighlighter } from '../pdfjs-tools/pdf-highlighter';
 import { PdfHighlighterToolbarBtn } from '../pdfjs-tools/pdf-highlighter-toolbar-btn';
 import { PdfUnderlineToolbarBtn } from '../pdfjs-tools/pdf-underline-toolbar-btn';
 import { PdfStrikeThourghToolbarBtn } from '../pdfjs-tools/pdf-strikethrough-toolbar-btn';
+import { PdfSelectionMarkupToolbar } from '../pdfjs-tools/pdf-selection-markup-toolbar';
 import { PdfHighlightNoteEditor } from '../pdfjs-tools/pdf-highlight-note-editor';
 import { PdfHighlightNoteViewer } from '../pdfjs-tools/pdf-highlight-note-viewer';
 import { PdfNoteViewer } from '../pdfjs-tools/pdf-note-viewer';
@@ -36,11 +37,12 @@ import { PdfLoadCustomPlugins } from '../pdfjs-tools/pdf-load-custom-plugins';
 import { PdfDelete } from '../pdfjs-tools/pdf-delete';
 import { PdfDeleteToolbarBtn } from '../pdfjs-tools/pdf-delete-toolbar-btn';
 import { PdfFilter } from '../pdfjs-tools/pdf-filter';
-import { PdfFilterToolbarBtn } from '../pdfjs-tools/pdf-filter-toolbar-btn';
 import { AppService } from '../app.service';
 import { sha256 } from 'js-sha256';
 import { PdfTextWord } from '../pdfjs-tools/pdf-text-word';
 import { PdfConfigToolbarBtn } from '../pdfjs-tools/pdf-config-toolbar-btn';
+import { PdfTour } from '../pdfjs-tools/pdf-tour';
+import { PdfOutlineToolbarBtn } from '../pdfjs-tools/pdf-outline-toolbar-btn';
 // import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
 // import { CourseAuthoringContents } from '../pdfjs-customplugins/course-authoring-contents';
 // import { CourseAuthoringContentsAllocation } from '../pdfjs-customplugins/course-authoring-contents-allocation';
@@ -61,7 +63,7 @@ export class PDFReaderComponent implements OnInit {
 
   entry: any;
   baseHref = document.querySelector('base')?.href;
-  showOutlineEl = true;
+  showOutlineEl = true; // kept for parent postMessage toggleoutlineview
 
   get params() { return this.route.snapshot.params as any; }
   get qparams() { return this.route.snapshot.queryParams as any; }
@@ -165,6 +167,9 @@ export class PDFReaderComponent implements OnInit {
     new PdfAnnotationLayer({ registry });
     new PdfToolbar({ registry });
 
+    new PdfOutlineToolbarBtn({ registry });
+    registry.get('toolbar').addSeparator();
+
     new PdfRemoveOnDelete({ registry });
     new PdfShowBoundary({ registry });
     new PdfMoveAnnotation({ registry });
@@ -173,6 +178,7 @@ export class PDFReaderComponent implements OnInit {
 
     new PdfHighlightViewer({ registry });
     new PdfHighlighter({ registry });
+    new PdfSelectionMarkupToolbar({ registry });
 
     new PdfHighlighterToolbarBtn({ registry });
     new PdfUnderlineToolbarBtn({ registry });
@@ -209,7 +215,6 @@ export class PDFReaderComponent implements OnInit {
     registry.get('toolbar').addSeparator();
 
     new PdfFilter({ registry });
-    new PdfFilterToolbarBtn({ registry });
     new PdfConfigToolbarBtn({ registry });
 
     // new HelperAnnotator({ registry });
@@ -217,6 +222,7 @@ export class PDFReaderComponent implements OnInit {
     // new CourseAuthoringContentsAllocation({ registry });
 
     new PdfLoadCustomPlugins({ registry });
+    new PdfTour({ registry });
 
     this._postPdfEventsToParent();
     this._listenToParentMessages();
@@ -309,6 +315,7 @@ export class PDFReaderComponent implements OnInit {
       for (const entry of outline.sort((a, b) => b.page - a.page))
         if (entry.page <= $event.pageNumber) {
           this.ngZone.run(() => this.entry = entry);
+          this.registry.get('outline-toolbar')?.setActiveEntry?.(entry);
           break;
         }
 
@@ -399,7 +406,10 @@ export class PDFReaderComponent implements OnInit {
       else if (type == 'zoomin')/*                */viewer.currentScaleValue += 0.1;
       else if (type == 'zoomout')/*               */viewer.currentScaleValue -= 0.1;
       else if (type == 'ilog')/*                  */this.registry.get('ilogger').log(event.data.entry);
-      else if (type == 'toggleoutlineview') /*    */this.showOutlineEl = event.data.value;
+      else if (type == 'toggleoutlineview') /*    */{
+        this.showOutlineEl = event.data.value;
+        this.registry.get('outline-toolbar')?.setVisible?.(event.data.value);
+      }
       else if (type == 'getoutline') /*           */this.postMessage({ type: 'outline', data: this.pdfDocument.outline });
       else if (type == 'scrolltoentry') /*        */this.scrollToEntry(event.data.entry);
     }, false);

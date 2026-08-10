@@ -51,11 +51,18 @@ export class PdfEmbedToolbarBtn extends PdfToolbarBtn {
       if (this.button.classList.contains('selected'))
         this.button.click();
     };
-    this._getToolbarEl().showDetails(null as any);
+    this._getToolbarEl().setActiveMode('embed');
+    this._getToolbarEl().showDetails([
+      this._getToolbarEl().makeModePanel({
+        title: 'Embed Content',
+        hint: 'Click the page to place an embed. Settings open automatically so you can set the URL.',
+      })
+    ]);
   }
 
   protected override unselected() {
     this._getEditor().setEnabled(false);
+    this._getToolbarEl().setActiveMode(null);
     this._getToolbarEl().showDetails(null as any);
   }
 }

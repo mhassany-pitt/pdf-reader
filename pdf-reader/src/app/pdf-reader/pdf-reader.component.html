@@ -1,25 +1,4 @@
 <div class="flex flex-col h-full pdf-document-reader">
-  <div class="flex items-center">
-    <p-dropdown *ngIf="pdfDocument && showOutlineEl" [(ngModel)]="entry" [options]="pdfDocument.outline"
-      optionLabel="title" placeholder="Document Outline" [filter]="true" filterPlaceholder="Search ..."
-      panelStyleClass="outline-dropdown" appendTo="body" emptyMessage="Outline is empty!"
-      emptyFilterMessage="No match found!" class="w-full p-inputtext-sm" (onChange)="scrollToEntry($event.value)">
-      <ng-template let-entry pTemplate="selectedItem">
-        <div class="flex items-center justify-center">
-          {{ entry.title }}
-        </div>
-      </ng-template>
-      <ng-template let-entry pTemplate="item">
-        <div class="flex items-center px-4 py-0">
-          <span class="flex-grow" [ngStyle]="{ 'margin-left': entry.level + 'rem' }">
-            {{ entry.title }}
-          </span>
-          <span class="text-xs text-stone-400">p{{ entry.page }}</span>
-        </div>
-      </ng-template>
-    </p-dropdown>
-  </div>
-
   <div class="flex-grow relative">
     <div *ngIf="qpworking"
       class="absolute inset-0 bg-gray-100 text-black dark:bg-neutral-700 dark:text-white flex items-center justify-center gap-2 z-10">
@@ -30,5 +9,4 @@
       (load)="onDocumentLoad(iframe1, $event)">
     </iframe>
   </div>
-
 </div>

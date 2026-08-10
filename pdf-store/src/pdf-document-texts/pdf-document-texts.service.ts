@@ -16,7 +16,7 @@ export class PDFDocumentTextsService {
   async list({ pdfDocId, fileId, page }) {
     const filter: any = { pdf_doc_id: pdfDocId };
     if (fileId) filter.file_id = fileId;
-    if (page) filter.page = page;
+    if (page !== null && page !== undefined && page !== '') filter.page = parseInt(page as any, 10);
     const list = await this.pdfTexts.find(filter);
     return list.map(toObject);
   }

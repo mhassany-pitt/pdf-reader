@@ -1,6 +1,6 @@
 import {
   getAnnotEl, getOrParent, getPageNum,
-  isLeftClick, relativeToPageEl, uuid
+  isLeftClick, relativeToPageEl, uuid, annotIsMine
 } from "./pdf-utils";
 import { PdfNoteEditor } from "./pdf-note-editor";
 
@@ -23,6 +23,17 @@ export class PdfTextEditor extends PdfNoteEditor {
 
   protected override getType() { return { type: 'text', editor: 'text-editor', viewer: 'text-viewer' }; }
 
+  private _beginEditing(annot: any, viewerEl: HTMLElement) {
+    if (!annot || !annotIsMine(annot)) return;
+    this._annot = annot;
+    this._editor = viewerEl.querySelector('textarea');
+    if (!this._editor) return;
+    this._editor.removeAttribute('readonly');
+    this._editor.classList.remove('pdf-annotation__text-viewer-textarea');
+    this._editor.classList.add('pdf-annotation__text-editor-textarea');
+    this._editor.focus();
+  }
+
   protected override pointDropped(pageEl, $event) {
     this.onPointDrop?.();
     const { left, top } = relativeToPageEl({ left: $event.clientX, top: $event.clientY } as any, pageEl);
@@ -34,7 +45,11 @@ export class PdfTextEditor extends PdfNoteEditor {
       pages: [page],
       note: '',
     };
-    this._getStorage().create(note, () => this._getViewer().render(note));
+    this._getStorage().create(note, () => {
+      this._getViewer().render(note);
+      const viewerEl = this._getDocumentEl().querySelector(`[data-annotation-id="${note.id}"]`) as HTMLElement;
+      if (viewerEl) this._beginEditing(note, viewerEl);
+    });
   }
 
   protected override onAnnotClick() {
@@ -43,11 +58,7 @@ export class PdfTextEditor extends PdfNoteEditor {
       if (isLeftClick($event) && viewerEl) {
         const annotEl = getAnnotEl($event.target);
         const annotId: any = annotEl.getAttribute('data-annotation-id');
-        this._annot = this._getStorage().read(annotId);
-        this._editor = viewerEl.querySelector('textarea');
-        this._editor.removeAttribute('readonly');
-        this._editor.classList.remove('pdf-annotation__text-viewer-textarea');
-        this._editor.classList.add('pdf-annotation__text-editor-textarea');
+        this._beginEditing(this._getStorage().read(annotId), viewerEl);
       } else if (this._editor) {
         this._annot.note = this._editor.value;
         this._getStorage().update(this._annot);

@@ -18,6 +18,7 @@ import { PdfAnnotationLayer } from '../pdfjs-tools/pdf-annotation-layer';
 import { PdfHighlighterToolbarBtn } from '../pdfjs-tools/pdf-highlighter-toolbar-btn';
 import { PdfStrikeThourghToolbarBtn } from '../pdfjs-tools/pdf-strikethrough-toolbar-btn';
 import { PdfUnderlineToolbarBtn } from '../pdfjs-tools/pdf-underline-toolbar-btn';
+import { PdfSelectionMarkupToolbar } from '../pdfjs-tools/pdf-selection-markup-toolbar';
 import { PdfHighlightNoteEditor } from '../pdfjs-tools/pdf-highlight-note-editor';
 import { PdfHighlightNoteViewer } from '../pdfjs-tools/pdf-highlight-note-viewer';
 import { PdfMoveAnnotation } from '../pdfjs-tools/pdf-move-annotation';
@@ -46,6 +47,7 @@ import { AppService } from '../app.service';
 import { sha256 } from 'js-sha256';
 import { PdfTextWord } from '../pdfjs-tools/pdf-text-word';
 import { PdfConfigToolbarBtn } from '../pdfjs-tools/pdf-config-toolbar-btn';
+import { PdfOutlineToolbarBtn } from '../pdfjs-tools/pdf-outline-toolbar-btn';
 // import { HelperAnnotator } from '../pdfjs-customplugins/helper-annotator';
 // import { CourseAuthoringContents } from '../pdfjs-customplugins/course-authoring-contents';
 
@@ -155,6 +157,7 @@ export class PDFDocumentComponent implements OnInit {
     this.registry.register(`configs.default.plugins`, () => PdfLoadCustomPlugins.defaultConfigs());
     this.registry.register(`configs.default.filter`, () => PdfFilterToolbarBtn.defaultConfigs());
     this.registry.register('configs.default.config', () => PdfConfigToolbarBtn.defaultConfigs());
+    this.registry.register('configs.default.outline', () => PdfOutlineToolbarBtn.defaultConfigs());
 
     new PdfILogger({ registry });
     new PdfStorage({ registry });
@@ -170,6 +173,7 @@ export class PDFDocumentComponent implements OnInit {
 
     new PdfHighlightViewer({ registry });
     new PdfHighlighter({ registry });
+    new PdfSelectionMarkupToolbar({ registry });
     new PdfHighlighterToolbarBtn({ registry });
 
     new PdfUnderlineToolbarBtn({ registry });

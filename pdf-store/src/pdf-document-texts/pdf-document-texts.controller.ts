@@ -28,9 +28,9 @@ export class PDFDocumentTextsController {
   }
 
   @Get(':id/:fileId/:page')
-  async get(@Req() req: any, @Param('id') pdfDocId: string, @Param('fileId') fileId: string, @Param('page') page: number) {
+  async get(@Req() req: any, @Param('id') pdfDocId: string, @Param('fileId') fileId: string, @Param('page') page: string) {
     await this.authorize({ apiKey: req.query.API_KEY, pdfDocId });
-    const list = await this.service.list({ pdfDocId, fileId, page });
+    const list = await this.service.list({ pdfDocId, fileId, page: parseInt(page, 10) });
     return list.map(useId);
   }
 }

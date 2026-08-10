@@ -33,6 +33,7 @@ export class PDFDocumentLinksController {
   @UseGuards(AuthenticatedGuard)
   async index(@Req() req: any, @Query('pdfDocId') pdfDocId: string) {
     const author = await this._getPDFDocUser({ user: req.user, pdfDocId });
+    if (!author) return [];
     const list = await this.service.list({ user: author, pdfDocId });
     return list.map(useId);
   }
@@ -41,6 +42,7 @@ export class PDFDocumentLinksController {
   @UseGuards(AuthenticatedGuard)
   async create(@Req() req: any, @Query('pdfDocId') pdfDocId: string, @Body() configs: any) {
     const author = await this._getPDFDocUser({ user: req.user, pdfDocId });
+    if (!author) throw new NotFoundException();
     return useId(await this.service.create({ user: author, pdfDocId, configs }));
   }
 
@@ -48,6 +50,7 @@ export class PDFDocumentLinksController {
   @UseGuards(AuthenticatedGuard)
   async get(@Req() req: any, @Param('id') id: string) {
     const link = await this.service.read({ user: null, id });
+    if (!link) throw new NotFoundException();
     const author = await this._getPDFDocUser({ user: req.user, pdfDocId: link.pdf_doc_id });
     return this._getOrFail({ user: author, id });
   }
@@ -56,6 +59,7 @@ export class PDFDocumentLinksController {
   @UseGuards(AuthenticatedGuard)
   async update(@Req() req: any, @Param('id') id: string, @Body() pdfLink: any) {
     const link = await this.service.read({ user: null, id });
+    if (!link) throw new NotFoundException();
     const author = await this._getPDFDocUser({ user: req.user, pdfDocId: link.pdf_doc_id });
     await this._getOrFail({ user: author, id });
     return useId(await this.service.update({ user: author, id, pdfLink }));

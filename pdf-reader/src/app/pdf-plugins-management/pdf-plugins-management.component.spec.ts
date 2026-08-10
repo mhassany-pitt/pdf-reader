@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PdfPluginsManagementComponent } from './pdf-plugins-management.component';
+import { PDFPluginsManagementComponent } from './pdf-plugins-management.component';
 
-describe('PdfPluginsManagementComponent', () => {
-  let component: PdfPluginsManagementComponent;
-  let fixture: ComponentFixture<PdfPluginsManagementComponent>;
+describe('PDFPluginsManagementComponent', () => {
+  let component: PDFPluginsManagementComponent;
+  let fixture: ComponentFixture<PDFPluginsManagementComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PdfPluginsManagementComponent ]
+      declarations: [ PDFPluginsManagementComponent ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(PdfPluginsManagementComponent);
+    fixture = TestBed.createComponent(PDFPluginsManagementComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

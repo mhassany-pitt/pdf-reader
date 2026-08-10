@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import * as EmailValidator from 'email-validator';
 import { hash } from 'bcryptjs';
@@ -14,9 +14,16 @@ export class UserAdminController {
     return req.user.email;
   }
 
+  private verifyAdminRole(req) {
+    if (!req.user?.roles?.includes('app-admin')) {
+      throw new ForbiddenException();
+    }
+  }
+
   @Get()
   @UseGuards(AuthenticatedGuard)
   async list(@Req() req) {
+    this.verifyAdminRole(req);
     const myEmail = this.getMyEmail(req);
     return (await this.service.list()).map((user: any) => {
       const { active, fullname, email, tags, roles } = user;
@@ -30,6 +37,7 @@ export class UserAdminController {
   @Post()
   @UseGuards(AuthenticatedGuard)
   async create(@Req() req, @Body() { tags, roles, emails }: any) {
+    this.verifyAdminRole(req);
     const myEmail = this.getMyEmail(req);
     const accounts = emails.split(',').map(text => {
       let [fullname, email] = text.indexOf(':') >= 0 ? text.split(':') : ['', text];
@@ -55,6 +63,7 @@ export class UserAdminController {
   @Patch()
   @UseGuards(AuthenticatedGuard)
   async update(@Req() req, @Body() { action, data }: any) {
+    this.verifyAdminRole(req);
     const myEmail = this.getMyEmail(req);
     if (action == 'update') for (const user of data) {
       const { fullname, email, roles, active } = user;
@@ -73,6 +82,7 @@ export class UserAdminController {
   @Post('update-password-tokens')
   @UseGuards(AuthenticatedGuard)
   async genUpdatePassTokens(@Req() req, @Body() emails: any) {
+    this.verifyAdminRole(req);
     const tokens = [];
     for (const email of emails) {
       const reset_pass_token = {
